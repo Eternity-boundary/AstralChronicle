@@ -4,6 +4,14 @@ namespace AstralChronicle
     runtimeclass MainWindow : Microsoft.UI.Xaml.Window
     {
         MainWindow();
-        Int32 MyProperty;
+        Microsoft.UI.Xaml.Controls.Grid RootLayout{ get; };
+        Microsoft.UI.Xaml.Controls.TitleBar AppTitleBar{ get; };
+        Microsoft.UI.Xaml.Controls.TextBlock ShellGreetingText{ get; };
+        Microsoft.UI.Xaml.Controls.NavigationView RootNavigationView{ get; };
+        Microsoft.UI.Xaml.Controls.Frame ContentFrame{ get; };
+        Microsoft.UI.Xaml.Controls.Border ThemeMainBackground{ get; };
+        Microsoft.UI.Xaml.Controls.Border ThemeMainContrastOverlay{ get; };
+        Microsoft.UI.Xaml.Controls.Border ThemeNavigationBackground{ get; };
+        Microsoft.UI.Xaml.Controls.Border ThemeNavigationContrastOverlay{ get; };
     }
 }

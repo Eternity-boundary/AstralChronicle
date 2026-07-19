@@ -1,0 +1,12 @@
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass SettingsViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        SettingsViewModel();
+        String Heading{ get; };
+        String Description{ get; };
+        String ThemeHint{ get; };
+        Int32 SelectedThemeIndex{ get; set; };
+    }
+}

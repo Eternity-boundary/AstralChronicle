@@ -7,11 +7,38 @@
     <Filter Include="Source Files\App">
       <UniqueIdentifier>{A7A4A1B5-1D8C-4D33-9035-A6307B124A01}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{586CD171-CC26-4AB2-905E-21051C78E613}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Navigation">
+      <UniqueIdentifier>{714F3412-BC2E-4868-A5A7-C4B9E0852C48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DesignSystem">
+      <UniqueIdentifier>{DB9D6C0E-5BBE-4DE6-8C3E-8B4C7776D5C1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DesignSystem\Theme">
+      <UniqueIdentifier>{6D037F35-D77F-46BB-9C2E-6E4C2F8C62E0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DesignSystem\Localization">
+      <UniqueIdentifier>{7D9DF3AA-4CE6-4444-9E4F-EA8FB277E87B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Services">
+      <UniqueIdentifier>{6149E66B-1B26-4208-B4F7-6C5EE69F9BC5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Models">
+      <UniqueIdentifier>{F34D9D87-1434-4CE1-9340-BD3C4A0A2BE7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ViewModels">
+      <UniqueIdentifier>{6BF7142B-4ED6-436B-8E0D-043B574C56B2}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\Views">
       <UniqueIdentifier>{C47E39B3-3CF2-4903-8554-3B9F2D468DC5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Views\Shell">
       <UniqueIdentifier>{10C3055D-0546-4585-A0E4-39A94B2050E6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Views\Pages">
+      <UniqueIdentifier>{932944B3-A9B2-47E3-A0A5-910C62B2A651}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{E71AD7A0-8A25-4EE8-BF4B-2662C8B44EC1}</UniqueIdentifier>
@@ -19,11 +46,38 @@
     <Filter Include="Header Files\App">
       <UniqueIdentifier>{EED85058-6B6E-484A-BE54-3CB3B70E44B4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{0A0F0A7B-83A3-4E3A-84BE-9B9C6B5020AC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\DependencyInjection">
+      <UniqueIdentifier>{F31A0FEE-32CF-4335-9ABE-F40AED744B62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Navigation">
+      <UniqueIdentifier>{994C4150-564A-4338-A826-65919CAC9EAF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DesignSystem">
+      <UniqueIdentifier>{B1DE6D0D-1A7E-46CC-9481-D5EF3624B818}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DesignSystem\Theme">
+      <UniqueIdentifier>{E25D1CD5-7CB4-474A-8E14-C8D8C4A5A0A5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DesignSystem\Localization">
+      <UniqueIdentifier>{C3DE6E61-1DF6-4B2A-A2DA-FD704F5B7D66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Services">
+      <UniqueIdentifier>{81DFDDCF-0C10-41E2-BA4B-50588EB04939}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ViewModels">
+      <UniqueIdentifier>{143236B3-9783-43F1-AC17-BEC3BC7A21EB}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Header Files\Views">
       <UniqueIdentifier>{2F5B5D6D-18F3-45F8-B05F-4581D046D5B9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Views\Shell">
       <UniqueIdentifier>{54DEDF1F-80FA-4265-A877-A3B3CA66F440}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Views\Pages">
+      <UniqueIdentifier>{A25FE2D2-DB8F-4E21-BE21-FD5C0A8D512C}</UniqueIdentifier>
     </Filter>
     <Filter Include="XAML">
       <UniqueIdentifier>{C4DE4401-73F4-42D0-BAED-7C832DEFC386}</UniqueIdentifier>
@@ -31,11 +85,20 @@
     <Filter Include="XAML\App">
       <UniqueIdentifier>{62A6D4F1-5A20-4A3A-9AB8-05BB5EB74BC7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="XAML\DesignSystem">
+      <UniqueIdentifier>{AC01EE52-9B10-46CD-BB2F-3BEEBCEF58A2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XAML\DesignSystem\Resources">
+      <UniqueIdentifier>{3A7D9A73-4302-46B7-B14A-CC0EE04D8E37}</UniqueIdentifier>
+    </Filter>
     <Filter Include="XAML\Views">
       <UniqueIdentifier>{A494A163-9B2C-4B9C-827B-4AECFF3479E9}</UniqueIdentifier>
     </Filter>
     <Filter Include="XAML\Views\Shell">
       <UniqueIdentifier>{F2087328-876D-44F8-8B34-6B17C2DB7A9F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XAML\Views\Pages">
+      <UniqueIdentifier>{B38E74F8-6CE0-4879-81B1-C5867B8FCE4E}</UniqueIdentifier>
     </Filter>
     <Filter Include="IDL">
       <UniqueIdentifier>{1486C13A-4C57-461A-87C7-FD8A7D20F43E}</UniqueIdentifier>
@@ -46,11 +109,26 @@
     <Filter Include="IDL\Views\Shell">
       <UniqueIdentifier>{57B915AD-1BFF-45E4-BB3A-85EA3AB8CE2E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="IDL\ViewModels">
+      <UniqueIdentifier>{56EE3A0F-F6C4-4A0E-8B9B-9B2B822DB362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IDL\Views\Pages">
+      <UniqueIdentifier>{6D679B2C-7FD5-4788-A63F-59622CFFF18A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Assets">
       <UniqueIdentifier>{39177f23-dcb4-4f9c-98fe-404df8507b9a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Configuration">
       <UniqueIdentifier>{E2020F78-45AE-45C9-B807-25A6B48A1A91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Localization">
+      <UniqueIdentifier>{50FD7CE0-CB02-43F5-8C76-4D31BE6E8C87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Localization\en-US">
+      <UniqueIdentifier>{5BE705FB-F0AA-4A6C-9A4D-CA87CBAF4B68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Localization\zh-TW">
+      <UniqueIdentifier>{FE6A77B4-F68E-4A65-8DD7-0D2B1827E494}</UniqueIdentifier>
     </Filter>
     <Filter Include="Documentation">
       <UniqueIdentifier>{3C810659-17B1-441E-8383-5EE8E058F0B9}</UniqueIdentifier>
@@ -61,21 +139,69 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\App\AppHost.cpp"><Filter>Source Files\App</Filter></ClCompile>
+    <ClCompile Include="src\Core\Navigation\NavigationService.cpp"><Filter>Source Files\Core\Navigation</Filter></ClCompile>
+    <ClCompile Include="src\DesignSystem\Theme\ThemeService.cpp"><Filter>Source Files\DesignSystem\Theme</Filter></ClCompile>
+    <ClCompile Include="src\DesignSystem\Localization\StringResourceService.cpp"><Filter>Source Files\DesignSystem\Localization</Filter></ClCompile>
+    <ClCompile Include="src\Services\WindowsEventLogCatalogService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
+    <ClCompile Include="src\Services\WindowsEventQueryService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
+    <ClCompile Include="src\ViewModels\DashboardViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
+    <ClCompile Include="src\ViewModels\FeaturePlaceholderViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
+    <ClCompile Include="src\ViewModels\SettingsViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
     <ClCompile Include="src\App\App.xaml.cpp"><Filter>Source Files\App</Filter></ClCompile>
     <ClCompile Include="src\Views\Shell\MainWindow.xaml.cpp"><Filter>Source Files\Views\Shell</Filter></ClCompile>
+    <ClCompile Include="src\Views\Pages\DashboardPage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
+    <ClCompile Include="src\Views\Pages\FeaturePlaceholderPage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
+    <ClCompile Include="src\Views\Pages\SettingsPage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp"><Filter>Source Files</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="src\App\AppHost.h"><Filter>Header Files\App</Filter></ClInclude>
+    <ClInclude Include="src\Core\DependencyInjection\ServiceProvider.h"><Filter>Header Files\Core\DependencyInjection</Filter></ClInclude>
+    <ClInclude Include="src\Core\Navigation\INavigationService.h"><Filter>Header Files\Core\Navigation</Filter></ClInclude>
+    <ClInclude Include="src\Core\Navigation\NavigationService.h"><Filter>Header Files\Core\Navigation</Filter></ClInclude>
+    <ClInclude Include="src\DesignSystem\Theme\IThemeService.h"><Filter>Header Files\DesignSystem\Theme</Filter></ClInclude>
+    <ClInclude Include="src\DesignSystem\Theme\ThemeService.h"><Filter>Header Files\DesignSystem\Theme</Filter></ClInclude>
+    <ClInclude Include="src\DesignSystem\Localization\IStringResourceService.h"><Filter>Header Files\DesignSystem\Localization</Filter></ClInclude>
+    <ClInclude Include="src\DesignSystem\Localization\StringResourceService.h"><Filter>Header Files\DesignSystem\Localization</Filter></ClInclude>
+    <ClInclude Include="src\Services\IEventLogCatalogService.h"><Filter>Header Files\Services</Filter></ClInclude>
+    <ClInclude Include="src\Services\IEventQueryService.h"><Filter>Header Files\Services</Filter></ClInclude>
+    <ClInclude Include="src\Services\WindowsEventLogCatalogService.h"><Filter>Header Files\Services</Filter></ClInclude>
+    <ClInclude Include="src\Services\WindowsEventQueryService.h"><Filter>Header Files\Services</Filter></ClInclude>
+    <ClInclude Include="src\Models\EventRecordSummary.h"><Filter>Header Files\Models</Filter></ClInclude>
+    <ClInclude Include="src\ViewModels\DashboardViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
+    <ClInclude Include="src\ViewModels\FeaturePlaceholderViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
+    <ClInclude Include="src\ViewModels\SettingsViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
     <ClInclude Include="src\App\App.xaml.h"><Filter>Header Files\App</Filter></ClInclude>
     <ClInclude Include="src\Views\Shell\MainWindow.xaml.h"><Filter>Header Files\Views\Shell</Filter></ClInclude>
+    <ClInclude Include="src\Views\Pages\DashboardPage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
+    <ClInclude Include="src\Views\Pages\FeaturePlaceholderPage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
+    <ClInclude Include="src\Views\Pages\SettingsPage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="src\App\App.xaml"><Filter>XAML\App</Filter></ApplicationDefinition>
+    <Page Include="src\DesignSystem\DesignSystem.xaml"><Filter>XAML\DesignSystem</Filter></Page>
+    <Page Include="src\DesignSystem\Resources\Colors.xaml"><Filter>XAML\DesignSystem\Resources</Filter></Page>
+    <Page Include="src\DesignSystem\Resources\Controls.xaml"><Filter>XAML\DesignSystem\Resources</Filter></Page>
+    <Page Include="src\DesignSystem\Resources\Typography.xaml"><Filter>XAML\DesignSystem\Resources</Filter></Page>
     <Page Include="src\Views\Shell\MainWindow.xaml"><Filter>XAML\Views\Shell</Filter></Page>
+    <Page Include="src\Views\Pages\DashboardPage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
+    <Page Include="src\Views\Pages\FeaturePlaceholderPage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
+    <Page Include="src\Views\Pages\SettingsPage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Include="Strings\en-US\Resources.resw"><Filter>Localization\en-US</Filter></PRIResource>
+    <PRIResource Include="Strings\zh-TW\Resources.resw"><Filter>Localization\zh-TW</Filter></PRIResource>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="src\Views\Shell\MainWindow.idl"><Filter>IDL\Views\Shell</Filter></Midl>
+    <Midl Include="src\ViewModels\DashboardViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
+    <Midl Include="src\ViewModels\FeaturePlaceholderViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
+    <Midl Include="src\ViewModels\SettingsViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
+    <Midl Include="src\Views\Pages\DashboardPage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
+    <Midl Include="src\Views\Pages\FeaturePlaceholderPage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
+    <Midl Include="src\Views\Pages\SettingsPage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
@@ -99,10 +225,23 @@
     <Image Include="Assets\LockScreenLogo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Assets\StarrySkyMain.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StarrySkySide.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\LeafMain.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\LeafSide.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="readme.txt"><Filter>Documentation</Filter></Text>
+    <Text Include="readme.md"><Filter>Documentation</Filter></Text>
     <Text Include="docs\architecture.md"><Filter>Documentation</Filter></Text>
+    <Text Include="docs\design-system.md"><Filter>Documentation</Filter></Text>
     <Text Include="tests\README.md"><Filter>Tests</Filter></Text>
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,11 @@
+import "src\\ViewModels\\SettingsViewModel.idl";
+
+namespace AstralChronicle
+{
+    runtimeclass SettingsPage : Microsoft.UI.Xaml.Controls.Page
+    {
+        SettingsPage();
+        SettingsViewModel ViewModel{ get; };
+        Microsoft.UI.Xaml.Controls.RadioButtons LanguageRadioButtons{ get; };
+    }
+}

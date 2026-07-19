@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--  Created by EternityBoundary on Jul 20,2026  -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ms-appx:///src/DesignSystem/Resources/Colors.xaml" />
+        <ResourceDictionary Source="ms-appx:///src/DesignSystem/Resources/Typography.xaml" />
+        <ResourceDictionary Source="ms-appx:///src/DesignSystem/Resources/Controls.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

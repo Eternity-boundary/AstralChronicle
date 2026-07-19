@@ -1,0 +1,417 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppDisplayName" xml:space="preserve">
+    <value>AstralChronicle</value>
+  </data>
+  <data name="AppDescription" xml:space="preserve">
+    <value>Windows Event Intelligence</value>
+  </data>
+  <data name="PublisherDisplayName" xml:space="preserve">
+    <value>EternityBoundary</value>
+  </data>
+  <data name="MainWindow.Title" xml:space="preserve">
+    <value>AstralChronicle</value>
+  </data>
+  <data name="AppTitleBar.Title" xml:space="preserve">
+    <value>AstralChronicle</value>
+  </data>
+  <data name="AppTitleBar.Subtitle" xml:space="preserve">
+    <value>Windows Event Intelligence</value>
+  </data>
+  <data name="RootNavigationView.Header" xml:space="preserve">
+    <value>AstralChronicle</value>
+  </data>
+  <data name="ShellBrandTitle.Text" xml:space="preserve">
+    <value>AstralChronicle</value>
+  </data>
+  <data name="ShellGreeting.Morning" xml:space="preserve">
+    <value>Good morning</value>
+  </data>
+  <data name="ShellGreeting.Afternoon" xml:space="preserve">
+    <value>Good afternoon</value>
+  </data>
+  <data name="ShellGreeting.Evening" xml:space="preserve">
+    <value>Good evening</value>
+  </data>
+  <data name="ShellGreeting.Night" xml:space="preserve">
+    <value>Good night</value>
+  </data>
+  <data name="ShellSystemStatusLabel.Text" xml:space="preserve">
+    <value>System status:</value>
+  </data>
+  <data name="ShellSystemStatusMonitoringNotConfigured.Text" xml:space="preserve">
+    <value>Monitoring not configured</value>
+  </data>
+  <data name="ShellSearchBox.PlaceholderText" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="DashboardNavigationItem.Content" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="EventLogsNavigationItem.Content" xml:space="preserve">
+    <value>Event Logs</value>
+  </data>
+  <data name="TimelineNavigationItem.Content" xml:space="preserve">
+    <value>Timeline</value>
+  </data>
+  <data name="ProvidersNavigationItem.Content" xml:space="preserve">
+    <value>Providers</value>
+  </data>
+  <data name="SessionsNavigationItem.Content" xml:space="preserve">
+    <value>Sessions</value>
+  </data>
+  <data name="SavedViewsNavigationItem.Content" xml:space="preserve">
+    <value>Saved Views</value>
+  </data>
+  <data name="LiveNavigationItem.Content" xml:space="preserve">
+    <value>Live</value>
+  </data>
+  <data name="RemoteNavigationItem.Content" xml:space="preserve">
+    <value>Remote</value>
+  </data>
+  <data name="SettingsNavigationItem.Content" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="EventLogCatalogTitle.Text" xml:space="preserve">
+    <value>Event log catalog</value>
+  </data>
+  <data name="EventLogCatalogDescription.Text" xml:space="preserve">
+    <value>Counts channels available to the current Windows user without loading event records.</value>
+  </data>
+  <data name="LatestSystemEventTitle.Text" xml:space="preserve">
+    <value>Latest System event</value>
+  </data>
+  <data name="FoundationReadyInfoBar.Title" xml:space="preserve">
+    <value>Foundation ready</value>
+  </data>
+  <data name="FoundationReadyInfoBar.Message" xml:space="preserve">
+    <value>Event stream browsing, filtering, saved views, subscriptions, and diagnostics will be added as independently registered features.</value>
+  </data>
+  <data name="LazyFeatureInfoBar.Title" xml:space="preserve">
+    <value>Lazy-loaded feature boundary</value>
+  </data>
+  <data name="LazyFeatureInfoBar.Message" xml:space="preserve">
+    <value>This page is created only after its navigation route is selected.</value>
+  </data>
+  <data name="Dashboard.Heading" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Dashboard.Summary.Initial" xml:space="preserve">
+    <value>Preparing the native Windows Event Log catalog.</value>
+  </data>
+  <data name="Dashboard.Summary.Ready" xml:space="preserve">
+    <value>Native Windows Event Log discovery is available through the service boundary.</value>
+  </data>
+  <data name="Dashboard.ChannelCountLoading" xml:space="preserve">
+    <value>Discovering channels…</value>
+  </data>
+  <data name="Dashboard.ChannelCountLabel" xml:space="preserve">
+    <value>{0} event channels available</value>
+  </data>
+  <data name="Dashboard.RecentEventLoading" xml:space="preserve">
+    <value>Loading the latest System event…</value>
+  </data>
+  <data name="Dashboard.RecentEventTemplate" xml:space="preserve">
+    <value>{0} · Event {1} · Record {2}</value>
+  </data>
+  <data name="Dashboard.NoSystemEvents" xml:space="preserve">
+    <value>The System channel is unavailable or contains no readable events.</value>
+  </data>
+  <data name="DashboardSourceMetricTitle.Text" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="DashboardSourceMetricValue.Text" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="DashboardSourceMetricHint.Text" xml:space="preserve">
+    <value>Native Windows event log</value>
+  </data>
+  <data name="DashboardScopeMetricTitle.Text" xml:space="preserve">
+    <value>Scope</value>
+  </data>
+  <data name="DashboardScopeMetricValue.Text" xml:space="preserve">
+    <value>Current user</value>
+  </data>
+  <data name="DashboardScopeMetricHint.Text" xml:space="preserve">
+    <value>Channels visible to this Windows account</value>
+  </data>
+  <data name="DashboardStatusMetricTitle.Text" xml:space="preserve">
+    <value>Catalog state</value>
+  </data>
+  <data name="DashboardRecentActivityTitle.Text" xml:space="preserve">
+    <value>Recent system activity</value>
+  </data>
+  <data name="DashboardReadinessTitle.Text" xml:space="preserve">
+    <value>Foundation readiness</value>
+  </data>
+  <data name="DashboardErrorCardTitle.Text" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="DashboardWarnCardTitle.Text" xml:space="preserve">
+    <value>Warn</value>
+  </data>
+  <data name="DashboardTodayCardTitle.Text" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="DashboardLiveCardTitle.Text" xml:space="preserve">
+    <value>Live</value>
+  </data>
+  <data name="DashboardMonitoringCardTitle.Text" xml:space="preserve">
+    <value>Monitoring</value>
+  </data>
+  <data name="DashboardStatusCardTitle.Text" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="DashboardServiceStatusCardTitle.Text" xml:space="preserve">
+    <value>Live Monitoring Status</value>
+  </data>
+  <data name="DashboardServiceStatusMonitoringNotConfigured.Text" xml:space="preserve">
+    <value>Monitoring has not been configured yet.</value>
+  </data>
+  <data name="DashboardRecentCriticalEventsTitle.Text" xml:space="preserve">
+    <value>Recent Critical Events</value>
+  </data>
+  <data name="DashboardCrashTimelineTitle.Text" xml:space="preserve">
+    <value>Crash Timeline</value>
+  </data>
+  <data name="DashboardRecentCriticalEventsPlaceholder.Text" xml:space="preserve">
+    <value>Critical-event data will appear here when the Event Logs requirements are connected.</value>
+  </data>
+  <data name="DashboardCrashTimelinePlaceholder.Text" xml:space="preserve">
+    <value>Crash timeline data will appear here when the Timeline requirements are connected.</value>
+  </data>
+  <data name="Feature.EventStreams.Heading" xml:space="preserve">
+    <value>Event streams</value>
+  </data>
+  <data name="Feature.EventStreams.Description" xml:space="preserve">
+    <value>Browse Windows logs, custom views, archived EVTX files, and provider channels here.</value>
+  </data>
+  <data name="Feature.Diagnostics.Heading" xml:space="preserve">
+    <value>Diagnostics</value>
+  </data>
+  <data name="Feature.Diagnostics.Description" xml:space="preserve">
+    <value>Correlations, health checks, and investigation workflows will be delivered as isolated features.</value>
+  </data>
+  <data name="Feature.Settings.Heading" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Feature.Settings.Description" xml:space="preserve">
+    <value>Application preferences and future plugin management will be configured here.</value>
+  </data>
+  <data name="Feature.EventLogs.Heading" xml:space="preserve">
+    <value>Event Logs</value>
+  </data>
+  <data name="Feature.EventLogs.Description" xml:space="preserve">
+    <value>This page is ready for the Event Logs requirements.</value>
+  </data>
+  <data name="Feature.Timeline.Heading" xml:space="preserve">
+    <value>Timeline</value>
+  </data>
+  <data name="Feature.Timeline.Description" xml:space="preserve">
+    <value>This page is ready for the Timeline requirements.</value>
+  </data>
+  <data name="Feature.Providers.Heading" xml:space="preserve">
+    <value>Providers</value>
+  </data>
+  <data name="Feature.Providers.Description" xml:space="preserve">
+    <value>This page is ready for the Providers requirements.</value>
+  </data>
+  <data name="Feature.Sessions.Heading" xml:space="preserve">
+    <value>Sessions</value>
+  </data>
+  <data name="Feature.Sessions.Description" xml:space="preserve">
+    <value>This page is ready for the Sessions requirements.</value>
+  </data>
+  <data name="Feature.SavedViews.Heading" xml:space="preserve">
+    <value>Saved Views</value>
+  </data>
+  <data name="Feature.SavedViews.Description" xml:space="preserve">
+    <value>This page is ready for the Saved Views requirements.</value>
+  </data>
+  <data name="Feature.Live.Heading" xml:space="preserve">
+    <value>Live</value>
+  </data>
+  <data name="Feature.Live.Description" xml:space="preserve">
+    <value>This page is ready for the Live requirements.</value>
+  </data>
+  <data name="Feature.Remote.Heading" xml:space="preserve">
+    <value>Remote</value>
+  </data>
+  <data name="Feature.Remote.Description" xml:space="preserve">
+    <value>This page is ready for the Remote requirements.</value>
+  </data>
+  <data name="Settings.Heading" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Settings.Description" xml:space="preserve">
+    <value>Set the theme or language for AstralChronicle.</value>
+  </data>
+  <data name="Settings.ThemeHint" xml:space="preserve">
+    <value>StarrySky and BlackSoulsLeaf keep their artwork while applying a dark Fluent surface and a contrast overlay so text remains legible.</value>
+  </data>
+  <data name="ThemeModeRadioButtons.Header" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="ThemeSystemOption.Content" xml:space="preserve">
+    <value>Use Windows setting</value>
+  </data>
+  <data name="ThemeLightOption.Content" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="ThemeDarkOption.Content" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="ThemeStarrySkyOption.Content" xml:space="preserve">
+    <value>StarrySky</value>
+  </data>
+  <data name="ThemeBlackSoulsLeafOption.Content" xml:space="preserve">
+    <value>BlackSoulsLeaf</value>
+  </data>
+  <data name="ThemeAccessibilityInfoBar.Title" xml:space="preserve">
+    <value>Contrast-aware backgrounds</value>
+  </data>
+  <data name="ThemeAccessibilityInfoBar.Message" xml:space="preserve">
+    <value>High Contrast mode automatically hides artwork and uses system colors to preserve accessibility.</value>
+  </data>
+  <data name="LanguageSettingsCardTitle.Text" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="LanguageSettingsCardDescription.Text" xml:space="preserve">
+    <value>Choose the language used throughout AstralChronicle. The app restarts automatically to apply your selection.</value>
+  </data>
+  <data name="LanguageRadioButtons.Header" xml:space="preserve">
+    <value>Display language</value>
+  </data>
+  <data name="LanguageEnglishOption.Content" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="LanguageTraditionalChineseOption.Content" xml:space="preserve">
+    <value>Traditional Chinese</value>
+  </data>
+  <data name="AboutCardTitle.Text" xml:space="preserve">
+    <value>About AstralChronicle</value>
+  </data>
+  <data name="AboutCardDescription.Text" xml:space="preserve">
+    <value>AstralChronicle is a modern Windows event viewer designed for clear, focused investigation.</value>
+  </data>
+  <data name="AboutCardLicense.Text" xml:space="preserve">
+    <value>Released under the GNU General Public License v3.0 (GPL-3.0-only).</value>
+  </data>
+</root>

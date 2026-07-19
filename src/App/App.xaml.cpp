@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "App.xaml.h"
 #include "../Views/Shell/MainWindow.xaml.h"
+#include "AppHost.h"
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
@@ -17,9 +18,6 @@ namespace winrt::AstralChronicle::implementation
     /// </summary>
     App::App()
     {
-        // Xaml objects should not call InitializeComponent during construction.
-        // See https://github.com/microsoft/cppwinrt/tree/master/nuget#initializecomponent
-
 #if defined _DEBUG && !defined DISABLE_XAML_GENERATED_BREAK_ON_UNHANDLED_EXCEPTION
         UnhandledException([](IInspectable const&, UnhandledExceptionEventArgs const& e)
         {
@@ -38,7 +36,16 @@ namespace winrt::AstralChronicle::implementation
     /// <param name="e">Details about the launch request and process.</param>
     void App::OnLaunched([[maybe_unused]] LaunchActivatedEventArgs const& e)
     {
-        window = make<MainWindow>();
+        Resources().MergedDictionaries().Append(Microsoft::UI::Xaml::Controls::XamlControlsResources{});
+
+        auto const designSystem = ResourceDictionary{};
+        designSystem.Source(Windows::Foundation::Uri{ L"ms-appx:///src/DesignSystem/DesignSystem.xaml" });
+        Resources().MergedDictionaries().Append(designSystem);
+
+        m_host = std::make_unique<::AstralChronicle::app::AppHost>();
+        auto mainWindow = make<MainWindow>();
+        get_self<MainWindow>(mainWindow)->Initialize(*m_host);
+        window = mainWindow;
         window.Activate();
     }
 }

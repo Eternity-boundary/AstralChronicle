@@ -1,0 +1,12 @@
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass DashboardViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        DashboardViewModel();
+        String Heading{ get; };
+        String Summary{ get; };
+        String ChannelCountLabel{ get; };
+        String RecentEventPreview{ get; };
+    }
+}

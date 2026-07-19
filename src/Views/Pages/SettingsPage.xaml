@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--  Created by EternityBoundary on Jul 20,2026  -->
+<Page
+    x:Class="AstralChronicle.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer Style="{StaticResource AstralPageScrollViewerStyle}">
+        <StackPanel MaxWidth="{StaticResource AstralPageContentMaxWidth}" Spacing="{StaticResource AstralSectionSpacing}">
+            <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                <TextBlock Style="{StaticResource AstralPageTitleTextBlockStyle}" Text="{x:Bind ViewModel.Heading, Mode=OneWay}" />
+                <TextBlock
+                    Style="{StaticResource AstralBodyTextBlockStyle}"
+                    Text="{x:Bind ViewModel.Description, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <RadioButtons
+                        x:Name="ThemeModeRadioButtons"
+                        x:Uid="ThemeModeRadioButtons"
+                        AutomationProperties.AutomationId="ThemeModeRadioButtons"
+                        SelectedIndex="{x:Bind ViewModel.SelectedThemeIndex, Mode=TwoWay}"
+                        SelectionChanged="OnThemeSelectionChanged">
+                        <RadioButton x:Uid="ThemeSystemOption" AutomationProperties.AutomationId="ThemeSystemOption" />
+                        <RadioButton x:Uid="ThemeLightOption" AutomationProperties.AutomationId="ThemeLightOption" />
+                        <RadioButton x:Uid="ThemeDarkOption" AutomationProperties.AutomationId="ThemeDarkOption" />
+                        <RadioButton x:Uid="ThemeStarrySkyOption" AutomationProperties.AutomationId="ThemeStarrySkyOption" />
+                        <RadioButton x:Uid="ThemeBlackSoulsLeafOption" AutomationProperties.AutomationId="ThemeBlackSoulsLeafOption" />
+                    </RadioButtons>
+                    <TextBlock
+                        Style="{StaticResource AstralCaptionTextBlockStyle}"
+                        Text="{x:Bind ViewModel.ThemeHint, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock x:Uid="LanguageSettingsCardTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="LanguageSettingsCardDescription" Style="{StaticResource AstralBodyTextBlockStyle}" TextWrapping="Wrap" />
+                    <RadioButtons
+                        x:Name="LanguageRadioButtons"
+                        x:Uid="LanguageRadioButtons"
+                        AutomationProperties.AutomationId="LanguageRadioButtons"
+                        SelectionChanged="OnLanguageSelectionChanged">
+                        <RadioButton x:Uid="LanguageEnglishOption" AutomationProperties.AutomationId="LanguageEnglishOption" />
+                        <RadioButton x:Uid="LanguageTraditionalChineseOption" AutomationProperties.AutomationId="LanguageTraditionalChineseOption" />
+                    </RadioButtons>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock x:Uid="AboutCardTitle" AutomationProperties.AutomationId="AboutCardTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="AboutCardDescription" Style="{StaticResource AstralBodyTextBlockStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Uid="AboutCardLicense" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

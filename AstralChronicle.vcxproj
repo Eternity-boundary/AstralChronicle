@@ -93,9 +93,11 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(GeneratedFilesDir)src\Views\Shell;$(GeneratedFilesDir)src\App;$(GeneratedFilesDir)src\Views\Pages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
-      <LanguageStandard Condition="'$(VisualStudioVersion)' &gt;= '18.0'">stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <LanguageStandard Condition="'$(VisualStudioVersion)' &gt;= '18.0'">stdcpp23</LanguageStandard>
       <LanguageStandard Condition="'$(VisualStudioVersion)' &lt; '18.0'">stdcpp17</LanguageStandard>
       <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
     </ClCompile>
@@ -103,11 +105,16 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatWarningAsError>
+      <LanguageStandard_C Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdc17</LanguageStandard_C>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard_C Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdc17</LanguageStandard_C>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Full</Optimization>
+      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -124,33 +131,102 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\App\AppHost.h" />
+    <ClInclude Include="src\Core\DependencyInjection\ServiceProvider.h" />
+    <ClInclude Include="src\Core\Navigation\INavigationService.h" />
+    <ClInclude Include="src\Core\Navigation\NavigationService.h" />
+    <ClInclude Include="src\DesignSystem\Localization\IStringResourceService.h" />
+    <ClInclude Include="src\DesignSystem\Localization\StringResourceService.h" />
+    <ClInclude Include="src\DesignSystem\Theme\IThemeService.h" />
+    <ClInclude Include="src\DesignSystem\Theme\ThemeService.h" />
+    <ClInclude Include="src\Services\IEventLogCatalogService.h" />
+    <ClInclude Include="src\Services\IEventQueryService.h" />
+    <ClInclude Include="src\Services\WindowsEventLogCatalogService.h" />
+    <ClInclude Include="src\Services\WindowsEventQueryService.h" />
+    <ClInclude Include="src\Models\EventRecordSummary.h" />
+    <ClInclude Include="src\ViewModels\DashboardViewModel.h" />
+    <ClInclude Include="src\ViewModels\FeaturePlaceholderViewModel.h" />
+    <ClInclude Include="src\ViewModels\SettingsViewModel.h" />
     <ClInclude Include="src\App\App.xaml.h">
       <DependentUpon>App.xaml</DependentUpon>
     </ClInclude>
     <ClInclude Include="src\Views\Shell\MainWindow.xaml.h">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </ClInclude>
+    <ClInclude Include="src\Views\Pages\DashboardPage.xaml.h">
+      <DependentUpon>DashboardPage.xaml</DependentUpon>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\FeaturePlaceholderPage.xaml.h">
+      <DependentUpon>FeaturePlaceholderPage.xaml</DependentUpon>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\SettingsPage.xaml.h">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="src\App\App.xaml" />
+    <Page Include="src\DesignSystem\DesignSystem.xaml" />
+    <Page Include="src\DesignSystem\Resources\Colors.xaml" />
+    <Page Include="src\DesignSystem\Resources\Controls.xaml" />
+    <Page Include="src\DesignSystem\Resources\Typography.xaml" />
     <Page Include="src\Views\Shell\MainWindow.xaml" />
+    <Page Include="src\Views\Pages\DashboardPage.xaml" />
+    <Page Include="src\Views\Pages\FeaturePlaceholderPage.xaml" />
+    <Page Include="src\Views\Pages\SettingsPage.xaml" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\App\AppHost.cpp" />
+    <ClCompile Include="src\Core\Navigation\NavigationService.cpp" />
+    <ClCompile Include="src\DesignSystem\Localization\StringResourceService.cpp" />
+    <ClCompile Include="src\DesignSystem\Theme\ThemeService.cpp" />
+    <ClCompile Include="src\Services\WindowsEventLogCatalogService.cpp" />
+    <ClCompile Include="src\Services\WindowsEventQueryService.cpp" />
+    <ClCompile Include="src\ViewModels\DashboardViewModel.cpp" />
+    <ClCompile Include="src\ViewModels\FeaturePlaceholderViewModel.cpp" />
+    <ClCompile Include="src\ViewModels\SettingsViewModel.cpp" />
     <ClCompile Include="src\App\App.xaml.cpp">
       <DependentUpon>App.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="src\Views\Shell\MainWindow.xaml.cpp">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </ClCompile>
+    <ClCompile Include="src\Views\Pages\DashboardPage.xaml.cpp">
+      <DependentUpon>DashboardPage.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\FeaturePlaceholderPage.xaml.cpp">
+      <DependentUpon>FeaturePlaceholderPage.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\SettingsPage.xaml.cpp">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Include="Strings\en-US\Resources.resw" />
+    <PRIResource Include="Strings\zh-TW\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="src\Views\Shell\MainWindow.idl">
       <SubType>Code</SubType>
       <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Midl>
+    <Midl Include="src\ViewModels\DashboardViewModel.idl" />
+    <Midl Include="src\ViewModels\FeaturePlaceholderViewModel.idl" />
+    <Midl Include="src\ViewModels\SettingsViewModel.idl" />
+    <Midl Include="src\Views\Pages\DashboardPage.idl">
+      <SubType>Code</SubType>
+      <DependentUpon>DashboardPage.xaml</DependentUpon>
+    </Midl>
+    <Midl Include="src\Views\Pages\FeaturePlaceholderPage.idl">
+      <SubType>Code</SubType>
+      <DependentUpon>FeaturePlaceholderPage.xaml</DependentUpon>
+    </Midl>
+    <Midl Include="src\Views\Pages\SettingsPage.idl">
+      <SubType>Code</SubType>
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Midl>
   </ItemGroup>
   <ItemGroup>
@@ -160,16 +236,23 @@
     <Text Include="docs\architecture.md">
       <DeploymentContent>false</DeploymentContent>
     </Text>
+    <Text Include="docs\design-system.md">
+      <DeploymentContent>false</DeploymentContent>
+    </Text>
     <Text Include="tests\README.md">
       <DeploymentContent>false</DeploymentContent>
     </Text>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Assets\LeafMain.png" />
+    <Image Include="Assets\LeafSide.png" />
     <Image Include="Assets\LockScreenLogo.scale-200.png" />
     <Image Include="Assets\SplashScreen.scale-200.png" />
     <Image Include="Assets\Square150x150Logo.scale-200.png" />
     <Image Include="Assets\Square44x44Logo.scale-200.png" />
     <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Image Include="Assets\StarrySkyMain.png" />
+    <Image Include="Assets\StarrySkySide.png" />
     <Image Include="Assets\StoreLogo.png" />
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>

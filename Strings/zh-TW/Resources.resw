@@ -1,0 +1,417 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppDisplayName" xml:space="preserve">
+    <value>AstralChronicle</value>
+  </data>
+  <data name="AppDescription" xml:space="preserve">
+    <value>Windows 事件智慧檢視器</value>
+  </data>
+  <data name="PublisherDisplayName" xml:space="preserve">
+    <value>EternityBoundary</value>
+  </data>
+  <data name="MainWindow.Title" xml:space="preserve">
+    <value>AstralChronicle</value>
+  </data>
+  <data name="AppTitleBar.Title" xml:space="preserve">
+    <value>AstralChronicle</value>
+  </data>
+  <data name="AppTitleBar.Subtitle" xml:space="preserve">
+    <value>Windows 事件智慧檢視器</value>
+  </data>
+  <data name="RootNavigationView.Header" xml:space="preserve">
+    <value>AstralChronicle</value>
+  </data>
+  <data name="ShellBrandTitle.Text" xml:space="preserve">
+    <value>AstralChronicle</value>
+  </data>
+  <data name="ShellGreeting.Morning" xml:space="preserve">
+    <value>早安</value>
+  </data>
+  <data name="ShellGreeting.Afternoon" xml:space="preserve">
+    <value>午安</value>
+  </data>
+  <data name="ShellGreeting.Evening" xml:space="preserve">
+    <value>晚安</value>
+  </data>
+  <data name="ShellGreeting.Night" xml:space="preserve">
+    <value>夜深了，晚安</value>
+  </data>
+  <data name="ShellSystemStatusLabel.Text" xml:space="preserve">
+    <value>系統狀態：</value>
+  </data>
+  <data name="ShellSystemStatusMonitoringNotConfigured.Text" xml:space="preserve">
+    <value>尚未設定監控</value>
+  </data>
+  <data name="ShellSearchBox.PlaceholderText" xml:space="preserve">
+    <value>搜尋</value>
+  </data>
+  <data name="DashboardNavigationItem.Content" xml:space="preserve">
+    <value>儀表板</value>
+  </data>
+  <data name="EventLogsNavigationItem.Content" xml:space="preserve">
+    <value>事件記錄</value>
+  </data>
+  <data name="TimelineNavigationItem.Content" xml:space="preserve">
+    <value>時間軸</value>
+  </data>
+  <data name="ProvidersNavigationItem.Content" xml:space="preserve">
+    <value>提供者</value>
+  </data>
+  <data name="SessionsNavigationItem.Content" xml:space="preserve">
+    <value>工作階段</value>
+  </data>
+  <data name="SavedViewsNavigationItem.Content" xml:space="preserve">
+    <value>已儲存的檢視</value>
+  </data>
+  <data name="LiveNavigationItem.Content" xml:space="preserve">
+    <value>即時</value>
+  </data>
+  <data name="RemoteNavigationItem.Content" xml:space="preserve">
+    <value>遠端</value>
+  </data>
+  <data name="SettingsNavigationItem.Content" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="EventLogCatalogTitle.Text" xml:space="preserve">
+    <value>事件記錄目錄</value>
+  </data>
+  <data name="EventLogCatalogDescription.Text" xml:space="preserve">
+    <value>在不載入事件記錄的情況下，計算目前 Windows 使用者可用的頻道數量。</value>
+  </data>
+  <data name="LatestSystemEventTitle.Text" xml:space="preserve">
+    <value>最新 System 事件</value>
+  </data>
+  <data name="FoundationReadyInfoBar.Title" xml:space="preserve">
+    <value>基礎功能已就緒</value>
+  </data>
+  <data name="FoundationReadyInfoBar.Message" xml:space="preserve">
+    <value>事件串流瀏覽、篩選、儲存檢視、訂閱與診斷功能將以獨立功能模組加入。</value>
+  </data>
+  <data name="LazyFeatureInfoBar.Title" xml:space="preserve">
+    <value>延遲載入功能邊界</value>
+  </data>
+  <data name="LazyFeatureInfoBar.Message" xml:space="preserve">
+    <value>只有在選取導覽路由後才會建立此頁面。</value>
+  </data>
+  <data name="Dashboard.Heading" xml:space="preserve">
+    <value>儀表板</value>
+  </data>
+  <data name="Dashboard.Summary.Initial" xml:space="preserve">
+    <value>正在準備原生 Windows 事件記錄目錄。</value>
+  </data>
+  <data name="Dashboard.Summary.Ready" xml:space="preserve">
+    <value>原生 Windows 事件記錄探索已透過服務邊界提供。</value>
+  </data>
+  <data name="Dashboard.ChannelCountLoading" xml:space="preserve">
+    <value>正在探索頻道…</value>
+  </data>
+  <data name="Dashboard.ChannelCountLabel" xml:space="preserve">
+    <value>可用事件頻道：{0}</value>
+  </data>
+  <data name="Dashboard.RecentEventLoading" xml:space="preserve">
+    <value>正在載入最新 System 事件…</value>
+  </data>
+  <data name="Dashboard.RecentEventTemplate" xml:space="preserve">
+    <value>{0} · 事件 {1} · 記錄 {2}</value>
+  </data>
+  <data name="Dashboard.NoSystemEvents" xml:space="preserve">
+    <value>System 頻道無法使用，或沒有可讀取的事件。</value>
+  </data>
+  <data name="DashboardSourceMetricTitle.Text" xml:space="preserve">
+    <value>資料來源</value>
+  </data>
+  <data name="DashboardSourceMetricValue.Text" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="DashboardSourceMetricHint.Text" xml:space="preserve">
+    <value>原生 Windows 事件記錄</value>
+  </data>
+  <data name="DashboardScopeMetricTitle.Text" xml:space="preserve">
+    <value>範圍</value>
+  </data>
+  <data name="DashboardScopeMetricValue.Text" xml:space="preserve">
+    <value>目前使用者</value>
+  </data>
+  <data name="DashboardScopeMetricHint.Text" xml:space="preserve">
+    <value>這個 Windows 帳戶可見的頻道</value>
+  </data>
+  <data name="DashboardStatusMetricTitle.Text" xml:space="preserve">
+    <value>目錄狀態</value>
+  </data>
+  <data name="DashboardRecentActivityTitle.Text" xml:space="preserve">
+    <value>最近系統活動</value>
+  </data>
+  <data name="DashboardReadinessTitle.Text" xml:space="preserve">
+    <value>基礎功能狀態</value>
+  </data>
+  <data name="DashboardErrorCardTitle.Text" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="DashboardWarnCardTitle.Text" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="DashboardTodayCardTitle.Text" xml:space="preserve">
+    <value>今日</value>
+  </data>
+  <data name="DashboardLiveCardTitle.Text" xml:space="preserve">
+    <value>即時</value>
+  </data>
+  <data name="DashboardMonitoringCardTitle.Text" xml:space="preserve">
+    <value>監控</value>
+  </data>
+  <data name="DashboardStatusCardTitle.Text" xml:space="preserve">
+    <value>狀態</value>
+  </data>
+  <data name="DashboardServiceStatusCardTitle.Text" xml:space="preserve">
+    <value>即時監控狀態</value>
+  </data>
+  <data name="DashboardServiceStatusMonitoringNotConfigured.Text" xml:space="preserve">
+    <value>即時監控尚未設定。</value>
+  </data>
+  <data name="DashboardRecentCriticalEventsTitle.Text" xml:space="preserve">
+    <value>最近的重大事件</value>
+  </data>
+  <data name="DashboardCrashTimelineTitle.Text" xml:space="preserve">
+    <value>當機時間軸</value>
+  </data>
+  <data name="DashboardRecentCriticalEventsPlaceholder.Text" xml:space="preserve">
+    <value>連接 Event Logs 的功能需求後，這裡會顯示重大事件資料。</value>
+  </data>
+  <data name="DashboardCrashTimelinePlaceholder.Text" xml:space="preserve">
+    <value>連接 Timeline 的功能需求後，這裡會顯示當機時間軸資料。</value>
+  </data>
+  <data name="Feature.EventStreams.Heading" xml:space="preserve">
+    <value>事件串流</value>
+  </data>
+  <data name="Feature.EventStreams.Description" xml:space="preserve">
+    <value>在此瀏覽 Windows 記錄、自訂檢視、封存的 EVTX 檔案與提供者頻道。</value>
+  </data>
+  <data name="Feature.Diagnostics.Heading" xml:space="preserve">
+    <value>診斷</value>
+  </data>
+  <data name="Feature.Diagnostics.Description" xml:space="preserve">
+    <value>關聯分析、健康檢查與調查工作流程將以獨立功能提供。</value>
+  </data>
+  <data name="Feature.Settings.Heading" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Feature.Settings.Description" xml:space="preserve">
+    <value>應用程式偏好設定與未來的外掛管理將在此設定。</value>
+  </data>
+  <data name="Feature.EventLogs.Heading" xml:space="preserve">
+    <value>事件記錄</value>
+  </data>
+  <data name="Feature.EventLogs.Description" xml:space="preserve">
+    <value>此頁面已建立，等待事件記錄的功能需求。</value>
+  </data>
+  <data name="Feature.Timeline.Heading" xml:space="preserve">
+    <value>時間軸</value>
+  </data>
+  <data name="Feature.Timeline.Description" xml:space="preserve">
+    <value>此頁面已建立，等待時間軸的功能需求。</value>
+  </data>
+  <data name="Feature.Providers.Heading" xml:space="preserve">
+    <value>提供者</value>
+  </data>
+  <data name="Feature.Providers.Description" xml:space="preserve">
+    <value>此頁面已建立，等待提供者的功能需求。</value>
+  </data>
+  <data name="Feature.Sessions.Heading" xml:space="preserve">
+    <value>工作階段</value>
+  </data>
+  <data name="Feature.Sessions.Description" xml:space="preserve">
+    <value>此頁面已建立，等待工作階段的功能需求。</value>
+  </data>
+  <data name="Feature.SavedViews.Heading" xml:space="preserve">
+    <value>已儲存的檢視</value>
+  </data>
+  <data name="Feature.SavedViews.Description" xml:space="preserve">
+    <value>此頁面已建立，等待已儲存檢視的功能需求。</value>
+  </data>
+  <data name="Feature.Live.Heading" xml:space="preserve">
+    <value>即時</value>
+  </data>
+  <data name="Feature.Live.Description" xml:space="preserve">
+    <value>此頁面已建立，等待即時監控的功能需求。</value>
+  </data>
+  <data name="Feature.Remote.Heading" xml:space="preserve">
+    <value>遠端</value>
+  </data>
+  <data name="Feature.Remote.Description" xml:space="preserve">
+    <value>此頁面已建立，等待遠端連線的功能需求。</value>
+  </data>
+  <data name="Settings.Heading" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Settings.Description" xml:space="preserve">
+    <value>設定 AstralChronicle 的佈景主題或語言。</value>
+  </data>
+  <data name="Settings.ThemeHint" xml:space="preserve">
+    <value>StarrySky 與 BlackSoulsLeaf 會保留背景圖片，同時套用深色 Fluent 表面與對比度覆蓋層，讓文字保持清晰。</value>
+  </data>
+  <data name="ThemeModeRadioButtons.Header" xml:space="preserve">
+    <value>外觀</value>
+  </data>
+  <data name="ThemeSystemOption.Content" xml:space="preserve">
+    <value>使用 Windows 設定</value>
+  </data>
+  <data name="ThemeLightOption.Content" xml:space="preserve">
+    <value>淺色</value>
+  </data>
+  <data name="ThemeDarkOption.Content" xml:space="preserve">
+    <value>深色</value>
+  </data>
+  <data name="ThemeStarrySkyOption.Content" xml:space="preserve">
+    <value>StarrySky</value>
+  </data>
+  <data name="ThemeBlackSoulsLeafOption.Content" xml:space="preserve">
+    <value>BlackSoulsLeaf</value>
+  </data>
+  <data name="ThemeAccessibilityInfoBar.Title" xml:space="preserve">
+    <value>符合對比度需求的背景</value>
+  </data>
+  <data name="ThemeAccessibilityInfoBar.Message" xml:space="preserve">
+    <value>高對比度模式會自動隱藏圖片，並改用系統色彩以維持無障礙閱讀。</value>
+  </data>
+  <data name="LanguageSettingsCardTitle.Text" xml:space="preserve">
+    <value>語言</value>
+  </data>
+  <data name="LanguageSettingsCardDescription.Text" xml:space="preserve">
+    <value>選擇 AstralChronicle 的顯示語言；選取後，程式會自動重新啟動以套用變更。</value>
+  </data>
+  <data name="LanguageRadioButtons.Header" xml:space="preserve">
+    <value>顯示語言</value>
+  </data>
+  <data name="LanguageEnglishOption.Content" xml:space="preserve">
+    <value>英文</value>
+  </data>
+  <data name="LanguageTraditionalChineseOption.Content" xml:space="preserve">
+    <value>正體中文</value>
+  </data>
+  <data name="AboutCardTitle.Text" xml:space="preserve">
+    <value>關於 AstralChronicle</value>
+  </data>
+  <data name="AboutCardDescription.Text" xml:space="preserve">
+    <value>AstralChronicle 是專為清晰、專注調查而打造的現代化 Windows 事件檢視器。</value>
+  </data>
+  <data name="AboutCardLicense.Text" xml:space="preserve">
+    <value>本程式依 GNU 通用公眾授權條款第 3 版（GPL v3）發行。</value>
+  </data>
+</root>

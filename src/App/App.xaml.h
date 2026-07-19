@@ -2,6 +2,9 @@
 #pragma once
 
 #include "App.xaml.g.h"
+#include "AppHost.h"
+
+#include <memory>
 
 namespace winrt::AstralChronicle::implementation
 {
@@ -12,6 +15,7 @@ namespace winrt::AstralChronicle::implementation
         void OnLaunched(Microsoft::UI::Xaml::LaunchActivatedEventArgs const&);
 
     private:
+        std::unique_ptr<::AstralChronicle::app::AppHost> m_host;
         winrt::Microsoft::UI::Xaml::Window window{ nullptr };
     };
 }

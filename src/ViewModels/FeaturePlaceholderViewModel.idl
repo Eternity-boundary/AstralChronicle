@@ -1,0 +1,10 @@
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass FeaturePlaceholderViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        FeaturePlaceholderViewModel();
+        String Heading{ get; };
+        String Description{ get; };
+    }
+}

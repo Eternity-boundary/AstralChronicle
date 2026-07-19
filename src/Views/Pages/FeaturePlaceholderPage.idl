@@ -1,0 +1,10 @@
+import "src\\ViewModels\\FeaturePlaceholderViewModel.idl";
+
+namespace AstralChronicle
+{
+    runtimeclass FeaturePlaceholderPage : Microsoft.UI.Xaml.Controls.Page
+    {
+        FeaturePlaceholderPage();
+        FeaturePlaceholderViewModel ViewModel{ get; };
+    }
+}

@@ -1,0 +1,10 @@
+import "src\\ViewModels\\DashboardViewModel.idl";
+
+namespace AstralChronicle
+{
+    runtimeclass DashboardPage : Microsoft.UI.Xaml.Controls.Page
+    {
+        DashboardPage();
+        DashboardViewModel ViewModel{ get; };
+    }
+}

@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--  Created by EternityBoundary on Jul 20,2026  -->
+<Page
+    x:Class="AstralChronicle.DashboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer Style="{StaticResource AstralPageScrollViewerStyle}">
+        <StackPanel MaxWidth="{StaticResource AstralPageContentMaxWidth}" Spacing="{StaticResource AstralSectionSpacing}">
+            <TextBlock
+                AutomationProperties.AutomationId="DashboardHeading"
+                Style="{StaticResource AstralPageTitleTextBlockStyle}"
+                Text="{x:Bind ViewModel.Heading, Mode=OneWay}" />
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border
+                    Grid.Column="0"
+                    MinHeight="128"
+                    Padding="16"
+                    Style="{StaticResource AstralCardBorderStyle}">
+                    <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                        <TextBlock
+                            x:Uid="DashboardErrorCardTitle"
+                            AutomationProperties.AutomationId="DashboardErrorCardTitle"
+                            Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                        <TextBlock Style="{StaticResource AstralCaptionTextBlockStyle}" Text="—" />
+                    </StackPanel>
+                </Border>
+
+                <Border
+                    Grid.Column="1"
+                    MinHeight="128"
+                    Padding="16"
+                    Style="{StaticResource AstralCardBorderStyle}">
+                    <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                        <TextBlock
+                            x:Uid="DashboardWarnCardTitle"
+                            AutomationProperties.AutomationId="DashboardWarnCardTitle"
+                            Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                        <TextBlock Style="{StaticResource AstralCaptionTextBlockStyle}" Text="—" />
+                    </StackPanel>
+                </Border>
+
+                <Border
+                    Grid.Column="2"
+                    MinHeight="128"
+                    Padding="16"
+                    Style="{StaticResource AstralCardBorderStyle}">
+                    <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                        <TextBlock
+                            x:Uid="DashboardTodayCardTitle"
+                            AutomationProperties.AutomationId="DashboardTodayCardTitle"
+                            Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                        <TextBlock Style="{StaticResource AstralCaptionTextBlockStyle}" Text="—" />
+                    </StackPanel>
+                </Border>
+
+                <Border
+                    Grid.Column="3"
+                    MinHeight="128"
+                    Padding="16"
+                    Style="{StaticResource AstralCardBorderStyle}">
+                    <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                        <TextBlock
+                            x:Uid="DashboardServiceStatusCardTitle"
+                            AutomationProperties.AutomationId="DashboardServiceStatusCardTitle"
+                            Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Ellipse
+                                Width="10"
+                                Height="10"
+                                VerticalAlignment="Center"
+                                Fill="{ThemeResource SystemFillColorCautionBrush}"
+                                IsHitTestVisible="False" />
+                            <TextBlock
+                                x:Uid="DashboardServiceStatusMonitoringNotConfigured"
+                                AutomationProperties.AutomationId="DashboardServiceStatusText"
+                                Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock
+                        x:Uid="DashboardRecentCriticalEventsTitle"
+                        AutomationProperties.AutomationId="DashboardRecentCriticalEventsTitle"
+                        Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                    <Border MinHeight="280" Style="{StaticResource AstralCardBorderStyle}">
+                        <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                            <TextBlock
+                                x:Uid="DashboardRecentCriticalEventsPlaceholder"
+                                Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock
+                        x:Uid="DashboardCrashTimelineTitle"
+                        AutomationProperties.AutomationId="DashboardCrashTimelineTitle"
+                        Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                    <Border MinHeight="280" Style="{StaticResource AstralCardBorderStyle}">
+                        <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                            <TextBlock
+                                x:Uid="DashboardCrashTimelinePlaceholder"
+                                Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
