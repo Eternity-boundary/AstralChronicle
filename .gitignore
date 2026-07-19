@@ -1,0 +1,17 @@
+# Visual Studio user state and build outputs
+.vs/
+Debug/
+Release/
+x64/
+ARM64/
+Generated Files/
+
+# NuGet restore cache
+packages/
+
+# MSIX packaging output
+AppPackages/
+BundleArtifacts/
+
+# User-specific project settings
+*.vcxproj.user

@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{5E1D4550-9CB2-425E-B4C5-3F10AA6B48A8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\App">
+      <UniqueIdentifier>{A7A4A1B5-1D8C-4D33-9035-A6307B124A01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Views">
+      <UniqueIdentifier>{C47E39B3-3CF2-4903-8554-3B9F2D468DC5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Views\Shell">
+      <UniqueIdentifier>{10C3055D-0546-4585-A0E4-39A94B2050E6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{E71AD7A0-8A25-4EE8-BF4B-2662C8B44EC1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\App">
+      <UniqueIdentifier>{EED85058-6B6E-484A-BE54-3CB3B70E44B4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Views">
+      <UniqueIdentifier>{2F5B5D6D-18F3-45F8-B05F-4581D046D5B9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Views\Shell">
+      <UniqueIdentifier>{54DEDF1F-80FA-4265-A877-A3B3CA66F440}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XAML">
+      <UniqueIdentifier>{C4DE4401-73F4-42D0-BAED-7C832DEFC386}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XAML\App">
+      <UniqueIdentifier>{62A6D4F1-5A20-4A3A-9AB8-05BB5EB74BC7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XAML\Views">
+      <UniqueIdentifier>{A494A163-9B2C-4B9C-827B-4AECFF3479E9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XAML\Views\Shell">
+      <UniqueIdentifier>{F2087328-876D-44F8-8B34-6B17C2DB7A9F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IDL">
+      <UniqueIdentifier>{1486C13A-4C57-461A-87C7-FD8A7D20F43E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IDL\Views">
+      <UniqueIdentifier>{2A8A3AC6-2014-4B2E-8E85-9E29A66E211F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IDL\Views\Shell">
+      <UniqueIdentifier>{57B915AD-1BFF-45E4-BB3A-85EA3AB8CE2E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{39177f23-dcb4-4f9c-98fe-404df8507b9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Configuration">
+      <UniqueIdentifier>{E2020F78-45AE-45C9-B807-25A6B48A1A91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Documentation">
+      <UniqueIdentifier>{3C810659-17B1-441E-8383-5EE8E058F0B9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{71F0C531-B773-4464-A2AE-A7011249B3DF}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\pch.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\App\App.xaml.cpp"><Filter>Source Files\App</Filter></ClCompile>
+    <ClCompile Include="src\Views\Shell\MainWindow.xaml.cpp"><Filter>Source Files\Views\Shell</Filter></ClCompile>
+    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp"><Filter>Source Files</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\pch.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="src\App\App.xaml.h"><Filter>Header Files\App</Filter></ClInclude>
+    <ClInclude Include="src\Views\Shell\MainWindow.xaml.h"><Filter>Header Files\Views\Shell</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="src\App\App.xaml"><Filter>XAML\App</Filter></ApplicationDefinition>
+    <Page Include="src\Views\Shell\MainWindow.xaml"><Filter>XAML\Views\Shell</Filter></Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="src\Views\Shell\MainWindow.idl"><Filter>IDL\Views\Shell</Filter></Midl>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\Wide310x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\LockScreenLogo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt"><Filter>Documentation</Filter></Text>
+    <Text Include="docs\architecture.md"><Filter>Documentation</Filter></Text>
+    <Text Include="tests\README.md"><Filter>Tests</Filter></Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest"><Filter>Configuration</Filter></Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest"><Filter>Configuration</Filter></AppxManifest>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config"><Filter>Configuration</Filter></None>
+    <None Include=".gitignore"><Filter>Configuration</Filter></None>
+  </ItemGroup>
+</Project>

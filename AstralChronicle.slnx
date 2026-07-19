@@ -1,0 +1,10 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="AstralChronicle.vcxproj" Id="39177f23-dcb4-4f9c-98fe-404df8507b9a">
+    <Deploy />
+  </Project>
+</Solution>
