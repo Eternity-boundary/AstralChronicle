@@ -234,6 +234,9 @@
   <data name="EventLogs.DynamicChannelsNone.Text" xml:space="preserve">
     <value>No Applications and Services Logs channels are available.</value>
   </data>
+  <data name="EventLogs.DynamicChannelsLoading.Text" xml:space="preserve">
+    <value>Loading Applications and Services Logs…</value>
+  </data>
   <data name="EventLogCatalogTitle.Text" xml:space="preserve">
     <value>Event log catalog</value>
   </data>

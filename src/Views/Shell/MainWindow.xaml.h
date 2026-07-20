@@ -70,9 +70,16 @@ namespace winrt::AstralChronicle::implementation
         double NavigationPaneWidth();
         void StartDynamicChannelLoad();
         winrt::fire_and_forget LoadDynamicChannelsAsync();
-        void PopulateDynamicChildren(
+        void StartDynamicChildrenPopulation(
             Microsoft::UI::Xaml::Controls::NavigationViewItem const& parent,
             std::wstring_view parentPath);
+        void ShowDynamicChannelLoadingState(
+            Microsoft::UI::Xaml::Controls::NavigationViewItem const& parent);
+        winrt::Microsoft::UI::Xaml::Controls::NavigationViewItem CreateDynamicNavigationItem(
+            ::AstralChronicle::services::ChannelPathTreeNode const& node);
+        winrt::fire_and_forget PopulateDynamicChildrenAsync(
+            Microsoft::UI::Xaml::Controls::NavigationViewItem const& parent,
+            std::wstring parentPath);
         void IndexDynamicChannelNodes(::AstralChronicle::services::ChannelPathTreeNode& node);
 
         ::AstralChronicle::navigation::INavigationService* m_navigation{};
@@ -88,6 +95,7 @@ namespace winrt::AstralChronicle::implementation
         std::optional<::AstralChronicle::services::ChannelPathTreeNode> m_dynamicChannelTree;
         std::unordered_map<std::wstring, ::AstralChronicle::services::ChannelPathTreeNode*> m_dynamicChannelIndex;
         std::unordered_map<std::wstring, std::wstring> m_dynamicChannelGroupIdentifiers;
+        std::unordered_set<std::wstring> m_populatingDynamicPaths;
         std::unordered_set<std::wstring> m_populatedDynamicPaths;
     };
 }

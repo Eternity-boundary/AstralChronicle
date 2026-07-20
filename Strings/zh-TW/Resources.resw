@@ -234,6 +234,9 @@
   <data name="EventLogs.DynamicChannelsNone.Text" xml:space="preserve">
     <value>目前沒有可用的應用程式及服務記錄頻道。</value>
   </data>
+  <data name="EventLogs.DynamicChannelsLoading.Text" xml:space="preserve">
+    <value>正在載入應用程式及服務記錄…</value>
+  </data>
   <data name="EventLogCatalogTitle.Text" xml:space="preserve">
     <value>事件記錄目錄</value>
   </data>

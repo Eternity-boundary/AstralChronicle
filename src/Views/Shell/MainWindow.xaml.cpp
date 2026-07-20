@@ -20,6 +20,7 @@
 #include <array>
 #include <chrono>
 #include <ctime>
+#include <cstddef>
 #include <string_view>
 #include <utility>
 
@@ -34,6 +35,10 @@ namespace winrt::AstralChronicle::implementation
     namespace
     {
         using NavigationViewItem = Microsoft::UI::Xaml::Controls::NavigationViewItem;
+        using Orientation = Microsoft::UI::Xaml::Controls::Orientation;
+        using ProgressRing = Microsoft::UI::Xaml::Controls::ProgressRing;
+        using StackPanel = Microsoft::UI::Xaml::Controls::StackPanel;
+        using TextBlock = Microsoft::UI::Xaml::Controls::TextBlock;
 
         constexpr std::wstring_view ChannelTagPrefix{ L"channel:" };
         constexpr std::wstring_view LandingTagPrefix{ L"landing:" };
@@ -366,7 +371,40 @@ namespace winrt::AstralChronicle::implementation
         }
 
         m_dynamicChannelLoadRequested = true;
+        if (m_dynamicChannelRoot)
+        {
+            ShowDynamicChannelLoadingState(m_dynamicChannelRoot);
+        }
         LoadDynamicChannelsAsync();
+    }
+
+    void MainWindow::ShowDynamicChannelLoadingState(NavigationViewItem const& parent)
+    {
+        parent.MenuItems().Clear();
+
+        StackPanel loadingContent;
+        loadingContent.Orientation(Orientation::Horizontal);
+        loadingContent.Spacing(8.0);
+
+        ProgressRing progress;
+        progress.IsActive(true);
+        progress.Width(16.0);
+        progress.Height(16.0);
+        progress.IsHitTestVisible(false);
+        loadingContent.Children().Append(progress);
+
+        TextBlock loadingText;
+        loadingText.Text(m_strings
+            ? m_strings->GetString(L"EventLogs.DynamicChannelsLoading.Text")
+            : hstring{ L"Loading…" });
+        loadingContent.Children().Append(loadingText);
+
+        NavigationViewItem loadingItem;
+        loadingItem.Content(loadingContent);
+        loadingItem.IsEnabled(false);
+        loadingItem.SelectsOnInvoked(false);
+        parent.MenuItems().Append(loadingItem);
+        parent.HasUnrealizedChildren(false);
     }
 
     winrt::fire_and_forget MainWindow::LoadDynamicChannelsAsync()
@@ -413,6 +451,7 @@ namespace winrt::AstralChronicle::implementation
             m_dynamicChannelLoadRequested = false;
             if (m_dynamicChannelRoot)
             {
+                m_dynamicChannelRoot.MenuItems().Clear();
                 NavigationViewItem unavailable;
                 unavailable.Content(box_value(m_strings->GetString(L"EventLogs.DynamicChannelsUnavailable.Text")));
                 unavailable.IsEnabled(false);
@@ -425,6 +464,7 @@ namespace winrt::AstralChronicle::implementation
         m_dynamicChannelTree = std::move(tree);
         m_dynamicChannelIndex.clear();
         m_dynamicChannelGroupIdentifiers.clear();
+        m_populatingDynamicPaths.clear();
         m_populatedDynamicPaths.clear();
         for (auto& node : m_dynamicChannelTree->Children)
         {
@@ -439,6 +479,7 @@ namespace winrt::AstralChronicle::implementation
 
         if (m_dynamicChannelTree->Children.empty())
         {
+            m_dynamicChannelRoot.MenuItems().Clear();
             NavigationViewItem noChannels;
             noChannels.Content(box_value(m_strings->GetString(L"EventLogs.DynamicChannelsNone.Text")));
             noChannels.IsEnabled(false);
@@ -447,7 +488,7 @@ namespace winrt::AstralChronicle::implementation
             co_return;
         }
 
-        PopulateDynamicChildren(m_dynamicChannelRoot, {});
+        StartDynamicChildrenPopulation(m_dynamicChannelRoot, {});
     }
 
     void MainWindow::IndexDynamicChannelNodes(::AstralChronicle::services::ChannelPathTreeNode& node)
@@ -463,42 +504,52 @@ namespace winrt::AstralChronicle::implementation
         }
     }
 
-    void MainWindow::PopulateDynamicChildren(NavigationViewItem const& parent, std::wstring_view parentPath)
+    void MainWindow::StartDynamicChildrenPopulation(
+        NavigationViewItem const& parent,
+        std::wstring_view parentPath)
     {
         auto const key = std::wstring{ parentPath };
-        if (m_populatedDynamicPaths.find(key) != m_populatedDynamicPaths.end())
+        if (m_populatedDynamicPaths.find(key) != m_populatedDynamicPaths.end()
+            || m_populatingDynamicPaths.find(key) != m_populatingDynamicPaths.end())
         {
             return;
         }
 
-        std::vector<::AstralChronicle::services::ChannelPathTreeNode> const* children{};
-        if (parentPath.empty())
+        ShowDynamicChannelLoadingState(parent);
+        PopulateDynamicChildrenAsync(parent, key);
+    }
+
+    NavigationViewItem MainWindow::CreateDynamicNavigationItem(
+        ::AstralChronicle::services::ChannelPathTreeNode const& node)
+    {
+        NavigationViewItem item;
+        std::wstring label = node.Segment;
+        std::wstring tag;
+
+        if (node.Channel && node.Children.empty())
         {
-            if (!m_dynamicChannelTree)
+            tag = std::wstring{ ChannelTagPrefix } + node.Channel->Path;
+            switch (node.Channel->State)
             {
-                return;
+            case ::AstralChronicle::models::EventChannelState::Disabled:
+                label += ToWString(m_strings->GetString(L"EventLogs.ChannelDisabledSuffix.Text"));
+                break;
+            case ::AstralChronicle::models::EventChannelState::AccessDenied:
+                label += ToWString(m_strings->GetString(L"EventLogs.ChannelAccessDeniedSuffix.Text"));
+                break;
+            case ::AstralChronicle::models::EventChannelState::Unavailable:
+                label += ToWString(m_strings->GetString(L"EventLogs.ChannelUnavailableSuffix.Text"));
+                break;
+            case ::AstralChronicle::models::EventChannelState::Available:
+                break;
             }
-            children = &m_dynamicChannelTree->Children;
         }
         else
         {
-            auto const node = m_dynamicChannelIndex.find(key);
-            if (node == m_dynamicChannelIndex.end())
+            tag = std::wstring{ DynamicGroupTagPrefix } + node.FullPath;
+            if (node.Channel)
             {
-                return;
-            }
-            children = &node->second->Children;
-        }
-
-        for (auto const& node : *children)
-        {
-            NavigationViewItem item;
-            std::wstring label = node.Segment;
-            std::wstring tag;
-
-            if (node.Channel && node.Children.empty())
-            {
-                tag = std::wstring{ ChannelTagPrefix } + node.Channel->Path;
+                m_dynamicChannelGroupIdentifiers.insert_or_assign(node.FullPath, node.Channel->Path);
                 switch (node.Channel->State)
                 {
                 case ::AstralChronicle::models::EventChannelState::Disabled:
@@ -516,38 +567,68 @@ namespace winrt::AstralChronicle::implementation
             }
             else
             {
-                tag = std::wstring{ DynamicGroupTagPrefix } + node.FullPath;
-                if (node.Channel)
-                {
-                    m_dynamicChannelGroupIdentifiers.insert_or_assign(node.FullPath, node.Channel->Path);
-                    switch (node.Channel->State)
-                    {
-                    case ::AstralChronicle::models::EventChannelState::Disabled:
-                        label += ToWString(m_strings->GetString(L"EventLogs.ChannelDisabledSuffix.Text"));
-                        break;
-                    case ::AstralChronicle::models::EventChannelState::AccessDenied:
-                        label += ToWString(m_strings->GetString(L"EventLogs.ChannelAccessDeniedSuffix.Text"));
-                        break;
-                    case ::AstralChronicle::models::EventChannelState::Unavailable:
-                        label += ToWString(m_strings->GetString(L"EventLogs.ChannelUnavailableSuffix.Text"));
-                        break;
-                    case ::AstralChronicle::models::EventChannelState::Available:
-                        break;
-                    }
-                }
-                else
-                {
-                    item.SelectsOnInvoked(false);
-                }
+                item.SelectsOnInvoked(false);
             }
+        }
 
-            item.Content(box_value(hstring{ label }));
-            item.Tag(box_value(hstring{ tag }));
-            item.HasUnrealizedChildren(!node.Children.empty());
+        item.Content(box_value(hstring{ label }));
+        item.Tag(box_value(hstring{ tag }));
+        item.HasUnrealizedChildren(!node.Children.empty());
+        return item;
+    }
+
+    winrt::fire_and_forget MainWindow::PopulateDynamicChildrenAsync(
+        NavigationViewItem const& parent,
+        std::wstring parentPath)
+    {
+        auto lifetime = get_strong();
+        auto const dispatcher = RootLayout().DispatcherQueue();
+        auto const key = parentPath;
+
+        if (m_populatedDynamicPaths.find(key) != m_populatedDynamicPaths.end()
+            || m_populatingDynamicPaths.find(key) != m_populatingDynamicPaths.end())
+        {
+            co_return;
+        }
+
+        std::vector<::AstralChronicle::services::ChannelPathTreeNode> const* children{};
+        if (key.empty())
+        {
+            if (!m_dynamicChannelTree)
+            {
+                co_return;
+            }
+            children = &m_dynamicChannelTree->Children;
+        }
+        else
+        {
+            auto const node = m_dynamicChannelIndex.find(key);
+            if (node == m_dynamicChannelIndex.end())
+            {
+                co_return;
+            }
+            children = &node->second->Children;
+        }
+
+        m_populatingDynamicPaths.insert(key);
+        parent.MenuItems().Clear();
+
+        constexpr std::size_t ItemsPerBatch = 32;
+        for (std::size_t index = 0; index < children->size(); ++index)
+        {
+            auto const& node = (*children)[index];
+            auto item = CreateDynamicNavigationItem(node);
             parent.MenuItems().Append(item);
+
+            if ((index + 1) % ItemsPerBatch == 0 && index + 1 < children->size())
+            {
+                co_await winrt::resume_background();
+                co_await wil::resume_foreground(dispatcher);
+            }
         }
 
         parent.HasUnrealizedChildren(false);
+        m_populatingDynamicPaths.erase(key);
         m_populatedDynamicPaths.insert(key);
     }
 
@@ -571,7 +652,7 @@ namespace winrt::AstralChronicle::implementation
 
         if (HasPrefix(tag, DynamicGroupTagPrefix))
         {
-            PopulateDynamicChildren(item, std::wstring_view{ tag }.substr(DynamicGroupTagPrefix.size()));
+            StartDynamicChildrenPopulation(item, std::wstring_view{ tag }.substr(DynamicGroupTagPrefix.size()));
         }
     }
 
