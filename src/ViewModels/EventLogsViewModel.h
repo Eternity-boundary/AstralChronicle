@@ -79,7 +79,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::hstring SortKey() const;
         [[nodiscard]] bool SortAscending() const noexcept;
         [[nodiscard]] Microsoft::UI::Xaml::Controls::InfoBarSeverity StatusSeverity() const noexcept;
-        [[nodiscard]] Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::EventLogItemViewModel> Events() const;
+        [[nodiscard]] Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> Events() const;
         [[nodiscard]] winrt::AstralChronicle::EventLogItemViewModel SelectedEvent() const;
         void SelectedEvent(winrt::AstralChronicle::EventLogItemViewModel const& value);
         void SetSelectedEvents(
@@ -198,8 +198,8 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_selectedBinaryData;
         winrt::hstring m_selectedRelatedEvents;
         winrt::hstring m_detailsStatusText;
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::EventLogItemViewModel> m_events{ nullptr };
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::EventLogItemViewModel> m_allEvents{ nullptr };
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> m_events{ nullptr };
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> m_allEvents{ nullptr };
         winrt::AstralChronicle::EventLogItemViewModel m_selectedEvent{ nullptr };
         std::vector<winrt::AstralChronicle::EventLogItemViewModel> m_selectedEvents;
         bool m_hasStatusMessage{ true };

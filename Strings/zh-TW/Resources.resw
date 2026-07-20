@@ -644,7 +644,7 @@
   <data name="EventLogsFilterLevelInformation.Content" xml:space="preserve">
     <value>資訊</value>
   </data>
-  <data name="EventLogsFilterAfterToday.Content" xml:space="preserve">
+  <data name="EventLogsFilterAfterToday.Header" xml:space="preserve">
     <value>只顯示最近 24 小時的事件</value>
   </data>
   <data name="EventLogsFilterAfterHoursBox.Header" xml:space="preserve"><value>只顯示最近 N 小時的事件</value></data>

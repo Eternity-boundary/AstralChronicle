@@ -90,7 +90,7 @@ namespace
 namespace winrt::AstralChronicle::implementation
 {
     TimelineViewModel::TimelineViewModel()
-        : m_events(winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>().GetView())
+        : m_events(winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>())
     {
     }
 
@@ -176,14 +176,14 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::services::EventQueryStatus const status,
         std::uint32_t const errorCode)
     {
-        auto values = winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>();
+        auto values = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         for (auto const& event : events)
         {
             auto item = winrt::make<winrt::AstralChronicle::implementation::EventLogItemViewModel>();
             winrt::get_self<winrt::AstralChronicle::implementation::EventLogItemViewModel>(item)->Initialize(event, *m_strings);
             values.Append(item);
         }
-        m_allEvents = values.GetView();
+        m_allEvents = values;
         m_selectedEvent = nullptr;
         m_selectedEventDetails.clear();
         m_bookmarkCount = 0;
@@ -215,7 +215,7 @@ namespace winrt::AstralChronicle::implementation
         std::wstring providerNeedle{ m_providerFilter.c_str() };
         std::transform(providerNeedle.begin(), providerNeedle.end(), providerNeedle.begin(), [](wchar_t c) { return std::towlower(c); });
         std::unordered_set<std::wstring> grouped;
-        auto filtered = winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>();
+        auto filtered = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         if (m_allEvents)
         {
             for (auto const& item : m_allEvents)
@@ -232,7 +232,7 @@ namespace winrt::AstralChronicle::implementation
                 filtered.Append(item);
             }
         }
-        m_events = filtered.GetView();
+        m_events = filtered;
         m_filterSummary = FormatResource(
             m_strings->GetString(L"Timeline.FilterSummary.Text"),
             { winrt::to_hstring(m_events.Size()), winrt::to_hstring(m_allEvents ? m_allEvents.Size() : 0) });
@@ -267,7 +267,7 @@ namespace winrt::AstralChronicle::implementation
     winrt::AstralChronicle::EventLogItemViewModel TimelineViewModel::SelectedEvent() const { return m_selectedEvent; }
     winrt::hstring TimelineViewModel::SelectedEventDetails() const { return m_selectedEventDetails; }
     std::uint32_t TimelineViewModel::BookmarkCount() const noexcept { return m_bookmarkCount; }
-    Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::EventLogItemViewModel> TimelineViewModel::Events() const { return m_events; }
+    Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> TimelineViewModel::Events() const { return m_events; }
 
     void TimelineViewModel::Select(winrt::AstralChronicle::EventLogItemViewModel const& item)
     {

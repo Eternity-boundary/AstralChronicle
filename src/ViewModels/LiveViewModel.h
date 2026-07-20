@@ -62,7 +62,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] bool CanStart() const noexcept;
         [[nodiscard]] std::uint32_t DroppedCount() const noexcept;
         [[nodiscard]] std::uint32_t EventCount() const noexcept;
-        [[nodiscard]] Windows::Foundation::Collections::IVectorView<winrt::hstring> Events() const;
+        [[nodiscard]] Windows::Foundation::Collections::IObservableVector<winrt::hstring> Events() const;
         [[nodiscard]] Microsoft::UI::Xaml::Controls::InfoBarSeverity StatusSeverity() const noexcept;
         [[nodiscard]] bool HasStatusMessage() const noexcept;
         void Start();
@@ -99,7 +99,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_queueLimit{ L"5000" };
         winrt::hstring m_eventsPerSecond{ L"0" };
         winrt::hstring m_duration{ L"0s" };
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::hstring> m_events{ nullptr };
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::hstring> m_events{ nullptr };
         std::vector<std::wstring> m_recordedEvents;
         bool m_autoScroll{ true };
         bool m_groupRepeated{};

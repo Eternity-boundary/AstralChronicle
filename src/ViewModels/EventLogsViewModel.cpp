@@ -174,7 +174,7 @@ namespace
 namespace winrt::AstralChronicle::implementation
 {
     EventLogsViewModel::EventLogsViewModel()
-        : m_events(winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>().GetView())
+        : m_events(winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>())
     {
     }
 
@@ -527,7 +527,7 @@ namespace winrt::AstralChronicle::implementation
     winrt::hstring EventLogsViewModel::SortKey() const { return m_sortKey; }
     bool EventLogsViewModel::SortAscending() const noexcept { return m_sortAscending; }
     Microsoft::UI::Xaml::Controls::InfoBarSeverity EventLogsViewModel::StatusSeverity() const noexcept { return m_statusSeverity; }
-    Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::EventLogItemViewModel> EventLogsViewModel::Events() const
+    Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> EventLogsViewModel::Events() const
     {
         return m_events;
     }
@@ -688,7 +688,7 @@ namespace winrt::AstralChronicle::implementation
         m_statusSeverity = Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational;
         m_statusText = m_strings->GetString(L"EventLogs.Loading.Text");
         m_statusDetails = m_strings->GetString(L"EventLogs.LoadingDetails.Text");
-        m_events = winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>().GetView();
+        m_events = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         m_allEvents = m_events;
         m_filterSummary = m_strings->GetString(L"EventLogs.FilterNone.Text");
         ClearSelection();
@@ -847,7 +847,7 @@ namespace winrt::AstralChronicle::implementation
 
     void EventLogsViewModel::ApplyResult(::AstralChronicle::services::EventQueryResult const& result)
     {
-        auto const itemVector = winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>();
+        auto const itemVector = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         for (auto const& event : result.Events)
         {
             auto item = winrt::make<winrt::AstralChronicle::implementation::EventLogItemViewModel>();
@@ -862,7 +862,7 @@ namespace winrt::AstralChronicle::implementation
             itemVector.Append(item);
         }
 
-        m_allEvents = itemVector.GetView();
+        m_allEvents = itemVector;
         ApplyFilter();
 
         if (m_initialRecordId)
@@ -967,12 +967,12 @@ namespace winrt::AstralChronicle::implementation
             auto const rightValue = valueForSort(right);
             return m_sortAscending ? leftValue < rightValue : leftValue > rightValue;
         });
-        auto filtered = winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>();
+        auto filtered = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         for (auto const& item : filteredItems)
         {
             filtered.Append(item);
         }
-        m_events = filtered.GetView();
+        m_events = filtered;
         if (needle.empty() && !m_hasStructuredFilter)
         {
             m_filterSummary = m_strings->GetString(L"EventLogs.FilterNone.Text");

@@ -13,7 +13,7 @@ namespace AstralChronicle
         Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
         Boolean HasStatusMessage{ get; };
         Boolean IsLoading{ get; };
-        Windows.Foundation.Collections.IVectorView<SavedViewItemViewModel> Views{ get; };
+        Windows.Foundation.Collections.IObservableVector<SavedViewItemViewModel> Views{ get; };
         SavedViewItemViewModel SelectedView{ get; set; };
         Boolean HasSelection{ get; };
         Boolean CanSave{ get; };

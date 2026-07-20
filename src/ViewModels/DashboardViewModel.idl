@@ -21,6 +21,6 @@ namespace AstralChronicle
         Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
         Boolean HasStatusMessage{ get; };
         Boolean IsLoading{ get; };
-        Windows.Foundation.Collections.IVectorView<EventLogItemViewModel> RecentCriticalEvents{ get; };
+        Windows.Foundation.Collections.IObservableVector<EventLogItemViewModel> RecentCriticalEvents{ get; };
     }
 }

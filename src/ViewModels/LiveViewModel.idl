@@ -32,7 +32,7 @@ namespace AstralChronicle
         Boolean CanStart{ get; };
         UInt32 DroppedCount{ get; };
         UInt32 EventCount{ get; };
-        Windows.Foundation.Collections.IVectorView<String> Events{ get; };
+        Windows.Foundation.Collections.IObservableVector<String> Events{ get; };
         Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
         Boolean HasStatusMessage{ get; };
         void Start();

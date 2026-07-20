@@ -63,8 +63,8 @@ namespace
 namespace winrt::AstralChronicle::implementation
 {
     ProvidersViewModel::ProvidersViewModel()
-        : m_providers(winrt::single_threaded_vector<winrt::AstralChronicle::ProviderItemViewModel>().GetView()),
-          m_eventDefinitions(winrt::single_threaded_vector<winrt::hstring>().GetView())
+        : m_providers(winrt::single_threaded_observable_vector<winrt::AstralChronicle::ProviderItemViewModel>()),
+          m_eventDefinitions(winrt::single_threaded_observable_vector<winrt::hstring>())
     {
     }
 
@@ -130,7 +130,7 @@ namespace winrt::AstralChronicle::implementation
     void ProvidersViewModel::ApplyProviders(
         ::AstralChronicle::services::EventProviderQueryResult const& result)
     {
-        auto values = winrt::single_threaded_vector<winrt::AstralChronicle::ProviderItemViewModel>();
+        auto values = winrt::single_threaded_observable_vector<winrt::AstralChronicle::ProviderItemViewModel>();
         for (auto const& provider : result.Providers)
         {
             auto item = winrt::make<winrt::AstralChronicle::implementation::ProviderItemViewModel>();
@@ -139,7 +139,7 @@ namespace winrt::AstralChronicle::implementation
             values.Append(item);
         }
 
-        m_providers = values.GetView();
+        m_providers = values;
         m_selectedProvider = nullptr;
         m_hasSelection = false;
         m_selectedProviderName.clear();
@@ -235,7 +235,7 @@ namespace winrt::AstralChronicle::implementation
         m_selectedEventCount = FormatResource(m_strings->GetString(L"Providers.EventCount.Text"),
             { winrt::to_hstring(result.Details.EventDefinitions.size()) });
 
-        auto definitions = winrt::single_threaded_vector<winrt::hstring>();
+        auto definitions = winrt::single_threaded_observable_vector<winrt::hstring>();
         for (auto const& definition : result.Details.EventDefinitions)
         {
             definitions.Append(FormatResource(m_strings->GetString(L"Providers.Definition.Text"),
@@ -248,7 +248,7 @@ namespace winrt::AstralChronicle::implementation
                   winrt::to_hstring(definition.Keyword),
                   winrt::hstring{ definition.Template } }));
         }
-        m_eventDefinitions = definitions.GetView();
+        m_eventDefinitions = definitions;
 
         RaisePropertyChanged(L"SelectedGuid");
         RaisePropertyChanged(L"SelectedResourcePath");
@@ -271,7 +271,7 @@ namespace winrt::AstralChronicle::implementation
         m_selectedMetadataStatus = m_hasSelection && m_strings
             ? m_strings->GetString(L"Providers.MetadataLoading.Text")
             : winrt::hstring{};
-        m_eventDefinitions = winrt::single_threaded_vector<winrt::hstring>().GetView();
+        m_eventDefinitions = winrt::single_threaded_observable_vector<winrt::hstring>();
         RaisePropertyChanged(L"SelectedGuid");
         RaisePropertyChanged(L"SelectedResourcePath");
         RaisePropertyChanged(L"SelectedParameterPath");
@@ -298,7 +298,7 @@ namespace winrt::AstralChronicle::implementation
             RaisePropertyChanged(L"SearchText");
         }
     }
-    Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::ProviderItemViewModel> ProvidersViewModel::Providers() const { return m_providers; }
+    Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::ProviderItemViewModel> ProvidersViewModel::Providers() const { return m_providers; }
     winrt::AstralChronicle::ProviderItemViewModel ProvidersViewModel::SelectedProvider() const { return m_selectedProvider; }
     winrt::hstring ProvidersViewModel::SelectedProviderName() const { return m_selectedProviderName; }
     bool ProvidersViewModel::HasSelection() const noexcept { return m_hasSelection; }
@@ -310,7 +310,7 @@ namespace winrt::AstralChronicle::implementation
     winrt::hstring ProvidersViewModel::SelectedHelpLink() const { return m_selectedHelpLink; }
     winrt::hstring ProvidersViewModel::SelectedMetadataStatus() const { return m_selectedMetadataStatus; }
     winrt::hstring ProvidersViewModel::SelectedEventCount() const { return m_selectedEventCount; }
-    Windows::Foundation::Collections::IVectorView<winrt::hstring> ProvidersViewModel::EventDefinitions() const { return m_eventDefinitions; }
+    Windows::Foundation::Collections::IObservableVector<winrt::hstring> ProvidersViewModel::EventDefinitions() const { return m_eventDefinitions; }
 
     void ProvidersViewModel::RaiseStatusProperties()
     {

@@ -24,13 +24,13 @@ namespace AstralChronicle
         String CompareStatus{ get; };
         Boolean IsRemoteLive{ get; };
         String LiveStatus{ get; };
-        Windows.Foundation.Collections.IVectorView<String> LiveEvents{ get; };
-        Windows.Foundation.Collections.IVectorView<EventLogItemViewModel> QueryResults{ get; };
-        Windows.Foundation.Collections.IVectorView<String> SavedQueries{ get; };
+        Windows.Foundation.Collections.IObservableVector<String> LiveEvents{ get; };
+        Windows.Foundation.Collections.IObservableVector<EventLogItemViewModel> QueryResults{ get; };
+        Windows.Foundation.Collections.IObservableVector<String> SavedQueries{ get; };
         Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
         Boolean HasStatusMessage{ get; };
-        Windows.Foundation.Collections.IVectorView<String> SavedConnections{ get; };
-        Windows.Foundation.Collections.IVectorView<String> Channels{ get; };
+        Windows.Foundation.Collections.IObservableVector<String> SavedConnections{ get; };
+        Windows.Foundation.Collections.IObservableVector<String> Channels{ get; };
         void Connect();
         void Disconnect();
         void SaveConnection();

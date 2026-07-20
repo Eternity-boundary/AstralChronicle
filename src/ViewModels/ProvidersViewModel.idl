@@ -14,7 +14,7 @@ namespace AstralChronicle
         Boolean HasStatusMessage{ get; };
         Boolean IsLoading{ get; };
         String SearchText{ get; set; };
-        Windows.Foundation.Collections.IVectorView<ProviderItemViewModel> Providers{ get; };
+        Windows.Foundation.Collections.IObservableVector<ProviderItemViewModel> Providers{ get; };
         ProviderItemViewModel SelectedProvider{ get; set; };
         String SelectedProviderName{ get; };
         Boolean HasSelection{ get; };
@@ -26,7 +26,7 @@ namespace AstralChronicle
         String SelectedHelpLink{ get; };
         String SelectedMetadataStatus{ get; };
         String SelectedEventCount{ get; };
-        Windows.Foundation.Collections.IVectorView<String> EventDefinitions{ get; };
+        Windows.Foundation.Collections.IObservableVector<String> EventDefinitions{ get; };
         void Refresh();
     }
 }

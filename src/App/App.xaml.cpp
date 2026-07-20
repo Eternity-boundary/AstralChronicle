@@ -36,12 +36,6 @@ namespace winrt::AstralChronicle::implementation
     /// <param name="e">Details about the launch request and process.</param>
     void App::OnLaunched([[maybe_unused]] LaunchActivatedEventArgs const& e)
     {
-        Resources().MergedDictionaries().Append(Microsoft::UI::Xaml::Controls::XamlControlsResources{});
-
-        auto const designSystem = ResourceDictionary{};
-        designSystem.Source(Windows::Foundation::Uri{ L"ms-appx:///src/DesignSystem/DesignSystem.xaml" });
-        Resources().MergedDictionaries().Append(designSystem);
-
         m_host = std::make_unique<::AstralChronicle::app::AppHost>();
         auto mainWindow = make<MainWindow>();
         get_self<MainWindow>(mainWindow)->Initialize(*m_host);

@@ -644,7 +644,7 @@
   <data name="EventLogsFilterLevelInformation.Content" xml:space="preserve">
     <value>Information</value>
   </data>
-  <data name="EventLogsFilterAfterToday.Content" xml:space="preserve">
+  <data name="EventLogsFilterAfterToday.Header" xml:space="preserve">
     <value>Only events from the last 24 hours</value>
   </data>
   <data name="EventLogsFilterAfterHoursBox.Header" xml:space="preserve"><value>Only events from the last N hours</value></data>

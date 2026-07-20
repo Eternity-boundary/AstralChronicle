@@ -8,8 +8,6 @@
 #include "DashboardViewModel.g.cpp"
 #include "EventLogItemViewModel.h"
 
-#include <wil/cppwinrt_helpers.h>
-
 #include <ctime>
 #include <iomanip>
 #include <sstream>
@@ -105,7 +103,7 @@ namespace winrt::AstralChronicle::implementation
 
     DashboardViewModel::DashboardViewModel()
         : m_recentCriticalEvents(
-            winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>().GetView())
+            winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>())
     {
     }
 
@@ -142,7 +140,7 @@ namespace winrt::AstralChronicle::implementation
         m_timelineSummary = strings.GetString(L"Dashboard.CrashTimelineLoading.Text");
         m_statusText = strings.GetString(L"Dashboard.Loading.Text");
         m_statusDetails = strings.GetString(L"Dashboard.LoadingDetails.Text");
-        m_recentCriticalEvents = winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>().GetView();
+        m_recentCriticalEvents = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         RaiseDataProperties();
         auto const querySinceMidnight = QuerySinceLocalMidnight();
         LoadAsync(requestVersion, m_cancellation, querySinceMidnight, CriticalQuery(querySinceMidnight));
@@ -164,13 +162,37 @@ namespace winrt::AstralChronicle::implementation
             6,
             true,
             cancellation);
-        co_await wil::resume_foreground(m_dispatcher);
-        if (requestVersion != m_requestVersion || cancellation != m_cancellation)
+
+        auto const dispatcher = m_dispatcher;
+        if (!dispatcher)
         {
             co_return;
         }
 
-        ApplyResults(channelCount, counts, criticalEvents);
+        try
+        {
+            auto const queued = dispatcher.TryEnqueue(
+                Microsoft::UI::Dispatching::DispatcherQueuePriority::Normal,
+                [lifetime = std::move(lifetime), this, requestVersion, cancellation, channelCount,
+                 counts = std::move(counts), criticalEvents = std::move(criticalEvents)]()
+                {
+                    if (requestVersion != m_requestVersion || cancellation != m_cancellation)
+                    {
+                        return;
+                    }
+
+                    ApplyResults(channelCount, counts, criticalEvents);
+                });
+
+            if (!queued)
+            {
+                co_return;
+            }
+        }
+        catch (...)
+        {
+            co_return;
+        }
     }
 
     void DashboardViewModel::ApplyResults(
@@ -211,7 +233,7 @@ namespace winrt::AstralChronicle::implementation
                 { winrt::to_hstring(counts.ErrorCode) });
         }
 
-        auto const eventVector = winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>();
+        auto const eventVector = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         for (auto const& event : criticalEvents.Events)
         {
             auto item = winrt::make<winrt::AstralChronicle::implementation::EventLogItemViewModel>();
@@ -220,7 +242,7 @@ namespace winrt::AstralChronicle::implementation
                 *m_strings);
             eventVector.Append(item);
         }
-        m_recentCriticalEvents = eventVector.GetView();
+        m_recentCriticalEvents = eventVector;
 
         if (!criticalEvents.Events.empty())
         {
@@ -291,7 +313,7 @@ namespace winrt::AstralChronicle::implementation
     }
     bool DashboardViewModel::HasStatusMessage() const noexcept { return m_hasStatusMessage; }
     bool DashboardViewModel::IsLoading() const noexcept { return m_isLoading; }
-    Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::EventLogItemViewModel> DashboardViewModel::RecentCriticalEvents() const
+    Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> DashboardViewModel::RecentCriticalEvents() const
     {
         return m_recentCriticalEvents;
     }

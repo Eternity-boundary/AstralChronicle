@@ -70,7 +70,7 @@ namespace
 namespace winrt::AstralChronicle::implementation
 {
     SavedViewsViewModel::SavedViewsViewModel()
-        : m_views(winrt::single_threaded_vector<winrt::AstralChronicle::SavedViewItemViewModel>().GetView())
+        : m_views(winrt::single_threaded_observable_vector<winrt::AstralChronicle::SavedViewItemViewModel>())
     {
     }
 
@@ -126,7 +126,7 @@ namespace winrt::AstralChronicle::implementation
             return left.UpdatedAt > right.UpdatedAt;
         });
         m_models = std::move(views);
-        auto values = winrt::single_threaded_vector<winrt::AstralChronicle::SavedViewItemViewModel>();
+        auto values = winrt::single_threaded_observable_vector<winrt::AstralChronicle::SavedViewItemViewModel>();
         winrt::AstralChronicle::SavedViewItemViewModel selected{ nullptr };
         for (auto const& view : m_models)
         {
@@ -135,7 +135,7 @@ namespace winrt::AstralChronicle::implementation
             values.Append(item);
             if (!selectedId.empty() && view.Id == selectedId) selected = item;
         }
-        m_views = values.GetView();
+        m_views = values;
         m_selectedView = selected;
         m_hasSelection = selected != nullptr;
         if (selected)
@@ -408,7 +408,7 @@ namespace winrt::AstralChronicle::implementation
     Microsoft::UI::Xaml::Controls::InfoBarSeverity SavedViewsViewModel::StatusSeverity() const noexcept { return m_statusSeverity; }
     bool SavedViewsViewModel::HasStatusMessage() const noexcept { return m_hasStatusMessage; }
     bool SavedViewsViewModel::IsLoading() const noexcept { return m_isLoading; }
-    Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::SavedViewItemViewModel> SavedViewsViewModel::Views() const { return m_views; }
+    Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::SavedViewItemViewModel> SavedViewsViewModel::Views() const { return m_views; }
     winrt::AstralChronicle::SavedViewItemViewModel SavedViewsViewModel::SelectedView() const { return m_selectedView; }
     bool SavedViewsViewModel::HasSelection() const noexcept { return m_hasSelection; }
     bool SavedViewsViewModel::CanSave() const noexcept { return !m_editorName.empty(); }

@@ -47,7 +47,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] Microsoft::UI::Xaml::Controls::InfoBarSeverity StatusSeverity() const noexcept;
         [[nodiscard]] bool HasStatusMessage() const noexcept;
         [[nodiscard]] bool IsLoading() const noexcept;
-        [[nodiscard]] Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::EventLogItemViewModel> RecentCriticalEvents() const;
+        [[nodiscard]] Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> RecentCriticalEvents() const;
         winrt::event_token PropertyChanged(Microsoft::UI::Xaml::Data::PropertyChangedEventHandler const& handler);
         void PropertyChanged(winrt::event_token const& token) noexcept;
 
@@ -86,7 +86,7 @@ namespace winrt::AstralChronicle::implementation
         bool m_isLoading{};
         Microsoft::UI::Xaml::Controls::InfoBarSeverity m_statusSeverity{
             Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational };
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::EventLogItemViewModel> m_recentCriticalEvents{ nullptr };
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> m_recentCriticalEvents{ nullptr };
         winrt::event<Microsoft::UI::Xaml::Data::PropertyChangedEventHandler> m_propertyChanged;
     };
 }

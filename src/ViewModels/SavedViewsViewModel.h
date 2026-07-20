@@ -34,7 +34,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] Microsoft::UI::Xaml::Controls::InfoBarSeverity StatusSeverity() const noexcept;
         [[nodiscard]] bool HasStatusMessage() const noexcept;
         [[nodiscard]] bool IsLoading() const noexcept;
-        [[nodiscard]] Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::SavedViewItemViewModel> Views() const;
+        [[nodiscard]] Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::SavedViewItemViewModel> Views() const;
         [[nodiscard]] winrt::AstralChronicle::SavedViewItemViewModel SelectedView() const;
         void SelectedView(winrt::AstralChronicle::SavedViewItemViewModel const& value);
         [[nodiscard]] bool HasSelection() const noexcept;
@@ -107,7 +107,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_editorCustomViewXml;
         winrt::hstring m_customViewWarning;
         std::vector<::AstralChronicle::models::SavedView> m_models;
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::SavedViewItemViewModel> m_views{ nullptr };
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::SavedViewItemViewModel> m_views{ nullptr };
         winrt::AstralChronicle::SavedViewItemViewModel m_selectedView{ nullptr };
         bool m_editorDetails{};
         bool m_editorTimeline{};

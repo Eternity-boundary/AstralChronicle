@@ -53,7 +53,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::AstralChronicle::EventLogItemViewModel SelectedEvent() const;
         [[nodiscard]] winrt::hstring SelectedEventDetails() const;
         [[nodiscard]] std::uint32_t BookmarkCount() const noexcept;
-        [[nodiscard]] Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::EventLogItemViewModel> Events() const;
+        [[nodiscard]] Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> Events() const;
         void Refresh();
         void Select(winrt::AstralChronicle::EventLogItemViewModel const& item);
         void BookmarkSelected();
@@ -95,8 +95,8 @@ namespace winrt::AstralChronicle::implementation
         winrt::AstralChronicle::EventLogItemViewModel m_selectedEvent{ nullptr };
         winrt::hstring m_selectedEventDetails;
         std::uint32_t m_bookmarkCount{};
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::EventLogItemViewModel> m_events{ nullptr };
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::EventLogItemViewModel> m_allEvents{ nullptr };
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> m_events{ nullptr };
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> m_allEvents{ nullptr };
         bool m_hasStatusMessage{ true };
         bool m_isLoading{};
         bool m_correlationEnabled{ true };

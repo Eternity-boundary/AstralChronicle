@@ -68,7 +68,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::Windows::Foundation::IInspectable const& sender,
         Microsoft::UI::Xaml::RoutedEventArgs const&)
     {
-        auto const button = sender.as<Microsoft::UI::Xaml::Controls::Button>();
+        auto const button = sender.as<Microsoft::UI::Xaml::FrameworkElement>();
         auto const key = winrt::unbox_value<winrt::hstring>(button.Tag());
         winrt::get_self<EventLogsViewModel>(m_viewModel)->SortBy(key);
     }

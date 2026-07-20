@@ -110,7 +110,14 @@ namespace winrt::AstralChronicle::implementation
     {
         InitializeComponent();
 
-        SystemBackdrop(Microsoft::UI::Xaml::Media::MicaBackdrop{});
+        try
+        {
+            SystemBackdrop(Microsoft::UI::Xaml::Media::MicaBackdrop{});
+        }
+        catch (...)
+        {
+            // Some remote or restricted desktop sessions do not support Mica.
+        }
         ExtendsContentIntoTitleBar(true);
         SetTitleBar(AppTitleBar());
         Title(host.Strings().GetString(L"MainWindow.Title"));
@@ -233,7 +240,6 @@ namespace winrt::AstralChronicle::implementation
             } });
 
         RootNavigationView().SelectedItem(RootNavigationView().MenuItems().GetAt(0));
-        [[maybe_unused]] auto const openedDashboard = m_navigation->Navigate(L"dashboard");
         RootNavigationView().IsPaneOpen(true);
         UpdateThemeBackdropLayout();
     }

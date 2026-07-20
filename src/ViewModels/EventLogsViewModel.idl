@@ -34,7 +34,7 @@ namespace AstralChronicle
         String SortKey{ get; };
         Boolean SortAscending{ get; };
         Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
-        Windows.Foundation.Collections.IVectorView<EventLogItemViewModel> Events{ get; };
+        Windows.Foundation.Collections.IObservableVector<EventLogItemViewModel> Events{ get; };
         EventLogItemViewModel SelectedEvent{ get; set; };
         String SelectedProvider{ get; };
         String SelectedEventId{ get; };

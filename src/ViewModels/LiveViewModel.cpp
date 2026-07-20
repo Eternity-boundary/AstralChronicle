@@ -36,7 +36,7 @@ namespace
 namespace winrt::AstralChronicle::implementation
 {
     LiveViewModel::LiveViewModel()
-        : m_events(winrt::single_threaded_vector<winrt::hstring>().GetView())
+        : m_events(winrt::single_threaded_observable_vector<winrt::hstring>())
     {
     }
 
@@ -123,7 +123,7 @@ namespace winrt::AstralChronicle::implementation
     void LiveViewModel::Clear()
     {
         if (m_liveService) m_liveService->Clear();
-        m_events = winrt::single_threaded_vector<winrt::hstring>().GetView();
+        m_events = winrt::single_threaded_observable_vector<winrt::hstring>();
         m_droppedCount = 0;
         m_totalReceived = 0;
         m_criticalCount = 0;
@@ -148,7 +148,7 @@ namespace winrt::AstralChronicle::implementation
 
     void LiveViewModel::ApplyBatch(::AstralChronicle::services::LiveBatch const& batch)
     {
-        auto values = winrt::single_threaded_vector<winrt::hstring>();
+        auto values = winrt::single_threaded_observable_vector<winrt::hstring>();
         for (auto const& existing : m_events) values.Append(existing);
         for (auto const& event : batch.Events)
         {
@@ -171,7 +171,7 @@ namespace winrt::AstralChronicle::implementation
             values.Append(winrt::hstring{ event });
         }
         while (values.Size() > 2000) values.RemoveAt(0);
-        m_events = values.GetView();
+        m_events = values;
         m_droppedCount += batch.DroppedCount;
         if (m_isRecording)
         {
@@ -260,7 +260,7 @@ namespace winrt::AstralChronicle::implementation
     bool LiveViewModel::CanStart() const noexcept { return !m_isRunning; }
     std::uint32_t LiveViewModel::DroppedCount() const noexcept { return m_droppedCount; }
     std::uint32_t LiveViewModel::EventCount() const noexcept { return m_events ? m_events.Size() : 0; }
-    Windows::Foundation::Collections::IVectorView<winrt::hstring> LiveViewModel::Events() const { return m_events; }
+    Windows::Foundation::Collections::IObservableVector<winrt::hstring> LiveViewModel::Events() const { return m_events; }
     Microsoft::UI::Xaml::Controls::InfoBarSeverity LiveViewModel::StatusSeverity() const noexcept { return m_statusSeverity; }
     bool LiveViewModel::HasStatusMessage() const noexcept { return m_hasStatusMessage; }
     void LiveViewModel::ToggleRecording()

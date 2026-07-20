@@ -332,15 +332,15 @@
                         <ColumnDefinition Width="150" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button x:Uid="EventLogsLevelHeaderButton" Tag="Level" Click="OnSortClicked" Grid.Column="0" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <Button x:Uid="EventLogsTimeHeaderButton" Tag="Time" Click="OnSortClicked" Grid.Column="1" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <Button x:Uid="EventLogsProviderHeaderButton" Tag="Provider" Click="OnSortClicked" Grid.Column="2" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <Button x:Uid="EventLogsIdHeaderButton" Tag="EventId" Click="OnSortClicked" Grid.Column="3" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <Button x:Uid="EventLogsTaskHeaderButton" Tag="Task" Click="OnSortClicked" Grid.Column="4" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <Button x:Uid="EventLogsChannelHeaderButton" Tag="Channel" Click="OnSortClicked" Grid.Column="5" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <Button x:Uid="EventLogsUserHeaderButton" Tag="User" Click="OnSortClicked" Grid.Column="6" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <Button x:Uid="EventLogsComputerHeaderButton" Tag="Computer" Click="OnSortClicked" Grid.Column="7" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <Button x:Uid="EventLogsDescriptionHeaderButton" Tag="Description" Click="OnSortClicked" Grid.Column="8" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsLevelHeaderButton" Tag="Level" Click="OnSortClicked" Grid.Column="0" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsTimeHeaderButton" Tag="Time" Click="OnSortClicked" Grid.Column="1" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsProviderHeaderButton" Tag="Provider" Click="OnSortClicked" Grid.Column="2" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsIdHeaderButton" Tag="EventId" Click="OnSortClicked" Grid.Column="3" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsTaskHeaderButton" Tag="Task" Click="OnSortClicked" Grid.Column="4" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsChannelHeaderButton" Tag="Channel" Click="OnSortClicked" Grid.Column="5" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsUserHeaderButton" Tag="User" Click="OnSortClicked" Grid.Column="6" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsComputerHeaderButton" Tag="Computer" Click="OnSortClicked" Grid.Column="7" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsDescriptionHeaderButton" Tag="Description" Click="OnSortClicked" Grid.Column="8" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
                 </Grid>
                 <ListView
                     x:Name="EventList"

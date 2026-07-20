@@ -6,12 +6,14 @@
 
 #include <cwchar>
 #include <string>
+#include <winrt/Microsoft.UI.Dispatching.h>
 
 namespace winrt::AstralChronicle::implementation
 {
     DashboardPage::DashboardPage()
         : m_viewModel(winrt::make<DashboardViewModel>())
     {
+        InitializeComponent();
     }
 
     winrt::AstralChronicle::DashboardViewModel DashboardPage::ViewModel() const
@@ -27,7 +29,16 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::navigation::INavigationService& navigation)
     {
         m_navigation = &navigation;
-        winrt::get_self<DashboardViewModel>(m_viewModel)->Initialize(eventLogCatalog, eventQuery, strings, dispatcher);
+        auto dispatcherForViewModel = PageRoot().DispatcherQueue();
+        if (!dispatcherForViewModel)
+        {
+            dispatcherForViewModel = dispatcher;
+        }
+        winrt::get_self<DashboardViewModel>(m_viewModel)->Initialize(
+            eventLogCatalog,
+            eventQuery,
+            strings,
+            dispatcherForViewModel);
     }
 
     void DashboardPage::OnErrorCardTapped(
@@ -55,7 +66,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::Windows::Foundation::IInspectable const& sender,
         Microsoft::UI::Xaml::RoutedEventArgs const&)
     {
-        auto const button = sender.try_as<Microsoft::UI::Xaml::Controls::Button>();
+        auto const button = sender.try_as<Microsoft::UI::Xaml::FrameworkElement>();
         if (!button)
         {
             return;

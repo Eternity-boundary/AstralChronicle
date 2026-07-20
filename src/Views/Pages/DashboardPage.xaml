@@ -53,7 +53,7 @@
                     Grid.Column="0"
                     IsTapEnabled="True"
                     MinHeight="128"
-                    Padding="{StaticResource AstralContentSpacing}"
+                    Padding="{StaticResource AstralCardPadding}"
                     Style="{StaticResource AstralCardBorderStyle}"
                     Tapped="OnErrorCardTapped">
                     <StackPanel Spacing="{StaticResource AstralContentSpacing}">
@@ -72,7 +72,7 @@
                     Grid.Column="1"
                     IsTapEnabled="True"
                     MinHeight="128"
-                    Padding="{StaticResource AstralContentSpacing}"
+                    Padding="{StaticResource AstralCardPadding}"
                     Style="{StaticResource AstralCardBorderStyle}"
                     Tapped="OnWarningCardTapped">
                     <StackPanel Spacing="{StaticResource AstralContentSpacing}">
@@ -91,7 +91,7 @@
                     Grid.Column="2"
                     IsTapEnabled="True"
                     MinHeight="128"
-                    Padding="{StaticResource AstralContentSpacing}"
+                    Padding="{StaticResource AstralCardPadding}"
                     Style="{StaticResource AstralCardBorderStyle}"
                     Tapped="OnCriticalCardTapped">
                     <StackPanel Spacing="{StaticResource AstralContentSpacing}">
@@ -109,7 +109,7 @@
                 <Border
                     Grid.Column="3"
                     MinHeight="128"
-                    Padding="{StaticResource AstralContentSpacing}"
+                    Padding="{StaticResource AstralCardPadding}"
                     Style="{StaticResource AstralCardBorderStyle}">
                     <StackPanel Spacing="{StaticResource AstralContentSpacing}">
                         <TextBlock
@@ -152,7 +152,7 @@
                             x:Uid="DashboardRecentCriticalEventsTitle"
                             AutomationProperties.AutomationId="DashboardRecentCriticalEventsTitle"
                             Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
-                        <Button
+                        <HyperlinkButton
                             x:Uid="DashboardViewAllEventsButton"
                             Grid.Column="1"
                             AutomationProperties.AutomationId="DashboardViewAllEventsButton"
@@ -171,8 +171,7 @@
                                 ItemsSource="{x:Bind ViewModel.RecentCriticalEvents, Mode=OneWay}"
                                 IsItemClickEnabled="False"
                                 MaxHeight="220"
-                                SelectionMode="None"
-                                ShowsScrollingPlaceholders="True">
+                                SelectionMode="None">
                                 <ListView.ItemTemplate>
                                     <DataTemplate x:DataType="local:EventLogItemViewModel">
                                         <Grid ColumnSpacing="{StaticResource AstralContentSpacing}" MinHeight="48">
@@ -213,7 +212,7 @@
                                                 Grid.Column="4"
                                                 Style="{StaticResource AstralCaptionTextBlockStyle}"
                                                 Text="{x:Bind EventId, Mode=OneWay}" />
-                                            <Button
+                                            <HyperlinkButton
                                                 x:Uid="DashboardOpenEventButton"
                                                 Grid.Column="5"
                                                 AutomationProperties.AutomationId="DashboardOpenEventButton"

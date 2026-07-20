@@ -36,12 +36,12 @@ namespace winrt::AstralChronicle::implementation
         m_heading = strings.GetString(L"Remote.Heading"); m_summary = strings.GetString(L"Remote.Summary");
         m_connectionState = strings.GetString(L"Remote.State.Disconnected"); m_securityNotice = strings.GetString(L"Remote.SecurityNotice.Text");
         m_statusText = strings.GetString(L"Remote.Ready.Text"); m_statusDetails = strings.GetString(L"Remote.ReadyDetails.Text");
-        m_savedConnections = winrt::single_threaded_vector<winrt::hstring>().GetView();
-        m_channels = winrt::single_threaded_vector<winrt::hstring>().GetView();
-        m_queryResults = winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>().GetView();
+        m_savedConnections = winrt::single_threaded_observable_vector<winrt::hstring>();
+        m_channels = winrt::single_threaded_observable_vector<winrt::hstring>();
+        m_queryResults = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         m_queryStatus = strings.GetString(L"Remote.Query.Empty.Text");
         m_compareStatus = strings.GetString(L"Remote.CompareReady.Text");
-        m_liveEvents = winrt::single_threaded_vector<winrt::hstring>().GetView();
+        m_liveEvents = winrt::single_threaded_observable_vector<winrt::hstring>();
         m_liveStatus = strings.GetString(L"Remote.Live.Stopped.Text");
         LoadConnections();
         LoadSavedQueries();
@@ -61,8 +61,8 @@ namespace winrt::AstralChronicle::implementation
         StopRemoteLive();
         if (m_queryCancellation) m_queryCancellation->store(true, std::memory_order_relaxed);
         if (m_service) m_service->Disconnect(); m_connected = false; m_connectionState = m_strings->GetString(L"Remote.State.Disconnected");
-        m_channels = winrt::single_threaded_vector<winrt::hstring>().GetView();
-        m_queryResults = winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>().GetView();
+        m_channels = winrt::single_threaded_observable_vector<winrt::hstring>();
+        m_queryResults = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         RaisePropertyChanged(L"IsConnected"); RaisePropertyChanged(L"ConnectionState");
         RaisePropertyChanged(L"Channels");
         RaisePropertyChanged(L"QueryResults");
@@ -265,14 +265,14 @@ namespace winrt::AstralChronicle::implementation
             auto const batch = m_service->TakeLiveBatch(64);
             co_await wil::resume_foreground(dispatcher);
             if (requestVersion != m_liveVersion || !m_remoteLive) co_return;
-            auto values = winrt::single_threaded_vector<winrt::hstring>();
+            auto values = winrt::single_threaded_observable_vector<winrt::hstring>();
             if (m_liveEvents)
             {
                 for (auto const& item : m_liveEvents) values.Append(item);
             }
             for (auto const& item : batch.Events) values.Append(winrt::hstring{ item });
             while (values.Size() > 200) values.RemoveAt(0);
-            m_liveEvents = values.GetView();
+            m_liveEvents = values;
             if (batch.State == ::AstralChronicle::services::LiveState::Error)
             {
                 m_liveStatus = FormatResource(m_strings->GetString(L"Remote.Live.Failed.Text"), winrt::to_hstring(batch.ErrorCode));
@@ -332,14 +332,14 @@ namespace winrt::AstralChronicle::implementation
 
     void RemoteViewModel::ApplyQuery(::AstralChronicle::services::EventQueryResult const& result)
     {
-        auto values = winrt::single_threaded_vector<winrt::AstralChronicle::EventLogItemViewModel>();
+        auto values = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         for (auto const& event : result.Events)
         {
             auto item = winrt::make<winrt::AstralChronicle::implementation::EventLogItemViewModel>();
             winrt::get_self<winrt::AstralChronicle::implementation::EventLogItemViewModel>(item)->Initialize(event, *m_strings);
             values.Append(item);
         }
-        m_queryResults = values.GetView();
+        m_queryResults = values;
         if (result.Status == ::AstralChronicle::services::EventQueryStatus::Succeeded)
         {
             m_queryStatus = FormatResource(m_strings->GetString(L"Remote.QueryReady.Text"), winrt::to_hstring(result.Events.size()));
@@ -361,10 +361,10 @@ namespace winrt::AstralChronicle::implementation
         auto dispatcher = m_dispatcher;
         co_await winrt::resume_background();
         auto const descriptors = m_service->EnumerateChannels();
-        auto values = winrt::single_threaded_vector<winrt::hstring>();
+        auto values = winrt::single_threaded_observable_vector<winrt::hstring>();
         for (auto const& descriptor : descriptors) values.Append(winrt::hstring{ descriptor.Path });
         co_await wil::resume_foreground(dispatcher);
-        m_channels = values.GetView();
+        m_channels = values;
         RaisePropertyChanged(L"Channels");
     }
     void RemoteViewModel::SelectSavedConnection(std::int32_t const index)
@@ -393,11 +393,11 @@ namespace winrt::AstralChronicle::implementation
     winrt::hstring RemoteViewModel::CompareStatus() const { return m_compareStatus; }
     bool RemoteViewModel::IsRemoteLive() const noexcept { return m_remoteLive; }
     winrt::hstring RemoteViewModel::LiveStatus() const { return m_liveStatus; }
-    Windows::Foundation::Collections::IVectorView<winrt::hstring> RemoteViewModel::LiveEvents() const { return m_liveEvents; }
-    Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::EventLogItemViewModel> RemoteViewModel::QueryResults() const { return m_queryResults; }
-    Windows::Foundation::Collections::IVectorView<winrt::hstring> RemoteViewModel::SavedQueries() const { return m_savedQueries; }
-    Windows::Foundation::Collections::IVectorView<winrt::hstring> RemoteViewModel::SavedConnections() const { return m_savedConnections; }
-    Windows::Foundation::Collections::IVectorView<winrt::hstring> RemoteViewModel::Channels() const { return m_channels; }
+    Windows::Foundation::Collections::IObservableVector<winrt::hstring> RemoteViewModel::LiveEvents() const { return m_liveEvents; }
+    Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> RemoteViewModel::QueryResults() const { return m_queryResults; }
+    Windows::Foundation::Collections::IObservableVector<winrt::hstring> RemoteViewModel::SavedQueries() const { return m_savedQueries; }
+    Windows::Foundation::Collections::IObservableVector<winrt::hstring> RemoteViewModel::SavedConnections() const { return m_savedConnections; }
+    Windows::Foundation::Collections::IObservableVector<winrt::hstring> RemoteViewModel::Channels() const { return m_channels; }
     Microsoft::UI::Xaml::Controls::InfoBarSeverity RemoteViewModel::StatusSeverity() const noexcept { return m_statusSeverity; } bool RemoteViewModel::HasStatusMessage() const noexcept { return m_hasStatusMessage; }
     winrt::event_token RemoteViewModel::PropertyChanged(Microsoft::UI::Xaml::Data::PropertyChangedEventHandler const& handler) { return m_propertyChanged.add(handler); }
     void RemoteViewModel::PropertyChanged(winrt::event_token const& token) noexcept { m_propertyChanged.remove(token); }
@@ -446,7 +446,7 @@ namespace winrt::AstralChronicle::implementation
     }
     void RemoteViewModel::RebuildConnectionView()
     {
-        auto values = winrt::single_threaded_vector<winrt::hstring>();
+        auto values = winrt::single_threaded_observable_vector<winrt::hstring>();
         for (auto const& connection : m_connections)
         {
             auto label = connection.Host;
@@ -456,7 +456,7 @@ namespace winrt::AstralChronicle::implementation
             }
             values.Append(winrt::hstring{ label });
         }
-        m_savedConnections = values.GetView();
+        m_savedConnections = values;
         RaisePropertyChanged(L"SavedConnections");
     }
 
@@ -501,9 +501,9 @@ namespace winrt::AstralChronicle::implementation
 
     void RemoteViewModel::RebuildSavedQueryView()
     {
-        auto values = winrt::single_threaded_vector<winrt::hstring>();
+        auto values = winrt::single_threaded_observable_vector<winrt::hstring>();
         for (auto const& profile : m_savedQueryModels) values.Append(winrt::hstring{ profile.Name + L" — " + profile.Channel });
-        m_savedQueries = values.GetView();
+        m_savedQueries = values;
         RaisePropertyChanged(L"SavedQueries");
     }
 }

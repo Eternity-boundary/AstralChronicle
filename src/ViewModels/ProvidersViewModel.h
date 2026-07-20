@@ -36,7 +36,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] bool IsLoading() const noexcept;
         [[nodiscard]] winrt::hstring SearchText() const;
         void SearchText(winrt::hstring const& value);
-        [[nodiscard]] Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::ProviderItemViewModel> Providers() const;
+        [[nodiscard]] Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::ProviderItemViewModel> Providers() const;
         [[nodiscard]] winrt::AstralChronicle::ProviderItemViewModel SelectedProvider() const;
         void SelectedProvider(winrt::AstralChronicle::ProviderItemViewModel const& value);
         [[nodiscard]] winrt::hstring SelectedProviderName() const;
@@ -49,7 +49,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::hstring SelectedHelpLink() const;
         [[nodiscard]] winrt::hstring SelectedMetadataStatus() const;
         [[nodiscard]] winrt::hstring SelectedEventCount() const;
-        [[nodiscard]] Windows::Foundation::Collections::IVectorView<winrt::hstring> EventDefinitions() const;
+        [[nodiscard]] Windows::Foundation::Collections::IObservableVector<winrt::hstring> EventDefinitions() const;
         void Refresh();
 
         winrt::event_token PropertyChanged(Microsoft::UI::Xaml::Data::PropertyChangedEventHandler const& handler);
@@ -91,8 +91,8 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_selectedHelpLink;
         winrt::hstring m_selectedMetadataStatus;
         winrt::hstring m_selectedEventCount;
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::AstralChronicle::ProviderItemViewModel> m_providers{ nullptr };
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::hstring> m_eventDefinitions{ nullptr };
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::ProviderItemViewModel> m_providers{ nullptr };
+        winrt::Windows::Foundation::Collections::IObservableVector<winrt::hstring> m_eventDefinitions{ nullptr };
         winrt::AstralChronicle::ProviderItemViewModel m_selectedProvider{ nullptr };
         bool m_hasStatusMessage{ true };
         bool m_isLoading{};

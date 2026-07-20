@@ -25,7 +25,7 @@ namespace AstralChronicle
         EventLogItemViewModel SelectedEvent{ get; };
         String SelectedEventDetails{ get; };
         UInt32 BookmarkCount{ get; };
-        Windows.Foundation.Collections.IVectorView<EventLogItemViewModel> Events{ get; };
+        Windows.Foundation.Collections.IObservableVector<EventLogItemViewModel> Events{ get; };
         void Refresh(); void Select(EventLogItemViewModel item); void BookmarkSelected(); String ExportText();
     }
 }
