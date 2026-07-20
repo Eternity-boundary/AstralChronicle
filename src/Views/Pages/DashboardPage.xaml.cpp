@@ -6,6 +6,7 @@
 
 #include <cwchar>
 #include <string>
+#include <utility>
 #include <winrt/Microsoft.UI.Dispatching.h>
 
 namespace winrt::AstralChronicle::implementation
@@ -26,9 +27,11 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::services::IEventQueryService const& eventQuery,
         ::AstralChronicle::design::IStringResourceService const& strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
-        ::AstralChronicle::navigation::INavigationService& navigation)
+        ::AstralChronicle::navigation::INavigationService& navigation,
+        std::function<void(std::wstring_view)> navigationSelectionChanged)
     {
         m_navigation = &navigation;
+        m_navigationSelectionChanged = std::move(navigationSelectionChanged);
         auto dispatcherForViewModel = PageRoot().DispatcherQueue();
         if (!dispatcherForViewModel)
         {
@@ -92,7 +95,7 @@ namespace winrt::AstralChronicle::implementation
         request.Route = L"event-logs";
         request.Channel = ::AstralChronicle::models::EventChannelIdentifier{ L"System" };
         request.Query = L"*[System[(Level=1 or Level=2)]]";
-        (void)m_navigation->Navigate(request);
+        Navigate(request);
     }
 
     void DashboardPage::NavigateToEvent(
@@ -120,7 +123,22 @@ namespace winrt::AstralChronicle::implementation
         request.Route = L"event-logs";
         request.Channel = ::AstralChronicle::models::EventChannelIdentifier{ std::move(channelPath) };
         request.Query = L"*[System[EventRecordID=" + std::to_wstring(numericRecordId) + L"]]";
-        (void)m_navigation->Navigate(request);
+        Navigate(request);
+    }
+
+    bool DashboardPage::Navigate(::AstralChronicle::navigation::NavigationRequest const& request)
+    {
+        if (!m_navigation || !m_navigation->Navigate(request))
+        {
+            return false;
+        }
+
+        if (m_navigationSelectionChanged)
+        {
+            m_navigationSelectionChanged(request.Route);
+        }
+
+        return true;
     }
 
     void DashboardPage::NavigateToLevel(std::uint8_t const level)
@@ -134,6 +152,6 @@ namespace winrt::AstralChronicle::implementation
         request.Route = L"event-logs";
         request.Channel = ::AstralChronicle::models::EventChannelIdentifier{ L"System" };
         request.Query = L"*[System[Level=" + std::to_wstring(level) + L"]]";
-        (void)m_navigation->Navigate(request);
+        Navigate(request);
     }
 }

@@ -63,6 +63,7 @@ namespace winrt::AstralChronicle::implementation
             winrt::Windows::Foundation::IInspectable const& args);
 
     private:
+        void SelectNavigationItemForRoute(std::wstring_view route);
         void UpdateShellGreeting();
         void ApplyThemeBackdrop();
         void UpdateThemeBackdropLayout();
@@ -82,6 +83,7 @@ namespace winrt::AstralChronicle::implementation
         std::uint32_t m_themeSubscriptionId{};
         bool m_dynamicChannelLoadRequested{};
         bool m_dynamicChannelTreeLoaded{};
+        bool m_isUpdatingNavigationSelection{};
         winrt::Microsoft::UI::Xaml::Controls::NavigationViewItem m_dynamicChannelRoot{ nullptr };
         std::optional<::AstralChronicle::services::ChannelPathTreeNode> m_dynamicChannelTree;
         std::unordered_map<std::wstring, ::AstralChronicle::services::ChannelPathTreeNode*> m_dynamicChannelIndex;

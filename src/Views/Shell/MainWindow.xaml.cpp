@@ -149,7 +149,11 @@ namespace winrt::AstralChronicle::implementation
                     host.EventQuery(),
                     host.Strings(),
                     RootLayout().DispatcherQueue(),
-                    host.Navigation());
+                    host.Navigation(),
+                    [this](std::wstring_view route)
+                    {
+                        SelectNavigationItemForRoute(route);
+                    });
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
@@ -320,6 +324,38 @@ namespace winrt::AstralChronicle::implementation
         Windows::Foundation::IInspectable const&)
     {
         UpdateThemeBackdropLayout();
+    }
+
+    void MainWindow::SelectNavigationItemForRoute(std::wstring_view route)
+    {
+        auto findItem = [route](auto const& items) -> NavigationViewItem
+        {
+            for (auto const& value : items)
+            {
+                auto const item = value.try_as<NavigationViewItem>();
+                if (item && TagOf(item) == route)
+                {
+                    return item;
+                }
+            }
+
+            return nullptr;
+        };
+
+        auto item = findItem(RootNavigationView().MenuItems());
+        if (!item)
+        {
+            item = findItem(RootNavigationView().FooterMenuItems());
+        }
+
+        if (!item || RootNavigationView().SelectedItem() == item)
+        {
+            return;
+        }
+
+        m_isUpdatingNavigationSelection = true;
+        RootNavigationView().SelectedItem(item);
+        m_isUpdatingNavigationSelection = false;
     }
 
     void MainWindow::StartDynamicChannelLoad()
@@ -550,6 +586,11 @@ namespace winrt::AstralChronicle::implementation
         Microsoft::UI::Xaml::Controls::NavigationView const&,
         Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args)
     {
+        if (m_isUpdatingNavigationSelection)
+        {
+            return;
+        }
+
         auto const item = args.SelectedItem().try_as<Microsoft::UI::Xaml::Controls::NavigationViewItem>();
         if (!item || !m_navigation)
         {
