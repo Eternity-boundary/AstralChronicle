@@ -1,0 +1,10 @@
+import "src\\ViewModels\\TimelineViewModel.idl";
+
+namespace AstralChronicle
+{
+    runtimeclass TimelinePage : Microsoft.UI.Xaml.Controls.Page
+    {
+        TimelinePage();
+        TimelineViewModel ViewModel{ get; };
+    }
+}

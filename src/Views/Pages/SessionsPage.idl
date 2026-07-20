@@ -1,0 +1,2 @@
+import "src\\ViewModels\\SessionsViewModel.idl";
+namespace AstralChronicle { runtimeclass SessionsPage : Microsoft.UI.Xaml.Controls.Page { SessionsPage(); SessionsViewModel ViewModel{ get; }; } }

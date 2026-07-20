@@ -189,6 +189,63 @@
   <data name="SettingsNavigationItem.Content" xml:space="preserve">
     <value>Settings</value>
   </data>
+  <data name="EventLogsCustomViewsNavigationItem.Content" xml:space="preserve">
+    <value>Custom Views</value>
+  </data>
+  <data name="EventLogs.CustomViewsLoading.Text" xml:space="preserve">
+    <value>Loading custom views…</value>
+  </data>
+  <data name="EventLogs.CustomViewsUnavailable.Text" xml:space="preserve">
+    <value>Unable to read custom views.</value>
+  </data>
+  <data name="EventLogs.CustomViewChannel.Text" xml:space="preserve">
+    <value>Custom view</value>
+  </data>
+  <data name="EventLogsAdministrativeEventsNavigationItem.Content" xml:space="preserve">
+    <value>Administrative Events</value>
+  </data>
+  <data name="EventLogsWindowsLogsNavigationItem.Content" xml:space="preserve">
+    <value>Windows Logs</value>
+  </data>
+  <data name="EventLogsApplicationNavigationItem.Content" xml:space="preserve">
+    <value>Application</value>
+  </data>
+  <data name="EventLogsSecurityNavigationItem.Content" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="EventLogsSetupNavigationItem.Content" xml:space="preserve">
+    <value>Setup</value>
+  </data>
+  <data name="EventLogsSystemNavigationItem.Content" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="EventLogsForwardedEventsNavigationItem.Content" xml:space="preserve">
+    <value>Forwarded Events</value>
+  </data>
+  <data name="EventLogsApplicationsAndServicesNavigationItem.Content" xml:space="preserve">
+    <value>Applications and Services Logs</value>
+  </data>
+  <data name="EventLogsSubscriptionsNavigationItem.Content" xml:space="preserve">
+    <value>Subscriptions</value>
+  </data>
+  <data name="EventLogs.ChannelDisabledSuffix.Text" xml:space="preserve">
+    <value> (disabled)</value>
+  </data>
+  <data name="EventLogs.ChannelAccessDeniedSuffix.Text" xml:space="preserve">
+    <value> (access denied)</value>
+  </data>
+  <data name="EventLogs.ChannelUnavailableSuffix.Text" xml:space="preserve">
+    <value> (unavailable)</value>
+  </data>
+  <data name="EventLogs.DynamicChannelsUnavailable.Text" xml:space="preserve">
+    <value>Applications and Services Logs are unavailable.</value>
+  </data>
+  <data name="EventLogs.DynamicChannelsNone.Text" xml:space="preserve">
+    <value>No Applications and Services Logs channels are available.</value>
+  </data>
+  <data name="EventLogs.DynamicChannelsLoading.Text" xml:space="preserve">
+    <value>Loading Applications and Services Logs…</value>
+  </data>
   <data name="EventLogCatalogTitle.Text" xml:space="preserve">
     <value>Event log catalog</value>
   </data>
@@ -212,6 +269,45 @@
   </data>
   <data name="Dashboard.Heading" xml:space="preserve">
     <value>Dashboard</value>
+  </data>
+  <data name="Dashboard.Loading.Text" xml:space="preserve">
+    <value>Dashboard data is loading</value>
+  </data>
+  <data name="Dashboard.LoadingDetails.Text" xml:space="preserve">
+    <value>Windows event statistics are being calculated in the background.</value>
+  </data>
+  <data name="Dashboard.MetricLoading.Text" xml:space="preserve">
+    <value>…</value>
+  </data>
+  <data name="Dashboard.MetricUnavailable.Text" xml:space="preserve">
+    <value>—</value>
+  </data>
+  <data name="Dashboard.Monitoring.NotConfigured.Text" xml:space="preserve">
+    <value>Not configured</value>
+  </data>
+  <data name="Dashboard.QueryUnavailable.Text" xml:space="preserve">
+    <value>Event statistics are unavailable.</value>
+  </data>
+  <data name="Dashboard.QueryFailed.Text" xml:space="preserve">
+    <value>Dashboard data could not be loaded.</value>
+  </data>
+  <data name="Dashboard.ErrorDetails.Text" xml:space="preserve">
+    <value>Technical details — Win32 error {0}.</value>
+  </data>
+  <data name="Dashboard.CrashTimelineLoading.Text" xml:space="preserve">
+    <value>Preparing the local event sequence…</value>
+  </data>
+  <data name="Dashboard.CrashTimeline.Suggested.Text" xml:space="preserve">
+    <value>Recent {0} event {1} is a time-proximity signal. Open Event Logs to investigate the confirmed event data.</value>
+  </data>
+  <data name="Dashboard.CrashTimeline.NoData.Text" xml:space="preserve">
+    <value>No recent critical or error events were found for a local sequence.</value>
+  </data>
+  <data name="DashboardStatusInfoBar.Title" xml:space="preserve">
+    <value>Dashboard status</value>
+  </data>
+  <data name="DashboardStatusInfoBar.Message" xml:space="preserve">
+    <value>Dashboard status.</value>
   </data>
   <data name="Dashboard.Summary.Initial" xml:space="preserve">
     <value>Preparing the native Windows Event Log catalog.</value>
@@ -268,7 +364,7 @@
     <value>Warn</value>
   </data>
   <data name="DashboardTodayCardTitle.Text" xml:space="preserve">
-    <value>Today</value>
+    <value>Critical events today</value>
   </data>
   <data name="DashboardLiveCardTitle.Text" xml:space="preserve">
     <value>Live</value>
@@ -285,17 +381,24 @@
   <data name="DashboardServiceStatusMonitoringNotConfigured.Text" xml:space="preserve">
     <value>Monitoring has not been configured yet.</value>
   </data>
+  <data name="DashboardTodayTotalLabel.Text" xml:space="preserve"><value>Total events today</value></data>
   <data name="DashboardRecentCriticalEventsTitle.Text" xml:space="preserve">
     <value>Recent Critical Events</value>
+  </data>
+  <data name="DashboardViewAllEventsButton.Content" xml:space="preserve">
+    <value>View all</value>
+  </data>
+  <data name="DashboardOpenEventButton.Content" xml:space="preserve">
+    <value>Open</value>
   </data>
   <data name="DashboardCrashTimelineTitle.Text" xml:space="preserve">
     <value>Crash Timeline</value>
   </data>
   <data name="DashboardRecentCriticalEventsPlaceholder.Text" xml:space="preserve">
-    <value>Critical-event data will appear here when the Event Logs requirements are connected.</value>
+    <value>No critical events were returned for the current dashboard query.</value>
   </data>
   <data name="DashboardCrashTimelinePlaceholder.Text" xml:space="preserve">
-    <value>Crash timeline data will appear here when the Timeline requirements are connected.</value>
+    <value>No crash timeline entries were returned for the current dashboard query.</value>
   </data>
   <data name="Feature.EventStreams.Heading" xml:space="preserve">
     <value>Event streams</value>
@@ -307,16 +410,366 @@
     <value>Diagnostics</value>
   </data>
   <data name="Feature.Diagnostics.Description" xml:space="preserve">
-    <value>Correlations, health checks, and investigation workflows will be delivered as isolated features.</value>
+    <value>Use Timeline, Live, Providers, Sessions, and Remote pages to correlate events and run investigations.</value>
   </data>
   <data name="Feature.Settings.Heading" xml:space="preserve">
     <value>Settings</value>
   </data>
   <data name="Feature.Settings.Description" xml:space="preserve">
-    <value>Application preferences and future plugin management will be configured here.</value>
+    <value>Configure themes, language, event presentation, monitoring limits, storage, privacy, and diagnostics here.</value>
   </data>
   <data name="Feature.EventLogs.Heading" xml:space="preserve">
     <value>Event Logs</value>
+  </data>
+  <data name="EventLogs.Heading" xml:space="preserve">
+    <value>Event Logs</value>
+  </data>
+  <data name="EventLogs.ChannelDefault.Text" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="EventLogs.EmptyValue.Text" xml:space="preserve">
+    <value>—</value>
+  </data>
+  <data name="EventLogs.MessagePreviewUnavailable.Text" xml:space="preserve">
+    <value>Message preview is not available for this summary.</value>
+  </data>
+  <data name="EventLogs.SelectEvent.Text" xml:space="preserve">
+    <value>Select an event to inspect its summary.</value>
+  </data>
+  <data name="EventLogs.FilterNone.Text" xml:space="preserve">
+    <value>Showing all loaded events.</value>
+  </data>
+  <data name="EventLogs.FilterSummary.Text" xml:space="preserve">
+    <value>Showing {0} of {1} loaded events.</value>
+  </data>
+  <data name="EventLogs.DetailsLoading.Text" xml:space="preserve">
+    <value>Loading event details…</value>
+  </data>
+  <data name="EventLogs.DetailsLoaded.Text" xml:space="preserve">
+    <value>Event details loaded.</value>
+  </data>
+  <data name="EventLogs.MessageFormattingFailed.Text" xml:space="preserve">
+    <value>The provider message could not be formatted; structured fields and XML remain available.</value>
+  </data>
+  <data name="EventLogs.MessageFormattingError.Text" xml:space="preserve">
+    <value>Message formatting failed with Win32 error {0}.</value>
+  </data>
+  <data name="EventLogs.XmlUnavailable.Text" xml:space="preserve">
+    <value>Raw XML is unavailable for this event.</value>
+  </data>
+  <data name="EventLogs.Loading.Text" xml:space="preserve">
+    <value>Loading events…</value>
+  </data>
+  <data name="EventLogs.LoadingDetails.Text" xml:space="preserve">
+    <value>The query is running in the background and the interface remains responsive.</value>
+  </data>
+  <data name="EventLogs.Loaded.Text" xml:space="preserve">
+    <value>Loaded {0} events.</value>
+  </data>
+  <data name="EventLogs.NoEvents.Text" xml:space="preserve">
+    <value>No events were found in this channel.</value>
+  </data>
+  <data name="EventLogs.Cancelled.Text" xml:space="preserve">
+    <value>The event query was cancelled.</value>
+  </data>
+  <data name="EventLogs.AccessDenied.Text" xml:space="preserve">
+    <value>Access to this channel was denied. Try opening the application with appropriate permissions.</value>
+  </data>
+  <data name="EventLogsRestartAsAdministratorButton.Content" xml:space="preserve">
+    <value>Restart as administrator</value>
+  </data>
+  <data name="EventLogs.InvalidChannel.Text" xml:space="preserve">
+    <value>This event channel is unavailable or no longer exists.</value>
+  </data>
+  <data name="EventLogs.ServiceUnavailable.Text" xml:space="preserve">
+    <value>The Windows Event Log service is unavailable.</value>
+  </data>
+  <data name="EventLogs.QueryFailed.Text" xml:space="preserve">
+    <value>The event query could not be completed.</value>
+  </data>
+  <data name="EventLogs.ErrorDetails.Text" xml:space="preserve">
+    <value>Technical details — Win32 error {0}.</value>
+  </data>
+  <data name="EventLogs.Level.Critical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="EventLogs.Level.Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="EventLogs.Level.Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="EventLogs.Level.Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="EventLogs.Level.Verbose" xml:space="preserve">
+    <value>Verbose</value>
+  </data>
+  <data name="EventLogs.Level.Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="EventLogsChannelLabel.Text" xml:space="preserve">
+    <value>Channel</value>
+  </data>
+  <data name="EventLogsSearchBox.PlaceholderText" xml:space="preserve">
+    <value>Search loaded event summaries</value>
+  </data>
+  <data name="EventLogsRefreshButton.Content" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="EventLogsClearFilterButton.Content" xml:space="preserve">
+    <value>Clear filter</value>
+  </data>
+  <data name="EventLogsStatusInfoBar.Title" xml:space="preserve">
+    <value>Event log status</value>
+  </data>
+  <data name="EventLogsStatusInfoBar.Message" xml:space="preserve">
+    <value>Event log status.</value>
+  </data>
+  <data name="EventLogsChannelPaneTitle.Text" xml:space="preserve">
+    <value>Current log</value>
+  </data>
+  <data name="EventLogsChannelPaneDescription.Text" xml:space="preserve">
+    <value>Select a channel from Event Logs navigation to inspect its latest events.</value>
+  </data>
+  <data name="EventLogsLevelHeader.Text" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="EventLogsTimeHeader.Text" xml:space="preserve">
+    <value>Date and time</value>
+  </data>
+  <data name="EventLogsProviderHeader.Text" xml:space="preserve">
+    <value>Source / provider</value>
+  </data>
+  <data name="EventLogsIdHeader.Text" xml:space="preserve">
+    <value>Event ID</value>
+  </data>
+  <data name="EventLogsTaskHeader.Text" xml:space="preserve">
+    <value>Task category</value>
+  </data>
+  <data name="EventLogsChannelHeader.Text" xml:space="preserve">
+    <value>Channel</value>
+  </data>
+  <data name="EventLogsUserHeader.Text" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="EventLogsComputerHeader.Text" xml:space="preserve">
+    <value>Computer</value>
+  </data>
+  <data name="EventLogsDescriptionHeader.Text" xml:space="preserve">
+    <value>Short description</value>
+  </data>
+  <data name="EventLogsCopyButton.Content" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="EventLogsRefreshCommand.Label" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="EventLogsFilterCommand.Label" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="EventLogsClearFilterCommand.Label" xml:space="preserve">
+    <value>Clear filter</value>
+  </data>
+  <data name="EventLogsCopyCommand.Label" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="EventLogsCopyMenuItem.Text" xml:space="preserve">
+    <value>Copy selected events</value>
+  </data>
+  <data name="EventLogsBookmarkMenuItem.Text" xml:space="preserve">
+    <value>Bookmark selected events</value>
+  </data>
+  <data name="EventLogsExportMenuItem.Text" xml:space="preserve">
+    <value>Export selected events</value>
+  </data>
+  <data name="EventLogsBookmarkCommand.Label" xml:space="preserve">
+    <value>Bookmark</value>
+  </data>
+  <data name="EventLogsExportCommand.Label" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="EventLogsToggleDetailsCommand.Label" xml:space="preserve">
+    <value>Toggle details</value>
+  </data>
+  <data name="EventLogsFindNextCommand.Label" xml:space="preserve"><value>Find next</value></data>
+  <data name="EventLogsFindPreviousCommand.Label" xml:space="preserve"><value>Find previous</value></data>
+  <data name="EventLogsSaveViewCommand.Label" xml:space="preserve"><value>Save view</value></data>
+  <data name="EventLogsOpenSavedLogCommand.Label" xml:space="preserve"><value>Open saved log</value></data>
+  <data name="EventLogsClearLogCommand.Label" xml:space="preserve"><value>Clear log</value></data>
+  <data name="EventLogsPropertiesCommand.Label" xml:space="preserve"><value>Properties</value></data>
+  <data name="EventLogsLiveUpdatesCommand.Label" xml:space="preserve"><value>Live updates</value></data>
+  <data name="EventLogsHelpCommand.Label" xml:space="preserve"><value>Help</value></data>
+  <data name="EventLogsFilterFlyoutTitle.Text" xml:space="preserve">
+    <value>Build event filter</value>
+  </data>
+  <data name="EventLogsFilterProviderBox.Header" xml:space="preserve">
+    <value>Provider</value>
+  </data>
+  <data name="EventLogsFilterProviderBox.PlaceholderText" xml:space="preserve">
+    <value>For example, Kernel-Power</value>
+  </data>
+  <data name="EventLogsFilterEventIdBox.Header" xml:space="preserve">
+    <value>Event ID</value>
+  </data>
+  <data name="EventLogsFilterEventIdBox.PlaceholderText" xml:space="preserve">
+    <value>Numeric Event ID</value>
+  </data>
+  <data name="EventLogsFilterTaskBox.Header" xml:space="preserve">
+    <value>Task</value>
+  </data>
+  <data name="EventLogsFilterTaskBox.PlaceholderText" xml:space="preserve">
+    <value>Numeric task</value>
+  </data>
+  <data name="EventLogsFilterOpcodeBox.Header" xml:space="preserve"><value>Opcode</value></data>
+  <data name="EventLogsFilterOpcodeBox.PlaceholderText" xml:space="preserve"><value>Numeric opcode</value></data>
+  <data name="EventLogsFilterKeywordBox.Header" xml:space="preserve"><value>Keyword mask</value></data>
+  <data name="EventLogsFilterKeywordBox.PlaceholderText" xml:space="preserve"><value>Numeric keyword mask</value></data>
+  <data name="EventLogsFilterProcessIdBox.Header" xml:space="preserve"><value>Process ID</value></data>
+  <data name="EventLogsFilterProcessIdBox.PlaceholderText" xml:space="preserve"><value>Numeric process ID</value></data>
+  <data name="EventLogsFilterThreadIdBox.Header" xml:space="preserve"><value>Thread ID</value></data>
+  <data name="EventLogsFilterThreadIdBox.PlaceholderText" xml:space="preserve"><value>Numeric thread ID</value></data>
+  <data name="EventLogsFilterUserBox.Header" xml:space="preserve">
+    <value>User SID</value>
+  </data>
+  <data name="EventLogsFilterUserBox.PlaceholderText" xml:space="preserve">
+    <value>S-1-5-18</value>
+  </data>
+  <data name="EventLogsFilterComputerBox.Header" xml:space="preserve">
+    <value>Computer</value>
+  </data>
+  <data name="EventLogsFilterComputerBox.PlaceholderText" xml:space="preserve">
+    <value>Computer name</value>
+  </data>
+  <data name="EventLogsFilterLevelBox.Header" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="EventLogsFilterLevelAny.Content" xml:space="preserve">
+    <value>Any level</value>
+  </data>
+  <data name="EventLogsFilterLevelCritical.Content" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="EventLogsFilterLevelError.Content" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="EventLogsFilterLevelWarning.Content" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="EventLogsFilterLevelInformation.Content" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="EventLogsFilterAfterToday.Header" xml:space="preserve">
+    <value>Only events from the last 24 hours</value>
+  </data>
+  <data name="EventLogsFilterAfterHoursBox.Header" xml:space="preserve"><value>Only events from the last N hours</value></data>
+  <data name="EventLogsFilterAfterHoursBox.PlaceholderText" xml:space="preserve"><value>For example, 6</value></data>
+  <data name="EventLogsRawXPathBox.Header" xml:space="preserve">
+    <value>Advanced raw XPath (overrides the fields above)</value>
+  </data>
+  <data name="EventLogsRawXPathBox.PlaceholderText" xml:space="preserve">
+    <value>*[System[Level=2]]</value>
+  </data>
+  <data name="EventLogsApplyFilterButton.Content" xml:space="preserve">
+    <value>Apply filter</value>
+  </data>
+  <data name="EventLogsClearStructuredFilterButton.Content" xml:space="preserve">
+    <value>Clear builder</value>
+  </data>
+  <data name="EventLogsExportLoading.Text" xml:space="preserve">
+    <value>Exporting selected events</value>
+  </data>
+  <data name="EventLogsExportCompleted.Text" xml:space="preserve">
+    <value>Selected events exported</value>
+  </data>
+  <data name="EventLogsExportCompletedDetails.Text" xml:space="preserve">
+    <value>Saved to {0}.</value>
+  </data>
+  <data name="EventLogsExportFailed.Text" xml:space="preserve">
+    <value>Selected events could not be exported</value>
+  </data>
+  <data name="EventLogs.FilterSummary.Structured.Text" xml:space="preserve">
+    <value>Showing {0} of {1} loaded events with a structured filter.</value>
+  </data>
+  <data name="EventLogsLevelHeaderButton.Content" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="EventLogsTimeHeaderButton.Content" xml:space="preserve">
+    <value>Date and time</value>
+  </data>
+  <data name="EventLogsProviderHeaderButton.Content" xml:space="preserve">
+    <value>Source / provider</value>
+  </data>
+  <data name="EventLogsIdHeaderButton.Content" xml:space="preserve">
+    <value>Event ID</value>
+  </data>
+  <data name="EventLogsTaskHeaderButton.Content" xml:space="preserve">
+    <value>Task category</value>
+  </data>
+  <data name="EventLogsChannelHeaderButton.Content" xml:space="preserve">
+    <value>Channel</value>
+  </data>
+  <data name="EventLogsUserHeaderButton.Content" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="EventLogsComputerHeaderButton.Content" xml:space="preserve">
+    <value>Computer</value>
+  </data>
+  <data name="EventLogsDescriptionHeaderButton.Content" xml:space="preserve">
+    <value>Short description</value>
+  </data>
+  <data name="EventLogsSummaryTab.Header" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+  <data name="EventLogsDetailsTab.Header" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="EventLogsXmlTab.Header" xml:space="preserve">
+    <value>XML</value>
+  </data>
+  <data name="EventLogsEventDataTab.Header" xml:space="preserve"><value>Event data</value></data>
+  <data name="EventLogsSelectedEventTitle.Text" xml:space="preserve">
+    <value>Selected event</value>
+  </data>
+  <data name="EventLogsProviderLabel.Text" xml:space="preserve">
+    <value>Provider</value>
+  </data>
+  <data name="EventLogsEventIdLabel.Text" xml:space="preserve">
+    <value>Event ID</value>
+  </data>
+  <data name="EventLogsVersionLabel.Text" xml:space="preserve"><value>Version</value></data>
+  <data name="EventLogsLevelLabel.Text" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="EventLogsOpcodeLabel.Text" xml:space="preserve"><value>Opcode</value></data>
+  <data name="EventLogsKeywordsLabel.Text" xml:space="preserve"><value>Keywords</value></data>
+  <data name="EventLogsTimeLabel.Text" xml:space="preserve">
+    <value>Date and time</value>
+  </data>
+  <data name="EventLogsTaskCategoryLabel.Text" xml:space="preserve">
+    <value>Task category</value>
+  </data>
+  <data name="EventLogsChannelDetailLabel.Text" xml:space="preserve">
+    <value>Channel</value>
+  </data>
+  <data name="EventLogsComputerLabel.Text" xml:space="preserve">
+    <value>Computer</value>
+  </data>
+  <data name="EventLogsRecordIdLabel.Text" xml:space="preserve">
+    <value>Record ID</value>
+  </data>
+  <data name="EventLogsProcessIdLabel.Text" xml:space="preserve"><value>Process ID</value></data>
+  <data name="EventLogsThreadIdLabel.Text" xml:space="preserve"><value>Thread ID</value></data>
+  <data name="EventLogsActivityIdLabel.Text" xml:space="preserve"><value>Activity ID</value></data>
+  <data name="EventLogsRelatedActivityIdLabel.Text" xml:space="preserve"><value>Related activity ID</value></data>
+  <data name="EventLogsDescriptionLabel.Text" xml:space="preserve">
+    <value>Message preview</value>
+  </data>
+  <data name="EventLogsDetailsDeferred.Text" xml:space="preserve">
+    <value>Full event details are loaded lazily in the next implementation milestone. The lightweight summary remains available here.</value>
+  </data>
+  <data name="EventLogsXmlDeferred.Text" xml:space="preserve">
+    <value>Raw XML rendering is intentionally deferred until an event is selected and the detail service is connected.</value>
   </data>
   <data name="Feature.EventLogs.Description" xml:space="preserve">
     <value>This page is ready for the Event Logs requirements.</value>
@@ -414,4 +867,356 @@
   <data name="AboutCardLicense.Text" xml:space="preserve">
     <value>Released under the GNU General Public License v3.0 (GPL-3.0-only).</value>
   </data>
+  <data name="SettingsEventDisplayTitle.Text" xml:space="preserve"><value>Event display</value></data>
+  <data name="SettingsEventDisplayDescription.Text" xml:space="preserve"><value>Choose the default presentation for event lists and detail panes.</value></data>
+  <data name="SettingsDefaultSortToggle.OnContent" xml:space="preserve"><value>Show newest events first</value></data>
+  <data name="SettingsDefaultSortToggle.OffContent" xml:space="preserve"><value>Show oldest events first</value></data>
+  <data name="SettingsUseUtcToggle.OnContent" xml:space="preserve"><value>Display event times in UTC</value></data>
+  <data name="SettingsUseUtcToggle.OffContent" xml:space="preserve"><value>Display event times in local time</value></data>
+  <data name="SettingsGroupRepeatedToggle.OnContent" xml:space="preserve"><value>Group repeated events</value></data>
+  <data name="SettingsGroupRepeatedToggle.OffContent" xml:space="preserve"><value>Show repeated events individually</value></data>
+  <data name="SettingsDetailsPaneToggle.OnContent" xml:space="preserve"><value>Open the details pane by default</value></data>
+  <data name="SettingsDetailsPaneToggle.OffContent" xml:space="preserve"><value>Keep the details pane closed by default</value></data>
+  <data name="SettingsMonitoringTitle.Text" xml:space="preserve"><value>Monitoring</value></data>
+  <data name="SettingsMonitoringDescription.Text" xml:space="preserve"><value>Bound live subscriptions so high-rate channels cannot grow without limit.</value></data>
+  <data name="SettingsLiveQueueBox.Header" xml:space="preserve"><value>Default live queue size</value></data>
+  <data name="SettingsLiveQueueBox.PlaceholderText" xml:space="preserve"><value>5000</value></data>
+  <data name="SettingsBatchSizeBox.Header" xml:space="preserve"><value>Query batch size</value></data>
+  <data name="SettingsBatchSizeBox.PlaceholderText" xml:space="preserve"><value>64</value></data>
+  <data name="SettingsPerformanceTitle.Text" xml:space="preserve"><value>Performance</value></data>
+  <data name="SettingsPerformanceDescription.Text" xml:space="preserve"><value>Keep rendering work bounded and allow the app to remain responsive with large logs.</value></data>
+  <data name="SettingsMaxLiveRowsBox.Header" xml:space="preserve"><value>Maximum visible live rows</value></data>
+  <data name="SettingsMaxLiveRowsBox.PlaceholderText" xml:space="preserve"><value>2000</value></data>
+  <data name="SettingsAnimationsToggle.OnContent" xml:space="preserve"><value>Use interface animations</value></data>
+  <data name="SettingsAnimationsToggle.OffContent" xml:space="preserve"><value>Reduce interface animations</value></data>
+  <data name="SettingsMetadataCacheToggle.OnContent" xml:space="preserve"><value>Cache provider metadata</value></data>
+  <data name="SettingsMetadataCacheToggle.OffContent" xml:space="preserve"><value>Do not cache provider metadata</value></data>
+  <data name="SettingsStorageTitle.Text" xml:space="preserve"><value>Storage</value></data>
+  <data name="SettingsStorageDescription.Text" xml:space="preserve"><value>Control which investigation state is retained in local application storage.</value></data>
+  <data name="SettingsPersistSessionsToggle.OnContent" xml:space="preserve"><value>Persist diagnostic sessions</value></data>
+  <data name="SettingsPersistSessionsToggle.OffContent" xml:space="preserve"><value>Do not persist diagnostic sessions</value></data>
+  <data name="SettingsPersistBookmarksToggle.OnContent" xml:space="preserve"><value>Persist event bookmarks</value></data>
+  <data name="SettingsPersistBookmarksToggle.OffContent" xml:space="preserve"><value>Do not persist event bookmarks</value></data>
+  <data name="SettingsPrivacyTitle.Text" xml:space="preserve"><value>Privacy and security</value></data>
+  <data name="SettingsPrivacyDescription.Text" xml:space="preserve"><value>Redaction options affect exported and displayed investigation data.</value></data>
+  <data name="SettingsRedactComputerToggle.OnContent" xml:space="preserve"><value>Redact computer names in exports</value></data>
+  <data name="SettingsRedactComputerToggle.OffContent" xml:space="preserve"><value>Keep computer names in exports</value></data>
+  <data name="SettingsRedactUserToggle.OnContent" xml:space="preserve"><value>Redact user names in exports</value></data>
+  <data name="SettingsRedactUserToggle.OffContent" xml:space="preserve"><value>Keep user names in exports</value></data>
+  <data name="SettingsAdvancedTitle.Text" xml:space="preserve"><value>Advanced</value></data>
+  <data name="SettingsAdvancedDescription.Text" xml:space="preserve"><value>Expose advanced query diagnostics without changing the default safe workflow.</value></data>
+  <data name="SettingsRawXPathToggle.OnContent" xml:space="preserve"><value>Enable raw XPath mode</value></data>
+  <data name="SettingsRawXPathToggle.OffContent" xml:space="preserve"><value>Use the structured filter builder</value></data>
+  <data name="SettingsDebugLoggingToggle.OnContent" xml:space="preserve"><value>Enable diagnostic logging</value></data>
+  <data name="SettingsDebugLoggingToggle.OffContent" xml:space="preserve"><value>Disable diagnostic logging</value></data>
+  <data name="SettingsHighContrastInfoBar.Title" xml:space="preserve"><value>High Contrast compatibility</value></data>
+  <data name="SettingsHighContrastInfoBar.Message" xml:space="preserve"><value>High Contrast remains controlled by Windows system colors; artwork and semantic severity colors do not override it.</value></data>
+  <data name="SharedComponentsGalleryTitle.Text" xml:space="preserve"><value>Shared component gallery</value></data>
+  <data name="SharedComponentsGalleryDescription.Text" xml:space="preserve"><value>Reusable cards, typography, buttons, and status surfaces use the same semantic resources as the application shell.</value></data>
+  <data name="SharedComponentsGalleryButton.Content" xml:space="preserve"><value>Semantic button</value></data>
+  <data name="SharedComponentsGalleryInfoBar.Title" xml:space="preserve"><value>Semantic status</value></data>
+  <data name="SharedComponentsGalleryInfoBar.Message" xml:space="preserve"><value>Theme resources keep this sample readable in Light, Dark, custom, and High Contrast modes.</value></data>
+  <data name="Timeline.Heading" xml:space="preserve"><value>Timeline</value></data>
+  <data name="TimelineHeading.Text" xml:space="preserve"><value>Timeline</value></data>
+  <data name="TimelineStatusInfoBar.Title" xml:space="preserve"><value>Timeline status</value></data>
+  <data name="TimelineStatusInfoBar.Message" xml:space="preserve"><value>Timeline status.</value></data>
+  <data name="Timeline.Summary" xml:space="preserve"><value>Recent events from core Windows channels, ordered by time.</value></data>
+  <data name="Timeline.SummaryCount.Text" xml:space="preserve"><value>{0} events are available in this timeline.</value></data>
+  <data name="Timeline.Loading.Text" xml:space="preserve"><value>Loading timeline</value></data>
+  <data name="Timeline.LoadingDetails.Text" xml:space="preserve"><value>Events are queried in the background from System, Application, and Security.</value></data>
+  <data name="Timeline.Ready.Text" xml:space="preserve"><value>Timeline ready</value></data>
+  <data name="Timeline.QueryFailed.Text" xml:space="preserve"><value>The timeline query could not be completed.</value></data>
+  <data name="Timeline.ErrorDetails.Text" xml:space="preserve"><value>Technical details — Win32 error {0}.</value></data>
+  <data name="Timeline.FilterNone.Text" xml:space="preserve"><value>Showing the loaded timeline events.</value></data>
+  <data name="Timeline.FilterSummary.Text" xml:space="preserve"><value>Showing {0} of {1} loaded timeline events.</value></data>
+  <data name="Timeline.Correlation.Text" xml:space="preserve"><value>Correlation is deterministic: items are presented by timestamp; time proximity is a suggestion, not proof of causality.</value></data>
+  <data name="TimelineSearchBox.PlaceholderText" xml:space="preserve"><value>Search timeline events</value></data>
+  <data name="TimelineTimeRangeBox.Header" xml:space="preserve"><value>Time range</value></data>
+  <data name="TimelineTimeRangeHour.Content" xml:space="preserve"><value>Hour</value></data>
+  <data name="TimelineTimeRangeDay.Content" xml:space="preserve"><value>Day</value></data>
+  <data name="TimelineTimeRangeWeek.Content" xml:space="preserve"><value>Week</value></data>
+  <data name="TimelineTimeRangeMonth.Content" xml:space="preserve"><value>Month</value></data>
+  <data name="TimelineTimeRangeAny.Content" xml:space="preserve"><value>Any time</value></data>
+  <data name="TimelineLevelFilterBox.Header" xml:space="preserve"><value>Severity</value></data>
+  <data name="TimelineLevelAny.Content" xml:space="preserve"><value>Any level</value></data>
+  <data name="TimelineLevelCritical.Content" xml:space="preserve"><value>Critical</value></data>
+  <data name="TimelineLevelError.Content" xml:space="preserve"><value>Error</value></data>
+  <data name="TimelineLevelWarning.Content" xml:space="preserve"><value>Warning</value></data>
+  <data name="TimelineLevelInformation.Content" xml:space="preserve"><value>Information</value></data>
+  <data name="TimelineChannelFilterBox.Header" xml:space="preserve"><value>Channel</value></data>
+  <data name="TimelineChannelAny.Content" xml:space="preserve"><value>Core channels</value></data>
+  <data name="TimelineChannelSystem.Content" xml:space="preserve"><value>System</value></data>
+  <data name="TimelineChannelApplication.Content" xml:space="preserve"><value>Application</value></data>
+  <data name="TimelineChannelSecurity.Content" xml:space="preserve"><value>Security</value></data>
+  <data name="TimelineRefreshButton.Content" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Providers.Heading" xml:space="preserve"><value>Providers</value></data>
+  <data name="Providers.Summary" xml:space="preserve"><value>Inspect registered Windows Event Log publishers and their manifest metadata.</value></data>
+  <data name="Providers.SummaryCount.Text" xml:space="preserve"><value>{0} providers match the current search.</value></data>
+  <data name="Providers.SelectProvider.Text" xml:space="preserve"><value>Select a provider to inspect its metadata.</value></data>
+  <data name="Providers.Loading.Text" xml:space="preserve"><value>Loading providers</value></data>
+  <data name="Providers.LoadingDetails.Text" xml:space="preserve"><value>Enumerating registered Windows Event Log publishers in the background.</value></data>
+  <data name="Providers.Ready.Text" xml:space="preserve"><value>Providers ready</value></data>
+  <data name="Providers.NoProviders.Text" xml:space="preserve"><value>No providers found</value></data>
+  <data name="Providers.QueryFailed.Text" xml:space="preserve"><value>The provider catalog could not be loaded.</value></data>
+  <data name="Providers.AccessDenied.Text" xml:space="preserve"><value>Access denied</value></data>
+  <data name="Providers.ServiceUnavailable.Text" xml:space="preserve"><value>The Windows Event Log service is unavailable.</value></data>
+  <data name="Providers.Cancelled.Text" xml:space="preserve"><value>Provider query cancelled</value></data>
+  <data name="Providers.ErrorDetails.Text" xml:space="preserve"><value>Technical details — Win32 error {0}.</value></data>
+  <data name="Providers.MetadataLoading.Text" xml:space="preserve"><value>Loading publisher metadata…</value></data>
+  <data name="Providers.MetadataAvailable.Text" xml:space="preserve"><value>Publisher metadata is available.</value></data>
+  <data name="Providers.MetadataUnavailable.Text" xml:space="preserve"><value>Publisher metadata is unavailable.</value></data>
+  <data name="Providers.EventCount.Text" xml:space="preserve"><value>{0} event definitions</value></data>
+  <data name="Providers.Definition.Text" xml:space="preserve"><value>ID {0} · Version {1} · Level {2} · Channel {3} · Task {4} · Opcode {5} · Keyword {6} · Template: {7}</value></data>
+  <data name="ProvidersHeading.Text" xml:space="preserve"><value>Providers</value></data>
+  <data name="ProvidersRefreshCommand.Label" xml:space="preserve"><value>Refresh</value></data>
+  <data name="ProvidersCopyCommand.Label" xml:space="preserve"><value>Copy metadata</value></data>
+  <data name="ProvidersOpenEventsCommand.Label" xml:space="preserve"><value>Open related events</value></data>
+  <data name="ProvidersExportCommand.Label" xml:space="preserve"><value>Export metadata</value></data>
+  <data name="ProvidersSearchBox.PlaceholderText" xml:space="preserve"><value>Search provider names</value></data>
+  <data name="ProvidersStatusInfoBar.Title" xml:space="preserve"><value>Provider status</value></data>
+  <data name="ProvidersStatusInfoBar.Message" xml:space="preserve"><value>Provider status.</value></data>
+  <data name="ProvidersListTitle.Text" xml:space="preserve"><value>Publisher list</value></data>
+  <data name="ProvidersDetailsTitle.Text" xml:space="preserve"><value>Provider details</value></data>
+  <data name="ProvidersPathsTitle.Text" xml:space="preserve"><value>Metadata paths</value></data>
+  <data name="ProvidersGuidLabel.Text" xml:space="preserve"><value>GUID</value></data>
+  <data name="ProvidersResourcePathLabel.Text" xml:space="preserve"><value>Resource file</value></data>
+  <data name="ProvidersParameterPathLabel.Text" xml:space="preserve"><value>Parameter file</value></data>
+  <data name="ProvidersMessagePathLabel.Text" xml:space="preserve"><value>Message file</value></data>
+  <data name="ProvidersHelpLinkLabel.Text" xml:space="preserve"><value>Help link</value></data>
+  <data name="ProvidersDefinitionsTitle.Text" xml:space="preserve"><value>Event definitions</value></data>
+  <data name="SavedViews.Heading" xml:space="preserve"><value>Saved Views</value></data>
+  <data name="SavedViews.Summary" xml:space="preserve"><value>Persist reusable event queries, custom views, bookmarks, favorite logs, searches, and workspaces locally.</value></data>
+  <data name="SavedViews.SummaryCount.Text" xml:space="preserve"><value>{0} saved views are available.</value></data>
+  <data name="SavedViews.Loading.Text" xml:space="preserve"><value>Loading saved views</value></data>
+  <data name="SavedViews.LoadingDetails.Text" xml:space="preserve"><value>Reading the local saved-view repository in the background.</value></data>
+  <data name="SavedViews.Ready.Text" xml:space="preserve"><value>Saved views ready</value></data>
+  <data name="SavedViews.NameRequired.Text" xml:space="preserve"><value>Enter a name before saving.</value></data>
+  <data name="SavedViews.SaveFailed.Text" xml:space="preserve"><value>The saved view could not be persisted.</value></data>
+  <data name="SavedViews.Saved.Text" xml:space="preserve"><value>Saved view saved</value></data>
+  <data name="SavedViews.Deleted.Text" xml:space="preserve"><value>Saved view deleted</value></data>
+  <data name="SavedViews.Duplicated.Text" xml:space="preserve"><value>Saved view duplicated</value></data>
+  <data name="SavedViews.Imported.Text" xml:space="preserve"><value>Saved views imported</value></data>
+  <data name="SavedViews.CustomViewWarning.Text" xml:space="preserve"><value>Windows Custom View XML is retained for portability. The app uses the stored XPath query when opening a view and warns when XML-only fields cannot be represented.</value></data>
+  <data name="SavedViews.Type.User" xml:space="preserve"><value>User view</value></data>
+  <data name="SavedViews.Type.Pinned" xml:space="preserve"><value>Pinned view</value></data>
+  <data name="SavedViews.Type.WindowsCustomView" xml:space="preserve"><value>Windows Custom View</value></data>
+  <data name="SavedViews.Type.Bookmark" xml:space="preserve"><value>Bookmark</value></data>
+  <data name="SavedViews.Type.FavoriteLog" xml:space="preserve"><value>Favorite log</value></data>
+  <data name="SavedViews.Type.RecentSearch" xml:space="preserve"><value>Recent search</value></data>
+  <data name="SavedViews.Type.Workspace" xml:space="preserve"><value>Workspace</value></data>
+  <data name="SavedViewsHeading.Text" xml:space="preserve"><value>Saved Views</value></data>
+  <data name="SavedViewsNewCommand.Label" xml:space="preserve"><value>New</value></data>
+  <data name="SavedViewsSaveCommand.Label" xml:space="preserve"><value>Save</value></data>
+  <data name="SavedViewsOpenCommand.Label" xml:space="preserve"><value>Open</value></data>
+  <data name="SavedViewsPinCommand.Label" xml:space="preserve"><value>Pin</value></data>
+  <data name="SavedViewsCopyCommand.Label" xml:space="preserve"><value>Copy query</value></data>
+  <data name="SavedViewsExportCommand.Label" xml:space="preserve"><value>Export</value></data>
+  <data name="SavedViewsImportCommand.Label" xml:space="preserve"><value>Import</value></data>
+  <data name="SavedViewsDuplicateCommand.Label" xml:space="preserve"><value>Duplicate</value></data>
+  <data name="SavedViewsDeleteCommand.Label" xml:space="preserve"><value>Delete</value></data>
+  <data name="SavedViewsRefreshCommand.Label" xml:space="preserve"><value>Refresh</value></data>
+  <data name="SavedViewsStatusInfoBar.Title" xml:space="preserve"><value>Saved view status</value></data>
+  <data name="SavedViewsStatusInfoBar.Message" xml:space="preserve"><value>Saved view status.</value></data>
+  <data name="SavedViewsListTitle.Text" xml:space="preserve"><value>Views</value></data>
+  <data name="SavedViewsEditorTitle.Text" xml:space="preserve"><value>View definition</value></data>
+  <data name="SavedViewsNameBox.Header" xml:space="preserve"><value>Name</value></data>
+  <data name="SavedViewsNameBox.PlaceholderText" xml:space="preserve"><value>Give this view a name</value></data>
+  <data name="SavedViewsDescriptionBox.Header" xml:space="preserve"><value>Description</value></data>
+  <data name="SavedViewsDescriptionBox.PlaceholderText" xml:space="preserve"><value>Describe when this view is useful</value></data>
+  <data name="SavedViewsTypeBox.Header" xml:space="preserve"><value>Type</value></data>
+  <data name="SavedViewsChannelBox.Header" xml:space="preserve"><value>Channel</value></data>
+  <data name="SavedViewsChannelBox.PlaceholderText" xml:space="preserve"><value>System</value></data>
+  <data name="SavedViewsQueryBox.Header" xml:space="preserve"><value>XPath query</value></data>
+  <data name="SavedViewsQueryBox.PlaceholderText" xml:space="preserve"><value>* or a Windows Event Log XPath query</value></data>
+  <data name="SavedViewsTypeUser.Content" xml:space="preserve"><value>User view</value></data>
+  <data name="SavedViewsTypePinned.Content" xml:space="preserve"><value>Pinned view</value></data>
+  <data name="SavedViewsTypeWindowsCustomView.Content" xml:space="preserve"><value>Windows Custom View</value></data>
+  <data name="SavedViewsTypeBookmark.Content" xml:space="preserve"><value>Bookmark</value></data>
+  <data name="SavedViewsTypeFavoriteLog.Content" xml:space="preserve"><value>Favorite log</value></data>
+  <data name="SavedViewsTypeRecentSearch.Content" xml:space="preserve"><value>Recent search</value></data>
+  <data name="SavedViewsTypeWorkspace.Content" xml:space="preserve"><value>Workspace</value></data>
+  <data name="SavedViewsPresentationTitle.Text" xml:space="preserve"><value>Presentation</value></data>
+  <data name="SavedViewsSortBox.Header" xml:space="preserve"><value>Sort key</value></data>
+  <data name="SavedViewsColumnsBox.Header" xml:space="preserve"><value>Columns (comma separated)</value></data>
+  <data name="SavedViewsTagsBox.Header" xml:space="preserve"><value>Tags</value></data>
+  <data name="SavedViewsDetailsCheckBox.Content" xml:space="preserve"><value>Open with details pane</value></data>
+  <data name="SavedViewsTimelineCheckBox.Content" xml:space="preserve"><value>Use timeline presentation</value></data>
+  <data name="SavedViewsCustomViewTitle.Text" xml:space="preserve"><value>Windows Custom View XML</value></data>
+  <data name="SavedViewsCustomViewXmlBox.Header" xml:space="preserve"><value>Custom View XML</value></data>
+  <data name="Live.Heading" xml:space="preserve"><value>Live</value></data>
+  <data name="Live.Summary" xml:space="preserve"><value>Subscribe to future events with a bounded background queue and explicit pause/resume state.</value></data>
+  <data name="Live.Ready.Text" xml:space="preserve"><value>Live capture ready</value></data>
+  <data name="Live.ReadyDetails.Text" xml:space="preserve"><value>Configure a channel and XPath query, then start the subscription.</value></data>
+  <data name="Live.Started.Text" xml:space="preserve"><value>Live capture started</value></data>
+  <data name="Live.StartedDetails.Text" xml:space="preserve"><value>Events are collected through EvtSubscribe into a bounded queue.</value></data>
+  <data name="Live.StartFailed.Text" xml:space="preserve"><value>Live capture could not start</value></data>
+  <data name="Live.StreamFailed.Text" xml:space="preserve"><value>Live subscription stopped with an error</value></data>
+  <data name="Live.ErrorDetails.Text" xml:space="preserve"><value>Check the channel, XPath query, service state, and access rights.</value></data>
+  <data name="Live.State.Stopped" xml:space="preserve"><value>Stopped</value></data>
+  <data name="Live.State.Running" xml:space="preserve"><value>Running</value></data>
+  <data name="Live.State.Paused" xml:space="preserve"><value>Paused</value></data>
+  <data name="Live.State.Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="Live.State.NotConfigured" xml:space="preserve"><value>Not configured</value></data>
+  <data name="Live.State.Ready" xml:space="preserve"><value>Ready</value></data>
+  <data name="Live.State.Starting" xml:space="preserve"><value>Starting</value></data>
+  <data name="Live.State.Stopping" xml:space="preserve"><value>Stopping</value></data>
+  <data name="Live.State.Error" xml:space="preserve"><value>Error</value></data>
+  <data name="Live.State.EventsLost" xml:space="preserve"><value>Events lost</value></data>
+  <data name="Live.EventsLost.Text" xml:space="preserve"><value>Live events were dropped</value></data>
+  <data name="Live.EventsLostDetails.Text" xml:space="preserve"><value>The bounded queue reached its limit. Counters remain accurate for received events, but some rendered rows are unavailable.</value></data>
+  <data name="Live.ExportEmpty.Text" xml:space="preserve"><value>Nothing to export</value></data>
+  <data name="Live.ExportEmptyDetails.Text" xml:space="preserve"><value>Turn on recording and collect events before exporting a live capture.</value></data>
+  <data name="Live.ExportCompleted.Text" xml:space="preserve"><value>Live recording exported</value></data>
+  <data name="Live.ExportCompletedDetails.Text" xml:space="preserve"><value>Saved to {0}.</value></data>
+  <data name="Live.ExportFailed.Text" xml:space="preserve"><value>Live recording could not be exported</value></data>
+  <data name="LiveHeading.Text" xml:space="preserve"><value>Live</value></data>
+  <data name="LiveStartCommand.Label" xml:space="preserve"><value>Start</value></data>
+  <data name="LivePauseCommand.Label" xml:space="preserve"><value>Pause</value></data>
+  <data name="LiveResumeCommand.Label" xml:space="preserve"><value>Resume</value></data>
+  <data name="LiveStopCommand.Label" xml:space="preserve"><value>Stop</value></data>
+  <data name="LiveClearCommand.Label" xml:space="preserve"><value>Clear</value></data>
+  <data name="LiveRecordCommand.Label" xml:space="preserve"><value>Record</value></data>
+  <data name="LiveExportCommand.Label" xml:space="preserve"><value>Export recording</value></data>
+  <data name="LiveBookmarkCommand.Label" xml:space="preserve"><value>Bookmark latest</value></data>
+  <data name="LiveStatusInfoBar.Title" xml:space="preserve"><value>Live status</value></data>
+  <data name="LiveStatusInfoBar.Message" xml:space="preserve"><value>Live status.</value></data>
+  <data name="LiveConfigurationTitle.Text" xml:space="preserve"><value>Capture configuration</value></data>
+  <data name="LiveChannelBox.Header" xml:space="preserve"><value>Channel</value></data>
+  <data name="LiveChannelBox.PlaceholderText" xml:space="preserve"><value>System</value></data>
+  <data name="LiveQueryBox.Header" xml:space="preserve"><value>XPath query</value></data>
+  <data name="LiveQueryBox.PlaceholderText" xml:space="preserve"><value>* or a Windows Event Log XPath query</value></data>
+  <data name="LiveQueueLimitBox.Header" xml:space="preserve"><value>Queue limit</value></data>
+  <data name="LiveQueueLimitBox.PlaceholderText" xml:space="preserve"><value>5000</value></data>
+  <data name="LiveAutoScrollCheckBox.Content" xml:space="preserve"><value>Keep the newest events visible</value></data>
+  <data name="LiveGroupRepeatedCheckBox.Content" xml:space="preserve"><value>Group repeated events</value></data>
+  <data name="LiveCriticalFilterCheckBox.Content" xml:space="preserve"><value>Show critical events</value></data>
+  <data name="LiveErrorFilterCheckBox.Content" xml:space="preserve"><value>Show error events</value></data>
+  <data name="LiveWarningFilterCheckBox.Content" xml:space="preserve"><value>Show warning events</value></data>
+  <data name="LiveInformationFilterCheckBox.Content" xml:space="preserve"><value>Show information events</value></data>
+  <data name="LiveStateLabel.Text" xml:space="preserve"><value>State</value></data>
+  <data name="LiveEventRateLabel.Text" xml:space="preserve"><value>Events/sec</value></data>
+  <data name="LiveTotalLabel.Text" xml:space="preserve"><value>Total received</value></data>
+  <data name="LiveCriticalLabel.Text" xml:space="preserve"><value>Critical</value></data>
+  <data name="LiveErrorLabel.Text" xml:space="preserve"><value>Errors</value></data>
+  <data name="LiveWarningLabel.Text" xml:space="preserve"><value>Warnings</value></data>
+  <data name="LiveQueueDepthLabel.Text" xml:space="preserve"><value>Queue depth</value></data>
+  <data name="LiveDurationLabel.Text" xml:space="preserve"><value>Duration</value></data>
+  <data name="LiveDroppedLabel.Text" xml:space="preserve"><value>Dropped</value></data>
+  <data name="LiveBookmarkLabel.Text" xml:space="preserve"><value>Bookmarks</value></data>
+  <data name="Remote.Heading" xml:space="preserve"><value>Remote</value></data>
+  <data name="Remote.Summary" xml:space="preserve"><value>Connect to a remote Windows Event Log session with explicit credentials and a non-persisted password.</value></data>
+  <data name="Remote.Ready.Text" xml:space="preserve"><value>Remote connection ready</value></data>
+  <data name="Remote.ReadyDetails.Text" xml:space="preserve"><value>Credentials are used only for the connection attempt.</value></data>
+  <data name="Remote.HostRequired.Text" xml:space="preserve"><value>Enter a remote host name.</value></data>
+  <data name="Remote.Connected.Text" xml:space="preserve"><value>Remote session connected</value></data>
+  <data name="Remote.ConnectedDetails.Text" xml:space="preserve"><value>The EvtOpenSession handle is held by the application service.</value></data>
+  <data name="Remote.ConnectFailed.Text" xml:space="preserve"><value>Remote connection failed</value></data>
+  <data name="Remote.ErrorDetails.Text" xml:space="preserve"><value>The remote operation failed with Win32 error {0}. Check the remote Event Log service and permissions.</value></data>
+  <data name="Remote.AccessDeniedDetails.Text" xml:space="preserve"><value>Access was denied (Win32 error {0}). Use an account permitted to read the remote Event Log service.</value></data>
+  <data name="Remote.AuthenticationDetails.Text" xml:space="preserve"><value>Authentication failed (Win32 error {0}). Verify the domain, user, and authentication policy.</value></data>
+  <data name="Remote.FirewallDetails.Text" xml:space="preserve"><value>The remote service is unavailable (Win32 error {0}). Check firewall and RPC restrictions.</value></data>
+  <data name="Remote.ConnectionSaved.Text" xml:space="preserve"><value>Remote connection saved</value></data>
+  <data name="Remote.ConnectionSavedDetails.Text" xml:space="preserve"><value>Only the host, domain, and user are stored. The password remains in memory for the current session.</value></data>
+  <data name="Remote.ConnectionRemoved.Text" xml:space="preserve"><value>Remote connection removed</value></data>
+  <data name="Remote.TestSucceeded.Text" xml:space="preserve"><value>Remote connection test succeeded</value></data>
+  <data name="Remote.TestSucceededDetails.Text" xml:space="preserve"><value>The session was opened and closed without saving credentials.</value></data>
+  <data name="Remote.TestFailed.Text" xml:space="preserve"><value>Remote connection test failed</value></data>
+  <data name="Remote.State.Disconnected" xml:space="preserve"><value>Disconnected</value></data>
+  <data name="Remote.State.Connected" xml:space="preserve"><value>Connected</value></data>
+  <data name="Remote.State.Connecting" xml:space="preserve"><value>Connecting</value></data>
+  <data name="Remote.Connecting.Text" xml:space="preserve"><value>Connecting to remote session</value></data>
+  <data name="Remote.ConnectingDetails.Text" xml:space="preserve"><value>The remote RPC operation is running in the background.</value></data>
+  <data name="Remote.Testing.Text" xml:space="preserve"><value>Testing remote connection</value></data>
+  <data name="Remote.SecurityNotice.Text" xml:space="preserve"><value>Passwords are not written to LocalSettings. Use least-privilege credentials and verify firewall, WinRM/RPC, and Event Log permissions before querying.</value></data>
+  <data name="RemoteHeading.Text" xml:space="preserve"><value>Remote</value></data>
+  <data name="RemoteStatusInfoBar.Title" xml:space="preserve"><value>Remote status</value></data>
+  <data name="RemoteStatusInfoBar.Message" xml:space="preserve"><value>Remote status.</value></data>
+  <data name="RemoteConnectionTitle.Text" xml:space="preserve"><value>Connection</value></data>
+  <data name="RemoteHostBox.Header" xml:space="preserve"><value>Host</value></data>
+  <data name="RemoteHostBox.PlaceholderText" xml:space="preserve"><value>computer.example</value></data>
+  <data name="RemoteDomainBox.Header" xml:space="preserve"><value>Domain</value></data>
+  <data name="RemoteUserBox.Header" xml:space="preserve"><value>User</value></data>
+  <data name="RemotePasswordBox.Header" xml:space="preserve"><value>Password (not stored)</value></data>
+  <data name="RemoteConnectButton.Content" xml:space="preserve"><value>Connect</value></data>
+  <data name="RemoteDisconnectButton.Content" xml:space="preserve"><value>Disconnect</value></data>
+  <data name="RemoteTestButton.Content" xml:space="preserve"><value>Test</value></data>
+  <data name="RemoteSaveButton.Content" xml:space="preserve"><value>Save connection</value></data>
+  <data name="RemoteRemoveButton.Content" xml:space="preserve"><value>Remove connection</value></data>
+  <data name="RemoteSavedConnectionsTitle.Text" xml:space="preserve"><value>Saved connections</value></data>
+  <data name="RemoteStateTitle.Text" xml:space="preserve"><value>Connection state</value></data>
+  <data name="RemoteCapabilitiesText.Text" xml:space="preserve"><value>Remote session, channel inventory, and bounded event queries use explicit credentials. Saved profiles never include passwords.</value></data>
+  <data name="RemoteChannelsTitle.Text" xml:space="preserve"><value>Remote channels</value></data>
+  <data name="RemoteRefreshChannelsButton.Content" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Sessions.Heading" xml:space="preserve"><value>Sessions</value></data>
+  <data name="Sessions.Summary" xml:space="preserve"><value>Manage reusable diagnostic sessions with channels, filters, notes, tags, correlation groups, and remote targets.</value></data>
+  <data name="Sessions.SummaryCount.Text" xml:space="preserve"><value>Saved diagnostic sessions are available locally.</value></data>
+  <data name="Sessions.Loading.Text" xml:space="preserve"><value>Loading sessions</value></data>
+  <data name="Sessions.LoadingDetails.Text" xml:space="preserve"><value>Reading the local session repository in the background.</value></data>
+  <data name="Sessions.NameRequired.Text" xml:space="preserve"><value>Enter a session name before saving.</value></data>
+  <data name="Sessions.Saved.Text" xml:space="preserve"><value>Session saved</value></data>
+  <data name="Sessions.Deleted.Text" xml:space="preserve"><value>Session deleted</value></data>
+  <data name="Sessions.Resumed.Text" xml:space="preserve"><value>Session marked for resume</value></data>
+  <data name="Sessions.Imported.Text" xml:space="preserve"><value>Sessions imported</value></data>
+  <data name="Sessions.New.Text" xml:space="preserve"><value>New session</value></data>
+  <data name="Sessions.Active.Text" xml:space="preserve"><value>Active session</value></data>
+  <data name="Sessions.Inactive.Text" xml:space="preserve"><value>Inactive session</value></data>
+  <data name="SessionsHeading.Text" xml:space="preserve"><value>Sessions</value></data>
+  <data name="SessionsNewCommand.Label" xml:space="preserve"><value>New</value></data>
+  <data name="SessionsSaveCommand.Label" xml:space="preserve"><value>Save</value></data>
+  <data name="SessionsResumeCommand.Label" xml:space="preserve"><value>Resume</value></data>
+  <data name="SessionsPinCommand.Label" xml:space="preserve"><value>Pin</value></data>
+  <data name="SessionsExportCommand.Label" xml:space="preserve"><value>Export</value></data>
+  <data name="SessionsImportCommand.Label" xml:space="preserve"><value>Import</value></data>
+  <data name="SessionsDeleteCommand.Label" xml:space="preserve"><value>Delete</value></data>
+  <data name="SessionsRefreshCommand.Label" xml:space="preserve"><value>Refresh</value></data>
+  <data name="SessionsStatusInfoBar.Title" xml:space="preserve"><value>Session status</value></data>
+  <data name="SessionsStatusInfoBar.Message" xml:space="preserve"><value>Session status.</value></data>
+  <data name="SessionsEditorTitle.Text" xml:space="preserve"><value>Session definition</value></data>
+  <data name="SessionsNameBox.Header" xml:space="preserve"><value>Name</value></data>
+  <data name="SessionsDescriptionBox.Header" xml:space="preserve"><value>Description</value></data>
+  <data name="SessionsChannelsBox.Header" xml:space="preserve"><value>Channels</value></data>
+  <data name="SessionsFilterBox.Header" xml:space="preserve"><value>Filter</value></data>
+  <data name="SessionsRemoteTargetBox.Header" xml:space="preserve"><value>Remote target</value></data>
+  <data name="SessionsPinnedCheckBox.Content" xml:space="preserve"><value>Pin this session</value></data>
+  <data name="SessionsMetadataTitle.Text" xml:space="preserve"><value>Metadata</value></data>
+  <data name="SessionsTagsBox.Header" xml:space="preserve"><value>Tags</value></data>
+  <data name="SessionsCorrelationBox.Header" xml:space="preserve"><value>Correlation group</value></data>
+  <data name="SessionsNotesBox.Header" xml:space="preserve"><value>Notes</value></data>
+  <data name="SessionsDuplicateCommand.Label" xml:space="preserve"><value>Duplicate</value></data>
+  <data name="SessionsArchiveCommand.Label" xml:space="preserve"><value>Archive or restore</value></data>
+  <data name="SessionsStartAtBox.Header" xml:space="preserve"><value>Start time</value></data>
+  <data name="SessionsEndAtBox.Header" xml:space="preserve"><value>End time</value></data>
+  <data name="SessionsBookmarkedEventIdsBox.Header" xml:space="preserve"><value>Bookmarked event IDs</value></data>
+  <data name="SessionsArchivedCheckBox.Content" xml:space="preserve"><value>Archived session</value></data>
+  <data name="TimelineOpenButton.Content" xml:space="preserve"><value>Open in Event Logs</value></data>
+  <data name="TimelineBookmarkButton.Content" xml:space="preserve"><value>Bookmark selected</value></data>
+  <data name="TimelineExportButton.Content" xml:space="preserve"><value>Export timeline</value></data>
+  <data name="TimelineProviderFilterBox.Header" xml:space="preserve"><value>Provider filter</value></data>
+  <data name="TimelineGroupRepeatedCheckBox.Content" xml:space="preserve"><value>Group repeated events</value></data>
+  <data name="TimelineDetailsTitle.Text" xml:space="preserve"><value>Selected event details</value></data>
+  <data name="RemoteQueryTitle.Text" xml:space="preserve"><value>Remote event query</value></data>
+  <data name="RemoteQueryNameBox.Header" xml:space="preserve"><value>Saved view name</value></data>
+  <data name="RemoteQuerySaveButton.Content" xml:space="preserve"><value>Save view</value></data>
+  <data name="RemoteQueryRemoveButton.Content" xml:space="preserve"><value>Remove view</value></data>
+  <data name="RemoteQueryChannelBox.Header" xml:space="preserve"><value>Channel</value></data>
+  <data name="RemoteQueryTextBox.Header" xml:space="preserve"><value>XPath query</value></data>
+  <data name="RemoteQueryRunButton.Content" xml:space="preserve"><value>Run</value></data>
+  <data name="RemoteCompareButton.Content" xml:space="preserve"><value>Compare with local</value></data>
+  <data name="RemoteLiveStartButton.Content" xml:space="preserve"><value>Start remote live</value></data>
+  <data name="RemoteLiveStopButton.Content" xml:space="preserve"><value>Stop remote live</value></data>
+  <data name="Remote.QueryLoading.Text" xml:space="preserve"><value>Running remote query</value></data>
+  <data name="Remote.QueryReady.Text" xml:space="preserve"><value>Remote query returned {0} events.</value></data>
+  <data name="Remote.QueryEmpty.Text" xml:space="preserve"><value>No remote events matched the query.</value></data>
+  <data name="Remote.QueryFailed.Text" xml:space="preserve"><value>Remote query failed with Win32 error {0}.</value></data>
+  <data name="Remote.QueryNotConnected.Text" xml:space="preserve"><value>Connect to a remote session before running a query.</value></data>
+  <data name="Remote.QueryNameRequired.Text" xml:space="preserve"><value>Enter a name and channel before saving a remote view.</value></data>
+  <data name="Remote.QuerySaved.Text" xml:space="preserve"><value>Remote view saved</value></data>
+  <data name="Remote.QueryRemoved.Text" xml:space="preserve"><value>Remote view removed</value></data>
+  <data name="Remote.CompareLoading.Text" xml:space="preserve"><value>Comparing local and remote results</value></data>
+  <data name="Remote.CompareReady.Text" xml:space="preserve"><value>Comparison counts: {0}.</value></data>
+  <data name="Remote.Live.Starting.Text" xml:space="preserve"><value>Starting remote subscription</value></data>
+  <data name="Remote.Live.Stopped.Text" xml:space="preserve"><value>Remote live is stopped</value></data>
+  <data name="Remote.Live.Running.Text" xml:space="preserve"><value>Remote live is running; queue depth {0}.</value></data>
+  <data name="Remote.Live.Lost.Text" xml:space="preserve"><value>Remote live dropped {0} events because the queue was full.</value></data>
+  <data name="Remote.Live.Failed.Text" xml:space="preserve"><value>Remote live failed with Win32 error {0}.</value></data>
 </root>

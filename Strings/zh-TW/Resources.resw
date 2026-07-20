@@ -189,6 +189,63 @@
   <data name="SettingsNavigationItem.Content" xml:space="preserve">
     <value>設定</value>
   </data>
+  <data name="EventLogsCustomViewsNavigationItem.Content" xml:space="preserve">
+    <value>自訂檢視</value>
+  </data>
+  <data name="EventLogs.CustomViewsLoading.Text" xml:space="preserve">
+    <value>正在載入自訂檢視…</value>
+  </data>
+  <data name="EventLogs.CustomViewsUnavailable.Text" xml:space="preserve">
+    <value>無法讀取自定檢視。</value>
+  </data>
+  <data name="EventLogs.CustomViewChannel.Text" xml:space="preserve">
+    <value>自訂檢視</value>
+  </data>
+  <data name="EventLogsAdministrativeEventsNavigationItem.Content" xml:space="preserve">
+    <value>系統管理事件</value>
+  </data>
+  <data name="EventLogsWindowsLogsNavigationItem.Content" xml:space="preserve">
+    <value>Windows 記錄</value>
+  </data>
+  <data name="EventLogsApplicationNavigationItem.Content" xml:space="preserve">
+    <value>應用程式</value>
+  </data>
+  <data name="EventLogsSecurityNavigationItem.Content" xml:space="preserve">
+    <value>安全性</value>
+  </data>
+  <data name="EventLogsSetupNavigationItem.Content" xml:space="preserve">
+    <value>安裝程式</value>
+  </data>
+  <data name="EventLogsSystemNavigationItem.Content" xml:space="preserve">
+    <value>系統</value>
+  </data>
+  <data name="EventLogsForwardedEventsNavigationItem.Content" xml:space="preserve">
+    <value>轉送的事件</value>
+  </data>
+  <data name="EventLogsApplicationsAndServicesNavigationItem.Content" xml:space="preserve">
+    <value>應用程式及服務記錄</value>
+  </data>
+  <data name="EventLogsSubscriptionsNavigationItem.Content" xml:space="preserve">
+    <value>訂閱</value>
+  </data>
+  <data name="EventLogs.ChannelDisabledSuffix.Text" xml:space="preserve">
+    <value>（已停用）</value>
+  </data>
+  <data name="EventLogs.ChannelAccessDeniedSuffix.Text" xml:space="preserve">
+    <value>（拒絕存取）</value>
+  </data>
+  <data name="EventLogs.ChannelUnavailableSuffix.Text" xml:space="preserve">
+    <value>（無法使用）</value>
+  </data>
+  <data name="EventLogs.DynamicChannelsUnavailable.Text" xml:space="preserve">
+    <value>應用程式及服務記錄目前無法使用。</value>
+  </data>
+  <data name="EventLogs.DynamicChannelsNone.Text" xml:space="preserve">
+    <value>目前沒有可用的應用程式及服務記錄頻道。</value>
+  </data>
+  <data name="EventLogs.DynamicChannelsLoading.Text" xml:space="preserve">
+    <value>正在載入應用程式及服務記錄…</value>
+  </data>
   <data name="EventLogCatalogTitle.Text" xml:space="preserve">
     <value>事件記錄目錄</value>
   </data>
@@ -212,6 +269,45 @@
   </data>
   <data name="Dashboard.Heading" xml:space="preserve">
     <value>儀表板</value>
+  </data>
+  <data name="Dashboard.Loading.Text" xml:space="preserve">
+    <value>正在載入儀表板資料</value>
+  </data>
+  <data name="Dashboard.LoadingDetails.Text" xml:space="preserve">
+    <value>Windows 事件統計正在背景計算。</value>
+  </data>
+  <data name="Dashboard.MetricLoading.Text" xml:space="preserve">
+    <value>…</value>
+  </data>
+  <data name="Dashboard.MetricUnavailable.Text" xml:space="preserve">
+    <value>—</value>
+  </data>
+  <data name="Dashboard.Monitoring.NotConfigured.Text" xml:space="preserve">
+    <value>尚未設定</value>
+  </data>
+  <data name="Dashboard.QueryUnavailable.Text" xml:space="preserve">
+    <value>事件統計目前無法使用。</value>
+  </data>
+  <data name="Dashboard.QueryFailed.Text" xml:space="preserve">
+    <value>無法載入儀表板資料。</value>
+  </data>
+  <data name="Dashboard.ErrorDetails.Text" xml:space="preserve">
+    <value>技術詳細資料 — Win32 錯誤 {0}。</value>
+  </data>
+  <data name="Dashboard.CrashTimelineLoading.Text" xml:space="preserve">
+    <value>正在準備本機事件序列…</value>
+  </data>
+  <data name="Dashboard.CrashTimeline.Suggested.Text" xml:space="preserve">
+    <value>最近的 {0} 事件 {1} 是時間接近訊號。請開啟事件記錄以調查已確認的事件資料。</value>
+  </data>
+  <data name="Dashboard.CrashTimeline.NoData.Text" xml:space="preserve">
+    <value>找不到可建立本機序列的近期重大或錯誤事件。</value>
+  </data>
+  <data name="DashboardStatusInfoBar.Title" xml:space="preserve">
+    <value>儀表板狀態</value>
+  </data>
+  <data name="DashboardStatusInfoBar.Message" xml:space="preserve">
+    <value>儀表板狀態。</value>
   </data>
   <data name="Dashboard.Summary.Initial" xml:space="preserve">
     <value>正在準備原生 Windows 事件記錄目錄。</value>
@@ -268,7 +364,7 @@
     <value>警告</value>
   </data>
   <data name="DashboardTodayCardTitle.Text" xml:space="preserve">
-    <value>今日</value>
+    <value>今日重大事件</value>
   </data>
   <data name="DashboardLiveCardTitle.Text" xml:space="preserve">
     <value>即時</value>
@@ -285,17 +381,26 @@
   <data name="DashboardServiceStatusMonitoringNotConfigured.Text" xml:space="preserve">
     <value>即時監控尚未設定。</value>
   </data>
+  <data name="DashboardTodayTotalLabel.Text" xml:space="preserve">
+    <value>今日事件總數</value>
+  </data>
   <data name="DashboardRecentCriticalEventsTitle.Text" xml:space="preserve">
     <value>最近的重大事件</value>
+  </data>
+  <data name="DashboardViewAllEventsButton.Content" xml:space="preserve">
+    <value>檢視全部</value>
+  </data>
+  <data name="DashboardOpenEventButton.Content" xml:space="preserve">
+    <value>開啟</value>
   </data>
   <data name="DashboardCrashTimelineTitle.Text" xml:space="preserve">
     <value>當機時間軸</value>
   </data>
   <data name="DashboardRecentCriticalEventsPlaceholder.Text" xml:space="preserve">
-    <value>連接 Event Logs 的功能需求後，這裡會顯示重大事件資料。</value>
+    <value>目前的儀表板查詢沒有傳回重大事件。</value>
   </data>
   <data name="DashboardCrashTimelinePlaceholder.Text" xml:space="preserve">
-    <value>連接 Timeline 的功能需求後，這裡會顯示當機時間軸資料。</value>
+    <value>目前的儀表板查詢沒有傳回當機時間軸資料。</value>
   </data>
   <data name="Feature.EventStreams.Heading" xml:space="preserve">
     <value>事件串流</value>
@@ -307,16 +412,418 @@
     <value>診斷</value>
   </data>
   <data name="Feature.Diagnostics.Description" xml:space="preserve">
-    <value>關聯分析、健康檢查與調查工作流程將以獨立功能提供。</value>
+    <value>使用時間軸、即時、提供者、工作階段與遠端頁面來關聯事件並執行調查。</value>
   </data>
   <data name="Feature.Settings.Heading" xml:space="preserve">
     <value>設定</value>
   </data>
   <data name="Feature.Settings.Description" xml:space="preserve">
-    <value>應用程式偏好設定與未來的外掛管理將在此設定。</value>
+    <value>在此設定主題、語言、事件呈現、監控限制、儲存、隱私與診斷選項。</value>
   </data>
   <data name="Feature.EventLogs.Heading" xml:space="preserve">
     <value>事件記錄</value>
+  </data>
+  <data name="EventLogs.Heading" xml:space="preserve">
+    <value>事件記錄</value>
+  </data>
+  <data name="EventLogs.ChannelDefault.Text" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="EventLogs.EmptyValue.Text" xml:space="preserve">
+    <value>—</value>
+  </data>
+  <data name="EventLogs.MessagePreviewUnavailable.Text" xml:space="preserve">
+    <value>此摘要目前沒有可用的訊息預覽。</value>
+  </data>
+  <data name="EventLogs.SelectEvent.Text" xml:space="preserve">
+    <value>選取事件以檢視其摘要。</value>
+  </data>
+  <data name="EventLogs.FilterNone.Text" xml:space="preserve">
+    <value>顯示所有已載入的事件。</value>
+  </data>
+  <data name="EventLogs.FilterSummary.Text" xml:space="preserve">
+    <value>顯示 {1} 個已載入事件中的 {0} 個。</value>
+  </data>
+  <data name="EventLogs.DetailsLoading.Text" xml:space="preserve">
+    <value>正在載入事件詳細資料…</value>
+  </data>
+  <data name="EventLogs.DetailsLoaded.Text" xml:space="preserve">
+    <value>事件詳細資料已載入。</value>
+  </data>
+  <data name="EventLogs.MessageFormattingFailed.Text" xml:space="preserve">
+    <value>無法格式化提供者訊息；結構化欄位與 XML 仍可使用。</value>
+  </data>
+  <data name="EventLogs.MessageFormattingError.Text" xml:space="preserve">
+    <value>訊息格式化失敗，Win32 錯誤 {0}。</value>
+  </data>
+  <data name="EventLogs.XmlUnavailable.Text" xml:space="preserve">
+    <value>此事件沒有可用的原始 XML。</value>
+  </data>
+  <data name="EventLogs.Loading.Text" xml:space="preserve">
+    <value>正在載入事件…</value>
+  </data>
+  <data name="EventLogs.LoadingDetails.Text" xml:space="preserve">
+    <value>查詢會在背景執行，介面仍可保持回應。</value>
+  </data>
+  <data name="EventLogs.Loaded.Text" xml:space="preserve">
+    <value>已載入 {0} 個事件。</value>
+  </data>
+  <data name="EventLogs.NoEvents.Text" xml:space="preserve">
+    <value>此頻道中沒有找到事件。</value>
+  </data>
+  <data name="EventLogs.Cancelled.Text" xml:space="preserve">
+    <value>事件查詢已取消。</value>
+  </data>
+  <data name="EventLogs.AccessDenied.Text" xml:space="preserve">
+    <value>拒絕存取此頻道。請以具備適當權限的方式開啟應用程式。</value>
+  </data>
+  <data name="EventLogsRestartAsAdministratorButton.Content" xml:space="preserve">
+    <value>以管理員身分重新啟動</value>
+  </data>
+  <data name="EventLogs.InvalidChannel.Text" xml:space="preserve">
+    <value>此事件頻道無法使用，或已不存在。</value>
+  </data>
+  <data name="EventLogs.ServiceUnavailable.Text" xml:space="preserve">
+    <value>Windows 事件記錄服務無法使用。</value>
+  </data>
+  <data name="EventLogs.QueryFailed.Text" xml:space="preserve">
+    <value>無法完成事件查詢。</value>
+  </data>
+  <data name="EventLogs.ErrorDetails.Text" xml:space="preserve">
+    <value>技術詳細資料 — Win32 錯誤 {0}。</value>
+  </data>
+  <data name="EventLogs.Level.Critical" xml:space="preserve">
+    <value>重大</value>
+  </data>
+  <data name="EventLogs.Level.Error" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="EventLogs.Level.Warning" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="EventLogs.Level.Information" xml:space="preserve">
+    <value>資訊</value>
+  </data>
+  <data name="EventLogs.Level.Verbose" xml:space="preserve">
+    <value>詳細</value>
+  </data>
+  <data name="EventLogs.Level.Unknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="EventLogsChannelLabel.Text" xml:space="preserve">
+    <value>頻道</value>
+  </data>
+  <data name="EventLogsSearchBox.PlaceholderText" xml:space="preserve">
+    <value>搜尋已載入的事件摘要</value>
+  </data>
+  <data name="EventLogsRefreshButton.Content" xml:space="preserve">
+    <value>重新整理</value>
+  </data>
+  <data name="EventLogsClearFilterButton.Content" xml:space="preserve">
+    <value>清除篩選</value>
+  </data>
+  <data name="EventLogsStatusInfoBar.Title" xml:space="preserve">
+    <value>事件記錄狀態</value>
+  </data>
+  <data name="EventLogsStatusInfoBar.Message" xml:space="preserve">
+    <value>事件記錄狀態。</value>
+  </data>
+  <data name="EventLogsChannelPaneTitle.Text" xml:space="preserve">
+    <value>目前記錄</value>
+  </data>
+  <data name="EventLogsChannelPaneDescription.Text" xml:space="preserve">
+    <value>從事件記錄導覽選取頻道，以檢視其中的最新事件。</value>
+  </data>
+  <data name="EventLogsLevelHeader.Text" xml:space="preserve">
+    <value>層級</value>
+  </data>
+  <data name="EventLogsTimeHeader.Text" xml:space="preserve">
+    <value>日期與時間</value>
+  </data>
+  <data name="EventLogsProviderHeader.Text" xml:space="preserve">
+    <value>來源／提供者</value>
+  </data>
+  <data name="EventLogsIdHeader.Text" xml:space="preserve">
+    <value>事件識別碼</value>
+  </data>
+  <data name="EventLogsTaskHeader.Text" xml:space="preserve">
+    <value>工作類別</value>
+  </data>
+  <data name="EventLogsChannelHeader.Text" xml:space="preserve">
+    <value>頻道</value>
+  </data>
+  <data name="EventLogsUserHeader.Text" xml:space="preserve">
+    <value>使用者</value>
+  </data>
+  <data name="EventLogsComputerHeader.Text" xml:space="preserve">
+    <value>電腦</value>
+  </data>
+  <data name="EventLogsDescriptionHeader.Text" xml:space="preserve">
+    <value>簡短描述</value>
+  </data>
+  <data name="EventLogsCopyButton.Content" xml:space="preserve">
+    <value>複製</value>
+  </data>
+  <data name="EventLogsRefreshCommand.Label" xml:space="preserve">
+    <value>重新整理</value>
+  </data>
+  <data name="EventLogsFilterCommand.Label" xml:space="preserve">
+    <value>篩選</value>
+  </data>
+  <data name="EventLogsClearFilterCommand.Label" xml:space="preserve">
+    <value>清除篩選</value>
+  </data>
+  <data name="EventLogsCopyCommand.Label" xml:space="preserve">
+    <value>複製</value>
+  </data>
+  <data name="EventLogsCopyMenuItem.Text" xml:space="preserve">
+    <value>複製選取的事件</value>
+  </data>
+  <data name="EventLogsBookmarkMenuItem.Text" xml:space="preserve">
+    <value>為選取的事件加書籤</value>
+  </data>
+  <data name="EventLogsExportMenuItem.Text" xml:space="preserve">
+    <value>匯出選取的事件</value>
+  </data>
+  <data name="EventLogsBookmarkCommand.Label" xml:space="preserve">
+    <value>加入書籤</value>
+  </data>
+  <data name="EventLogsExportCommand.Label" xml:space="preserve">
+    <value>匯出</value>
+  </data>
+  <data name="EventLogsToggleDetailsCommand.Label" xml:space="preserve">
+    <value>切換詳細資料</value>
+  </data>
+  <data name="EventLogsFindNextCommand.Label" xml:space="preserve">
+    <value>尋找下一個</value>
+  </data>
+  <data name="EventLogsFindPreviousCommand.Label" xml:space="preserve">
+    <value>尋找上一個</value>
+  </data>
+  <data name="EventLogsSaveViewCommand.Label" xml:space="preserve">
+    <value>儲存檢視</value>
+  </data>
+  <data name="EventLogsOpenSavedLogCommand.Label" xml:space="preserve">
+    <value>開啟已儲存記錄</value>
+  </data>
+  <data name="EventLogsClearLogCommand.Label" xml:space="preserve">
+    <value>清除記錄</value>
+  </data>
+  <data name="EventLogsPropertiesCommand.Label" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="EventLogsLiveUpdatesCommand.Label" xml:space="preserve">
+    <value>即時更新</value>
+  </data>
+  <data name="EventLogsHelpCommand.Label" xml:space="preserve">
+    <value>說明</value>
+  </data>
+  <data name="EventLogsFilterFlyoutTitle.Text" xml:space="preserve">
+    <value>建立事件篩選</value>
+  </data>
+  <data name="EventLogsFilterProviderBox.Header" xml:space="preserve">
+    <value>提供者</value>
+  </data>
+  <data name="EventLogsFilterProviderBox.PlaceholderText" xml:space="preserve">
+    <value>例如 Kernel-Power</value>
+  </data>
+  <data name="EventLogsFilterEventIdBox.Header" xml:space="preserve">
+    <value>事件識別碼</value>
+  </data>
+  <data name="EventLogsFilterEventIdBox.PlaceholderText" xml:space="preserve">
+    <value>數字事件識別碼</value>
+  </data>
+  <data name="EventLogsFilterTaskBox.Header" xml:space="preserve">
+    <value>工作</value>
+  </data>
+  <data name="EventLogsFilterTaskBox.PlaceholderText" xml:space="preserve">
+    <value>數字工作</value>
+  </data>
+  <data name="EventLogsFilterOpcodeBox.Header" xml:space="preserve">
+    <value>作業碼</value>
+  </data>
+  <data name="EventLogsFilterOpcodeBox.PlaceholderText" xml:space="preserve">
+    <value>數字作業碼</value>
+  </data>
+  <data name="EventLogsFilterKeywordBox.Header" xml:space="preserve">
+    <value>關鍵字遮罩</value>
+  </data>
+  <data name="EventLogsFilterKeywordBox.PlaceholderText" xml:space="preserve">
+    <value>數字關鍵字遮罩</value>
+  </data>
+  <data name="EventLogsFilterProcessIdBox.Header" xml:space="preserve">
+    <value>處理程序 ID</value>
+  </data>
+  <data name="EventLogsFilterProcessIdBox.PlaceholderText" xml:space="preserve">
+    <value>數字處理程序 ID</value>
+  </data>
+  <data name="EventLogsFilterThreadIdBox.Header" xml:space="preserve">
+    <value>執行緒 ID</value>
+  </data>
+  <data name="EventLogsFilterThreadIdBox.PlaceholderText" xml:space="preserve">
+    <value>數字執行緒 ID</value>
+  </data>
+  <data name="EventLogsFilterUserBox.Header" xml:space="preserve">
+    <value>使用者 SID</value>
+  </data>
+  <data name="EventLogsFilterUserBox.PlaceholderText" xml:space="preserve">
+    <value>S-1-5-18</value>
+  </data>
+  <data name="EventLogsFilterComputerBox.Header" xml:space="preserve">
+    <value>電腦</value>
+  </data>
+  <data name="EventLogsFilterComputerBox.PlaceholderText" xml:space="preserve">
+    <value>電腦名稱</value>
+  </data>
+  <data name="EventLogsFilterLevelBox.Header" xml:space="preserve">
+    <value>層級</value>
+  </data>
+  <data name="EventLogsFilterLevelAny.Content" xml:space="preserve">
+    <value>任何層級</value>
+  </data>
+  <data name="EventLogsFilterLevelCritical.Content" xml:space="preserve">
+    <value>重大</value>
+  </data>
+  <data name="EventLogsFilterLevelError.Content" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="EventLogsFilterLevelWarning.Content" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="EventLogsFilterLevelInformation.Content" xml:space="preserve">
+    <value>資訊</value>
+  </data>
+  <data name="EventLogsFilterAfterToday.Header" xml:space="preserve">
+    <value>只顯示最近 24 小時的事件</value>
+  </data>
+  <data name="EventLogsFilterAfterHoursBox.Header" xml:space="preserve">
+    <value>只顯示最近 N 小時的事件</value>
+  </data>
+  <data name="EventLogsFilterAfterHoursBox.PlaceholderText" xml:space="preserve">
+    <value>例如 6</value>
+  </data>
+  <data name="EventLogsRawXPathBox.Header" xml:space="preserve">
+    <value>進階原始 XPath（會覆寫上方欄位）</value>
+  </data>
+  <data name="EventLogsRawXPathBox.PlaceholderText" xml:space="preserve">
+    <value>*[System[Level=2]]</value>
+  </data>
+  <data name="EventLogsApplyFilterButton.Content" xml:space="preserve">
+    <value>套用篩選</value>
+  </data>
+  <data name="EventLogsClearStructuredFilterButton.Content" xml:space="preserve">
+    <value>清除建立器</value>
+  </data>
+  <data name="EventLogsExportLoading.Text" xml:space="preserve">
+    <value>正在匯出選取的事件</value>
+  </data>
+  <data name="EventLogsExportCompleted.Text" xml:space="preserve">
+    <value>選取的事件已匯出</value>
+  </data>
+  <data name="EventLogsExportCompletedDetails.Text" xml:space="preserve">
+    <value>已儲存至 {0}。</value>
+  </data>
+  <data name="EventLogsExportFailed.Text" xml:space="preserve">
+    <value>無法匯出選取的事件</value>
+  </data>
+  <data name="EventLogs.FilterSummary.Structured.Text" xml:space="preserve">
+    <value>使用結構化篩選顯示 {0}/{1} 個已載入事件。</value>
+  </data>
+  <data name="EventLogsLevelHeaderButton.Content" xml:space="preserve">
+    <value>層級</value>
+  </data>
+  <data name="EventLogsTimeHeaderButton.Content" xml:space="preserve">
+    <value>日期與時間</value>
+  </data>
+  <data name="EventLogsProviderHeaderButton.Content" xml:space="preserve">
+    <value>來源／提供者</value>
+  </data>
+  <data name="EventLogsIdHeaderButton.Content" xml:space="preserve">
+    <value>事件識別碼</value>
+  </data>
+  <data name="EventLogsTaskHeaderButton.Content" xml:space="preserve">
+    <value>工作類別</value>
+  </data>
+  <data name="EventLogsChannelHeaderButton.Content" xml:space="preserve">
+    <value>頻道</value>
+  </data>
+  <data name="EventLogsUserHeaderButton.Content" xml:space="preserve">
+    <value>使用者</value>
+  </data>
+  <data name="EventLogsComputerHeaderButton.Content" xml:space="preserve">
+    <value>電腦</value>
+  </data>
+  <data name="EventLogsDescriptionHeaderButton.Content" xml:space="preserve">
+    <value>簡短描述</value>
+  </data>
+  <data name="EventLogsSummaryTab.Header" xml:space="preserve">
+    <value>摘要</value>
+  </data>
+  <data name="EventLogsDetailsTab.Header" xml:space="preserve">
+    <value>詳細資料</value>
+  </data>
+  <data name="EventLogsXmlTab.Header" xml:space="preserve">
+    <value>XML</value>
+  </data>
+  <data name="EventLogsEventDataTab.Header" xml:space="preserve">
+    <value>事件資料</value>
+  </data>
+  <data name="EventLogsSelectedEventTitle.Text" xml:space="preserve">
+    <value>選取的事件</value>
+  </data>
+  <data name="EventLogsProviderLabel.Text" xml:space="preserve">
+    <value>提供者</value>
+  </data>
+  <data name="EventLogsEventIdLabel.Text" xml:space="preserve">
+    <value>事件識別碼</value>
+  </data>
+  <data name="EventLogsVersionLabel.Text" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="EventLogsLevelLabel.Text" xml:space="preserve">
+    <value>層級</value>
+  </data>
+  <data name="EventLogsOpcodeLabel.Text" xml:space="preserve">
+    <value>作業碼</value>
+  </data>
+  <data name="EventLogsKeywordsLabel.Text" xml:space="preserve">
+    <value>關鍵字</value>
+  </data>
+  <data name="EventLogsTimeLabel.Text" xml:space="preserve">
+    <value>日期與時間</value>
+  </data>
+  <data name="EventLogsTaskCategoryLabel.Text" xml:space="preserve">
+    <value>工作類別</value>
+  </data>
+  <data name="EventLogsChannelDetailLabel.Text" xml:space="preserve">
+    <value>頻道</value>
+  </data>
+  <data name="EventLogsComputerLabel.Text" xml:space="preserve">
+    <value>電腦</value>
+  </data>
+  <data name="EventLogsRecordIdLabel.Text" xml:space="preserve">
+    <value>記錄識別碼</value>
+  </data>
+  <data name="EventLogsProcessIdLabel.Text" xml:space="preserve">
+    <value>處理程序 ID</value>
+  </data>
+  <data name="EventLogsThreadIdLabel.Text" xml:space="preserve">
+    <value>執行緒 ID</value>
+  </data>
+  <data name="EventLogsActivityIdLabel.Text" xml:space="preserve">
+    <value>活動 ID</value>
+  </data>
+  <data name="EventLogsRelatedActivityIdLabel.Text" xml:space="preserve">
+    <value>相關活動 ID</value>
+  </data>
+  <data name="EventLogsDescriptionLabel.Text" xml:space="preserve">
+    <value>訊息預覽</value>
+  </data>
+  <data name="EventLogsDetailsDeferred.Text" xml:space="preserve">
+    <value>完整事件詳細資料會在下一個實作里程碑中延遲載入；目前仍可在此檢視輕量摘要。</value>
+  </data>
+  <data name="EventLogsXmlDeferred.Text" xml:space="preserve">
+    <value>原始 XML 會在選取事件並接上詳細資料服務後提供。</value>
   </data>
   <data name="Feature.EventLogs.Description" xml:space="preserve">
     <value>此頁面已建立，等待事件記錄的功能需求。</value>
@@ -364,7 +871,7 @@
     <value>設定 AstralChronicle 的佈景主題或語言。</value>
   </data>
   <data name="Settings.ThemeHint" xml:space="preserve">
-    <value>StarrySky 與 BlackSoulsLeaf 會保留背景圖片，同時套用深色 Fluent 表面與對比度覆蓋層，讓文字保持清晰。</value>
+    <value>StarrySky 與 BlackSoulsLeaf 會使用背景圖片，同時套用深色 Fluent 表面與對比度覆蓋層，讓文字保持清晰。</value>
   </data>
   <data name="ThemeModeRadioButtons.Header" xml:space="preserve">
     <value>外觀</value>
@@ -413,5 +920,1061 @@
   </data>
   <data name="AboutCardLicense.Text" xml:space="preserve">
     <value>本程式依 GNU 通用公眾授權條款第 3 版（GPL v3）發行。</value>
+  </data>
+  <data name="SettingsEventDisplayTitle.Text" xml:space="preserve">
+    <value>事件顯示</value>
+  </data>
+  <data name="SettingsEventDisplayDescription.Text" xml:space="preserve">
+    <value>選擇事件清單與詳細資料窗格的預設呈現方式。</value>
+  </data>
+  <data name="SettingsDefaultSortToggle.OnContent" xml:space="preserve">
+    <value>最新事件優先</value>
+  </data>
+  <data name="SettingsDefaultSortToggle.OffContent" xml:space="preserve">
+    <value>最舊事件優先</value>
+  </data>
+  <data name="SettingsUseUtcToggle.OnContent" xml:space="preserve">
+    <value>以 UTC 顯示事件時間</value>
+  </data>
+  <data name="SettingsUseUtcToggle.OffContent" xml:space="preserve">
+    <value>以本地時間顯示事件時間</value>
+  </data>
+  <data name="SettingsGroupRepeatedToggle.OnContent" xml:space="preserve">
+    <value>群組重複事件</value>
+  </data>
+  <data name="SettingsGroupRepeatedToggle.OffContent" xml:space="preserve">
+    <value>個別顯示重複事件</value>
+  </data>
+  <data name="SettingsDetailsPaneToggle.OnContent" xml:space="preserve">
+    <value>預設開啟詳細資料窗格</value>
+  </data>
+  <data name="SettingsDetailsPaneToggle.OffContent" xml:space="preserve">
+    <value>預設關閉詳細資料窗格</value>
+  </data>
+  <data name="SettingsMonitoringTitle.Text" xml:space="preserve">
+    <value>監控</value>
+  </data>
+  <data name="SettingsMonitoringDescription.Text" xml:space="preserve">
+    <value>限制即時訂閱佇列，避免高頻率頻道無限制增長。</value>
+  </data>
+  <data name="SettingsLiveQueueBox.Header" xml:space="preserve">
+    <value>預設即時佇列大小</value>
+  </data>
+  <data name="SettingsLiveQueueBox.PlaceholderText" xml:space="preserve">
+    <value>5000</value>
+  </data>
+  <data name="SettingsBatchSizeBox.Header" xml:space="preserve">
+    <value>查詢批次大小</value>
+  </data>
+  <data name="SettingsBatchSizeBox.PlaceholderText" xml:space="preserve">
+    <value>64</value>
+  </data>
+  <data name="SettingsPerformanceTitle.Text" xml:space="preserve">
+    <value>效能</value>
+  </data>
+  <data name="SettingsPerformanceDescription.Text" xml:space="preserve">
+    <value>限制呈現工作，讓大型記錄載入時仍能保持回應。</value>
+  </data>
+  <data name="SettingsMaxLiveRowsBox.Header" xml:space="preserve">
+    <value>即時清單可見列上限</value>
+  </data>
+  <data name="SettingsMaxLiveRowsBox.PlaceholderText" xml:space="preserve">
+    <value>2000</value>
+  </data>
+  <data name="SettingsAnimationsToggle.OnContent" xml:space="preserve">
+    <value>使用介面動畫</value>
+  </data>
+  <data name="SettingsAnimationsToggle.OffContent" xml:space="preserve">
+    <value>減少介面動畫</value>
+  </data>
+  <data name="SettingsMetadataCacheToggle.OnContent" xml:space="preserve">
+    <value>快取提供者中繼資料</value>
+  </data>
+  <data name="SettingsMetadataCacheToggle.OffContent" xml:space="preserve">
+    <value>不要快取提供者中繼資料</value>
+  </data>
+  <data name="SettingsStorageTitle.Text" xml:space="preserve">
+    <value>儲存</value>
+  </data>
+  <data name="SettingsStorageDescription.Text" xml:space="preserve">
+    <value>控制哪些調查狀態會保留在本機應用程式儲存空間。</value>
+  </data>
+  <data name="SettingsPersistSessionsToggle.OnContent" xml:space="preserve">
+    <value>保留診斷工作階段</value>
+  </data>
+  <data name="SettingsPersistSessionsToggle.OffContent" xml:space="preserve">
+    <value>不要保留診斷工作階段</value>
+  </data>
+  <data name="SettingsPersistBookmarksToggle.OnContent" xml:space="preserve">
+    <value>保留事件書籤</value>
+  </data>
+  <data name="SettingsPersistBookmarksToggle.OffContent" xml:space="preserve">
+    <value>不要保留事件書籤</value>
+  </data>
+  <data name="SettingsPrivacyTitle.Text" xml:space="preserve">
+    <value>隱私權與安全性</value>
+  </data>
+  <data name="SettingsPrivacyDescription.Text" xml:space="preserve">
+    <value>遮罩選項會影響匯出及顯示的調查資料。</value>
+  </data>
+  <data name="SettingsRedactComputerToggle.OnContent" xml:space="preserve">
+    <value>在匯出中遮罩電腦名稱</value>
+  </data>
+  <data name="SettingsRedactComputerToggle.OffContent" xml:space="preserve">
+    <value>在匯出中保留電腦名稱</value>
+  </data>
+  <data name="SettingsRedactUserToggle.OnContent" xml:space="preserve">
+    <value>在匯出中遮罩使用者名稱</value>
+  </data>
+  <data name="SettingsRedactUserToggle.OffContent" xml:space="preserve">
+    <value>在匯出中保留使用者名稱</value>
+  </data>
+  <data name="SettingsAdvancedTitle.Text" xml:space="preserve">
+    <value>進階</value>
+  </data>
+  <data name="SettingsAdvancedDescription.Text" xml:space="preserve">
+    <value>提供進階查詢診斷，同時保留預設的安全工作流程。</value>
+  </data>
+  <data name="SettingsRawXPathToggle.OnContent" xml:space="preserve">
+    <value>啟用原始 XPath 模式</value>
+  </data>
+  <data name="SettingsRawXPathToggle.OffContent" xml:space="preserve">
+    <value>使用結構化篩選建立器</value>
+  </data>
+  <data name="SettingsDebugLoggingToggle.OnContent" xml:space="preserve">
+    <value>啟用診斷記錄</value>
+  </data>
+  <data name="SettingsDebugLoggingToggle.OffContent" xml:space="preserve">
+    <value>停用診斷記錄</value>
+  </data>
+  <data name="SettingsHighContrastInfoBar.Title" xml:space="preserve">
+    <value>高對比度相容性</value>
+  </data>
+  <data name="SettingsHighContrastInfoBar.Message" xml:space="preserve">
+    <value>高對比度仍由 Windows 系統色彩控制；圖片與語意嚴重性色彩不會覆寫系統色彩。</value>
+  </data>
+  <data name="SharedComponentsGalleryTitle.Text" xml:space="preserve">
+    <value>共用元件展示</value>
+  </data>
+  <data name="SharedComponentsGalleryDescription.Text" xml:space="preserve">
+    <value>可重用的卡片、字體、按鈕與狀態表面都使用與應用程式外殼相同的語意資源。</value>
+  </data>
+  <data name="SharedComponentsGalleryButton.Content" xml:space="preserve">
+    <value>語意按鈕</value>
+  </data>
+  <data name="SharedComponentsGalleryInfoBar.Title" xml:space="preserve">
+    <value>語意狀態</value>
+  </data>
+  <data name="SharedComponentsGalleryInfoBar.Message" xml:space="preserve">
+    <value>主題資源會讓此範例在淺色、深色、自訂與高對比模式中保持可讀。</value>
+  </data>
+  <data name="Timeline.Heading" xml:space="preserve">
+    <value>時間軸</value>
+  </data>
+  <data name="TimelineHeading.Text" xml:space="preserve">
+    <value>時間軸</value>
+  </data>
+  <data name="TimelineStatusInfoBar.Title" xml:space="preserve">
+    <value>時間軸狀態</value>
+  </data>
+  <data name="TimelineStatusInfoBar.Message" xml:space="preserve">
+    <value>時間軸狀態。</value>
+  </data>
+  <data name="Timeline.Summary" xml:space="preserve">
+    <value>依時間排列核心 Windows 頻道的近期事件。</value>
+  </data>
+  <data name="Timeline.SummaryCount.Text" xml:space="preserve">
+    <value>此時間軸共有 {0} 個事件。</value>
+  </data>
+  <data name="Timeline.Loading.Text" xml:space="preserve">
+    <value>正在載入時間軸</value>
+  </data>
+  <data name="Timeline.LoadingDetails.Text" xml:space="preserve">
+    <value>正在背景查詢 System、Application 與 Security。</value>
+  </data>
+  <data name="Timeline.Ready.Text" xml:space="preserve">
+    <value>時間軸已就緒</value>
+  </data>
+  <data name="Timeline.QueryFailed.Text" xml:space="preserve">
+    <value>無法完成時間軸查詢。</value>
+  </data>
+  <data name="Timeline.ErrorDetails.Text" xml:space="preserve">
+    <value>技術詳細資料 — Win32 錯誤 {0}。</value>
+  </data>
+  <data name="Timeline.FilterNone.Text" xml:space="preserve">
+    <value>顯示已載入的時間軸事件。</value>
+  </data>
+  <data name="Timeline.FilterSummary.Text" xml:space="preserve">
+    <value>顯示 {0}/{1} 個已載入時間軸事件。</value>
+  </data>
+  <data name="Timeline.Correlation.Text" xml:space="preserve">
+    <value>關聯採用確定性規則：項目依時間呈現；時間接近只是提示，不代表因果關係已獲證實。</value>
+  </data>
+  <data name="TimelineSearchBox.PlaceholderText" xml:space="preserve">
+    <value>搜尋時間軸事件</value>
+  </data>
+  <data name="TimelineTimeRangeBox.Header" xml:space="preserve">
+    <value>時間範圍</value>
+  </data>
+  <data name="TimelineTimeRangeHour.Content" xml:space="preserve">
+    <value>一小時</value>
+  </data>
+  <data name="TimelineTimeRangeDay.Content" xml:space="preserve">
+    <value>一天</value>
+  </data>
+  <data name="TimelineTimeRangeWeek.Content" xml:space="preserve">
+    <value>一週</value>
+  </data>
+  <data name="TimelineTimeRangeMonth.Content" xml:space="preserve">
+    <value>一個月</value>
+  </data>
+  <data name="TimelineTimeRangeAny.Content" xml:space="preserve">
+    <value>不限時間</value>
+  </data>
+  <data name="TimelineLevelFilterBox.Header" xml:space="preserve">
+    <value>嚴重性</value>
+  </data>
+  <data name="TimelineLevelAny.Content" xml:space="preserve">
+    <value>任何層級</value>
+  </data>
+  <data name="TimelineLevelCritical.Content" xml:space="preserve">
+    <value>重大</value>
+  </data>
+  <data name="TimelineLevelError.Content" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="TimelineLevelWarning.Content" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="TimelineLevelInformation.Content" xml:space="preserve">
+    <value>資訊</value>
+  </data>
+  <data name="TimelineChannelFilterBox.Header" xml:space="preserve">
+    <value>頻道</value>
+  </data>
+  <data name="TimelineChannelAny.Content" xml:space="preserve">
+    <value>核心頻道</value>
+  </data>
+  <data name="TimelineChannelSystem.Content" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="TimelineChannelApplication.Content" xml:space="preserve">
+    <value>Application</value>
+  </data>
+  <data name="TimelineChannelSecurity.Content" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="TimelineRefreshButton.Content" xml:space="preserve">
+    <value>重新整理</value>
+  </data>
+  <data name="Providers.Heading" xml:space="preserve">
+    <value>提供者</value>
+  </data>
+  <data name="Providers.Summary" xml:space="preserve">
+    <value>檢視已註冊的 Windows 事件記錄發行者及其資訊清單中繼資料。</value>
+  </data>
+  <data name="Providers.SummaryCount.Text" xml:space="preserve">
+    <value>目前搜尋符合 {0} 個提供者。</value>
+  </data>
+  <data name="Providers.SelectProvider.Text" xml:space="preserve">
+    <value>選取提供者以檢視其中繼資料。</value>
+  </data>
+  <data name="Providers.Loading.Text" xml:space="preserve">
+    <value>正在載入提供者</value>
+  </data>
+  <data name="Providers.LoadingDetails.Text" xml:space="preserve">
+    <value>正在背景列舉已註冊的 Windows 事件記錄發行者。</value>
+  </data>
+  <data name="Providers.Ready.Text" xml:space="preserve">
+    <value>提供者已就緒</value>
+  </data>
+  <data name="Providers.NoProviders.Text" xml:space="preserve">
+    <value>找不到提供者</value>
+  </data>
+  <data name="Providers.QueryFailed.Text" xml:space="preserve">
+    <value>無法載入提供者目錄。</value>
+  </data>
+  <data name="Providers.AccessDenied.Text" xml:space="preserve">
+    <value>拒絕存取</value>
+  </data>
+  <data name="Providers.ServiceUnavailable.Text" xml:space="preserve">
+    <value>Windows 事件記錄服務無法使用。</value>
+  </data>
+  <data name="Providers.Cancelled.Text" xml:space="preserve">
+    <value>提供者查詢已取消</value>
+  </data>
+  <data name="Providers.ErrorDetails.Text" xml:space="preserve">
+    <value>技術詳細資料 — Win32 錯誤 {0}。</value>
+  </data>
+  <data name="Providers.MetadataLoading.Text" xml:space="preserve">
+    <value>正在載入發行者中繼資料…</value>
+  </data>
+  <data name="Providers.MetadataAvailable.Text" xml:space="preserve">
+    <value>發行者中繼資料可用。</value>
+  </data>
+  <data name="Providers.MetadataUnavailable.Text" xml:space="preserve">
+    <value>發行者中繼資料無法使用。</value>
+  </data>
+  <data name="Providers.EventCount.Text" xml:space="preserve">
+    <value>{0} 個事件定義</value>
+  </data>
+  <data name="Providers.Definition.Text" xml:space="preserve">
+    <value>識別碼 {0} · 版本 {1} · 層級 {2} · 頻道 {3} · 工作 {4} · 作業碼 {5} · 關鍵字 {6} · 範本：{7}</value>
+  </data>
+  <data name="ProvidersHeading.Text" xml:space="preserve">
+    <value>提供者</value>
+  </data>
+  <data name="ProvidersRefreshCommand.Label" xml:space="preserve">
+    <value>重新整理</value>
+  </data>
+  <data name="ProvidersCopyCommand.Label" xml:space="preserve">
+    <value>複製中繼資料</value>
+  </data>
+  <data name="ProvidersOpenEventsCommand.Label" xml:space="preserve">
+    <value>開啟相關事件</value>
+  </data>
+  <data name="ProvidersExportCommand.Label" xml:space="preserve">
+    <value>匯出中繼資料</value>
+  </data>
+  <data name="ProvidersSearchBox.PlaceholderText" xml:space="preserve">
+    <value>搜尋提供者名稱</value>
+  </data>
+  <data name="ProvidersStatusInfoBar.Title" xml:space="preserve">
+    <value>提供者狀態</value>
+  </data>
+  <data name="ProvidersStatusInfoBar.Message" xml:space="preserve">
+    <value>提供者狀態。</value>
+  </data>
+  <data name="ProvidersListTitle.Text" xml:space="preserve">
+    <value>發行者清單</value>
+  </data>
+  <data name="ProvidersDetailsTitle.Text" xml:space="preserve">
+    <value>提供者詳細資料</value>
+  </data>
+  <data name="ProvidersPathsTitle.Text" xml:space="preserve">
+    <value>中繼資料路徑</value>
+  </data>
+  <data name="ProvidersGuidLabel.Text" xml:space="preserve">
+    <value>GUID</value>
+  </data>
+  <data name="ProvidersResourcePathLabel.Text" xml:space="preserve">
+    <value>資源檔案</value>
+  </data>
+  <data name="ProvidersParameterPathLabel.Text" xml:space="preserve">
+    <value>參數檔案</value>
+  </data>
+  <data name="ProvidersMessagePathLabel.Text" xml:space="preserve">
+    <value>訊息檔案</value>
+  </data>
+  <data name="ProvidersHelpLinkLabel.Text" xml:space="preserve">
+    <value>說明連結</value>
+  </data>
+  <data name="ProvidersDefinitionsTitle.Text" xml:space="preserve">
+    <value>事件定義</value>
+  </data>
+  <data name="SavedViews.Heading" xml:space="preserve">
+    <value>已儲存檢視</value>
+  </data>
+  <data name="SavedViews.Summary" xml:space="preserve">
+    <value>在本機保存可重複使用的事件查詢、自訂檢視、書籤、最愛記錄、搜尋與工作區。</value>
+  </data>
+  <data name="SavedViews.SummaryCount.Text" xml:space="preserve">
+    <value>目前有 {0} 個已儲存檢視。</value>
+  </data>
+  <data name="SavedViews.Loading.Text" xml:space="preserve">
+    <value>正在載入已儲存檢視</value>
+  </data>
+  <data name="SavedViews.LoadingDetails.Text" xml:space="preserve">
+    <value>正在背景讀取本機已儲存檢視存放庫。</value>
+  </data>
+  <data name="SavedViews.Ready.Text" xml:space="preserve">
+    <value>已儲存檢視已就緒</value>
+  </data>
+  <data name="SavedViews.NameRequired.Text" xml:space="preserve">
+    <value>儲存前請輸入名稱。</value>
+  </data>
+  <data name="SavedViews.SaveFailed.Text" xml:space="preserve">
+    <value>無法保存已儲存檢視。</value>
+  </data>
+  <data name="SavedViews.Saved.Text" xml:space="preserve">
+    <value>已儲存檢視已保存</value>
+  </data>
+  <data name="SavedViews.Deleted.Text" xml:space="preserve">
+    <value>已刪除檢視</value>
+  </data>
+  <data name="SavedViews.Duplicated.Text" xml:space="preserve">
+    <value>已複製檢視</value>
+  </data>
+  <data name="SavedViews.Imported.Text" xml:space="preserve">
+    <value>已匯入檢視</value>
+  </data>
+  <data name="SavedViews.CustomViewWarning.Text" xml:space="preserve">
+    <value>Windows 自訂檢視 XML 會保留以利移植。開啟檢視時，應用程式會使用已儲存的 XPath 查詢；無法表示的 XML 專屬欄位會顯示警告。</value>
+  </data>
+  <data name="SavedViews.Type.User" xml:space="preserve">
+    <value>使用者檢視</value>
+  </data>
+  <data name="SavedViews.Type.Pinned" xml:space="preserve">
+    <value>釘選檢視</value>
+  </data>
+  <data name="SavedViews.Type.WindowsCustomView" xml:space="preserve">
+    <value>Windows 自訂檢視</value>
+  </data>
+  <data name="SavedViews.Type.Bookmark" xml:space="preserve">
+    <value>書籤</value>
+  </data>
+  <data name="SavedViews.Type.FavoriteLog" xml:space="preserve">
+    <value>最愛記錄</value>
+  </data>
+  <data name="SavedViews.Type.RecentSearch" xml:space="preserve">
+    <value>最近搜尋</value>
+  </data>
+  <data name="SavedViews.Type.Workspace" xml:space="preserve">
+    <value>工作區</value>
+  </data>
+  <data name="SavedViewsHeading.Text" xml:space="preserve">
+    <value>已儲存檢視</value>
+  </data>
+  <data name="SavedViewsNewCommand.Label" xml:space="preserve">
+    <value>新增</value>
+  </data>
+  <data name="SavedViewsSaveCommand.Label" xml:space="preserve">
+    <value>儲存</value>
+  </data>
+  <data name="SavedViewsOpenCommand.Label" xml:space="preserve">
+    <value>開啟</value>
+  </data>
+  <data name="SavedViewsPinCommand.Label" xml:space="preserve">
+    <value>釘選</value>
+  </data>
+  <data name="SavedViewsCopyCommand.Label" xml:space="preserve">
+    <value>複製查詢</value>
+  </data>
+  <data name="SavedViewsExportCommand.Label" xml:space="preserve">
+    <value>匯出</value>
+  </data>
+  <data name="SavedViewsImportCommand.Label" xml:space="preserve">
+    <value>匯入</value>
+  </data>
+  <data name="SavedViewsDuplicateCommand.Label" xml:space="preserve">
+    <value>複製</value>
+  </data>
+  <data name="SavedViewsDeleteCommand.Label" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="SavedViewsRefreshCommand.Label" xml:space="preserve">
+    <value>重新整理</value>
+  </data>
+  <data name="SavedViewsStatusInfoBar.Title" xml:space="preserve">
+    <value>已儲存檢視狀態</value>
+  </data>
+  <data name="SavedViewsStatusInfoBar.Message" xml:space="preserve">
+    <value>已儲存檢視狀態。</value>
+  </data>
+  <data name="SavedViewsListTitle.Text" xml:space="preserve">
+    <value>檢視</value>
+  </data>
+  <data name="SavedViewsEditorTitle.Text" xml:space="preserve">
+    <value>檢視定義</value>
+  </data>
+  <data name="SavedViewsNameBox.Header" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="SavedViewsNameBox.PlaceholderText" xml:space="preserve">
+    <value>為檢視輸入名稱</value>
+  </data>
+  <data name="SavedViewsDescriptionBox.Header" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="SavedViewsDescriptionBox.PlaceholderText" xml:space="preserve">
+    <value>描述這個檢視適用的情境</value>
+  </data>
+  <data name="SavedViewsTypeBox.Header" xml:space="preserve">
+    <value>類型</value>
+  </data>
+  <data name="SavedViewsChannelBox.Header" xml:space="preserve">
+    <value>頻道</value>
+  </data>
+  <data name="SavedViewsChannelBox.PlaceholderText" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="SavedViewsQueryBox.Header" xml:space="preserve">
+    <value>XPath 查詢</value>
+  </data>
+  <data name="SavedViewsQueryBox.PlaceholderText" xml:space="preserve">
+    <value>* 或 Windows 事件記錄 XPath 查詢</value>
+  </data>
+  <data name="SavedViewsTypeUser.Content" xml:space="preserve">
+    <value>使用者檢視</value>
+  </data>
+  <data name="SavedViewsTypePinned.Content" xml:space="preserve">
+    <value>釘選檢視</value>
+  </data>
+  <data name="SavedViewsTypeWindowsCustomView.Content" xml:space="preserve">
+    <value>Windows 自訂檢視</value>
+  </data>
+  <data name="SavedViewsTypeBookmark.Content" xml:space="preserve">
+    <value>書籤</value>
+  </data>
+  <data name="SavedViewsTypeFavoriteLog.Content" xml:space="preserve">
+    <value>最愛記錄</value>
+  </data>
+  <data name="SavedViewsTypeRecentSearch.Content" xml:space="preserve">
+    <value>最近搜尋</value>
+  </data>
+  <data name="SavedViewsTypeWorkspace.Content" xml:space="preserve">
+    <value>工作區</value>
+  </data>
+  <data name="SavedViewsPresentationTitle.Text" xml:space="preserve">
+    <value>呈現方式</value>
+  </data>
+  <data name="SavedViewsSortBox.Header" xml:space="preserve">
+    <value>排序索引鍵</value>
+  </data>
+  <data name="SavedViewsColumnsBox.Header" xml:space="preserve">
+    <value>欄位（以逗號分隔）</value>
+  </data>
+  <data name="SavedViewsTagsBox.Header" xml:space="preserve">
+    <value>標籤</value>
+  </data>
+  <data name="SavedViewsDetailsCheckBox.Content" xml:space="preserve">
+    <value>以詳細資料窗格開啟</value>
+  </data>
+  <data name="SavedViewsTimelineCheckBox.Content" xml:space="preserve">
+    <value>使用時間軸呈現方式</value>
+  </data>
+  <data name="SavedViewsCustomViewTitle.Text" xml:space="preserve">
+    <value>Windows 自訂檢視 XML</value>
+  </data>
+  <data name="SavedViewsCustomViewXmlBox.Header" xml:space="preserve">
+    <value>自訂檢視 XML</value>
+  </data>
+  <data name="Live.Heading" xml:space="preserve">
+    <value>即時</value>
+  </data>
+  <data name="Live.Summary" xml:space="preserve">
+    <value>使用有界限的背景佇列訂閱新事件，並提供明確的暫停／繼續狀態。</value>
+  </data>
+  <data name="Live.Ready.Text" xml:space="preserve">
+    <value>即時擷取已就緒</value>
+  </data>
+  <data name="Live.ReadyDetails.Text" xml:space="preserve">
+    <value>設定頻道與 XPath 查詢後即可開始訂閱。</value>
+  </data>
+  <data name="Live.Started.Text" xml:space="preserve">
+    <value>即時擷取已開始</value>
+  </data>
+  <data name="Live.StartedDetails.Text" xml:space="preserve">
+    <value>事件會透過 EvtSubscribe 收集到有界限的佇列。</value>
+  </data>
+  <data name="Live.StartFailed.Text" xml:space="preserve">
+    <value>無法開始即時擷取</value>
+  </data>
+  <data name="Live.StreamFailed.Text" xml:space="preserve">
+    <value>即時訂閱因錯誤停止</value>
+  </data>
+  <data name="Live.ErrorDetails.Text" xml:space="preserve">
+    <value>請檢查頻道、XPath 查詢、服務狀態與存取權限。</value>
+  </data>
+  <data name="Live.State.Stopped" xml:space="preserve">
+    <value>已停止</value>
+  </data>
+  <data name="Live.State.Running" xml:space="preserve">
+    <value>執行中</value>
+  </data>
+  <data name="Live.State.Paused" xml:space="preserve">
+    <value>已暫停</value>
+  </data>
+  <data name="Live.State.Failed" xml:space="preserve">
+    <value>失敗</value>
+  </data>
+  <data name="Live.State.NotConfigured" xml:space="preserve">
+    <value>未設定</value>
+  </data>
+  <data name="Live.State.Ready" xml:space="preserve">
+    <value>已就緒</value>
+  </data>
+  <data name="Live.State.Starting" xml:space="preserve">
+    <value>正在開始</value>
+  </data>
+  <data name="Live.State.Stopping" xml:space="preserve">
+    <value>正在停止</value>
+  </data>
+  <data name="Live.State.Error" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="Live.State.EventsLost" xml:space="preserve">
+    <value>事件遺失</value>
+  </data>
+  <data name="Live.EventsLost.Text" xml:space="preserve">
+    <value>即時事件已遭捨棄</value>
+  </data>
+  <data name="Live.EventsLostDetails.Text" xml:space="preserve">
+    <value>有界限佇列已達上限。已接收事件的計數仍準確，但部分呈現列已無法取得。</value>
+  </data>
+  <data name="Live.ExportEmpty.Text" xml:space="preserve">
+    <value>沒有可匯出的資料</value>
+  </data>
+  <data name="Live.ExportEmptyDetails.Text" xml:space="preserve">
+    <value>請開啟錄製並收集事件，再匯出即時擷取資料。</value>
+  </data>
+  <data name="Live.ExportCompleted.Text" xml:space="preserve">
+    <value>即時錄製已匯出</value>
+  </data>
+  <data name="Live.ExportCompletedDetails.Text" xml:space="preserve">
+    <value>已儲存至 {0}。</value>
+  </data>
+  <data name="Live.ExportFailed.Text" xml:space="preserve">
+    <value>無法匯出即時錄製</value>
+  </data>
+  <data name="LiveHeading.Text" xml:space="preserve">
+    <value>即時</value>
+  </data>
+  <data name="LiveStartCommand.Label" xml:space="preserve">
+    <value>開始</value>
+  </data>
+  <data name="LivePauseCommand.Label" xml:space="preserve">
+    <value>暫停</value>
+  </data>
+  <data name="LiveResumeCommand.Label" xml:space="preserve">
+    <value>繼續</value>
+  </data>
+  <data name="LiveStopCommand.Label" xml:space="preserve">
+    <value>停止</value>
+  </data>
+  <data name="LiveClearCommand.Label" xml:space="preserve">
+    <value>清除</value>
+  </data>
+  <data name="LiveRecordCommand.Label" xml:space="preserve">
+    <value>錄製</value>
+  </data>
+  <data name="LiveExportCommand.Label" xml:space="preserve">
+    <value>匯出錄製</value>
+  </data>
+  <data name="LiveBookmarkCommand.Label" xml:space="preserve">
+    <value>標記最新事件</value>
+  </data>
+  <data name="LiveStatusInfoBar.Title" xml:space="preserve">
+    <value>即時狀態</value>
+  </data>
+  <data name="LiveStatusInfoBar.Message" xml:space="preserve">
+    <value>即時狀態。</value>
+  </data>
+  <data name="LiveConfigurationTitle.Text" xml:space="preserve">
+    <value>擷取設定</value>
+  </data>
+  <data name="LiveChannelBox.Header" xml:space="preserve">
+    <value>頻道</value>
+  </data>
+  <data name="LiveChannelBox.PlaceholderText" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="LiveQueryBox.Header" xml:space="preserve">
+    <value>XPath 查詢</value>
+  </data>
+  <data name="LiveQueryBox.PlaceholderText" xml:space="preserve">
+    <value>* 或 Windows 事件記錄 XPath 查詢</value>
+  </data>
+  <data name="LiveQueueLimitBox.Header" xml:space="preserve">
+    <value>佇列上限</value>
+  </data>
+  <data name="LiveQueueLimitBox.PlaceholderText" xml:space="preserve">
+    <value>5000</value>
+  </data>
+  <data name="LiveAutoScrollCheckBox.Content" xml:space="preserve">
+    <value>保持顯示最新事件</value>
+  </data>
+  <data name="LiveGroupRepeatedCheckBox.Content" xml:space="preserve">
+    <value>群組重複事件</value>
+  </data>
+  <data name="LiveCriticalFilterCheckBox.Content" xml:space="preserve">
+    <value>顯示重大事件</value>
+  </data>
+  <data name="LiveErrorFilterCheckBox.Content" xml:space="preserve">
+    <value>顯示錯誤事件</value>
+  </data>
+  <data name="LiveWarningFilterCheckBox.Content" xml:space="preserve">
+    <value>顯示警告事件</value>
+  </data>
+  <data name="LiveInformationFilterCheckBox.Content" xml:space="preserve">
+    <value>顯示資訊事件</value>
+  </data>
+  <data name="LiveStateLabel.Text" xml:space="preserve">
+    <value>狀態</value>
+  </data>
+  <data name="LiveEventRateLabel.Text" xml:space="preserve">
+    <value>事件／秒</value>
+  </data>
+  <data name="LiveTotalLabel.Text" xml:space="preserve">
+    <value>已接收總數</value>
+  </data>
+  <data name="LiveCriticalLabel.Text" xml:space="preserve">
+    <value>重大</value>
+  </data>
+  <data name="LiveErrorLabel.Text" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="LiveWarningLabel.Text" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="LiveQueueDepthLabel.Text" xml:space="preserve">
+    <value>佇列深度</value>
+  </data>
+  <data name="LiveDurationLabel.Text" xml:space="preserve">
+    <value>持續時間</value>
+  </data>
+  <data name="LiveDroppedLabel.Text" xml:space="preserve">
+    <value>捨棄</value>
+  </data>
+  <data name="LiveBookmarkLabel.Text" xml:space="preserve">
+    <value>書籤</value>
+  </data>
+  <data name="Remote.Heading" xml:space="preserve">
+    <value>遠端</value>
+  </data>
+  <data name="Remote.Summary" xml:space="preserve">
+    <value>使用明確的認證連線至遠端 Windows 事件記錄工作階段，且不保存密碼。</value>
+  </data>
+  <data name="Remote.Ready.Text" xml:space="preserve">
+    <value>遠端連線已就緒</value>
+  </data>
+  <data name="Remote.ReadyDetails.Text" xml:space="preserve">
+    <value>認證資訊只會用於連線嘗試。</value>
+  </data>
+  <data name="Remote.HostRequired.Text" xml:space="preserve">
+    <value>請輸入遠端主機名稱。</value>
+  </data>
+  <data name="Remote.Connected.Text" xml:space="preserve">
+    <value>已連線至遠端工作階段</value>
+  </data>
+  <data name="Remote.ConnectedDetails.Text" xml:space="preserve">
+    <value>EvtOpenSession 控制代碼由應用程式服務持有。</value>
+  </data>
+  <data name="Remote.ConnectFailed.Text" xml:space="preserve">
+    <value>遠端連線失敗</value>
+  </data>
+  <data name="Remote.ErrorDetails.Text" xml:space="preserve">
+    <value>遠端作業失敗，Windows 錯誤 {0}。請檢查遠端事件記錄服務與權限。</value>
+  </data>
+  <data name="Remote.AccessDeniedDetails.Text" xml:space="preserve">
+    <value>拒絕存取（Windows 錯誤 {0}）。請使用具備讀取遠端事件記錄服務權限的帳戶。</value>
+  </data>
+  <data name="Remote.AuthenticationDetails.Text" xml:space="preserve">
+    <value>驗證失敗（Windows 錯誤 {0}）。請確認網域、使用者與驗證原則。</value>
+  </data>
+  <data name="Remote.FirewallDetails.Text" xml:space="preserve">
+    <value>遠端服務無法使用（Windows 錯誤 {0}）。請檢查防火牆與 RPC 限制。</value>
+  </data>
+  <data name="Remote.ConnectionSaved.Text" xml:space="preserve">
+    <value>已儲存遠端連線</value>
+  </data>
+  <data name="Remote.ConnectionSavedDetails.Text" xml:space="preserve">
+    <value>只會儲存主機、網域與使用者；密碼只保留在目前工作階段的記憶體中。</value>
+  </data>
+  <data name="Remote.ConnectionRemoved.Text" xml:space="preserve">
+    <value>已移除遠端連線</value>
+  </data>
+  <data name="Remote.TestSucceeded.Text" xml:space="preserve">
+    <value>遠端連線測試成功</value>
+  </data>
+  <data name="Remote.TestSucceededDetails.Text" xml:space="preserve">
+    <value>工作階段已開啟並關閉，且未保存認證資訊。</value>
+  </data>
+  <data name="Remote.TestFailed.Text" xml:space="preserve">
+    <value>遠端連線測試失敗</value>
+  </data>
+  <data name="Remote.State.Disconnected" xml:space="preserve">
+    <value>已中斷連線</value>
+  </data>
+  <data name="Remote.State.Connected" xml:space="preserve">
+    <value>已連線</value>
+  </data>
+  <data name="Remote.State.Connecting" xml:space="preserve">
+    <value>連線中</value>
+  </data>
+  <data name="Remote.Connecting.Text" xml:space="preserve">
+    <value>正在連線到遠端工作階段</value>
+  </data>
+  <data name="Remote.ConnectingDetails.Text" xml:space="preserve">
+    <value>遠端 RPC 作業正在背景執行。</value>
+  </data>
+  <data name="Remote.Testing.Text" xml:space="preserve">
+    <value>正在測試遠端連線</value>
+  </data>
+  <data name="Remote.SecurityNotice.Text" xml:space="preserve">
+    <value>密碼不會寫入 LocalSettings。請使用最低權限認證，並在查詢前確認防火牆、WinRM/RPC 與事件記錄權限。</value>
+  </data>
+  <data name="RemoteHeading.Text" xml:space="preserve">
+    <value>遠端</value>
+  </data>
+  <data name="RemoteStatusInfoBar.Title" xml:space="preserve">
+    <value>遠端狀態</value>
+  </data>
+  <data name="RemoteStatusInfoBar.Message" xml:space="preserve">
+    <value>遠端狀態。</value>
+  </data>
+  <data name="RemoteConnectionTitle.Text" xml:space="preserve">
+    <value>連線</value>
+  </data>
+  <data name="RemoteHostBox.Header" xml:space="preserve">
+    <value>主機</value>
+  </data>
+  <data name="RemoteHostBox.PlaceholderText" xml:space="preserve">
+    <value>computer.example</value>
+  </data>
+  <data name="RemoteDomainBox.Header" xml:space="preserve">
+    <value>網域</value>
+  </data>
+  <data name="RemoteUserBox.Header" xml:space="preserve">
+    <value>使用者</value>
+  </data>
+  <data name="RemotePasswordBox.Header" xml:space="preserve">
+    <value>密碼（不保存）</value>
+  </data>
+  <data name="RemoteConnectButton.Content" xml:space="preserve">
+    <value>連線</value>
+  </data>
+  <data name="RemoteDisconnectButton.Content" xml:space="preserve">
+    <value>中斷連線</value>
+  </data>
+  <data name="RemoteTestButton.Content" xml:space="preserve">
+    <value>測試</value>
+  </data>
+  <data name="RemoteSaveButton.Content" xml:space="preserve">
+    <value>儲存連線</value>
+  </data>
+  <data name="RemoteRemoveButton.Content" xml:space="preserve">
+    <value>移除連線</value>
+  </data>
+  <data name="RemoteSavedConnectionsTitle.Text" xml:space="preserve">
+    <value>已儲存的連線</value>
+  </data>
+  <data name="RemoteStateTitle.Text" xml:space="preserve">
+    <value>連線狀態</value>
+  </data>
+  <data name="RemoteCapabilitiesText.Text" xml:space="preserve">
+    <value>遠端工作階段、頻道清單與有界限的事件查詢均使用明確憑證；儲存的設定檔不會包含密碼。</value>
+  </data>
+  <data name="RemoteChannelsTitle.Text" xml:space="preserve">
+    <value>遠端頻道</value>
+  </data>
+  <data name="RemoteRefreshChannelsButton.Content" xml:space="preserve">
+    <value>重新整理</value>
+  </data>
+  <data name="Sessions.Heading" xml:space="preserve">
+    <value>工作階段</value>
+  </data>
+  <data name="Sessions.Summary" xml:space="preserve">
+    <value>管理可重複使用的診斷工作階段，包括頻道、篩選、備註、標籤、關聯群組與遠端目標。</value>
+  </data>
+  <data name="Sessions.SummaryCount.Text" xml:space="preserve">
+    <value>診斷工作階段已儲存在本機。</value>
+  </data>
+  <data name="Sessions.Loading.Text" xml:space="preserve">
+    <value>正在載入工作階段</value>
+  </data>
+  <data name="Sessions.LoadingDetails.Text" xml:space="preserve">
+    <value>正在背景讀取本機工作階段存放庫。</value>
+  </data>
+  <data name="Sessions.NameRequired.Text" xml:space="preserve">
+    <value>儲存前請輸入工作階段名稱。</value>
+  </data>
+  <data name="Sessions.Saved.Text" xml:space="preserve">
+    <value>工作階段已儲存</value>
+  </data>
+  <data name="Sessions.Deleted.Text" xml:space="preserve">
+    <value>工作階段已刪除</value>
+  </data>
+  <data name="Sessions.Resumed.Text" xml:space="preserve">
+    <value>工作階段已標記為可繼續</value>
+  </data>
+  <data name="Sessions.Imported.Text" xml:space="preserve">
+    <value>工作階段已匯入</value>
+  </data>
+  <data name="Sessions.New.Text" xml:space="preserve">
+    <value>新增工作階段</value>
+  </data>
+  <data name="Sessions.Active.Text" xml:space="preserve">
+    <value>使用中的工作階段</value>
+  </data>
+  <data name="Sessions.Inactive.Text" xml:space="preserve">
+    <value>非使用中的工作階段</value>
+  </data>
+  <data name="SessionsHeading.Text" xml:space="preserve">
+    <value>工作階段</value>
+  </data>
+  <data name="SessionsNewCommand.Label" xml:space="preserve">
+    <value>新增</value>
+  </data>
+  <data name="SessionsSaveCommand.Label" xml:space="preserve">
+    <value>儲存</value>
+  </data>
+  <data name="SessionsResumeCommand.Label" xml:space="preserve">
+    <value>繼續</value>
+  </data>
+  <data name="SessionsPinCommand.Label" xml:space="preserve">
+    <value>釘選</value>
+  </data>
+  <data name="SessionsExportCommand.Label" xml:space="preserve">
+    <value>匯出</value>
+  </data>
+  <data name="SessionsImportCommand.Label" xml:space="preserve">
+    <value>匯入</value>
+  </data>
+  <data name="SessionsDeleteCommand.Label" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="SessionsRefreshCommand.Label" xml:space="preserve">
+    <value>重新整理</value>
+  </data>
+  <data name="SessionsStatusInfoBar.Title" xml:space="preserve">
+    <value>工作階段狀態</value>
+  </data>
+  <data name="SessionsStatusInfoBar.Message" xml:space="preserve">
+    <value>工作階段狀態。</value>
+  </data>
+  <data name="SessionsEditorTitle.Text" xml:space="preserve">
+    <value>工作階段定義</value>
+  </data>
+  <data name="SessionsNameBox.Header" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="SessionsDescriptionBox.Header" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="SessionsChannelsBox.Header" xml:space="preserve">
+    <value>頻道</value>
+  </data>
+  <data name="SessionsFilterBox.Header" xml:space="preserve">
+    <value>篩選</value>
+  </data>
+  <data name="SessionsRemoteTargetBox.Header" xml:space="preserve">
+    <value>遠端目標</value>
+  </data>
+  <data name="SessionsPinnedCheckBox.Content" xml:space="preserve">
+    <value>釘選此工作階段</value>
+  </data>
+  <data name="SessionsMetadataTitle.Text" xml:space="preserve">
+    <value>中繼資料</value>
+  </data>
+  <data name="SessionsTagsBox.Header" xml:space="preserve">
+    <value>標籤</value>
+  </data>
+  <data name="SessionsCorrelationBox.Header" xml:space="preserve">
+    <value>關聯群組</value>
+  </data>
+  <data name="SessionsNotesBox.Header" xml:space="preserve">
+    <value>備註</value>
+  </data>
+  <data name="SessionsDuplicateCommand.Label" xml:space="preserve">
+    <value>複製</value>
+  </data>
+  <data name="SessionsArchiveCommand.Label" xml:space="preserve">
+    <value>封存或還原</value>
+  </data>
+  <data name="SessionsStartAtBox.Header" xml:space="preserve">
+    <value>開始時間</value>
+  </data>
+  <data name="SessionsEndAtBox.Header" xml:space="preserve">
+    <value>結束時間</value>
+  </data>
+  <data name="SessionsBookmarkedEventIdsBox.Header" xml:space="preserve">
+    <value>已加書籤的事件識別碼</value>
+  </data>
+  <data name="SessionsArchivedCheckBox.Content" xml:space="preserve">
+    <value>已封存工作階段</value>
+  </data>
+  <data name="TimelineOpenButton.Content" xml:space="preserve">
+    <value>在事件記錄中開啟</value>
+  </data>
+  <data name="TimelineBookmarkButton.Content" xml:space="preserve">
+    <value>為選取項目加書籤</value>
+  </data>
+  <data name="TimelineExportButton.Content" xml:space="preserve">
+    <value>匯出時間軸</value>
+  </data>
+  <data name="TimelineProviderFilterBox.Header" xml:space="preserve">
+    <value>提供者篩選</value>
+  </data>
+  <data name="TimelineGroupRepeatedCheckBox.Content" xml:space="preserve">
+    <value>將重複事件分組</value>
+  </data>
+  <data name="TimelineDetailsTitle.Text" xml:space="preserve">
+    <value>選取事件詳細資料</value>
+  </data>
+  <data name="RemoteQueryTitle.Text" xml:space="preserve">
+    <value>遠端事件查詢</value>
+  </data>
+  <data name="RemoteQueryNameBox.Header" xml:space="preserve">
+    <value>已儲存檢視名稱</value>
+  </data>
+  <data name="RemoteQuerySaveButton.Content" xml:space="preserve">
+    <value>儲存檢視</value>
+  </data>
+  <data name="RemoteQueryRemoveButton.Content" xml:space="preserve">
+    <value>移除檢視</value>
+  </data>
+  <data name="RemoteQueryChannelBox.Header" xml:space="preserve">
+    <value>頻道</value>
+  </data>
+  <data name="RemoteQueryTextBox.Header" xml:space="preserve">
+    <value>XPath 查詢</value>
+  </data>
+  <data name="RemoteQueryRunButton.Content" xml:space="preserve">
+    <value>執行</value>
+  </data>
+  <data name="RemoteCompareButton.Content" xml:space="preserve">
+    <value>與本機比較</value>
+  </data>
+  <data name="RemoteLiveStartButton.Content" xml:space="preserve">
+    <value>開始遠端即時監控</value>
+  </data>
+  <data name="RemoteLiveStopButton.Content" xml:space="preserve">
+    <value>停止遠端即時監控</value>
+  </data>
+  <data name="Remote.QueryLoading.Text" xml:space="preserve">
+    <value>正在執行遠端查詢</value>
+  </data>
+  <data name="Remote.QueryReady.Text" xml:space="preserve">
+    <value>遠端查詢傳回 {0} 個事件。</value>
+  </data>
+  <data name="Remote.QueryEmpty.Text" xml:space="preserve">
+    <value>沒有符合查詢的遠端事件。</value>
+  </data>
+  <data name="Remote.QueryFailed.Text" xml:space="preserve">
+    <value>遠端查詢失敗，Win32 錯誤 {0}。</value>
+  </data>
+  <data name="Remote.QueryNotConnected.Text" xml:space="preserve">
+    <value>執行查詢前請先連線到遠端工作階段。</value>
+  </data>
+  <data name="Remote.QueryNameRequired.Text" xml:space="preserve">
+    <value>儲存遠端檢視前請輸入名稱與頻道。</value>
+  </data>
+  <data name="Remote.QuerySaved.Text" xml:space="preserve">
+    <value>遠端檢視已儲存</value>
+  </data>
+  <data name="Remote.QueryRemoved.Text" xml:space="preserve">
+    <value>遠端檢視已移除</value>
+  </data>
+  <data name="Remote.CompareLoading.Text" xml:space="preserve">
+    <value>正在比較本機與遠端結果</value>
+  </data>
+  <data name="Remote.CompareReady.Text" xml:space="preserve">
+    <value>比較數量：{0}。</value>
+  </data>
+  <data name="Remote.Live.Starting.Text" xml:space="preserve">
+    <value>正在啟動遠端訂閱</value>
+  </data>
+  <data name="Remote.Live.Stopped.Text" xml:space="preserve">
+    <value>遠端即時監控已停止</value>
+  </data>
+  <data name="Remote.Live.Running.Text" xml:space="preserve">
+    <value>遠端即時監控執行中；佇列深度 {0}。</value>
+  </data>
+  <data name="Remote.Live.Lost.Text" xml:space="preserve">
+    <value>佇列已滿，遠端即時監控遺失 {0} 個事件。</value>
+  </data>
+  <data name="Remote.Live.Failed.Text" xml:space="preserve">
+    <value>遠端即時監控失敗，Win32 錯誤 {0}。</value>
   </data>
 </root>

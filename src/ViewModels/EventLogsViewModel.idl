@@ -1,0 +1,75 @@
+import "src\\ViewModels\\EventLogItemViewModel.idl";
+
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass EventLogsViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        EventLogsViewModel();
+        String Heading{ get; };
+        String ChannelPath{ get; };
+        String StatusText{ get; };
+        String StatusDetails{ get; };
+        Boolean HasStatusMessage{ get; };
+        Boolean IsAccessDenied{ get; };
+        Boolean IsLoading{ get; };
+        String SearchText{ get; set; };
+        String FilterProvider{ get; set; };
+        String FilterEventId{ get; set; };
+        String FilterLevel{ get; set; };
+        String FilterTask{ get; set; };
+        String FilterOpcode{ get; set; };
+        String FilterKeyword{ get; set; };
+        String FilterProcessId{ get; set; };
+        String FilterThreadId{ get; set; };
+        String FilterUser{ get; set; };
+        String FilterComputer{ get; set; };
+        String RawXPath{ get; set; };
+        Boolean FilterAfterToday{ get; set; };
+        String FilterAfterHours{ get; set; };
+        Boolean HasStructuredFilter{ get; };
+        String FilterSummary{ get; };
+        Boolean HasFilter{ get; };
+        Boolean HasSelection{ get; };
+        UInt32 SelectedCount{ get; };
+        String SortKey{ get; };
+        Boolean SortAscending{ get; };
+        Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
+        Windows.Foundation.Collections.IObservableVector<EventLogItemViewModel> Events{ get; };
+        EventLogItemViewModel SelectedEvent{ get; set; };
+        String SelectedProvider{ get; };
+        String SelectedEventId{ get; };
+        String SelectedVersion{ get; };
+        String SelectedLevel{ get; };
+        String SelectedOpcode{ get; };
+        String SelectedKeywords{ get; };
+        String SelectedTimeCreated{ get; };
+        String SelectedTaskCategory{ get; };
+        String SelectedChannel{ get; };
+        String SelectedUser{ get; };
+        String SelectedComputer{ get; };
+        String SelectedRecordId{ get; };
+        String SelectedProcessId{ get; };
+        String SelectedThreadId{ get; };
+        String SelectedActivityId{ get; };
+        String SelectedRelatedActivityId{ get; };
+        String SelectedDescription{ get; };
+        String SelectedMessage{ get; };
+        String SelectedXml{ get; };
+        String SelectedEventData{ get; };
+        String SelectedUserData{ get; };
+        String SelectedProviderMetadata{ get; };
+        String SelectedBinaryData{ get; };
+        String SelectedRelatedEvents{ get; };
+        String DetailsStatusText{ get; };
+        Boolean IsDetailsLoading{ get; };
+        String CopySelectedEventsText();
+        void ToggleBookmarks();
+        void ExportSelectedEvents();
+        void Refresh();
+        void ClearFilter();
+        void ApplyStructuredFilter();
+        void ClearStructuredFilter();
+        void SortBy(String key);
+    }
+}

@@ -16,8 +16,11 @@ namespace winrt::AstralChronicle::implementation
         return m_viewModel;
     }
 
-    void FeaturePlaceholderPage::Initialize(winrt::hstring const& heading, winrt::hstring const& description)
+    void FeaturePlaceholderPage::Initialize(
+        winrt::hstring const& heading,
+        winrt::hstring const& description,
+        std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel)
     {
-        winrt::get_self<FeaturePlaceholderViewModel>(m_viewModel)->Initialize(heading, description);
+        winrt::get_self<FeaturePlaceholderViewModel>(m_viewModel)->Initialize(heading, description, channel);
     }
 }

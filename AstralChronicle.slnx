@@ -7,4 +7,5 @@
   <Project Path="AstralChronicle.vcxproj" Id="39177f23-dcb4-4f9c-98fe-404df8507b9a">
     <Deploy />
   </Project>
+  <Project Path="AstralChronicle.ElevationShim.vcxproj" Id="8a6bae3c-27a4-4be7-a0f8-04f8f7258d4b" />
 </Solution>

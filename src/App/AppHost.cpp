@@ -6,7 +6,13 @@
 #include "DesignSystem/Localization/StringResourceService.h"
 #include "DesignSystem/Theme/ThemeService.h"
 #include "Services/WindowsEventLogCatalogService.h"
+#include "Services/WindowsCustomViewCatalogService.h"
+#include "Services/WindowsEventLiveService.h"
+#include "Services/WindowsEventProviderService.h"
 #include "Services/WindowsEventQueryService.h"
+#include "Services/WindowsRemoteEventService.h"
+#include "Services/WindowsSavedViewRepository.h"
+#include "Services/WindowsSessionRepository.h"
 
 #include <memory>
 
@@ -20,8 +26,20 @@ namespace AstralChronicle::app
             std::make_shared<design::ThemeService>());
         m_services.AddSingleton<services::IEventLogCatalogService>(
             std::make_shared<services::WindowsEventLogCatalogService>());
+        m_services.AddSingleton<services::ICustomViewCatalogService>(
+            std::make_shared<services::WindowsCustomViewCatalogService>());
+        m_services.AddSingleton<services::IEventLiveService>(
+            std::make_shared<services::WindowsEventLiveService>());
+        m_services.AddSingleton<services::IEventProviderService>(
+            std::make_shared<services::WindowsEventProviderService>());
         m_services.AddSingleton<services::IEventQueryService>(
             std::make_shared<services::WindowsEventQueryService>());
+        m_services.AddSingleton<services::IRemoteEventService>(
+            std::make_shared<services::WindowsRemoteEventService>());
+        m_services.AddSingleton<services::ISavedViewRepository>(
+            std::make_shared<services::WindowsSavedViewRepository>());
+        m_services.AddSingleton<services::ISessionRepository>(
+            std::make_shared<services::WindowsSessionRepository>());
         m_services.AddSingleton<navigation::INavigationService>(
             std::make_shared<navigation::NavigationService>());
     }
@@ -51,8 +69,38 @@ namespace AstralChronicle::app
         return *m_services.GetRequiredService<services::IEventLogCatalogService>();
     }
 
+    services::ICustomViewCatalogService& AppHost::CustomViews() const
+    {
+        return *m_services.GetRequiredService<services::ICustomViewCatalogService>();
+    }
+
+    services::IEventLiveService& AppHost::EventLive() const
+    {
+        return *m_services.GetRequiredService<services::IEventLiveService>();
+    }
+
+    services::IEventProviderService& AppHost::EventProviders() const
+    {
+        return *m_services.GetRequiredService<services::IEventProviderService>();
+    }
+
     services::IEventQueryService& AppHost::EventQuery() const
     {
         return *m_services.GetRequiredService<services::IEventQueryService>();
+    }
+
+    services::IRemoteEventService& AppHost::RemoteEvents() const
+    {
+        return *m_services.GetRequiredService<services::IRemoteEventService>();
+    }
+
+    services::ISavedViewRepository& AppHost::SavedViews() const
+    {
+        return *m_services.GetRequiredService<services::ISavedViewRepository>();
+    }
+
+    services::ISessionRepository& AppHost::Sessions() const
+    {
+        return *m_services.GetRequiredService<services::ISessionRepository>();
     }
 }

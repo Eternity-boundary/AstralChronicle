@@ -109,6 +109,8 @@
             PaneClosed="OnNavigationPaneClosed"
             PaneDisplayMode="Left"
             PaneOpened="OnNavigationPaneOpened"
+            Expanding="OnNavigationItemExpanding"
+            Collapsed="OnNavigationItemCollapsed"
             SelectionChanged="OnNavigationSelectionChanged"
             Style="{StaticResource AstralNavigationViewStyle}">
             <NavigationView.Resources>
@@ -128,7 +130,49 @@
                     x:Uid="EventLogsNavigationItem"
                     AutomationProperties.AutomationId="EventLogsNavigationItem"
                     Icon="Library"
-                    Tag="event-logs" />
+                    Tag="event-logs">
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem
+                            x:Uid="EventLogsCustomViewsNavigationItem"
+                            HasUnrealizedChildren="True"
+                            Tag="landing:event-logs/custom-views">
+                            <NavigationViewItem.MenuItems>
+                                <NavigationViewItem
+                                    x:Uid="EventLogsAdministrativeEventsNavigationItem"
+                                    Icon="Filter"
+                                    Tag="custom-view:system-administrative-events" />
+                            </NavigationViewItem.MenuItems>
+                        </NavigationViewItem>
+                        <NavigationViewItem
+                            x:Uid="EventLogsWindowsLogsNavigationItem"
+                            Tag="landing:event-logs/windows-logs">
+                            <NavigationViewItem.MenuItems>
+                                <NavigationViewItem
+                                    x:Uid="EventLogsApplicationNavigationItem"
+                                    Tag="channel:Application" />
+                                <NavigationViewItem
+                                    x:Uid="EventLogsSecurityNavigationItem"
+                                    Tag="channel:Security" />
+                                <NavigationViewItem
+                                    x:Uid="EventLogsSetupNavigationItem"
+                                    Tag="channel:Setup" />
+                                <NavigationViewItem
+                                    x:Uid="EventLogsSystemNavigationItem"
+                                    Tag="channel:System" />
+                                <NavigationViewItem
+                                    x:Uid="EventLogsForwardedEventsNavigationItem"
+                                    Tag="channel:ForwardedEvents" />
+                            </NavigationViewItem.MenuItems>
+                        </NavigationViewItem>
+                        <NavigationViewItem
+                            x:Uid="EventLogsApplicationsAndServicesNavigationItem"
+                            HasUnrealizedChildren="True"
+                            Tag="landing:event-logs/applications-services" />
+                        <NavigationViewItem
+                            x:Uid="EventLogsSubscriptionsNavigationItem"
+                            Tag="landing:event-logs/subscriptions" />
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
                 <NavigationViewItem
                     x:Uid="TimelineNavigationItem"
                     AutomationProperties.AutomationId="TimelineNavigationItem"

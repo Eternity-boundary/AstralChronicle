@@ -1,0 +1,10 @@
+import "src\\ViewModels\\ProvidersViewModel.idl";
+
+namespace AstralChronicle
+{
+    runtimeclass ProvidersPage : Microsoft.UI.Xaml.Controls.Page
+    {
+        ProvidersPage();
+        ProvidersViewModel ViewModel{ get; };
+    }
+}

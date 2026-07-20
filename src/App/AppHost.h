@@ -6,7 +6,13 @@
 #include "Core/Navigation/INavigationService.h"
 #include "DesignSystem/Theme/IThemeService.h"
 #include "Services/IEventLogCatalogService.h"
+#include "Services/ICustomViewCatalogService.h"
+#include "Services/IEventLiveService.h"
+#include "Services/IEventProviderService.h"
 #include "Services/IEventQueryService.h"
+#include "Services/IRemoteEventService.h"
+#include "Services/ISavedViewRepository.h"
+#include "Services/ISessionRepository.h"
 
 namespace AstralChronicle::app
 {
@@ -20,7 +26,13 @@ namespace AstralChronicle::app
         [[nodiscard]] navigation::INavigationService& Navigation() const;
         [[nodiscard]] design::IThemeService& Theme() const;
         [[nodiscard]] services::IEventLogCatalogService& EventLogCatalog() const;
+        [[nodiscard]] services::ICustomViewCatalogService& CustomViews() const;
+        [[nodiscard]] services::IEventLiveService& EventLive() const;
+        [[nodiscard]] services::IEventProviderService& EventProviders() const;
         [[nodiscard]] services::IEventQueryService& EventQuery() const;
+        [[nodiscard]] services::IRemoteEventService& RemoteEvents() const;
+        [[nodiscard]] services::ISavedViewRepository& SavedViews() const;
+        [[nodiscard]] services::ISessionRepository& Sessions() const;
 
     private:
         core::ServiceProvider m_services;

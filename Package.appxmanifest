@@ -53,6 +53,7 @@
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
+    <rescap:Capability Name="allowElevation" />
     <systemai:Capability Name="systemAIModels"/>
   </Capabilities>
 </Package>

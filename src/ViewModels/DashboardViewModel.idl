@@ -1,3 +1,5 @@
+import "src\\ViewModels\\EventLogItemViewModel.idl";
+
 namespace AstralChronicle
 {
     [Microsoft.UI.Xaml.Data.Bindable]
@@ -8,5 +10,17 @@ namespace AstralChronicle
         String Summary{ get; };
         String ChannelCountLabel{ get; };
         String RecentEventPreview{ get; };
+        String ErrorCount{ get; };
+        String WarningCount{ get; };
+        String CriticalCount{ get; };
+        String TodayCount{ get; };
+        String MonitoringStatus{ get; };
+        String TimelineSummary{ get; };
+        String StatusText{ get; };
+        String StatusDetails{ get; };
+        Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
+        Boolean HasStatusMessage{ get; };
+        Boolean IsLoading{ get; };
+        Windows.Foundation.Collections.IObservableVector<EventLogItemViewModel> RecentCriticalEvents{ get; };
     }
 }

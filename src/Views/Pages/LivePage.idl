@@ -1,0 +1,10 @@
+import "src\\ViewModels\\LiveViewModel.idl";
+
+namespace AstralChronicle
+{
+    runtimeclass LivePage : Microsoft.UI.Xaml.Controls.Page
+    {
+        LivePage();
+        LiveViewModel ViewModel{ get; };
+    }
+}

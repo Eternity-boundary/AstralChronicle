@@ -1,0 +1,47 @@
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass LiveViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        LiveViewModel();
+        String Heading{ get; };
+        String Summary{ get; };
+        String StatusText{ get; };
+        String StatusDetails{ get; };
+        String StateText{ get; };
+        String Channel{ get; set; };
+        String Query{ get; set; };
+        String QueueLimit{ get; set; };
+        Boolean AutoScroll{ get; set; };
+        Boolean GroupRepeated{ get; set; };
+        Boolean ShowCritical{ get; set; };
+        Boolean ShowErrors{ get; set; };
+        Boolean ShowWarnings{ get; set; };
+        Boolean ShowInformation{ get; set; };
+        Boolean IsRecording{ get; };
+        String EventsPerSecond{ get; };
+        UInt64 TotalReceived{ get; };
+        UInt32 CriticalCount{ get; };
+        UInt32 ErrorCount{ get; };
+        UInt32 WarningCount{ get; };
+        UInt32 QueueDepth{ get; };
+        String Duration{ get; };
+        UInt32 BookmarkCount{ get; };
+        Boolean IsRunning{ get; };
+        Boolean IsPaused{ get; };
+        Boolean CanStart{ get; };
+        UInt32 DroppedCount{ get; };
+        UInt32 EventCount{ get; };
+        Windows.Foundation.Collections.IObservableVector<String> Events{ get; };
+        Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
+        Boolean HasStatusMessage{ get; };
+        void Start();
+        void Pause();
+        void Resume();
+        void Stop();
+        void Clear();
+        void ToggleRecording();
+        void Export();
+        void BookmarkLatest();
+    }
+}

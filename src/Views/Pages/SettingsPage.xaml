@@ -38,6 +38,76 @@
 
             <Border Style="{StaticResource AstralCardBorderStyle}">
                 <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock x:Uid="SettingsEventDisplayTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="SettingsEventDisplayDescription" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Uid="SettingsDefaultSortToggle" AutomationProperties.AutomationId="SettingsDefaultSortToggle" IsOn="{x:Bind ViewModel.DefaultSortDescending, Mode=TwoWay}" />
+                    <ToggleSwitch x:Uid="SettingsUseUtcToggle" AutomationProperties.AutomationId="SettingsUseUtcToggle" IsOn="{x:Bind ViewModel.UseUtc, Mode=TwoWay}" />
+                    <ToggleSwitch x:Uid="SettingsGroupRepeatedToggle" AutomationProperties.AutomationId="SettingsGroupRepeatedToggle" IsOn="{x:Bind ViewModel.GroupRepeatedEvents, Mode=TwoWay}" />
+                    <ToggleSwitch x:Uid="SettingsDetailsPaneToggle" AutomationProperties.AutomationId="SettingsDetailsPaneToggle" IsOn="{x:Bind ViewModel.DetailsPaneOpen, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock x:Uid="SettingsMonitoringTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="SettingsMonitoringDescription" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
+                    <TextBox x:Uid="SettingsLiveQueueBox" AutomationProperties.AutomationId="SettingsLiveQueueBox" InputScope="Number" Text="{x:Bind ViewModel.LiveQueueLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox x:Uid="SettingsBatchSizeBox" AutomationProperties.AutomationId="SettingsBatchSizeBox" InputScope="Number" Text="{x:Bind ViewModel.QueryBatchSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock x:Uid="SettingsPerformanceTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="SettingsPerformanceDescription" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
+                    <TextBox x:Uid="SettingsMaxLiveRowsBox" AutomationProperties.AutomationId="SettingsMaxLiveRowsBox" InputScope="Number" Text="{x:Bind ViewModel.MaxVisibleLiveRows, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <ToggleSwitch x:Uid="SettingsAnimationsToggle" AutomationProperties.AutomationId="SettingsAnimationsToggle" IsOn="{x:Bind ViewModel.AnimationsEnabled, Mode=TwoWay}" />
+                    <ToggleSwitch x:Uid="SettingsMetadataCacheToggle" AutomationProperties.AutomationId="SettingsMetadataCacheToggle" IsOn="{x:Bind ViewModel.CacheProviderMetadata, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock x:Uid="SettingsStorageTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="SettingsStorageDescription" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Uid="SettingsPersistSessionsToggle" AutomationProperties.AutomationId="SettingsPersistSessionsToggle" IsOn="{x:Bind ViewModel.PersistSessions, Mode=TwoWay}" />
+                    <ToggleSwitch x:Uid="SettingsPersistBookmarksToggle" AutomationProperties.AutomationId="SettingsPersistBookmarksToggle" IsOn="{x:Bind ViewModel.PersistBookmarks, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock x:Uid="SettingsPrivacyTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="SettingsPrivacyDescription" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Uid="SettingsRedactComputerToggle" AutomationProperties.AutomationId="SettingsRedactComputerToggle" IsOn="{x:Bind ViewModel.RedactComputerName, Mode=TwoWay}" />
+                    <ToggleSwitch x:Uid="SettingsRedactUserToggle" AutomationProperties.AutomationId="SettingsRedactUserToggle" IsOn="{x:Bind ViewModel.RedactUserNames, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock x:Uid="SettingsAdvancedTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="SettingsAdvancedDescription" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Uid="SettingsRawXPathToggle" AutomationProperties.AutomationId="SettingsRawXPathToggle" IsOn="{x:Bind ViewModel.RawXPathMode, Mode=TwoWay}" />
+                    <ToggleSwitch x:Uid="SettingsDebugLoggingToggle" AutomationProperties.AutomationId="SettingsDebugLoggingToggle" IsOn="{x:Bind ViewModel.DebugLogging, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock x:Uid="SharedComponentsGalleryTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="SharedComponentsGalleryDescription" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}">
+                        <Button x:Uid="SharedComponentsGalleryButton" AutomationProperties.AutomationId="SharedComponentsGalleryButton" />
+                        <InfoBar x:Uid="SharedComponentsGalleryInfoBar" AutomationProperties.AutomationId="SharedComponentsGalleryInfoBar" IsOpen="True" IsClosable="False" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <InfoBar x:Uid="SettingsHighContrastInfoBar" IsOpen="True" IsClosable="False" />
+
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
                     <TextBlock x:Uid="LanguageSettingsCardTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
                     <TextBlock x:Uid="LanguageSettingsCardDescription" Style="{StaticResource AstralBodyTextBlockStyle}" TextWrapping="Wrap" />
                     <RadioButtons

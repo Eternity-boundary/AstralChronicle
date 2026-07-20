@@ -6,5 +6,6 @@ namespace AstralChronicle
         FeaturePlaceholderViewModel();
         String Heading{ get; };
         String Description{ get; };
+        String ChannelPath{ get; };
     }
 }

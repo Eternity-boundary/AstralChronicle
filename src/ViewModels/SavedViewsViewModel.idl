@@ -1,0 +1,43 @@
+import "src\\ViewModels\\SavedViewItemViewModel.idl";
+
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass SavedViewsViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        SavedViewsViewModel();
+        String Heading{ get; };
+        String Summary{ get; };
+        String StatusText{ get; };
+        String StatusDetails{ get; };
+        Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
+        Boolean HasStatusMessage{ get; };
+        Boolean IsLoading{ get; };
+        Windows.Foundation.Collections.IObservableVector<SavedViewItemViewModel> Views{ get; };
+        SavedViewItemViewModel SelectedView{ get; set; };
+        Boolean HasSelection{ get; };
+        Boolean CanSave{ get; };
+        String SelectedViewName{ get; };
+        String EditorName{ get; set; };
+        String EditorDescription{ get; set; };
+        String EditorQuery{ get; set; };
+        String EditorChannel{ get; set; };
+        String EditorType{ get; set; };
+        String EditorSort{ get; set; };
+        String EditorColumns{ get; set; };
+        Boolean EditorDetails{ get; set; };
+        Boolean EditorTimeline{ get; set; };
+        String EditorTags{ get; set; };
+        String EditorCustomViewXml{ get; set; };
+        String CustomViewWarning{ get; };
+        void Refresh();
+        void NewView();
+        void Save();
+        void Delete();
+        void Duplicate();
+        void TogglePin();
+        String CopyQuery();
+        String ExportText();
+        void ImportText(String text);
+    }
+}

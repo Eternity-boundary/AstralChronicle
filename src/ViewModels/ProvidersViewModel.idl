@@ -1,0 +1,32 @@
+import "src\\ViewModels\\ProviderItemViewModel.idl";
+
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass ProvidersViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        ProvidersViewModel();
+        String Heading{ get; };
+        String Summary{ get; };
+        String StatusText{ get; };
+        String StatusDetails{ get; };
+        Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
+        Boolean HasStatusMessage{ get; };
+        Boolean IsLoading{ get; };
+        String SearchText{ get; set; };
+        Windows.Foundation.Collections.IObservableVector<ProviderItemViewModel> Providers{ get; };
+        ProviderItemViewModel SelectedProvider{ get; set; };
+        String SelectedProviderName{ get; };
+        Boolean HasSelection{ get; };
+        String SelectionStatus{ get; };
+        String SelectedGuid{ get; };
+        String SelectedResourcePath{ get; };
+        String SelectedParameterPath{ get; };
+        String SelectedMessagePath{ get; };
+        String SelectedHelpLink{ get; };
+        String SelectedMetadataStatus{ get; };
+        String SelectedEventCount{ get; };
+        Windows.Foundation.Collections.IObservableVector<String> EventDefinitions{ get; };
+        void Refresh();
+    }
+}
