@@ -1,6 +1,7 @@
 ﻿# AstralChronicle
 
-![Language](https://img.shields.io/badge/language-C++%2FWinRT-red)
+![Language](https://img.shields.io/badge/language-C++%2FWinRT-red) [![MSBuild](https://github.com/Eternity-boundary/AstralChronicle/actions/workflows/msbuild.yml/badge.svg)](https://github.com/Eternity-boundary/AstralChronicle/actions/workflows/msbuild.yml)
+
 
 AstralChronicle 是以 WinUI 3 與 C++/WinRT 開發的 Windows 事件智慧檢視器。它保留 Windows 事件記錄的原始資料與權限模型，同時提供較易讀、可搜尋且支援佈景主題的桌面體驗。
 
