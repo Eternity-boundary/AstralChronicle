@@ -29,9 +29,11 @@ Pages are intentionally created only after their route is selected. The current 
 
 ## Windows Event Log boundary
 
-`IEventLogCatalogService` enumerates registered channels, while `IEventQueryService` retrieves record summaries from a requested channel. Their Windows implementations use `EvtOpenChannelEnum`/`EvtNextChannelPath` and `EvtQuery`/`EvtNext`/`EvtRender` respectively. View models depend only on the interfaces, so paging, EVTX file access, remote sessions, subscriptions, and test doubles can be added without coupling UI to Win32 handles.
+`IEventLogCatalogService` enumerates registered channels, while `IEventQueryService` retrieves record summaries and details through `EvtQuery`/`EvtNext`/`EvtRender`. Querying is cancellation-aware and occurs away from the UI thread. Channel queries use `EvtQueryChannelPath`; structured custom-view queries use an empty path with a Windows `<QueryList>`, which allows one view to combine multiple channels.
 
-The current dashboard requests one recent `System` event as a smoke-tested vertical slice. The upcoming Event Streams feature will add cancellation-aware query paging, filter composition, and a virtualized `ListView` over the same query abstraction.
+`ICustomViewCatalogService` reads the existing Event Viewer view tree from `%ProgramData%\Microsoft\Event Viewer\Views`. It keeps folder hierarchy and the original QueryList separate from the shell so the `NavigationView` can materialize custom folders only when the user expands the branch. `IEventProviderService`, `IEventLiveService`, `IRemoteEventService`, `ISavedViewRepository`, and `ISessionRepository` follow the same interface-first boundary for their corresponding pages.
+
+Windows implementations own Win32 handles and platform-specific file access. View models depend only on interfaces, so paging, EVTX file support, remote sessions, subscriptions, and test doubles can evolve without coupling UI code to platform handles.
 
 ## MVVM in native C++/WinRT
 
@@ -59,3 +61,15 @@ select the dedicated resource dictionary automatically.
 shell and ViewModel text localizable. Static XAML uses `x:Uid`, while dynamic labels
 use resource templates before they reach the view. This keeps the DesignSystem
 language-neutral and prevents new pages from adding English-only literals.
+
+## Native precompiled header
+
+`src/pch.h` is included first by application implementation files and contains only
+stable Windows, C++/WinRT, WinUI, WIL, and commonly used C++ standard-library
+headers. It defines `WIN32_LEAN_AND_MEAN` and `NOMINMAX` before `windows.h`, then
+undefines `GetCurrentTime` to avoid the Win32 macro collision with WinUI's
+`Storyboard::GetCurrentTime`.
+
+Do not add application headers, generated headers, feature-only APIs, or frequently
+changing code to the PCH. Every public header must continue to include its own
+dependencies so it remains valid when compiled independently.

@@ -40,3 +40,15 @@ All layout dimensions are XAML DIPs, not physical pixels; no page performs custo
 pixel scaling or draws hard-coded color literals. Built-in `NavigationView`,
 `ScrollViewer`, `InfoBar`, and text controls provide the keyboard, focus, scaling,
 and screen-reader behavior used by the current shell.
+
+## Data-dense pages
+
+Event rows and provider metadata favour standard `Grid`, `ListView`, `TextBlock`,
+and `NavigationViewItem` controls with semantic styles. Label-and-value cards use
+separate grid columns, keep long paths wrapped in the value column, and never place
+two text elements in the same grid cell. Use `x:Bind` for page view-model state;
+only operating-system-discovered navigation items are created dynamically.
+
+When a navigation branch can require a slow system query, show a localized loading
+item and populate it asynchronously. The temporary state must use the existing
+Fluent control styling rather than introducing page-specific brushes or templates.
