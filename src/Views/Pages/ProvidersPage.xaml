@@ -36,7 +36,6 @@
                 Grid.Column="1"
                 AutomationProperties.AutomationId="ProvidersCommandBar"
                 DefaultLabelPosition="Right"
-                IsOpen="True"
                 VerticalAlignment="Center">
                 <AppBarButton
                     x:Uid="ProvidersRefreshCommand"

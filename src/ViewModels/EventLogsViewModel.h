@@ -83,7 +83,8 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::AstralChronicle::EventLogItemViewModel SelectedEvent() const;
         void SelectedEvent(winrt::AstralChronicle::EventLogItemViewModel const& value);
         void SetSelectedEvents(
-            std::vector<winrt::AstralChronicle::EventLogItemViewModel> const& values);
+            std::vector<winrt::AstralChronicle::EventLogItemViewModel> const& values,
+            winrt::AstralChronicle::EventLogItemViewModel const& preferred = nullptr);
         [[nodiscard]] winrt::hstring SelectedProvider() const;
         [[nodiscard]] winrt::hstring SelectedEventId() const;
         [[nodiscard]] winrt::hstring SelectedVersion() const;

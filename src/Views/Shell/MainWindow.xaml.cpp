@@ -16,8 +16,6 @@
 
 #include "MainWindow.g.cpp"
 
-#include <winrt/Windows.Storage.h>
-
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -307,7 +305,6 @@ namespace winrt::AstralChronicle::implementation
         RoutedEventArgs const&)
     {
         RootNavigationView().IsPaneOpen(true);
-        RestoreNavigationExpansionState();
         UpdateThemeBackdropLayout();
     }
 
@@ -323,97 +320,6 @@ namespace winrt::AstralChronicle::implementation
         Windows::Foundation::IInspectable const&)
     {
         UpdateThemeBackdropLayout();
-    }
-
-    bool MainWindow::IsExpansionStateStored(NavigationViewItem const& item) const
-    {
-        auto const tag = TagOf(item);
-        if (tag.empty())
-        {
-            return false;
-        }
-
-        try
-        {
-            auto const values = Windows::Storage::ApplicationData::Current().LocalSettings().Values();
-            std::wstring key{ L"EventLogs.Navigation.Expansion." };
-            key += tag;
-            if (!values.HasKey(hstring{ key }))
-            {
-                return false;
-            }
-
-            return unbox_value<bool>(values.Lookup(hstring{ key }));
-        }
-        catch (...)
-        {
-            // Unpackaged/design-time hosts may not expose LocalSettings.
-            return false;
-        }
-    }
-
-    void MainWindow::StoreExpansionState(NavigationViewItem const& item, bool const isExpanded) const
-    {
-        auto const tag = TagOf(item);
-        if (tag.empty())
-        {
-            return;
-        }
-
-        try
-        {
-            auto const values = Windows::Storage::ApplicationData::Current().LocalSettings().Values();
-            std::wstring key{ L"EventLogs.Navigation.Expansion." };
-            key += tag;
-            values.Insert(hstring{ key }, box_value(isExpanded));
-        }
-        catch (...)
-        {
-            // Expansion persistence is best effort and must not affect navigation.
-        }
-    }
-
-    void MainWindow::RestoreNavigationExpansionState()
-    {
-        if (m_expansionStateRestored)
-        {
-            return;
-        }
-
-        m_expansionStateRestored = true;
-        auto const menuItems = RootNavigationView().MenuItems();
-        if (menuItems.Size() < 2)
-        {
-            return;
-        }
-
-        auto const eventLogs = menuItems.GetAt(1).as<NavigationViewItem>();
-        auto const eventLogItems = eventLogs.MenuItems();
-        m_expansionStateRestoring = true;
-        if (IsExpansionStateStored(eventLogs))
-        {
-            eventLogs.IsExpanded(true);
-        }
-
-        for (std::uint32_t index{}; index < eventLogItems.Size(); ++index)
-        {
-            auto const item = eventLogItems.GetAt(index).as<NavigationViewItem>();
-            if (IsExpansionStateStored(item))
-            {
-                item.IsExpanded(true);
-            }
-
-            auto const children = item.MenuItems();
-            for (std::uint32_t childIndex{}; childIndex < children.Size(); ++childIndex)
-            {
-                auto const child = children.GetAt(childIndex).as<NavigationViewItem>();
-                if (IsExpansionStateStored(child))
-                {
-                    child.IsExpanded(true);
-                }
-            }
-        }
-        m_expansionStateRestoring = false;
     }
 
     void MainWindow::StartDynamicChannelLoad()
@@ -506,7 +412,6 @@ namespace winrt::AstralChronicle::implementation
         }
 
         PopulateDynamicChildren(m_dynamicChannelRoot, {});
-        RestoreDynamicExpansion(m_dynamicChannelRoot, {});
     }
 
     void MainWindow::IndexDynamicChannelNodes(::AstralChronicle::services::ChannelPathTreeNode& node)
@@ -610,48 +515,6 @@ namespace winrt::AstralChronicle::implementation
         m_populatedDynamicPaths.insert(key);
     }
 
-    void MainWindow::RestoreDynamicExpansion(NavigationViewItem const& parent, std::wstring_view parentPath)
-    {
-        auto const key = std::wstring{ parentPath };
-        std::vector<::AstralChronicle::services::ChannelPathTreeNode> const* children{};
-        if (parentPath.empty())
-        {
-            if (!m_dynamicChannelTree)
-            {
-                return;
-            }
-            children = &m_dynamicChannelTree->Children;
-        }
-        else
-        {
-            auto const node = m_dynamicChannelIndex.find(key);
-            if (node == m_dynamicChannelIndex.end())
-            {
-                return;
-            }
-            children = &node->second->Children;
-        }
-
-        for (std::uint32_t index{}; index < parent.MenuItems().Size() && index < children->size(); ++index)
-        {
-            auto const item = parent.MenuItems().GetAt(index).as<NavigationViewItem>();
-            if (!IsExpansionStateStored(item))
-            {
-                continue;
-            }
-
-            auto const& node = (*children)[index];
-            if (node.Children.empty())
-            {
-                continue;
-            }
-
-            PopulateDynamicChildren(item, node.FullPath);
-            item.IsExpanded(true);
-            RestoreDynamicExpansion(item, node.FullPath);
-        }
-    }
-
     void MainWindow::OnNavigationItemExpanding(
         Microsoft::UI::Xaml::Controls::NavigationView const&,
         Microsoft::UI::Xaml::Controls::NavigationViewItemExpandingEventArgs const& args)
@@ -660,11 +523,6 @@ namespace winrt::AstralChronicle::implementation
         if (!item)
         {
             return;
-        }
-
-        if (!m_expansionStateRestoring)
-        {
-            StoreExpansionState(item, true);
         }
 
         auto const tag = TagOf(item);
@@ -685,11 +543,7 @@ namespace winrt::AstralChronicle::implementation
         Microsoft::UI::Xaml::Controls::NavigationView const&,
         Microsoft::UI::Xaml::Controls::NavigationViewItemCollapsedEventArgs const& args)
     {
-        auto const item = args.CollapsedItemContainer().try_as<NavigationViewItem>();
-        if (item && !m_expansionStateRestoring)
-        {
-            StoreExpansionState(item, false);
-        }
+        (void)args;
     }
 
     void MainWindow::OnNavigationSelectionChanged(

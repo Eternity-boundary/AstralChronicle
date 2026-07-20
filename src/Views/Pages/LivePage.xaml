@@ -21,7 +21,7 @@
                 <TextBlock x:Uid="LiveHeading" AutomationProperties.AutomationId="LiveHeading" Style="{StaticResource AstralPageTitleTextBlockStyle}" />
                 <TextBlock AutomationProperties.AutomationId="LiveSummary" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.Summary, Mode=OneWay}" TextWrapping="Wrap" />
             </StackPanel>
-            <CommandBar Grid.Column="1" x:Name="LiveCommandBar" AutomationProperties.AutomationId="LiveCommandBar" DefaultLabelPosition="Right" IsOpen="True" VerticalAlignment="Center">
+            <CommandBar Grid.Column="1" x:Name="LiveCommandBar" AutomationProperties.AutomationId="LiveCommandBar" DefaultLabelPosition="Right" VerticalAlignment="Center">
                 <AppBarButton x:Uid="LiveStartCommand" AutomationProperties.AutomationId="LiveStartCommand" Click="OnStartClicked" IsEnabled="{x:Bind ViewModel.CanStart, Mode=OneWay}"><AppBarButton.Icon><SymbolIcon Symbol="Play" /></AppBarButton.Icon></AppBarButton>
                 <AppBarButton x:Uid="LivePauseCommand" AutomationProperties.AutomationId="LivePauseCommand" Click="OnPauseClicked" IsEnabled="{x:Bind ViewModel.IsRunning, Mode=OneWay}"><AppBarButton.Icon><SymbolIcon Symbol="Pause" /></AppBarButton.Icon></AppBarButton>
                 <AppBarButton x:Uid="LiveResumeCommand" AutomationProperties.AutomationId="LiveResumeCommand" Click="OnResumeClicked" IsEnabled="{x:Bind ViewModel.IsPaused, Mode=OneWay}"><AppBarButton.Icon><SymbolIcon Symbol="Play" /></AppBarButton.Icon></AppBarButton>

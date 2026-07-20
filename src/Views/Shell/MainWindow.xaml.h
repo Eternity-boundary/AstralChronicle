@@ -67,21 +67,12 @@ namespace winrt::AstralChronicle::implementation
         void ApplyThemeBackdrop();
         void UpdateThemeBackdropLayout();
         double NavigationPaneWidth();
-        void RestoreNavigationExpansionState();
         void StartDynamicChannelLoad();
         winrt::fire_and_forget LoadDynamicChannelsAsync();
         void PopulateDynamicChildren(
             Microsoft::UI::Xaml::Controls::NavigationViewItem const& parent,
             std::wstring_view parentPath);
-        void RestoreDynamicExpansion(
-            Microsoft::UI::Xaml::Controls::NavigationViewItem const& parent,
-            std::wstring_view parentPath);
         void IndexDynamicChannelNodes(::AstralChronicle::services::ChannelPathTreeNode& node);
-        [[nodiscard]] bool IsExpansionStateStored(
-            Microsoft::UI::Xaml::Controls::NavigationViewItem const& item) const;
-        void StoreExpansionState(
-            Microsoft::UI::Xaml::Controls::NavigationViewItem const& item,
-            bool isExpanded) const;
 
         ::AstralChronicle::navigation::INavigationService* m_navigation{};
         ::AstralChronicle::design::IStringResourceService* m_strings{};
@@ -89,8 +80,6 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::services::IEventLogCatalogService* m_eventLogCatalog{};
         winrt::Microsoft::UI::Dispatching::DispatcherQueueTimer m_greetingTimer{ nullptr };
         std::uint32_t m_themeSubscriptionId{};
-        bool m_expansionStateRestored{};
-        bool m_expansionStateRestoring{};
         bool m_dynamicChannelLoadRequested{};
         bool m_dynamicChannelTreeLoaded{};
         winrt::Microsoft::UI::Xaml::Controls::NavigationViewItem m_dynamicChannelRoot{ nullptr };

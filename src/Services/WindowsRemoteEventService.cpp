@@ -38,15 +38,17 @@ namespace
         }
     }
 
-    [[nodiscard]] AstralChronicle::models::EventRecordSummary RenderRemoteSummary(EVT_HANDLE eventHandle)
+    [[nodiscard]] AstralChronicle::models::EventRecordSummary RenderRemoteSummary(
+        EVT_HANDLE eventHandle,
+        EVT_HANDLE renderContext)
     {
         DWORD bytes{};
         DWORD propertyCount{};
-        if (!EvtRender(nullptr, eventHandle, EvtRenderEventValues, 0, nullptr, &bytes, &propertyCount) &&
+        if (!renderContext || !EvtRender(renderContext, eventHandle, EvtRenderEventValues, 0, nullptr, &bytes, &propertyCount) &&
             GetLastError() != ERROR_INSUFFICIENT_BUFFER) return {};
         std::vector<std::byte> buffer(bytes);
         auto values = reinterpret_cast<PEVT_VARIANT>(buffer.data());
-        if (!EvtRender(nullptr, eventHandle, EvtRenderEventValues, bytes, values, &bytes, &propertyCount)) return {};
+        if (!EvtRender(renderContext, eventHandle, EvtRenderEventValues, bytes, values, &bytes, &propertyCount)) return {};
         AstralChronicle::models::EventRecordSummary summary;
         if (propertyCount > EvtSystemProviderName && values[EvtSystemProviderName].StringVal) summary.Provider = values[EvtSystemProviderName].StringVal;
         if (propertyCount > EvtSystemEventID) summary.EventId = values[EvtSystemEventID].UInt16Val;
@@ -294,6 +296,13 @@ namespace AstralChronicle::services
             result.Status = MapError(result.ErrorCode);
             return result;
         }
+        unique_evt_handle renderContext{ EvtCreateRenderContext(0, nullptr, EvtRenderContextSystem) };
+        if (!renderContext)
+        {
+            result.ErrorCode = GetLastError();
+            result.Status = MapError(result.ErrorCode);
+            return result;
+        }
         std::vector<EVT_HANDLE> rawEvents(32);
         while (result.Events.size() < maximumRecords)
         {
@@ -318,7 +327,7 @@ namespace AstralChronicle::services
                 rawEvents[index] = nullptr;
                 if (result.Events.size() < maximumRecords)
                 {
-                    result.Events.emplace_back(RenderRemoteSummary(event.get()));
+                    result.Events.emplace_back(RenderRemoteSummary(event.get(), renderContext.get()));
                 }
             }
         }

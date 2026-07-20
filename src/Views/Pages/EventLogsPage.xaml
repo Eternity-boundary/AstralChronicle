@@ -4,7 +4,98 @@
     x:Class="AstralChronicle.EventLogsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:AstralChronicle">
+    xmlns:local="using:AstralChronicle"
+    xmlns:primitives="using:Microsoft.UI.Xaml.Controls.Primitives">
+
+    <Page.Resources>
+        <Style
+            x:Key="EventLogsColumnHeaderButtonStyle"
+            BasedOn="{StaticResource DefaultHyperlinkButtonStyle}"
+            TargetType="HyperlinkButton">
+            <Setter Property="Background" Value="{ThemeResource AstralTransparentBrush}" />
+            <Setter Property="BorderBrush" Value="{ThemeResource AstralTransparentBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Foreground" Value="{ThemeResource AstralSecondaryTextBrush}" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Padding" Value="16,4,8,4" />
+            <Setter Property="FontSize" Value="13" />
+        </Style>
+        <Style
+            x:Key="EventLogsListItemStyle"
+            BasedOn="{StaticResource DefaultListViewItemStyle}"
+            TargetType="ListViewItem">
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="Height" Value="48" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="MinHeight" Value="48" />
+            <Setter Property="FocusVisualMargin" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <primitives:ListViewItemPresenter
+                            x:Name="Root"
+                            Control.IsTemplateFocusTarget="True"
+                            ContentTransitions="{TemplateBinding ContentTransitions}"
+                            FocusVisualMargin="{TemplateBinding FocusVisualMargin}"
+                            FocusVisualPrimaryBrush="{TemplateBinding FocusVisualPrimaryBrush}"
+                            FocusVisualPrimaryThickness="{TemplateBinding FocusVisualPrimaryThickness}"
+                            FocusVisualSecondaryBrush="{TemplateBinding FocusVisualSecondaryBrush}"
+                            FocusVisualSecondaryThickness="{TemplateBinding FocusVisualSecondaryThickness}"
+                            SelectionCheckMarkVisualEnabled="{ThemeResource ListViewItemSelectionCheckMarkVisualEnabled}"
+                            CheckBrush="{ThemeResource ListViewItemCheckBrush}"
+                            CheckBoxBrush="{ThemeResource ListViewItemCheckBoxBrush}"
+                            DragBackground="{ThemeResource ListViewItemDragBackground}"
+                            DragForeground="{ThemeResource ListViewItemDragForeground}"
+                            FocusBorderBrush="{ThemeResource ListViewItemFocusBorderBrush}"
+                            FocusSecondaryBorderBrush="{ThemeResource ListViewItemFocusSecondaryBorderBrush}"
+                            PlaceholderBackground="{ThemeResource ListViewItemPlaceholderBackground}"
+                            PointerOverBackground="{ThemeResource ListViewItemBackgroundPointerOver}"
+                            PointerOverForeground="{ThemeResource ListViewItemForegroundPointerOver}"
+                            SelectedBackground="{ThemeResource ListViewItemBackgroundSelected}"
+                            SelectedForeground="{ThemeResource ListViewItemForegroundSelected}"
+                            SelectedPointerOverBackground="{ThemeResource ListViewItemBackgroundSelectedPointerOver}"
+                            PressedBackground="{ThemeResource ListViewItemBackgroundPressed}"
+                            SelectedPressedBackground="{ThemeResource ListViewItemBackgroundSelectedPressed}"
+                            DisabledOpacity="{ThemeResource ListViewItemDisabledThemeOpacity}"
+                            DragOpacity="{ThemeResource ListViewItemDragThemeOpacity}"
+                            ReorderHintOffset="{ThemeResource ListViewItemReorderHintThemeOffset}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                            ContentMargin="16,0,0,0"
+                            CheckMode="Overlay"
+                            SelectionIndicatorMode="Overlay"
+                            CornerRadius="0"
+                            CheckPressedBrush="{ThemeResource ListViewItemCheckPressedBrush}"
+                            CheckDisabledBrush="{ThemeResource ListViewItemCheckDisabledBrush}"
+                            CheckBoxPointerOverBrush="{ThemeResource ListViewItemCheckBoxPointerOverBrush}"
+                            CheckBoxPressedBrush="{ThemeResource ListViewItemCheckBoxPressedBrush}"
+                            CheckBoxDisabledBrush="{ThemeResource ListViewItemCheckBoxDisabledBrush}"
+                            CheckBoxSelectedBrush="{ThemeResource ListViewItemCheckBoxSelectedBrush}"
+                            CheckBoxSelectedPointerOverBrush="{ThemeResource ListViewItemCheckBoxSelectedPointerOverBrush}"
+                            CheckBoxSelectedPressedBrush="{ThemeResource ListViewItemCheckBoxSelectedPressedBrush}"
+                            CheckBoxSelectedDisabledBrush="{ThemeResource ListViewItemCheckBoxSelectedDisabledBrush}"
+                            CheckBoxBorderBrush="{ThemeResource ListViewItemCheckBoxBorderBrush}"
+                            CheckBoxPointerOverBorderBrush="{ThemeResource ListViewItemCheckBoxPointerOverBorderBrush}"
+                            CheckBoxPressedBorderBrush="{ThemeResource ListViewItemCheckBoxPressedBorderBrush}"
+                            CheckBoxDisabledBorderBrush="{ThemeResource ListViewItemCheckBoxDisabledBorderBrush}"
+                            CheckBoxCornerRadius="{ThemeResource ListViewItemCheckBoxCornerRadius}"
+                            SelectionIndicatorCornerRadius="0"
+                            SelectionIndicatorVisualEnabled="{ThemeResource ListViewItemSelectionIndicatorVisualEnabled}"
+                            SelectionIndicatorBrush="{ThemeResource ListViewItemSelectionIndicatorBrush}"
+                            SelectionIndicatorPointerOverBrush="{ThemeResource ListViewItemSelectionIndicatorPointerOverBrush}"
+                            SelectionIndicatorPressedBrush="{ThemeResource ListViewItemSelectionIndicatorPressedBrush}"
+                            SelectionIndicatorDisabledBrush="{ThemeResource ListViewItemSelectionIndicatorDisabledBrush}"
+                            SelectedDisabledBackground="{ThemeResource ListViewItemBackgroundSelectedDisabled}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
 
     <Grid
         x:Name="PageRoot"
@@ -56,7 +147,6 @@
                 AutomationProperties.AutomationId="EventLogsCommandBar"
                 Background="{ThemeResource AstralTransparentBrush}"
                 DefaultLabelPosition="Right"
-                IsOpen="True"
                 VerticalAlignment="Center">
                 <AppBarButton
                     x:Uid="EventLogsRefreshCommand"
@@ -175,33 +265,6 @@
                     </AppBarButton.Icon>
                 </AppBarButton>
                 <AppBarButton
-                    x:Uid="EventLogsCopyCommand"
-                    AutomationProperties.AutomationId="EventLogsCopyCommand"
-                    Click="OnCopyClicked"
-                    IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
-                    <AppBarButton.Icon>
-                        <SymbolIcon Symbol="Copy" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-                <AppBarButton
-                    x:Uid="EventLogsBookmarkCommand"
-                    AutomationProperties.AutomationId="EventLogsBookmarkCommand"
-                    Click="OnBookmarkClicked"
-                    IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
-                    <AppBarButton.Icon>
-                        <SymbolIcon Symbol="Favorite" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-                <AppBarButton
-                    x:Uid="EventLogsExportCommand"
-                    AutomationProperties.AutomationId="EventLogsExportCommand"
-                    Click="OnExportClicked"
-                    IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
-                    <AppBarButton.Icon>
-                        <SymbolIcon Symbol="Save" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-                <AppBarButton
                     x:Uid="EventLogsToggleDetailsCommand"
                     AutomationProperties.AutomationId="EventLogsToggleDetailsCommand"
                     Click="OnToggleDetailsClicked">
@@ -210,6 +273,33 @@
                     </AppBarButton.Icon>
                 </AppBarButton>
                 <CommandBar.SecondaryCommands>
+                    <AppBarButton
+                        x:Uid="EventLogsCopyCommand"
+                        AutomationProperties.AutomationId="EventLogsCopyCommand"
+                        Click="OnCopyClicked"
+                        IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <SymbolIcon Symbol="Copy" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Uid="EventLogsBookmarkCommand"
+                        AutomationProperties.AutomationId="EventLogsBookmarkCommand"
+                        Click="OnBookmarkClicked"
+                        IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <SymbolIcon Symbol="Favorite" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Uid="EventLogsExportCommand"
+                        AutomationProperties.AutomationId="EventLogsExportCommand"
+                        Click="OnExportClicked"
+                        IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <SymbolIcon Symbol="Save" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
                     <AppBarButton x:Uid="EventLogsFindNextCommand" IsEnabled="False">
                         <AppBarButton.Icon>
                             <SymbolIcon Symbol="Find" />
@@ -291,7 +381,8 @@
                 Grid.Column="0"
                 Grid.Row="0"
                 AutomationProperties.AutomationId="EventLogsChannelPane"
-                Style="{StaticResource AstralCardBorderStyle}">
+                Style="{StaticResource AstralCardBorderStyle}"
+                VerticalAlignment="Top">
                 <StackPanel Spacing="{StaticResource AstralContentSpacing}">
                     <TextBlock
                         x:Uid="EventLogsChannelPaneTitle"
@@ -332,15 +423,15 @@
                         <ColumnDefinition Width="150" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <HyperlinkButton x:Uid="EventLogsLevelHeaderButton" Tag="Level" Click="OnSortClicked" Grid.Column="0" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsTimeHeaderButton" Tag="Time" Click="OnSortClicked" Grid.Column="1" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsProviderHeaderButton" Tag="Provider" Click="OnSortClicked" Grid.Column="2" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsIdHeaderButton" Tag="EventId" Click="OnSortClicked" Grid.Column="3" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsTaskHeaderButton" Tag="Task" Click="OnSortClicked" Grid.Column="4" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsChannelHeaderButton" Tag="Channel" Click="OnSortClicked" Grid.Column="5" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsUserHeaderButton" Tag="User" Click="OnSortClicked" Grid.Column="6" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsComputerHeaderButton" Tag="Computer" Click="OnSortClicked" Grid.Column="7" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsDescriptionHeaderButton" Tag="Description" Click="OnSortClicked" Grid.Column="8" Style="{StaticResource DefaultHyperlinkButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsLevelHeaderButton" Tag="Level" Click="OnSortClicked" Grid.Column="0" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsTimeHeaderButton" Tag="Time" Click="OnSortClicked" Grid.Column="1" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsProviderHeaderButton" Tag="Provider" Click="OnSortClicked" Grid.Column="2" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsIdHeaderButton" Tag="EventId" Click="OnSortClicked" Grid.Column="3" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsTaskHeaderButton" Tag="Task" Click="OnSortClicked" Grid.Column="4" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsChannelHeaderButton" Tag="Channel" Click="OnSortClicked" Grid.Column="5" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsUserHeaderButton" Tag="User" Click="OnSortClicked" Grid.Column="6" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsComputerHeaderButton" Tag="Computer" Click="OnSortClicked" Grid.Column="7" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                    <HyperlinkButton x:Uid="EventLogsDescriptionHeaderButton" Tag="Description" Click="OnSortClicked" Grid.Column="8" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
                 </Grid>
                 <ListView
                     x:Name="EventList"
@@ -348,9 +439,10 @@
                     AutomationProperties.AutomationId="EventLogsEventList"
                     IsItemClickEnabled="False"
                     ItemsSource="{x:Bind ViewModel.Events, Mode=OneWay}"
+                    ItemContainerStyle="{StaticResource EventLogsListItemStyle}"
                     SelectionChanged="OnSelectionChanged"
-                    SelectedItem="{x:Bind ViewModel.SelectedEvent, Mode=TwoWay}"
-                    SelectionMode="Multiple"
+                    SelectedItem="{x:Bind ViewModel.SelectedEvent, Mode=OneWay}"
+                    SelectionMode="Extended"
                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
                     ShowsScrollingPlaceholders="True">
                     <ListView.ItemTemplate>
@@ -437,8 +529,12 @@
                 Grid.Row="0"
                 AutomationProperties.AutomationId="EventLogsDetailsPane"
                 Style="{StaticResource AstralCardBorderStyle}">
-                <TabView IsAddTabButtonVisible="False">
-                    <TabViewItem x:Uid="EventLogsSummaryTab">
+                <TabView
+                    CanReorderTabs="False"
+                    IsAddTabButtonVisible="False"
+                    TabWidthMode="Equal"
+                    VerticalAlignment="Stretch">
+                    <TabViewItem x:Uid="EventLogsSummaryTab" IsClosable="False">
                         <Grid RowSpacing="{StaticResource AstralContentSpacing}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -491,7 +587,7 @@
                             </ScrollViewer>
                         </Grid>
                     </TabViewItem>
-                    <TabViewItem x:Uid="EventLogsDetailsTab">
+                    <TabViewItem x:Uid="EventLogsDetailsTab" IsClosable="False">
                         <ScrollViewer>
                             <TextBlock
                                 AutomationProperties.AutomationId="EventLogsSelectedMessage"
@@ -500,7 +596,7 @@
                                 TextWrapping="Wrap" />
                         </ScrollViewer>
                     </TabViewItem>
-                    <TabViewItem x:Uid="EventLogsEventDataTab">
+                    <TabViewItem x:Uid="EventLogsEventDataTab" IsClosable="False">
                         <ScrollViewer>
                             <StackPanel Spacing="{StaticResource AstralContentSpacing}">
                                 <TextBlock AutomationProperties.AutomationId="EventLogsSelectedEventData" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedEventData, Mode=OneWay}" TextWrapping="Wrap" />
@@ -511,7 +607,7 @@
                             </StackPanel>
                         </ScrollViewer>
                     </TabViewItem>
-                    <TabViewItem x:Uid="EventLogsXmlTab">
+                    <TabViewItem x:Uid="EventLogsXmlTab" IsClosable="False">
                         <ScrollViewer>
                             <TextBlock
                                 AutomationProperties.AutomationId="EventLogsSelectedXml"

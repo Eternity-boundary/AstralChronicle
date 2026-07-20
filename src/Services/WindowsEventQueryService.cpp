@@ -80,20 +80,25 @@ namespace
                 WindowsDuration{ static_cast<std::int64_t>(unixTicks) }) };
     }
 
-    [[nodiscard]] AstralChronicle::models::EventRecordSummary RenderSummary(EVT_HANDLE const eventHandle)
+    [[nodiscard]] AstralChronicle::models::EventRecordSummary RenderSummary(
+        EVT_HANDLE const eventHandle,
+        EVT_HANDLE const renderContext)
     {
         DWORD bufferBytes{};
         DWORD propertyCount{};
-        if (!EvtRender(nullptr, eventHandle, EvtRenderEventValues, 0, nullptr, &bufferBytes, &propertyCount) &&
-            GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+        if (!renderContext || !EvtRender(renderContext, eventHandle, EvtRenderEventValues, 0, nullptr, &bufferBytes, &propertyCount))
         {
-            return {};
+            auto const error = GetLastError();
+            if (error != ERROR_INSUFFICIENT_BUFFER)
+            {
+                return {};
+            }
         }
 
         AstralChronicle::models::EventRecordSummary summary;
         std::vector<std::byte> buffer(bufferBytes);
         auto const values = reinterpret_cast<PEVT_VARIANT>(buffer.data());
-        if (!EvtRender(nullptr, eventHandle, EvtRenderEventValues, bufferBytes, values, &bufferBytes, &propertyCount))
+        if (!EvtRender(renderContext, eventHandle, EvtRenderEventValues, bufferBytes, values, &bufferBytes, &propertyCount))
         {
             return {};
         }
@@ -333,11 +338,13 @@ namespace
             : details.Summary.RelatedActivityId;
     }
 
-    [[nodiscard]] std::uint8_t RenderLevel(EVT_HANDLE const eventHandle)
+    [[nodiscard]] std::uint8_t RenderLevel(
+        EVT_HANDLE const eventHandle,
+        EVT_HANDLE const renderContext)
     {
         DWORD bufferBytes{};
         DWORD propertyCount{};
-        if (EvtRender(nullptr, eventHandle, EvtRenderEventValues, 0, nullptr, &bufferBytes, &propertyCount) ||
+        if (!renderContext || EvtRender(renderContext, eventHandle, EvtRenderEventValues, 0, nullptr, &bufferBytes, &propertyCount) ||
             GetLastError() != ERROR_INSUFFICIENT_BUFFER)
         {
             return 0;
@@ -345,7 +352,7 @@ namespace
 
         std::vector<std::byte> buffer(bufferBytes);
         auto const values = reinterpret_cast<PEVT_VARIANT>(buffer.data());
-        if (!EvtRender(nullptr, eventHandle, EvtRenderEventValues, bufferBytes, values, &bufferBytes, &propertyCount) ||
+        if (!EvtRender(renderContext, eventHandle, EvtRenderEventValues, bufferBytes, values, &bufferBytes, &propertyCount) ||
             propertyCount <= EvtSystemLevel)
         {
             return 0;
@@ -480,6 +487,14 @@ namespace AstralChronicle::services
             return result;
         }
 
+        unique_evt_handle renderContext{ EvtCreateRenderContext(0, nullptr, EvtRenderContextSystem) };
+        if (!renderContext)
+        {
+            result.ErrorCode = GetLastError();
+            result.Status = MapQueryError(result.ErrorCode);
+            return result;
+        }
+
         auto const batchSize = std::min<std::uint32_t>(maximumRecords, 64u);
         std::vector<EVT_HANDLE> events(batchSize);
         result.Events.reserve(maximumRecords);
@@ -525,7 +540,7 @@ namespace AstralChronicle::services
             for (DWORD index{}; index < returned; ++index)
             {
                 unique_evt_handle event{ events[index] };
-                auto summary = RenderSummary(event.get());
+                auto summary = RenderSummary(event.get(), renderContext.get());
                 if (summary.RecordId != 0 || !summary.Provider.empty())
                 {
                     result.Events.emplace_back(std::move(summary));
@@ -567,6 +582,14 @@ namespace AstralChronicle::services
             return result;
         }
 
+        unique_evt_handle renderContext{ EvtCreateRenderContext(0, nullptr, EvtRenderContextSystem) };
+        if (!renderContext)
+        {
+            result.ErrorCode = GetLastError();
+            result.Status = MapQueryError(result.ErrorCode);
+            return result;
+        }
+
         constexpr DWORD batchSize = 64;
         std::vector<EVT_HANDLE> events(batchSize);
         for (;;)
@@ -600,7 +623,7 @@ namespace AstralChronicle::services
             {
                 unique_evt_handle event{ events[index] };
                 ++result.Counts.Total;
-                switch (RenderLevel(event.get()))
+                switch (RenderLevel(event.get(), renderContext.get()))
                 {
                 case 1:
                     ++result.Counts.Critical;
@@ -645,6 +668,14 @@ namespace AstralChronicle::services
             return result;
         }
 
+        unique_evt_handle renderContext{ EvtCreateRenderContext(0, nullptr, EvtRenderContextSystem) };
+        if (!renderContext)
+        {
+            result.ErrorCode = GetLastError();
+            result.Status = MapQueryError(result.ErrorCode);
+            return result;
+        }
+
         EVT_HANDLE eventValue{};
         DWORD returned{};
         if (cancellation && cancellation->load(std::memory_order_relaxed))
@@ -665,7 +696,7 @@ namespace AstralChronicle::services
         }
 
         unique_evt_handle event{ eventValue };
-        result.Details.Summary = RenderSummary(event.get());
+        result.Details.Summary = RenderSummary(event.get(), renderContext.get());
         result.Details.RawXml = RenderXml(event.get());
         PopulateDetails(result.Details, result.Details.RawXml);
         result.Details.ProviderMetadata.Name = result.Details.Summary.Provider;

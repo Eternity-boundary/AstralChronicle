@@ -151,16 +151,16 @@ namespace winrt::AstralChronicle::implementation
             1.0,
             Microsoft::UI::Xaml::GridUnitType::Star);
         auto const zero = Microsoft::UI::Xaml::GridLengthHelper::FromPixels(0.0);
-        auto const details = Microsoft::UI::Xaml::GridLengthHelper::FromPixels(360.0);
+        auto const details = Microsoft::UI::Xaml::GridLengthHelper::FromPixels(480.0);
 
         if (width >= 1200.0)
         {
-            columns.GetAt(0).Width(Microsoft::UI::Xaml::GridLengthHelper::FromPixels(220.0));
+            columns.GetAt(0).Width(zero);
             columns.GetAt(1).Width(star);
             columns.GetAt(2).Width(m_detailsPaneVisible ? details : zero);
             rows.GetAt(0).Height(star);
             rows.GetAt(1).Height(zero);
-            ChannelPane().Visibility(Microsoft::UI::Xaml::Visibility::Visible);
+            ChannelPane().Visibility(Microsoft::UI::Xaml::Visibility::Collapsed);
             EventListPane().Visibility(Microsoft::UI::Xaml::Visibility::Visible);
             DetailsPane().Visibility(m_detailsPaneVisible
                 ? Microsoft::UI::Xaml::Visibility::Visible
@@ -172,12 +172,12 @@ namespace winrt::AstralChronicle::implementation
 
         if (width >= 800.0)
         {
-            columns.GetAt(0).Width(Microsoft::UI::Xaml::GridLengthHelper::FromPixels(220.0));
+            columns.GetAt(0).Width(zero);
             columns.GetAt(1).Width(star);
             columns.GetAt(2).Width(m_detailsPaneVisible ? details : zero);
             rows.GetAt(0).Height(star);
             rows.GetAt(1).Height(zero);
-            ChannelPane().Visibility(Microsoft::UI::Xaml::Visibility::Visible);
+            ChannelPane().Visibility(Microsoft::UI::Xaml::Visibility::Collapsed);
             EventListPane().Visibility(Microsoft::UI::Xaml::Visibility::Visible);
             DetailsPane().Visibility(m_detailsPaneVisible
                 ? Microsoft::UI::Xaml::Visibility::Visible
@@ -203,7 +203,7 @@ namespace winrt::AstralChronicle::implementation
 
     void EventLogsPage::OnSelectionChanged(
         winrt::Windows::Foundation::IInspectable const& sender,
-        Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const&)
+        Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args)
     {
         auto const list = sender.as<Microsoft::UI::Xaml::Controls::ListView>();
         std::vector<winrt::AstralChronicle::EventLogItemViewModel> selected;
@@ -215,6 +215,16 @@ namespace winrt::AstralChronicle::implementation
                 selected.emplace_back(item);
             }
         }
-        winrt::get_self<EventLogsViewModel>(m_viewModel)->SetSelectedEvents(selected);
+        winrt::AstralChronicle::EventLogItemViewModel lastAdded{ nullptr };
+        for (auto const& value : args.AddedItems())
+        {
+            auto const item = value.try_as<winrt::AstralChronicle::EventLogItemViewModel>();
+            if (item)
+            {
+                lastAdded = item;
+            }
+        }
+
+        winrt::get_self<EventLogsViewModel>(m_viewModel)->SetSelectedEvents(selected, lastAdded);
     }
 }

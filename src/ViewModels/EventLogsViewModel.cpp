@@ -608,7 +608,8 @@ namespace winrt::AstralChronicle::implementation
     }
 
     void EventLogsViewModel::SetSelectedEvents(
-        std::vector<winrt::AstralChronicle::EventLogItemViewModel> const& values)
+        std::vector<winrt::AstralChronicle::EventLogItemViewModel> const& values,
+        winrt::AstralChronicle::EventLogItemViewModel const& preferred)
     {
         m_selectedEvents = values;
         if (m_selectedEvents.empty())
@@ -625,9 +626,15 @@ namespace winrt::AstralChronicle::implementation
             return;
         }
 
-        if (m_selectedEvent != m_selectedEvents.front())
+        auto active = preferred;
+        if (!active || std::find(m_selectedEvents.begin(), m_selectedEvents.end(), active) == m_selectedEvents.end())
         {
-            SelectedEvent(m_selectedEvents.front());
+            active = m_selectedEvents.back();
+        }
+
+        if (m_selectedEvent != active)
+        {
+            SelectedEvent(active);
         }
         else
         {
