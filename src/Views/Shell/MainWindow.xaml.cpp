@@ -3,6 +3,7 @@
 #include "MainWindow.xaml.h"
 #include "App/AppHost.h"
 #include "DesignSystem/Localization/IStringResourceService.h"
+#include "Services/ICustomViewCatalogService.h"
 #include "Services/IEventLogCatalogService.h"
 #include "Views/Pages/DashboardPage.xaml.h"
 #include "Views/Pages/EventLogsPage.xaml.h"
@@ -43,7 +44,13 @@ namespace winrt::AstralChronicle::implementation
         constexpr std::wstring_view ChannelTagPrefix{ L"channel:" };
         constexpr std::wstring_view LandingTagPrefix{ L"landing:" };
         constexpr std::wstring_view DynamicGroupTagPrefix{ L"dynamic-group:" };
+        constexpr std::wstring_view CustomViewTagPrefix{ L"custom-view:" };
+        constexpr std::wstring_view CustomViewGroupTagPrefix{ L"custom-group:" };
+        constexpr std::wstring_view CustomViewLoadingTag{ L"custom-view-loading" };
+        constexpr std::wstring_view CustomViewsTag{ L"landing:event-logs/custom-views" };
+        constexpr std::wstring_view SystemAdministrativeViewTag{ L"custom-view:system-administrative-events" };
         constexpr std::wstring_view ApplicationsAndServicesTag{ L"landing:event-logs/applications-services" };
+        constexpr std::wstring_view SystemAdministrativeEventsQuery{ LR"xml(<QueryList><Query Id="0"><Select Path="Application">*[System[(Level=1 or Level=2 or Level=3)]]</Select><Select Path="Security">*[System[(Level=1 or Level=2 or Level=3)]]</Select><Select Path="System">*[System[(Level=1 or Level=2 or Level=3)]]</Select></Query></QueryList>)xml" };
 
         [[nodiscard]] std::wstring ToWString(hstring const& value)
         {
@@ -126,6 +133,10 @@ namespace winrt::AstralChronicle::implementation
         Title(host.Strings().GetString(L"MainWindow.Title"));
         m_strings = &host.Strings();
         m_eventLogCatalog = &host.EventLogCatalog();
+        m_customViewCatalog = &host.CustomViews();
+        m_customViewQueries.insert_or_assign(
+            std::wstring{ SystemAdministrativeViewTag },
+            std::wstring{ SystemAdministrativeEventsQuery });
         UpdateShellGreeting();
         m_greetingTimer = RootLayout().DispatcherQueue().CreateTimer();
         m_greetingTimer.Interval(std::chrono::minutes{ 1 });
@@ -376,6 +387,119 @@ namespace winrt::AstralChronicle::implementation
             ShowDynamicChannelLoadingState(m_dynamicChannelRoot);
         }
         LoadDynamicChannelsAsync();
+    }
+
+    void MainWindow::StartCustomViewLoad()
+    {
+        if (m_customViewLoadRequested || m_customViewTreeLoaded || !m_customViewCatalog)
+        {
+            return;
+        }
+
+        m_customViewLoadRequested = true;
+        if (m_customViewRoot)
+        {
+            NavigationViewItem loading;
+            loading.Content(box_value(m_strings->GetString(L"EventLogs.CustomViewsLoading.Text")));
+            loading.Tag(box_value(hstring{ CustomViewLoadingTag }));
+            loading.IsEnabled(false);
+            loading.SelectsOnInvoked(false);
+            m_customViewRoot.MenuItems().Append(loading);
+        }
+        LoadCustomViewsAsync();
+    }
+
+    void MainWindow::RemoveCustomViewLoadingState()
+    {
+        if (!m_customViewRoot)
+        {
+            return;
+        }
+
+        auto const items = m_customViewRoot.MenuItems();
+        for (std::uint32_t index = items.Size(); index-- > 0;)
+        {
+            auto const item = items.GetAt(index).try_as<NavigationViewItem>();
+            if (item && TagOf(item) == CustomViewLoadingTag)
+            {
+                items.RemoveAt(index);
+            }
+        }
+    }
+
+    winrt::fire_and_forget MainWindow::LoadCustomViewsAsync()
+    {
+        auto lifetime = get_strong();
+        auto const dispatcher = RootLayout().DispatcherQueue();
+        std::vector<::AstralChronicle::models::CustomViewTreeNode> tree;
+        bool failed{};
+
+        try
+        {
+            co_await winrt::resume_background();
+            tree = m_customViewCatalog->Enumerate();
+        }
+        catch (...)
+        {
+            failed = true;
+        }
+
+        co_await wil::resume_foreground(dispatcher);
+        RemoveCustomViewLoadingState();
+        if (failed)
+        {
+            m_customViewLoadRequested = false;
+            if (m_customViewRoot)
+            {
+                NavigationViewItem unavailable;
+                unavailable.Content(box_value(m_strings->GetString(L"EventLogs.CustomViewsUnavailable.Text")));
+                unavailable.IsEnabled(false);
+                m_customViewRoot.MenuItems().Append(unavailable);
+            }
+            co_return;
+        }
+
+        m_customViewQueries.clear();
+        m_customViewQueries.insert_or_assign(
+            std::wstring{ SystemAdministrativeViewTag },
+            std::wstring{ SystemAdministrativeEventsQuery });
+        m_customViewTree = std::move(tree);
+        m_customViewTreeLoaded = true;
+        if (!m_customViewRoot)
+        {
+            co_return;
+        }
+
+        for (auto const& node : *m_customViewTree)
+        {
+            m_customViewRoot.MenuItems().Append(CreateCustomViewNavigationItem(node));
+        }
+        m_customViewRoot.HasUnrealizedChildren(false);
+    }
+
+    winrt::Microsoft::UI::Xaml::Controls::NavigationViewItem MainWindow::CreateCustomViewNavigationItem(
+        ::AstralChronicle::models::CustomViewTreeNode const& node)
+    {
+        NavigationViewItem item;
+        item.Content(box_value(hstring{ node.Segment }));
+
+        if (node.IsView)
+        {
+            auto const tag = std::wstring{ CustomViewTagPrefix } + node.RelativePath;
+            item.Tag(box_value(hstring{ tag }));
+            m_customViewQueries.insert_or_assign(tag, node.Query);
+            return item;
+        }
+
+        auto const tag = std::wstring{ CustomViewGroupTagPrefix } + node.RelativePath;
+        item.Tag(box_value(hstring{ tag }));
+        item.SelectsOnInvoked(false);
+        for (auto const& child : node.Children)
+        {
+            item.MenuItems().Append(CreateCustomViewNavigationItem(child));
+        }
+        item.HasUnrealizedChildren(false);
+        return item;
     }
 
     void MainWindow::ShowDynamicChannelLoadingState(NavigationViewItem const& parent)
@@ -643,6 +767,13 @@ namespace winrt::AstralChronicle::implementation
         }
 
         auto const tag = TagOf(item);
+        if (tag == CustomViewsTag)
+        {
+            m_customViewRoot = item;
+            StartCustomViewLoad();
+            return;
+        }
+
         if (tag == ApplicationsAndServicesTag)
         {
             m_dynamicChannelRoot = item;
@@ -679,6 +810,25 @@ namespace winrt::AstralChronicle::implementation
         }
 
         auto const tag = ToWString(unbox_value<hstring>(item.Tag()));
+        if (HasPrefix(tag, CustomViewTagPrefix))
+        {
+            auto const customView = m_customViewQueries.find(tag);
+            if (customView != m_customViewQueries.end() && !customView->second.empty())
+            {
+                ::AstralChronicle::navigation::NavigationRequest request;
+                request.Route = L"event-logs";
+                request.Channel = ::AstralChronicle::models::EventChannelIdentifier{};
+                request.Query = customView->second;
+                [[maybe_unused]] auto const navigated = m_navigation->Navigate(request);
+            }
+            return;
+        }
+
+        if (HasPrefix(tag, CustomViewGroupTagPrefix))
+        {
+            return;
+        }
+
         if (HasPrefix(tag, ChannelTagPrefix))
         {
             ::AstralChronicle::navigation::NavigationRequest request;

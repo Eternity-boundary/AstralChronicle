@@ -168,6 +168,10 @@
 
                     <Border Style="{StaticResource AstralCardBorderStyle}">
                         <Grid RowSpacing="{StaticResource AstralContentSpacing}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="160" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -180,18 +184,19 @@
                             <TextBlock
                                 x:Uid="ProvidersPathsTitle"
                                 AutomationProperties.AutomationId="ProvidersPathsTitle"
+                                Grid.ColumnSpan="2"
                                 Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
-                            <TextBlock Grid.Row="1" x:Uid="ProvidersGuidLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
-                            <TextBlock Grid.Row="1" AutomationProperties.AutomationId="ProvidersGuidValue" Text="{x:Bind ViewModel.SelectedGuid, Mode=OneWay}" TextWrapping="Wrap" />
-                            <TextBlock Grid.Row="2" x:Uid="ProvidersResourcePathLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
-                            <TextBlock Grid.Row="2" AutomationProperties.AutomationId="ProvidersResourcePathValue" Text="{x:Bind ViewModel.SelectedResourcePath, Mode=OneWay}" TextWrapping="Wrap" />
-                            <TextBlock Grid.Row="3" x:Uid="ProvidersParameterPathLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
-                            <TextBlock Grid.Row="3" AutomationProperties.AutomationId="ProvidersParameterPathValue" Text="{x:Bind ViewModel.SelectedParameterPath, Mode=OneWay}" TextWrapping="Wrap" />
-                            <TextBlock Grid.Row="4" x:Uid="ProvidersMessagePathLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
-                            <TextBlock Grid.Row="4" AutomationProperties.AutomationId="ProvidersMessagePathValue" Text="{x:Bind ViewModel.SelectedMessagePath, Mode=OneWay}" TextWrapping="Wrap" />
-                            <TextBlock Grid.Row="5" x:Uid="ProvidersHelpLinkLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
-                            <TextBlock Grid.Row="5" AutomationProperties.AutomationId="ProvidersHelpLinkValue" Text="{x:Bind ViewModel.SelectedHelpLink, Mode=OneWay}" TextWrapping="Wrap" />
-                            <TextBlock Grid.Row="6" AutomationProperties.AutomationId="ProvidersEventCount" Text="{x:Bind ViewModel.SelectedEventCount, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" x:Uid="ProvidersGuidLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" AutomationProperties.AutomationId="ProvidersGuidValue" Text="{x:Bind ViewModel.SelectedGuid, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" x:Uid="ProvidersResourcePathLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" AutomationProperties.AutomationId="ProvidersResourcePathValue" Text="{x:Bind ViewModel.SelectedResourcePath, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="3" Grid.Column="0" x:Uid="ProvidersParameterPathLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" AutomationProperties.AutomationId="ProvidersParameterPathValue" Text="{x:Bind ViewModel.SelectedParameterPath, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="4" Grid.Column="0" x:Uid="ProvidersMessagePathLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                            <TextBlock Grid.Row="4" Grid.Column="1" AutomationProperties.AutomationId="ProvidersMessagePathValue" Text="{x:Bind ViewModel.SelectedMessagePath, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="5" Grid.Column="0" x:Uid="ProvidersHelpLinkLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                            <TextBlock Grid.Row="5" Grid.Column="1" AutomationProperties.AutomationId="ProvidersHelpLinkValue" Text="{x:Bind ViewModel.SelectedHelpLink, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="6" Grid.ColumnSpan="2" AutomationProperties.AutomationId="ProvidersEventCount" Text="{x:Bind ViewModel.SelectedEventCount, Mode=OneWay}" TextWrapping="Wrap" />
                         </Grid>
                     </Border>
 

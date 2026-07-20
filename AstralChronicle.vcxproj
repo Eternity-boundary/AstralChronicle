@@ -151,6 +151,7 @@
     <ClInclude Include="src\DesignSystem\Theme\IThemeService.h" />
     <ClInclude Include="src\DesignSystem\Theme\ThemeService.h" />
     <ClInclude Include="src\Services\IEventLogCatalogService.h" />
+    <ClInclude Include="src\Services\ICustomViewCatalogService.h" />
     <ClInclude Include="src\Services\IEventLiveService.h" />
     <ClInclude Include="src\Services\IEventProviderService.h" />
     <ClInclude Include="src\Services\IEventQueryService.h" />
@@ -161,6 +162,7 @@
     <ClInclude Include="src\Services\EventQueryBuilder.h" />
     <ClInclude Include="src\Services\UniqueEvtHandle.h" />
     <ClInclude Include="src\Services\WindowsEventLogCatalogService.h" />
+    <ClInclude Include="src\Services\WindowsCustomViewCatalogService.h" />
     <ClInclude Include="src\Services\WindowsEventLiveService.h" />
     <ClInclude Include="src\Services\WindowsEventProviderService.h" />
     <ClInclude Include="src\Services\WindowsEventQueryService.h" />
@@ -168,6 +170,7 @@
     <ClInclude Include="src\Services\WindowsSavedViewRepository.h" />
     <ClInclude Include="src\Services\WindowsSessionRepository.h" />
     <ClInclude Include="src\Models\EventChannelDescriptor.h" />
+    <ClInclude Include="src\Models\CustomViewTreeNode.h" />
     <ClInclude Include="src\Models\EventDetails.h" />
     <ClInclude Include="src\Models\EventFilter.h" />
     <ClInclude Include="src\Models\EventProvider.h" />
@@ -255,6 +258,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Services\WindowsEventLogCatalogService.cpp" />
+    <ClCompile Include="src\Services\WindowsCustomViewCatalogService.cpp" />
     <ClCompile Include="src\Services\WindowsEventProviderService.cpp" />
     <ClCompile Include="src\Services\WindowsEventQueryService.cpp" />
     <ClCompile Include="src\Services\WindowsSavedViewRepository.cpp" />

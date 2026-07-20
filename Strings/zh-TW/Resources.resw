@@ -192,6 +192,15 @@
   <data name="EventLogsCustomViewsNavigationItem.Content" xml:space="preserve">
     <value>自訂檢視</value>
   </data>
+  <data name="EventLogs.CustomViewsLoading.Text" xml:space="preserve">
+    <value>正在載入自訂檢視…</value>
+  </data>
+  <data name="EventLogs.CustomViewsUnavailable.Text" xml:space="preserve">
+    <value>無法讀取自定檢視。</value>
+  </data>
+  <data name="EventLogs.CustomViewChannel.Text" xml:space="preserve">
+    <value>自訂檢視</value>
+  </data>
   <data name="EventLogsAdministrativeEventsNavigationItem.Content" xml:space="preserve">
     <value>系統管理事件</value>
   </data>

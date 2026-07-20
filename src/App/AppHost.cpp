@@ -6,6 +6,7 @@
 #include "DesignSystem/Localization/StringResourceService.h"
 #include "DesignSystem/Theme/ThemeService.h"
 #include "Services/WindowsEventLogCatalogService.h"
+#include "Services/WindowsCustomViewCatalogService.h"
 #include "Services/WindowsEventLiveService.h"
 #include "Services/WindowsEventProviderService.h"
 #include "Services/WindowsEventQueryService.h"
@@ -25,6 +26,8 @@ namespace AstralChronicle::app
             std::make_shared<design::ThemeService>());
         m_services.AddSingleton<services::IEventLogCatalogService>(
             std::make_shared<services::WindowsEventLogCatalogService>());
+        m_services.AddSingleton<services::ICustomViewCatalogService>(
+            std::make_shared<services::WindowsCustomViewCatalogService>());
         m_services.AddSingleton<services::IEventLiveService>(
             std::make_shared<services::WindowsEventLiveService>());
         m_services.AddSingleton<services::IEventProviderService>(
@@ -64,6 +67,11 @@ namespace AstralChronicle::app
     services::IEventLogCatalogService& AppHost::EventLogCatalog() const
     {
         return *m_services.GetRequiredService<services::IEventLogCatalogService>();
+    }
+
+    services::ICustomViewCatalogService& AppHost::CustomViews() const
+    {
+        return *m_services.GetRequiredService<services::ICustomViewCatalogService>();
     }
 
     services::IEventLiveService& AppHost::EventLive() const

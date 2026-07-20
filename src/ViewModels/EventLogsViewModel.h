@@ -149,6 +149,7 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::design::IStringResourceService const* m_strings{};
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         std::wstring m_channelPath;
+        bool m_isStructuredQuery{};
         std::wstring m_baseQuery{ L"*" };
         std::wstring m_query{ L"*" };
         std::optional<std::uint64_t> m_initialRecordId;

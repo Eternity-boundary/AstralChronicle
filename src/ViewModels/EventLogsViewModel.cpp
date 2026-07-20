@@ -68,6 +68,13 @@ namespace
         return value;
     }
 
+    [[nodiscard]] bool IsStructuredEventQuery(std::wstring_view value)
+    {
+        auto const start = value.find_first_not_of(L" \t\r\n");
+        return start != std::wstring_view::npos &&
+            value.compare(start, 10, L"<QueryList") == 0;
+    }
+
     [[nodiscard]] bool Contains(
         winrt::AstralChronicle::EventLogItemViewModel const& item,
         std::wstring const& needle)
@@ -190,9 +197,18 @@ namespace winrt::AstralChronicle::implementation
         m_dispatcher = dispatcher;
         m_heading = strings.GetString(L"EventLogs.Heading");
         auto const defaultChannel = strings.GetString(L"EventLogs.ChannelDefault.Text");
-        m_channelPath = channel && !channel->Path.empty()
-            ? channel->Path
-            : std::wstring{ defaultChannel.c_str(), defaultChannel.size() };
+        m_isStructuredQuery = channel && channel->Path.empty() && query && IsStructuredEventQuery(*query);
+        if (m_isStructuredQuery)
+        {
+            auto const customViewChannel = strings.GetString(L"EventLogs.CustomViewChannel.Text");
+            m_channelPath = std::wstring{ customViewChannel.c_str(), customViewChannel.size() };
+        }
+        else
+        {
+            m_channelPath = channel && !channel->Path.empty()
+                ? channel->Path
+                : std::wstring{ defaultChannel.c_str(), defaultChannel.size() };
+        }
         m_baseQuery = query && !query->empty() ? *query : L"*";
         m_query = m_baseQuery;
         m_initialRecordId = ExtractRecordId(query);
@@ -690,7 +706,7 @@ namespace winrt::AstralChronicle::implementation
         m_cancellation = ::AstralChronicle::services::MakeQueryCancellation();
         auto const requestVersion = ++m_requestVersion;
         auto const cancellation = m_cancellation;
-        auto const channel = m_channelPath;
+        auto const channel = m_isStructuredQuery ? std::wstring{} : m_channelPath;
 
         m_isLoading = true;
         m_hasStatusMessage = true;

@@ -149,6 +149,7 @@
     <ClCompile Include="src\Services\ChannelPathGrouping.cpp"><Filter>Source Files\Services</Filter></ClCompile>
     <ClCompile Include="src\Services\EventQueryBuilder.cpp"><Filter>Source Files\Services</Filter></ClCompile>
     <ClCompile Include="src\Services\WindowsEventLogCatalogService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
+    <ClCompile Include="src\Services\WindowsCustomViewCatalogService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
     <ClCompile Include="src\Services\WindowsEventLiveService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
     <ClCompile Include="src\Services\WindowsRemoteEventService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
     <ClCompile Include="src\Services\WindowsEventProviderService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
@@ -194,6 +195,7 @@
     <ClInclude Include="src\DesignSystem\Localization\IStringResourceService.h"><Filter>Header Files\DesignSystem\Localization</Filter></ClInclude>
     <ClInclude Include="src\DesignSystem\Localization\StringResourceService.h"><Filter>Header Files\DesignSystem\Localization</Filter></ClInclude>
     <ClInclude Include="src\Services\IEventLogCatalogService.h"><Filter>Header Files\Services</Filter></ClInclude>
+    <ClInclude Include="src\Services\ICustomViewCatalogService.h"><Filter>Header Files\Services</Filter></ClInclude>
     <ClInclude Include="src\Services\IEventLiveService.h"><Filter>Header Files\Services</Filter></ClInclude>
     <ClInclude Include="src\Services\IEventProviderService.h"><Filter>Header Files\Services</Filter></ClInclude>
     <ClInclude Include="src\Services\IEventQueryService.h"><Filter>Header Files\Services</Filter></ClInclude>
@@ -204,6 +206,7 @@
     <ClInclude Include="src\Services\EventQueryBuilder.h"><Filter>Header Files\Services</Filter></ClInclude>
     <ClInclude Include="src\Services\UniqueEvtHandle.h"><Filter>Header Files\Services</Filter></ClInclude>
     <ClInclude Include="src\Services\WindowsEventLogCatalogService.h"><Filter>Header Files\Services</Filter></ClInclude>
+    <ClInclude Include="src\Services\WindowsCustomViewCatalogService.h"><Filter>Header Files\Services</Filter></ClInclude>
     <ClInclude Include="src\Services\WindowsEventLiveService.h"><Filter>Header Files\Services</Filter></ClInclude>
     <ClInclude Include="src\Services\WindowsEventProviderService.h"><Filter>Header Files\Services</Filter></ClInclude>
     <ClInclude Include="src\Services\WindowsEventQueryService.h"><Filter>Header Files\Services</Filter></ClInclude>
@@ -211,6 +214,7 @@
     <ClInclude Include="src\Services\WindowsSavedViewRepository.h"><Filter>Header Files\Services</Filter></ClInclude>
     <ClInclude Include="src\Services\WindowsSessionRepository.h"><Filter>Header Files\Services</Filter></ClInclude>
     <ClInclude Include="src\Models\EventChannelDescriptor.h"><Filter>Header Files\Models</Filter></ClInclude>
+    <ClInclude Include="src\Models\CustomViewTreeNode.h"><Filter>Header Files\Models</Filter></ClInclude>
     <ClInclude Include="src\Models\EventDetails.h"><Filter>Header Files\Models</Filter></ClInclude>
     <ClInclude Include="src\Models\EventFilter.h"><Filter>Header Files\Models</Filter></ClInclude>
     <ClInclude Include="src\Models\EventProvider.h"><Filter>Header Files\Models</Filter></ClInclude>

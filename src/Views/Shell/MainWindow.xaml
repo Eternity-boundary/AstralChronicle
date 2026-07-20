@@ -134,11 +134,13 @@
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem
                             x:Uid="EventLogsCustomViewsNavigationItem"
+                            HasUnrealizedChildren="True"
                             Tag="landing:event-logs/custom-views">
                             <NavigationViewItem.MenuItems>
                                 <NavigationViewItem
                                     x:Uid="EventLogsAdministrativeEventsNavigationItem"
-                                    Tag="landing:event-logs/custom-views/administrative" />
+                                    Icon="Filter"
+                                    Tag="custom-view:system-administrative-events" />
                             </NavigationViewItem.MenuItems>
                         </NavigationViewItem>
                         <NavigationViewItem

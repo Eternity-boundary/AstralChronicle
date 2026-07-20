@@ -464,22 +464,34 @@ namespace AstralChronicle::services
         QueryCancellation const& cancellation) const
     {
         EventQueryResult result;
-        if (channel.empty() || queryText.empty() || maximumRecords == 0)
+        auto const queryStart = queryText.find_first_not_of(L" \t\r\n");
+        auto const isStructuredQuery = queryStart != std::wstring_view::npos &&
+            queryText.compare(queryStart, 10, L"<QueryList") == 0;
+        if (queryText.empty() || maximumRecords == 0 || (channel.empty() && !isStructuredQuery))
         {
             result.Status = EventQueryStatus::InvalidChannel;
             result.ErrorCode = ERROR_INVALID_NAME;
             return result;
         }
 
-        std::wstring const channelPath{ channel };
-        DWORD queryFlags = EvtQueryChannelPath;
+        DWORD queryFlags{};
         if (reverseDirection)
         {
-            queryFlags |= EvtQueryReverseDirection;
+            queryFlags = EvtQueryReverseDirection;
         }
 
         std::wstring const query{ queryText };
-        unique_evt_handle queryHandle{ EvtQuery(nullptr, channelPath.c_str(), query.c_str(), queryFlags) };
+        unique_evt_handle queryHandle;
+        if (channel.empty())
+        {
+            queryHandle.reset(EvtQuery(nullptr, nullptr, query.c_str(), queryFlags));
+        }
+        else
+        {
+            queryFlags |= EvtQueryChannelPath;
+            std::wstring const channelPath{ channel };
+            queryHandle.reset(EvtQuery(nullptr, channelPath.c_str(), query.c_str(), queryFlags));
+        }
         if (!queryHandle)
         {
             result.ErrorCode = GetLastError();
