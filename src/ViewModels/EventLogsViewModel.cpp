@@ -231,6 +231,7 @@ namespace winrt::AstralChronicle::implementation
     winrt::hstring EventLogsViewModel::StatusText() const { return m_statusText; }
     winrt::hstring EventLogsViewModel::StatusDetails() const { return m_statusDetails; }
     bool EventLogsViewModel::HasStatusMessage() const noexcept { return m_hasStatusMessage; }
+    bool EventLogsViewModel::IsAccessDenied() const noexcept { return m_isAccessDenied; }
     bool EventLogsViewModel::IsLoading() const noexcept { return m_isLoading; }
     winrt::hstring EventLogsViewModel::SearchText() const { return m_searchText; }
     void EventLogsViewModel::SearchText(winrt::hstring const& value)
@@ -465,6 +466,7 @@ namespace winrt::AstralChronicle::implementation
         }
 
         m_hasStatusMessage = true;
+        m_isAccessDenied = false;
         m_statusSeverity = Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational;
         m_statusText = m_strings->GetString(L"EventLogs.ExportLoading.Text");
         m_statusDetails.clear();
@@ -692,6 +694,7 @@ namespace winrt::AstralChronicle::implementation
 
         m_isLoading = true;
         m_hasStatusMessage = true;
+        m_isAccessDenied = false;
         m_statusSeverity = Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational;
         m_statusText = m_strings->GetString(L"EventLogs.Loading.Text");
         m_statusDetails = m_strings->GetString(L"EventLogs.LoadingDetails.Text");
@@ -891,6 +894,7 @@ namespace winrt::AstralChronicle::implementation
         m_statusDetails.clear();
 
         using Status = ::AstralChronicle::services::EventQueryStatus;
+        m_isAccessDenied = result.Status == Status::AccessDenied;
         switch (result.Status)
         {
         case Status::Succeeded:
@@ -1092,6 +1096,7 @@ namespace winrt::AstralChronicle::implementation
         RaisePropertyChanged(L"StatusText");
         RaisePropertyChanged(L"StatusDetails");
         RaisePropertyChanged(L"HasStatusMessage");
+        RaisePropertyChanged(L"IsAccessDenied");
         RaisePropertyChanged(L"IsLoading");
         RaisePropertyChanged(L"StatusSeverity");
     }

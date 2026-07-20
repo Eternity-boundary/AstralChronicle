@@ -23,6 +23,7 @@ namespace winrt::AstralChronicle::implementation
     struct EventLogsPage : EventLogsPageT<EventLogsPage>
     {
         EventLogsPage();
+        ~EventLogsPage();
 
         [[nodiscard]] winrt::AstralChronicle::EventLogsViewModel ViewModel() const;
         void Initialize(
@@ -31,6 +32,9 @@ namespace winrt::AstralChronicle::implementation
             std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel = std::nullopt,
             std::optional<std::wstring> const& query = std::nullopt);
         void OnRefreshClicked(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::RoutedEventArgs const& args);
+        void OnRestartAsAdministratorClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);
         void OnClearFilterClicked(
@@ -69,8 +73,10 @@ namespace winrt::AstralChronicle::implementation
 
     private:
         void UpdateResponsiveLayout(double width);
+        void UpdateAccessDeniedAction();
 
         winrt::AstralChronicle::EventLogsViewModel m_viewModel{ nullptr };
+        winrt::event_token m_viewModelPropertyChangedToken{};
         bool m_detailsPaneVisible{ true };
     };
 }

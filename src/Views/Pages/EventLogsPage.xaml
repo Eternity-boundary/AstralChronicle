@@ -353,7 +353,16 @@
             IsOpen="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay}"
             Message="{x:Bind ViewModel.StatusDetails, Mode=OneWay}"
             Severity="{x:Bind ViewModel.StatusSeverity, Mode=OneWay}"
-            Title="{x:Bind ViewModel.StatusText, Mode=OneWay}" />
+            Title="{x:Bind ViewModel.StatusText, Mode=OneWay}">
+            <InfoBar.ActionButton>
+                <Button
+                    x:Name="RestartAsAdministratorButton"
+                    x:Uid="EventLogsRestartAsAdministratorButton"
+                    AutomationProperties.AutomationId="EventLogsRestartAsAdministratorButton"
+                    Click="OnRestartAsAdministratorClicked"
+                    Visibility="Collapsed" />
+            </InfoBar.ActionButton>
+        </InfoBar>
 
         <TextBlock
             Grid.Row="2"

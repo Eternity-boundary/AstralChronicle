@@ -465,6 +465,9 @@
   <data name="EventLogs.AccessDenied.Text" xml:space="preserve">
     <value>拒絕存取此頻道。請以具備適當權限的方式開啟應用程式。</value>
   </data>
+  <data name="EventLogsRestartAsAdministratorButton.Content" xml:space="preserve">
+    <value>以管理員身分重新啟動</value>
+  </data>
   <data name="EventLogs.InvalidChannel.Text" xml:space="preserve">
     <value>此事件頻道無法使用，或已不存在。</value>
   </data>

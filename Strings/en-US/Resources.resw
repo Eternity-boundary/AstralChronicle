@@ -463,6 +463,9 @@
   <data name="EventLogs.AccessDenied.Text" xml:space="preserve">
     <value>Access to this channel was denied. Try opening the application with appropriate permissions.</value>
   </data>
+  <data name="EventLogsRestartAsAdministratorButton.Content" xml:space="preserve">
+    <value>Restart as administrator</value>
+  </data>
   <data name="EventLogs.InvalidChannel.Text" xml:space="preserve">
     <value>This event channel is unavailable or no longer exists.</value>
   </data>

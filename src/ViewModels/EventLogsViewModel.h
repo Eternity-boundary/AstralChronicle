@@ -38,6 +38,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::hstring StatusText() const;
         [[nodiscard]] winrt::hstring StatusDetails() const;
         [[nodiscard]] bool HasStatusMessage() const noexcept;
+        [[nodiscard]] bool IsAccessDenied() const noexcept;
         [[nodiscard]] bool IsLoading() const noexcept;
         [[nodiscard]] winrt::hstring SearchText() const;
         void SearchText(winrt::hstring const& value);
@@ -204,6 +205,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::AstralChronicle::EventLogItemViewModel m_selectedEvent{ nullptr };
         std::vector<winrt::AstralChronicle::EventLogItemViewModel> m_selectedEvents;
         bool m_hasStatusMessage{ true };
+        bool m_isAccessDenied{};
         bool m_isLoading{};
         bool m_isDetailsLoading{};
         bool m_filterAfterToday{};

@@ -11,6 +11,7 @@ namespace AstralChronicle
         String StatusText{ get; };
         String StatusDetails{ get; };
         Boolean HasStatusMessage{ get; };
+        Boolean IsAccessDenied{ get; };
         Boolean IsLoading{ get; };
         String SearchText{ get; set; };
         String FilterProvider{ get; set; };

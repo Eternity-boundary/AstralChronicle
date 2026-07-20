@@ -4,9 +4,64 @@
 
 #include "EventLogsPage.g.cpp"
 
+#include <shellapi.h>
+#pragma comment(lib, "Shell32.lib")
+
 #include <winrt/Windows.ApplicationModel.DataTransfer.h>
 
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
+
+#include <string>
+#include <vector>
+
+namespace
+{
+    [[nodiscard]] std::wstring CurrentExecutablePath()
+    {
+        std::vector<wchar_t> buffer(260);
+        for (;;)
+        {
+            auto const length = GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+            if (length == 0)
+            {
+                return {};
+            }
+
+            if (length < buffer.size() - 1 || buffer.size() >= 32768)
+            {
+                return std::wstring{ buffer.data(), length };
+            }
+
+            buffer.resize(buffer.size() * 2);
+        }
+    }
+
+    [[nodiscard]] bool RestartAsAdministrator()
+    {
+        auto executablePath = CurrentExecutablePath();
+        if (executablePath.empty())
+        {
+            return false;
+        }
+
+        SHELLEXECUTEINFOW executeInfo{};
+        executeInfo.cbSize = sizeof(executeInfo);
+        executeInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+        executeInfo.lpVerb = L"runas";
+        executeInfo.lpFile = executablePath.c_str();
+        executeInfo.nShow = SW_SHOWNORMAL;
+        if (!ShellExecuteExW(&executeInfo))
+        {
+            return false;
+        }
+
+        if (executeInfo.hProcess)
+        {
+            CloseHandle(executeInfo.hProcess);
+        }
+        return true;
+    }
+}
 
 namespace winrt::AstralChronicle::implementation
 {
@@ -14,6 +69,14 @@ namespace winrt::AstralChronicle::implementation
         : m_viewModel(winrt::make<EventLogsViewModel>())
     {
         InitializeComponent();
+    }
+
+    EventLogsPage::~EventLogsPage()
+    {
+        if (m_viewModel && m_viewModelPropertyChangedToken.value != 0)
+        {
+            m_viewModel.PropertyChanged(m_viewModelPropertyChangedToken);
+        }
     }
 
     winrt::AstralChronicle::EventLogsViewModel EventLogsPage::ViewModel() const
@@ -27,6 +90,21 @@ namespace winrt::AstralChronicle::implementation
         std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel,
         std::optional<std::wstring> const& query)
     {
+        if (m_viewModelPropertyChangedToken.value != 0)
+        {
+            m_viewModel.PropertyChanged(m_viewModelPropertyChangedToken);
+        }
+        m_viewModelPropertyChangedToken = m_viewModel.PropertyChanged(
+            [this](winrt::Windows::Foundation::IInspectable const&,
+                Microsoft::UI::Xaml::Data::PropertyChangedEventArgs const& args)
+            {
+                if (args.PropertyName() == L"IsAccessDenied")
+                {
+                    UpdateAccessDeniedAction();
+                }
+            });
+        UpdateAccessDeniedAction();
+
         winrt::get_self<EventLogsViewModel>(m_viewModel)->Initialize(
             eventQuery,
             strings,
@@ -35,11 +113,29 @@ namespace winrt::AstralChronicle::implementation
             query);
     }
 
+    void EventLogsPage::UpdateAccessDeniedAction()
+    {
+        RestartAsAdministratorButton().Visibility(
+            m_viewModel.IsAccessDenied()
+                ? Microsoft::UI::Xaml::Visibility::Visible
+                : Microsoft::UI::Xaml::Visibility::Collapsed);
+    }
+
     void EventLogsPage::OnRefreshClicked(
         winrt::Windows::Foundation::IInspectable const&,
         Microsoft::UI::Xaml::RoutedEventArgs const&)
     {
         winrt::get_self<EventLogsViewModel>(m_viewModel)->Refresh();
+    }
+
+    void EventLogsPage::OnRestartAsAdministratorClicked(
+        winrt::Windows::Foundation::IInspectable const&,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        if (RestartAsAdministrator())
+        {
+            Microsoft::UI::Xaml::Application::Current().Exit();
+        }
     }
 
     void EventLogsPage::OnClearFilterClicked(
