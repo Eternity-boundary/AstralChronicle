@@ -1,0 +1,44 @@
+import "src\\ViewModels\\EventLogItemViewModel.idl";
+
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass RemoteViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        RemoteViewModel();
+        String Heading{ get; };
+        String Summary{ get; };
+        String StatusText{ get; };
+        String StatusDetails{ get; };
+        String Host{ get; set; };
+        String Domain{ get; set; };
+        String User{ get; set; };
+        String Password{ get; set; };
+        Boolean IsConnected{ get; };
+        String ConnectionState{ get; };
+        String SecurityNotice{ get; };
+        String QueryChannel{ get; set; };
+        String QueryText{ get; set; };
+        String QueryName{ get; set; };
+        String QueryStatus{ get; };
+        String CompareStatus{ get; };
+        Boolean IsRemoteLive{ get; };
+        String LiveStatus{ get; };
+        Windows.Foundation.Collections.IVectorView<String> LiveEvents{ get; };
+        Windows.Foundation.Collections.IVectorView<EventLogItemViewModel> QueryResults{ get; };
+        Windows.Foundation.Collections.IVectorView<String> SavedQueries{ get; };
+        Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
+        Boolean HasStatusMessage{ get; };
+        Windows.Foundation.Collections.IVectorView<String> SavedConnections{ get; };
+        Windows.Foundation.Collections.IVectorView<String> Channels{ get; };
+        void Connect();
+        void Disconnect();
+        void SaveConnection();
+        void RemoveConnection();
+        void TestConnection();
+        void RefreshChannels();
+        void SelectSavedConnection(Int32 index);
+        void RunQuery();
+        void SaveQuery(); void RemoveQuery(); void SelectSavedQuery(Int32 index); void CompareQuery(); void StartRemoteLive(); void StopRemoteLive();
+    }
+}

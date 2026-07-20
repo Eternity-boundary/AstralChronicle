@@ -1,0 +1,31 @@
+import "src\\ViewModels\\EventLogItemViewModel.idl";
+
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass TimelineViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        TimelineViewModel();
+        String Heading{ get; };
+        String Summary{ get; };
+        String StatusText{ get; };
+        String StatusDetails{ get; };
+        Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
+        Boolean HasStatusMessage{ get; };
+        Boolean IsLoading{ get; };
+        String SearchText{ get; set; };
+        String TimeRange{ get; set; };
+        String LevelFilter{ get; set; };
+        String ChannelFilter{ get; set; };
+        String ProviderFilter{ get; set; };
+        String FilterSummary{ get; };
+        String CorrelationSummary{ get; };
+        Boolean CorrelationEnabled{ get; set; };
+        Boolean GroupRepeated{ get; set; };
+        EventLogItemViewModel SelectedEvent{ get; };
+        String SelectedEventDetails{ get; };
+        UInt32 BookmarkCount{ get; };
+        Windows.Foundation.Collections.IVectorView<EventLogItemViewModel> Events{ get; };
+        void Refresh(); void Select(EventLogItemViewModel item); void BookmarkSelected(); String ExportText();
+    }
+}

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Created by EternityBoundary on Jul 20,2026 -->
+<Page
+    x:Class="AstralChronicle.ProvidersPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:AstralChronicle">
+    <Grid
+        x:Name="PageRoot"
+        RowSpacing="{StaticResource AstralContentSpacing}"
+        Style="{StaticResource AstralPageGridStyle}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                <TextBlock
+                    x:Uid="ProvidersHeading"
+                    AutomationProperties.AutomationId="ProvidersHeading"
+                    Style="{StaticResource AstralPageTitleTextBlockStyle}" />
+                <TextBlock
+                    AutomationProperties.AutomationId="ProvidersSummary"
+                    Style="{StaticResource AstralBodyTextBlockStyle}"
+                    Text="{x:Bind ViewModel.Summary, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+            <CommandBar
+                Grid.Column="1"
+                AutomationProperties.AutomationId="ProvidersCommandBar"
+                DefaultLabelPosition="Right"
+                IsOpen="True"
+                VerticalAlignment="Center">
+                <AppBarButton
+                    x:Uid="ProvidersRefreshCommand"
+                    AutomationProperties.AutomationId="ProvidersRefreshCommand"
+                    Click="OnRefreshClicked">
+                    <AppBarButton.Icon>
+                        <SymbolIcon Symbol="Refresh" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    x:Uid="ProvidersCopyCommand"
+                    AutomationProperties.AutomationId="ProvidersCopyCommand"
+                    Click="OnCopyClicked"
+                    IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
+                    <AppBarButton.Icon>
+                        <SymbolIcon Symbol="Copy" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    x:Uid="ProvidersOpenEventsCommand"
+                    AutomationProperties.AutomationId="ProvidersOpenEventsCommand"
+                    Click="OnOpenEventsClicked"
+                    IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
+                    <AppBarButton.Icon>
+                        <SymbolIcon Symbol="OpenWith" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    x:Uid="ProvidersExportCommand"
+                    AutomationProperties.AutomationId="ProvidersExportCommand"
+                    Click="OnExportClicked"
+                    IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
+                    <AppBarButton.Icon>
+                        <SymbolIcon Symbol="Save" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+            </CommandBar>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnSpacing="{StaticResource AstralContentSpacing}">
+            <AutoSuggestBox
+                x:Name="ProviderSearchBox"
+                x:Uid="ProvidersSearchBox"
+                AutomationProperties.AutomationId="ProvidersSearchBox"
+                Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                TextChanged="OnSearchTextChanged">
+                <AutoSuggestBox.QueryIcon>
+                    <SymbolIcon Symbol="Find" />
+                </AutoSuggestBox.QueryIcon>
+            </AutoSuggestBox>
+        </Grid>
+
+        <InfoBar
+            x:Uid="ProvidersStatusInfoBar"
+            Grid.Row="2"
+            AutomationProperties.AutomationId="ProvidersStatusInfoBar"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay}"
+            Message="{x:Bind ViewModel.StatusDetails, Mode=OneWay}"
+            Severity="{x:Bind ViewModel.StatusSeverity, Mode=OneWay}"
+            Title="{x:Bind ViewModel.StatusText, Mode=OneWay}" />
+
+        <Grid
+            x:Name="ContentGrid"
+            Grid.Row="3"
+            ColumnSpacing="{StaticResource AstralContentSpacing}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <Grid RowSpacing="{StaticResource AstralContentSpacing}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        x:Uid="ProvidersListTitle"
+                        AutomationProperties.AutomationId="ProvidersListTitle"
+                        Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
+                    <ListView
+                        x:Name="ProviderList"
+                        Grid.Row="1"
+                        AutomationProperties.AutomationId="ProvidersList"
+                        ItemsSource="{x:Bind ViewModel.Providers, Mode=OneWay}"
+                        SelectedItem="{x:Bind ViewModel.SelectedProvider, Mode=TwoWay}"
+                        SelectionMode="Single">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:ProviderItemViewModel">
+                                <Grid Padding="8" MinHeight="44">
+                                    <TextBlock
+                                        Style="{StaticResource AstralBodyTextBlockStyle}"
+                                        Text="{x:Bind Name, Mode=OneWay}"
+                                        TextTrimming="CharacterEllipsis" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+            <ScrollViewer
+                Grid.Column="1"
+                AutomationProperties.AutomationId="ProvidersDetailsScrollViewer"
+                HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="{StaticResource AstralSectionSpacing}">
+                    <Border Style="{StaticResource AstralCardBorderStyle}">
+                        <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                            <TextBlock
+                                x:Uid="ProvidersDetailsTitle"
+                                AutomationProperties.AutomationId="ProvidersDetailsTitle"
+                                Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="ProvidersSelectedProviderName"
+                                Style="{StaticResource AstralPageSubtitleTextBlockStyle}"
+                                Text="{x:Bind ViewModel.SelectedProviderName, Mode=OneWay}"
+                                TextTrimming="CharacterEllipsis" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="ProvidersSelectionStatus"
+                                Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                Text="{x:Bind ViewModel.SelectionStatus, Mode=OneWay}"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="ProvidersMetadataStatus"
+                                Style="{StaticResource AstralBodyTextBlockStyle}"
+                                Text="{x:Bind ViewModel.SelectedMetadataStatus, Mode=OneWay}"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource AstralCardBorderStyle}">
+                        <Grid RowSpacing="{StaticResource AstralContentSpacing}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock
+                                x:Uid="ProvidersPathsTitle"
+                                AutomationProperties.AutomationId="ProvidersPathsTitle"
+                                Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
+                            <TextBlock Grid.Row="1" x:Uid="ProvidersGuidLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                            <TextBlock Grid.Row="1" AutomationProperties.AutomationId="ProvidersGuidValue" Text="{x:Bind ViewModel.SelectedGuid, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="2" x:Uid="ProvidersResourcePathLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                            <TextBlock Grid.Row="2" AutomationProperties.AutomationId="ProvidersResourcePathValue" Text="{x:Bind ViewModel.SelectedResourcePath, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="3" x:Uid="ProvidersParameterPathLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                            <TextBlock Grid.Row="3" AutomationProperties.AutomationId="ProvidersParameterPathValue" Text="{x:Bind ViewModel.SelectedParameterPath, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="4" x:Uid="ProvidersMessagePathLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                            <TextBlock Grid.Row="4" AutomationProperties.AutomationId="ProvidersMessagePathValue" Text="{x:Bind ViewModel.SelectedMessagePath, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="5" x:Uid="ProvidersHelpLinkLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                            <TextBlock Grid.Row="5" AutomationProperties.AutomationId="ProvidersHelpLinkValue" Text="{x:Bind ViewModel.SelectedHelpLink, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="6" AutomationProperties.AutomationId="ProvidersEventCount" Text="{x:Bind ViewModel.SelectedEventCount, Mode=OneWay}" TextWrapping="Wrap" />
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource AstralCardBorderStyle}">
+                        <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                            <TextBlock
+                                x:Uid="ProvidersDefinitionsTitle"
+                                AutomationProperties.AutomationId="ProvidersDefinitionsTitle"
+                                Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
+                            <ListView
+                                AutomationProperties.AutomationId="ProvidersDefinitionsList"
+                                ItemsSource="{x:Bind ViewModel.EventDefinitions, Mode=OneWay}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                            Text="{Binding}"
+                                            TextWrapping="Wrap" />
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

@@ -1,0 +1,10 @@
+import "src\\ViewModels\\SavedViewsViewModel.idl";
+
+namespace AstralChronicle
+{
+    runtimeclass SavedViewsPage : Microsoft.UI.Xaml.Controls.Page
+    {
+        SavedViewsPage();
+        SavedViewsViewModel ViewModel{ get; };
+    }
+}

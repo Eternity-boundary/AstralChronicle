@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Created by EternityBoundary on Jul 20,2026  -->
+<Page
+    x:Class="AstralChronicle.TimelinePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:AstralChronicle">
+
+    <Grid
+        x:Name="PageRoot"
+        RowSpacing="{StaticResource AstralContentSpacing}"
+        Style="{StaticResource AstralPageGridStyle}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock
+            x:Uid="TimelineHeading"
+            AutomationProperties.AutomationId="TimelineHeading"
+            Style="{StaticResource AstralPageTitleTextBlockStyle}" />
+
+        <Grid Grid.Row="1" ColumnSpacing="{StaticResource AstralContentSpacing}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <AutoSuggestBox
+                x:Uid="TimelineSearchBox"
+                AutomationProperties.AutomationId="TimelineSearchBox"
+                Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <AutoSuggestBox.QueryIcon>
+                    <SymbolIcon Symbol="Find" />
+                </AutoSuggestBox.QueryIcon>
+            </AutoSuggestBox>
+            <ComboBox
+                x:Uid="TimelineTimeRangeBox"
+                Grid.Column="1"
+                AutomationProperties.AutomationId="TimelineTimeRangeBox"
+                SelectedValue="{x:Bind ViewModel.TimeRange, Mode=OneWay}"
+                SelectedValuePath="Tag"
+                SelectionChanged="OnTimeRangeChanged">
+                <ComboBoxItem x:Uid="TimelineTimeRangeHour" Tag="Hour" />
+                <ComboBoxItem x:Uid="TimelineTimeRangeDay" Tag="Day" />
+                <ComboBoxItem x:Uid="TimelineTimeRangeWeek" Tag="Week" />
+                <ComboBoxItem x:Uid="TimelineTimeRangeMonth" Tag="Month" />
+                <ComboBoxItem x:Uid="TimelineTimeRangeAny" Tag="Any" />
+            </ComboBox>
+            <ComboBox
+                x:Uid="TimelineLevelFilterBox"
+                Grid.Column="2"
+                AutomationProperties.AutomationId="TimelineLevelFilterBox"
+                SelectedValue="{x:Bind ViewModel.LevelFilter, Mode=OneWay}"
+                SelectedValuePath="Tag"
+                SelectionChanged="OnLevelFilterChanged">
+                <ComboBoxItem x:Uid="TimelineLevelAny" Tag="Any" />
+                <ComboBoxItem x:Uid="TimelineLevelCritical" Tag="Critical" />
+                <ComboBoxItem x:Uid="TimelineLevelError" Tag="Error" />
+                <ComboBoxItem x:Uid="TimelineLevelWarning" Tag="Warning" />
+                <ComboBoxItem x:Uid="TimelineLevelInformation" Tag="Information" />
+            </ComboBox>
+            <ComboBox
+                x:Uid="TimelineChannelFilterBox"
+                Grid.Column="3"
+                AutomationProperties.AutomationId="TimelineChannelFilterBox"
+                SelectedValue="{x:Bind ViewModel.ChannelFilter, Mode=OneWay}"
+                SelectedValuePath="Tag"
+                SelectionChanged="OnChannelFilterChanged">
+                <ComboBoxItem x:Uid="TimelineChannelAny" Tag="Any" />
+                <ComboBoxItem x:Uid="TimelineChannelSystem" Tag="System" />
+                <ComboBoxItem x:Uid="TimelineChannelApplication" Tag="Application" />
+                <ComboBoxItem x:Uid="TimelineChannelSecurity" Tag="Security" />
+            </ComboBox>
+            <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}">
+                <Button x:Uid="TimelineRefreshButton" AutomationProperties.AutomationId="TimelineRefreshButton" Click="OnRefreshClicked" />
+                <Button x:Uid="TimelineOpenButton" AutomationProperties.AutomationId="TimelineOpenButton" Click="OnOpenClicked" />
+                <Button x:Uid="TimelineBookmarkButton" AutomationProperties.AutomationId="TimelineBookmarkButton" Click="OnBookmarkClicked" />
+                <Button x:Uid="TimelineExportButton" AutomationProperties.AutomationId="TimelineExportButton" Click="OnExportClicked" />
+            </StackPanel>
+        </Grid>
+
+        <InfoBar
+            x:Uid="TimelineStatusInfoBar"
+            Grid.Row="2"
+            AutomationProperties.AutomationId="TimelineStatusInfoBar"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay}"
+            Message="{x:Bind ViewModel.StatusDetails, Mode=OneWay}"
+            Severity="{x:Bind ViewModel.StatusSeverity, Mode=OneWay}"
+            Title="{x:Bind ViewModel.StatusText, Mode=OneWay}" />
+
+        <StackPanel Grid.Row="3" Spacing="{StaticResource AstralContentSpacing}">
+            <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                <TextBox x:Uid="TimelineProviderFilterBox" AutomationProperties.AutomationId="TimelineProviderFilterBox" Text="{x:Bind ViewModel.ProviderFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <CheckBox x:Uid="TimelineGroupRepeatedCheckBox" Grid.Column="1" IsChecked="{x:Bind ViewModel.GroupRepeated, Mode=TwoWay}" />
+                <TextBlock Grid.Column="2" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.BookmarkCount, Mode=OneWay}" VerticalAlignment="Center" />
+            </Grid>
+            <TextBlock
+                AutomationProperties.AutomationId="TimelineSummary"
+                Style="{StaticResource AstralBodyTextBlockStyle}"
+                Text="{x:Bind ViewModel.Summary, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <TextBlock
+                AutomationProperties.AutomationId="TimelineFilterSummary"
+                Style="{StaticResource AstralCaptionTextBlockStyle}"
+                Text="{x:Bind ViewModel.FilterSummary, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <TextBlock
+                AutomationProperties.AutomationId="TimelineCorrelationSummary"
+                Style="{StaticResource AstralCaptionTextBlockStyle}"
+                Text="{x:Bind ViewModel.CorrelationSummary, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock x:Uid="TimelineDetailsTitle" Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
+                    <TextBlock AutomationProperties.AutomationId="TimelineSelectedDetails" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedEventDetails, Mode=OneWay}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <ListView
+            x:Name="TimelineList"
+            Grid.Row="4"
+            AutomationProperties.AutomationId="TimelineEventList"
+            ItemsSource="{x:Bind ViewModel.Events, Mode=OneWay}"
+            SelectionChanged="OnTimelineSelectionChanged"
+            SelectionMode="Single"
+            ShowsScrollingPlaceholders="True">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="local:EventLogItemViewModel">
+                    <Grid ColumnSpacing="{StaticResource AstralContentSpacing}" MinHeight="72">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="28" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Ellipse
+                            Width="12"
+                            Height="12"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Top"
+                            Fill="{ThemeResource SystemFillColorAttentionBrush}"
+                            Margin="0,12,0,0" />
+                        <Border
+                            Grid.Column="1"
+                            Style="{StaticResource AstralCardBorderStyle}">
+                            <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                                <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                        Text="{x:Bind TimeCreated, Mode=OneWay}" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Style="{StaticResource AstralBodyTextBlockStyle}"
+                                        Text="{x:Bind Provider, Mode=OneWay}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                        Text="{x:Bind Level, Mode=OneWay}" />
+                                </Grid>
+                                <TextBlock
+                                    Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                    Text="{x:Bind EventId, Mode=OneWay}" />
+                                <TextBlock
+                                    Style="{StaticResource AstralBodyTextBlockStyle}"
+                                    Text="{x:Bind ShortDescription, Mode=OneWay}"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="Wrap" />
+                                <TextBlock
+                                    Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                    Text="{x:Bind Channel, Mode=OneWay}"
+                                    TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</Page>

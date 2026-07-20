@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Created by EternityBoundary on Jul 20,2026 -->
+<Page
+    x:Class="AstralChronicle.SavedViewsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:AstralChronicle">
+    <Grid
+        x:Name="PageRoot"
+        RowSpacing="{StaticResource AstralContentSpacing}"
+        Style="{StaticResource AstralPageGridStyle}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                <TextBlock
+                    x:Uid="SavedViewsHeading"
+                    AutomationProperties.AutomationId="SavedViewsHeading"
+                    Style="{StaticResource AstralPageTitleTextBlockStyle}" />
+                <TextBlock
+                    AutomationProperties.AutomationId="SavedViewsSummary"
+                    Style="{StaticResource AstralBodyTextBlockStyle}"
+                    Text="{x:Bind ViewModel.Summary, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+            <CommandBar
+                Grid.Column="1"
+                AutomationProperties.AutomationId="SavedViewsCommandBar"
+                DefaultLabelPosition="Right"
+                IsOpen="True"
+                VerticalAlignment="Center">
+                <AppBarButton
+                    x:Uid="SavedViewsNewCommand"
+                    AutomationProperties.AutomationId="SavedViewsNewCommand"
+                    Click="OnNewClicked">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Add" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    x:Uid="SavedViewsSaveCommand"
+                    AutomationProperties.AutomationId="SavedViewsSaveCommand"
+                    Click="OnSaveClicked"
+                    IsEnabled="{x:Bind ViewModel.CanSave, Mode=OneWay}">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Save" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    x:Uid="SavedViewsOpenCommand"
+                    AutomationProperties.AutomationId="SavedViewsOpenCommand"
+                    Click="OnOpenClicked"
+                    IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
+                    <AppBarButton.Icon><SymbolIcon Symbol="OpenFile" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    x:Uid="SavedViewsPinCommand"
+                    AutomationProperties.AutomationId="SavedViewsPinCommand"
+                    Click="OnPinClicked"
+                    IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Favorite" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    x:Uid="SavedViewsCopyCommand"
+                    AutomationProperties.AutomationId="SavedViewsCopyCommand"
+                    Click="OnCopyClicked"
+                    IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Copy" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    x:Uid="SavedViewsExportCommand"
+                    AutomationProperties.AutomationId="SavedViewsExportCommand"
+                    Click="OnExportClicked">
+                    <AppBarButton.Icon><SymbolIcon Symbol="SaveLocal" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    x:Uid="SavedViewsImportCommand"
+                    AutomationProperties.AutomationId="SavedViewsImportCommand"
+                    Click="OnImportClicked">
+                    <AppBarButton.Icon><SymbolIcon Symbol="OpenLocal" /></AppBarButton.Icon>
+                </AppBarButton>
+                <CommandBar.SecondaryCommands>
+                    <AppBarButton
+                        x:Uid="SavedViewsDuplicateCommand"
+                        AutomationProperties.AutomationId="SavedViewsDuplicateCommand"
+                        Click="OnDuplicateClicked"
+                        IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
+                        <AppBarButton.Icon><SymbolIcon Symbol="Copy" /></AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Uid="SavedViewsDeleteCommand"
+                        AutomationProperties.AutomationId="SavedViewsDeleteCommand"
+                        Click="OnDeleteClicked"
+                        IsEnabled="{x:Bind ViewModel.HasSelection, Mode=OneWay}">
+                        <AppBarButton.Icon><SymbolIcon Symbol="Delete" /></AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton
+                        x:Uid="SavedViewsRefreshCommand"
+                        AutomationProperties.AutomationId="SavedViewsRefreshCommand"
+                        Click="OnRefreshClicked">
+                        <AppBarButton.Icon><SymbolIcon Symbol="Refresh" /></AppBarButton.Icon>
+                    </AppBarButton>
+                </CommandBar.SecondaryCommands>
+            </CommandBar>
+        </Grid>
+
+        <InfoBar
+            x:Uid="SavedViewsStatusInfoBar"
+            Grid.Row="2"
+            AutomationProperties.AutomationId="SavedViewsStatusInfoBar"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay}"
+            Message="{x:Bind ViewModel.StatusDetails, Mode=OneWay}"
+            Severity="{x:Bind ViewModel.StatusSeverity, Mode=OneWay}"
+            Title="{x:Bind ViewModel.StatusText, Mode=OneWay}" />
+
+        <Grid Grid.Row="3" ColumnSpacing="{StaticResource AstralContentSpacing}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource AstralCardBorderStyle}">
+                <Grid RowSpacing="{StaticResource AstralContentSpacing}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        x:Uid="SavedViewsListTitle"
+                        AutomationProperties.AutomationId="SavedViewsListTitle"
+                        Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
+                    <ListView
+                        x:Name="SavedViewsList"
+                        Grid.Row="1"
+                        AutomationProperties.AutomationId="SavedViewsList"
+                        ItemsSource="{x:Bind ViewModel.Views, Mode=OneWay}"
+                        SelectedItem="{x:Bind ViewModel.SelectedView, Mode=TwoWay}"
+                        SelectionMode="Single">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:SavedViewItemViewModel">
+                                <Grid Padding="8" RowSpacing="2" MinHeight="68">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock
+                                        Style="{StaticResource AstralBodyTextBlockStyle}"
+                                        Text="{x:Bind Name, Mode=OneWay}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                        Text="{x:Bind Type, Mode=OneWay}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                        Text="{x:Bind Channel, Mode=OneWay}"
+                                        TextTrimming="CharacterEllipsis" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <ScrollViewer
+                Grid.Column="1"
+                AutomationProperties.AutomationId="SavedViewsEditorScrollViewer"
+                HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <Border Style="{StaticResource AstralCardBorderStyle}">
+                        <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                            <TextBlock
+                                x:Uid="SavedViewsEditorTitle"
+                                AutomationProperties.AutomationId="SavedViewsEditorTitle"
+                                Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="SavedViewsSelectedName"
+                                Style="{StaticResource AstralPageSubtitleTextBlockStyle}"
+                                Text="{x:Bind ViewModel.SelectedViewName, Mode=OneWay}"
+                                TextTrimming="CharacterEllipsis" />
+                            <TextBox
+                                x:Uid="SavedViewsNameBox"
+                                AutomationProperties.AutomationId="SavedViewsNameBox"
+                                Text="{x:Bind ViewModel.EditorName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                x:Uid="SavedViewsDescriptionBox"
+                                AutomationProperties.AutomationId="SavedViewsDescriptionBox"
+                                AcceptsReturn="True"
+                                Text="{x:Bind ViewModel.EditorDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                TextWrapping="Wrap" />
+                            <ComboBox
+                                x:Uid="SavedViewsTypeBox"
+                                AutomationProperties.AutomationId="SavedViewsTypeBox"
+                                SelectedValue="{x:Bind ViewModel.EditorType, Mode=OneWay}"
+                                SelectedValuePath="Tag"
+                                SelectionChanged="OnTypeChanged">
+                                <ComboBoxItem x:Uid="SavedViewsTypeUser" Tag="User" />
+                                <ComboBoxItem x:Uid="SavedViewsTypePinned" Tag="Pinned" />
+                                <ComboBoxItem x:Uid="SavedViewsTypeWindowsCustomView" Tag="WindowsCustomView" />
+                                <ComboBoxItem x:Uid="SavedViewsTypeBookmark" Tag="Bookmark" />
+                                <ComboBoxItem x:Uid="SavedViewsTypeFavoriteLog" Tag="FavoriteLog" />
+                                <ComboBoxItem x:Uid="SavedViewsTypeRecentSearch" Tag="RecentSearch" />
+                                <ComboBoxItem x:Uid="SavedViewsTypeWorkspace" Tag="Workspace" />
+                            </ComboBox>
+                            <TextBox
+                                x:Uid="SavedViewsChannelBox"
+                                AutomationProperties.AutomationId="SavedViewsChannelBox"
+                                Text="{x:Bind ViewModel.EditorChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                x:Uid="SavedViewsQueryBox"
+                                AutomationProperties.AutomationId="SavedViewsQueryBox"
+                                AcceptsReturn="True"
+                                Text="{x:Bind ViewModel.EditorQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource AstralCardBorderStyle}">
+                        <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                            <TextBlock
+                                x:Uid="SavedViewsPresentationTitle"
+                                AutomationProperties.AutomationId="SavedViewsPresentationTitle"
+                                Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
+                            <TextBox
+                                x:Uid="SavedViewsSortBox"
+                                AutomationProperties.AutomationId="SavedViewsSortBox"
+                                Text="{x:Bind ViewModel.EditorSort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                x:Uid="SavedViewsColumnsBox"
+                                AutomationProperties.AutomationId="SavedViewsColumnsBox"
+                                Text="{x:Bind ViewModel.EditorColumns, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                TextWrapping="Wrap" />
+                            <TextBox
+                                x:Uid="SavedViewsTagsBox"
+                                AutomationProperties.AutomationId="SavedViewsTagsBox"
+                                Text="{x:Bind ViewModel.EditorTags, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox
+                                x:Uid="SavedViewsDetailsCheckBox"
+                                AutomationProperties.AutomationId="SavedViewsDetailsCheckBox"
+                                IsChecked="{x:Bind ViewModel.EditorDetails, Mode=TwoWay}" />
+                            <CheckBox
+                                x:Uid="SavedViewsTimelineCheckBox"
+                                AutomationProperties.AutomationId="SavedViewsTimelineCheckBox"
+                                IsChecked="{x:Bind ViewModel.EditorTimeline, Mode=TwoWay}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource AstralCardBorderStyle}">
+                        <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                            <TextBlock
+                                x:Uid="SavedViewsCustomViewTitle"
+                                AutomationProperties.AutomationId="SavedViewsCustomViewTitle"
+                                Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="SavedViewsCustomViewWarning"
+                                Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                Text="{x:Bind ViewModel.CustomViewWarning, Mode=OneWay}"
+                                TextWrapping="Wrap" />
+                            <TextBox
+                                x:Uid="SavedViewsCustomViewXmlBox"
+                                AutomationProperties.AutomationId="SavedViewsCustomViewXmlBox"
+                                AcceptsReturn="True"
+                                Text="{x:Bind ViewModel.EditorCustomViewXml, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

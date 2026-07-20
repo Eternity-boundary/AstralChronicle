@@ -1,0 +1,28 @@
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass EventLogItemViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        EventLogItemViewModel();
+        String TimeCreated{ get; };
+        String Level{ get; };
+        String Provider{ get; };
+        String EventId{ get; };
+        String Version{ get; };
+        String TaskCategory{ get; };
+        String Opcode{ get; };
+        String Keywords{ get; };
+        String Channel{ get; };
+        String User{ get; };
+        String Computer{ get; };
+        String ShortDescription{ get; };
+        String RecordId{ get; };
+        String ProcessId{ get; };
+        String ThreadId{ get; };
+        String ActivityId{ get; };
+        String RelatedActivityId{ get; };
+        Boolean IsBookmarked{ get; set; };
+        Int64 SortTimestamp{ get; };
+        UInt64 SortRecordId{ get; };
+    }
+}

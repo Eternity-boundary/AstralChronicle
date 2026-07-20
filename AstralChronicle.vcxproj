@@ -140,13 +140,42 @@
     <ClInclude Include="src\DesignSystem\Theme\IThemeService.h" />
     <ClInclude Include="src\DesignSystem\Theme\ThemeService.h" />
     <ClInclude Include="src\Services\IEventLogCatalogService.h" />
+    <ClInclude Include="src\Services\IEventLiveService.h" />
+    <ClInclude Include="src\Services\IEventProviderService.h" />
     <ClInclude Include="src\Services\IEventQueryService.h" />
+    <ClInclude Include="src\Services\IRemoteEventService.h" />
+    <ClInclude Include="src\Services\ISavedViewRepository.h" />
+    <ClInclude Include="src\Services\ISessionRepository.h" />
+    <ClInclude Include="src\Services\ChannelPathGrouping.h" />
+    <ClInclude Include="src\Services\EventQueryBuilder.h" />
+    <ClInclude Include="src\Services\UniqueEvtHandle.h" />
     <ClInclude Include="src\Services\WindowsEventLogCatalogService.h" />
+    <ClInclude Include="src\Services\WindowsEventLiveService.h" />
+    <ClInclude Include="src\Services\WindowsEventProviderService.h" />
     <ClInclude Include="src\Services\WindowsEventQueryService.h" />
+    <ClInclude Include="src\Services\WindowsRemoteEventService.h" />
+    <ClInclude Include="src\Services\WindowsSavedViewRepository.h" />
+    <ClInclude Include="src\Services\WindowsSessionRepository.h" />
+    <ClInclude Include="src\Models\EventChannelDescriptor.h" />
+    <ClInclude Include="src\Models\EventDetails.h" />
+    <ClInclude Include="src\Models\EventFilter.h" />
+    <ClInclude Include="src\Models\EventProvider.h" />
+    <ClInclude Include="src\Models\SavedView.h" />
+    <ClInclude Include="src\Models\DiagnosticSession.h" />
     <ClInclude Include="src\Models\EventRecordSummary.h" />
     <ClInclude Include="src\ViewModels\DashboardViewModel.h" />
+    <ClInclude Include="src\ViewModels\EventLogItemViewModel.h" />
+    <ClInclude Include="src\ViewModels\EventLogsViewModel.h" />
+    <ClInclude Include="src\ViewModels\ProviderItemViewModel.h" />
+    <ClInclude Include="src\ViewModels\ProvidersViewModel.h" />
+    <ClInclude Include="src\ViewModels\LiveViewModel.h" />
+    <ClInclude Include="src\ViewModels\RemoteViewModel.h" />
+    <ClInclude Include="src\ViewModels\SavedViewItemViewModel.h" />
+    <ClInclude Include="src\ViewModels\SavedViewsViewModel.h" />
+    <ClInclude Include="src\ViewModels\SessionsViewModel.h" />
     <ClInclude Include="src\ViewModels\FeaturePlaceholderViewModel.h" />
     <ClInclude Include="src\ViewModels\SettingsViewModel.h" />
+    <ClInclude Include="src\ViewModels\TimelineViewModel.h" />
     <ClInclude Include="src\App\App.xaml.h">
       <DependentUpon>App.xaml</DependentUpon>
     </ClInclude>
@@ -156,11 +185,30 @@
     <ClInclude Include="src\Views\Pages\DashboardPage.xaml.h">
       <DependentUpon>DashboardPage.xaml</DependentUpon>
     </ClInclude>
+    <ClInclude Include="src\Views\Pages\EventLogsPage.xaml.h">
+      <DependentUpon>EventLogsPage.xaml</DependentUpon>
+    </ClInclude>
     <ClInclude Include="src\Views\Pages\FeaturePlaceholderPage.xaml.h">
       <DependentUpon>FeaturePlaceholderPage.xaml</DependentUpon>
     </ClInclude>
+    <ClInclude Include="src\Views\Pages\ProvidersPage.xaml.h">
+      <DependentUpon>ProvidersPage.xaml</DependentUpon>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\SavedViewsPage.xaml.h">
+      <DependentUpon>SavedViewsPage.xaml</DependentUpon>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\SessionsPage.xaml.h"><DependentUpon>SessionsPage.xaml</DependentUpon></ClInclude>
+    <ClInclude Include="src\Views\Pages\LivePage.xaml.h">
+      <DependentUpon>LivePage.xaml</DependentUpon>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\RemotePage.xaml.h">
+      <DependentUpon>RemotePage.xaml</DependentUpon>
+    </ClInclude>
     <ClInclude Include="src\Views\Pages\SettingsPage.xaml.h">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\TimelinePage.xaml.h">
+      <DependentUpon>TimelinePage.xaml</DependentUpon>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -171,8 +219,15 @@
     <Page Include="src\DesignSystem\Resources\Typography.xaml" />
     <Page Include="src\Views\Shell\MainWindow.xaml" />
     <Page Include="src\Views\Pages\DashboardPage.xaml" />
+    <Page Include="src\Views\Pages\EventLogsPage.xaml" />
     <Page Include="src\Views\Pages\FeaturePlaceholderPage.xaml" />
+    <Page Include="src\Views\Pages\ProvidersPage.xaml" />
+    <Page Include="src\Views\Pages\SavedViewsPage.xaml" />
+    <Page Include="src\Views\Pages\SessionsPage.xaml" />
+    <Page Include="src\Views\Pages\LivePage.xaml" />
+    <Page Include="src\Views\Pages\RemotePage.xaml" />
     <Page Include="src\Views\Pages\SettingsPage.xaml" />
+    <Page Include="src\Views\Pages\TimelinePage.xaml" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -182,11 +237,32 @@
     <ClCompile Include="src\Core\Navigation\NavigationService.cpp" />
     <ClCompile Include="src\DesignSystem\Localization\StringResourceService.cpp" />
     <ClCompile Include="src\DesignSystem\Theme\ThemeService.cpp" />
+    <ClCompile Include="src\Services\ChannelPathGrouping.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Services\EventQueryBuilder.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\Services\WindowsEventLogCatalogService.cpp" />
+    <ClCompile Include="src\Services\WindowsEventProviderService.cpp" />
     <ClCompile Include="src\Services\WindowsEventQueryService.cpp" />
+    <ClCompile Include="src\Services\WindowsSavedViewRepository.cpp" />
+    <ClCompile Include="src\Services\WindowsSessionRepository.cpp" />
+    <ClCompile Include="src\Services\WindowsEventLiveService.cpp" />
+    <ClCompile Include="src\Services\WindowsRemoteEventService.cpp" />
     <ClCompile Include="src\ViewModels\DashboardViewModel.cpp" />
+    <ClCompile Include="src\ViewModels\EventLogItemViewModel.cpp" />
+    <ClCompile Include="src\ViewModels\EventLogsViewModel.cpp" />
+    <ClCompile Include="src\ViewModels\ProviderItemViewModel.cpp" />
+    <ClCompile Include="src\ViewModels\ProvidersViewModel.cpp" />
+    <ClCompile Include="src\ViewModels\SavedViewItemViewModel.cpp" />
+    <ClCompile Include="src\ViewModels\SavedViewsViewModel.cpp" />
+    <ClCompile Include="src\ViewModels\SessionsViewModel.cpp" />
+    <ClCompile Include="src\ViewModels\LiveViewModel.cpp" />
+    <ClCompile Include="src\ViewModels\RemoteViewModel.cpp" />
     <ClCompile Include="src\ViewModels\FeaturePlaceholderViewModel.cpp" />
     <ClCompile Include="src\ViewModels\SettingsViewModel.cpp" />
+    <ClCompile Include="src\ViewModels\TimelineViewModel.cpp" />
     <ClCompile Include="src\App\App.xaml.cpp">
       <DependentUpon>App.xaml</DependentUpon>
     </ClCompile>
@@ -196,11 +272,30 @@
     <ClCompile Include="src\Views\Pages\DashboardPage.xaml.cpp">
       <DependentUpon>DashboardPage.xaml</DependentUpon>
     </ClCompile>
+    <ClCompile Include="src\Views\Pages\EventLogsPage.xaml.cpp">
+      <DependentUpon>EventLogsPage.xaml</DependentUpon>
+    </ClCompile>
     <ClCompile Include="src\Views\Pages\FeaturePlaceholderPage.xaml.cpp">
       <DependentUpon>FeaturePlaceholderPage.xaml</DependentUpon>
     </ClCompile>
+    <ClCompile Include="src\Views\Pages\ProvidersPage.xaml.cpp">
+      <DependentUpon>ProvidersPage.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\SavedViewsPage.xaml.cpp">
+      <DependentUpon>SavedViewsPage.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\SessionsPage.xaml.cpp"><DependentUpon>SessionsPage.xaml</DependentUpon></ClCompile>
+    <ClCompile Include="src\Views\Pages\LivePage.xaml.cpp">
+      <DependentUpon>LivePage.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\RemotePage.xaml.cpp">
+      <DependentUpon>RemotePage.xaml</DependentUpon>
+    </ClCompile>
     <ClCompile Include="src\Views\Pages\SettingsPage.xaml.cpp">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\TimelinePage.xaml.cpp">
+      <DependentUpon>TimelinePage.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
   </ItemGroup>
@@ -214,19 +309,54 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Midl>
     <Midl Include="src\ViewModels\DashboardViewModel.idl" />
+    <Midl Include="src\ViewModels\EventLogItemViewModel.idl" />
+    <Midl Include="src\ViewModels\EventLogsViewModel.idl" />
+    <Midl Include="src\ViewModels\ProviderItemViewModel.idl" />
+    <Midl Include="src\ViewModels\ProvidersViewModel.idl" />
+    <Midl Include="src\ViewModels\SavedViewItemViewModel.idl" />
+    <Midl Include="src\ViewModels\SavedViewsViewModel.idl" />
+    <Midl Include="src\ViewModels\SessionsViewModel.idl" />
+    <Midl Include="src\ViewModels\LiveViewModel.idl" />
+    <Midl Include="src\ViewModels\RemoteViewModel.idl" />
     <Midl Include="src\ViewModels\FeaturePlaceholderViewModel.idl" />
     <Midl Include="src\ViewModels\SettingsViewModel.idl" />
+    <Midl Include="src\ViewModels\TimelineViewModel.idl" />
     <Midl Include="src\Views\Pages\DashboardPage.idl">
       <SubType>Code</SubType>
       <DependentUpon>DashboardPage.xaml</DependentUpon>
+    </Midl>
+    <Midl Include="src\Views\Pages\EventLogsPage.idl">
+      <SubType>Code</SubType>
+      <DependentUpon>EventLogsPage.xaml</DependentUpon>
     </Midl>
     <Midl Include="src\Views\Pages\FeaturePlaceholderPage.idl">
       <SubType>Code</SubType>
       <DependentUpon>FeaturePlaceholderPage.xaml</DependentUpon>
     </Midl>
+    <Midl Include="src\Views\Pages\ProvidersPage.idl">
+      <SubType>Code</SubType>
+      <DependentUpon>ProvidersPage.xaml</DependentUpon>
+    </Midl>
+    <Midl Include="src\Views\Pages\SavedViewsPage.idl">
+      <SubType>Code</SubType>
+      <DependentUpon>SavedViewsPage.xaml</DependentUpon>
+    </Midl>
+    <Midl Include="src\Views\Pages\SessionsPage.idl"><SubType>Code</SubType><DependentUpon>SessionsPage.xaml</DependentUpon></Midl>
+    <Midl Include="src\Views\Pages\LivePage.idl">
+      <SubType>Code</SubType>
+      <DependentUpon>LivePage.xaml</DependentUpon>
+    </Midl>
+    <Midl Include="src\Views\Pages\RemotePage.idl">
+      <SubType>Code</SubType>
+      <DependentUpon>RemotePage.xaml</DependentUpon>
+    </Midl>
     <Midl Include="src\Views\Pages\SettingsPage.idl">
       <SubType>Code</SubType>
       <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Midl>
+    <Midl Include="src\Views\Pages\TimelinePage.idl">
+      <SubType>Code</SubType>
+      <DependentUpon>TimelinePage.xaml</DependentUpon>
     </Midl>
   </ItemGroup>
   <ItemGroup>

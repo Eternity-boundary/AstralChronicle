@@ -1,0 +1,16 @@
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass SavedViewItemViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        SavedViewItemViewModel();
+        String Id{ get; };
+        String Name{ get; };
+        String Description{ get; };
+        String Type{ get; };
+        String Channel{ get; };
+        String Query{ get; };
+        String UpdatedAt{ get; };
+        Boolean IsPinned{ get; set; };
+    }
+}

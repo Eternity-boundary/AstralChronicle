@@ -13,9 +13,10 @@ namespace AstralChronicle::navigation
         void Attach(winrt::Microsoft::UI::Xaml::Controls::Frame const& frame) override;
         void Register(PageRegistration registration) override;
         [[nodiscard]] bool Navigate(std::wstring_view route) override;
+        [[nodiscard]] bool Navigate(NavigationRequest const& request) override;
 
     private:
         winrt::Microsoft::UI::Xaml::Controls::Frame m_frame{ nullptr };
-        std::unordered_map<std::wstring, PageFactory> m_factories;
+        std::unordered_map<std::wstring, PageRegistration> m_factories;
     };
 }

@@ -1,0 +1,14 @@
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass SessionsViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        SessionsViewModel();
+        String Heading{ get; }; String Summary{ get; }; String StatusText{ get; }; String StatusDetails{ get; };
+        String SelectedName{ get; set; }; String EditorDescription{ get; set; }; String EditorChannels{ get; set; }; String EditorFilter{ get; set; }; String EditorTags{ get; set; }; String EditorNotes{ get; set; }; String EditorCorrelationGroup{ get; set; }; String EditorRemoteTarget{ get; set; }; String EditorStartAt{ get; set; }; String EditorEndAt{ get; set; }; String EditorBookmarkedEventIds{ get; set; };
+        String ActiveSummary{ get; }; Boolean EditorPinned{ get; set; }; Boolean EditorArchived{ get; }; Boolean HasSelection{ get; }; Boolean CanSave{ get; }; Int32 SelectedIndex{ get; set; };
+        Windows.Foundation.Collections.IVectorView<String> Sessions{ get; };
+        Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; }; Boolean HasStatusMessage{ get; }; Boolean IsLoading{ get; };
+        void Refresh(); void NewSession(); void Save(); void Delete(); void Duplicate(); void Archive(); void TogglePin(); void Resume(); String ExportText(); void ImportText(String text);
+    }
+}

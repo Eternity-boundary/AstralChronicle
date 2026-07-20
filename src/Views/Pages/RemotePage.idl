@@ -1,0 +1,9 @@
+import "src\\ViewModels\\RemoteViewModel.idl";
+namespace AstralChronicle
+{
+    runtimeclass RemotePage : Microsoft.UI.Xaml.Controls.Page
+    {
+        RemotePage();
+        RemoteViewModel ViewModel{ get; };
+    }
+}

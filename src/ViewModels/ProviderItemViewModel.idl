@@ -1,0 +1,9 @@
+namespace AstralChronicle
+{
+    [Microsoft.UI.Xaml.Data.Bindable]
+    runtimeclass ProviderItemViewModel : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        ProviderItemViewModel();
+        String Name{ get; };
+    }
+}

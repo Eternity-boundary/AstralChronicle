@@ -1,0 +1,10 @@
+import "src\\ViewModels\\EventLogsViewModel.idl";
+
+namespace AstralChronicle
+{
+    runtimeclass EventLogsPage : Microsoft.UI.Xaml.Controls.Page
+    {
+        EventLogsPage();
+        EventLogsViewModel ViewModel{ get; };
+    }
+}

@@ -1,0 +1,25 @@
+// Created by EternityBoundary on Jul 20,2026
+#include "pch.h"
+#include "LivePage.xaml.h"
+
+#include "LivePage.g.cpp"
+
+namespace winrt::AstralChronicle::implementation
+{
+    LivePage::LivePage() : m_viewModel(winrt::make<LiveViewModel>()) { InitializeComponent(); }
+    winrt::AstralChronicle::LiveViewModel LivePage::ViewModel() const { return m_viewModel; }
+    void LivePage::Initialize(
+        ::AstralChronicle::services::IEventLiveService& liveService,
+        ::AstralChronicle::design::IStringResourceService const& strings)
+    {
+        winrt::get_self<LiveViewModel>(m_viewModel)->Initialize(liveService, strings, PageRoot().DispatcherQueue());
+    }
+    void LivePage::OnStartClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->Start(); }
+    void LivePage::OnPauseClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->Pause(); }
+    void LivePage::OnResumeClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->Resume(); }
+    void LivePage::OnStopClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->Stop(); }
+    void LivePage::OnClearClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->Clear(); }
+    void LivePage::OnRecordClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->ToggleRecording(); }
+    void LivePage::OnExportClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->Export(); }
+    void LivePage::OnBookmarkClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->BookmarkLatest(); }
+}
