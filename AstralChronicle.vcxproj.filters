@@ -25,6 +25,9 @@
     <Filter Include="Source Files\Services">
       <UniqueIdentifier>{6149E66B-1B26-4208-B4F7-6C5EE69F9BC5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Tools">
+      <UniqueIdentifier>{A8C3BAF5-929F-4E28-AB2E-0B8F7A5F7B9D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Header Files\Models">
       <UniqueIdentifier>{F34D9D87-1434-4CE1-9340-BD3C4A0A2BE7}</UniqueIdentifier>
     </Filter>
@@ -177,6 +180,7 @@
     <ClCompile Include="src\Views\Pages\RemotePage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
     <ClCompile Include="src\Views\Pages\SettingsPage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
     <ClCompile Include="src\Views\Pages\TimelinePage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
+    <ClCompile Include="src\Tools\ElevationShim.cpp"><Filter>Source Files\Tools</Filter></ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp"><Filter>Source Files</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -44,11 +44,20 @@ namespace
             return false;
         }
 
+        auto const separator = executablePath.find_last_of(L"\\/");
+        if (separator == std::wstring::npos)
+        {
+            return false;
+        }
+
+        auto elevationShimPath = executablePath.substr(0, separator + 1);
+        elevationShimPath += L"AstralChronicleElevationShim.exe";
+
         SHELLEXECUTEINFOW executeInfo{};
         executeInfo.cbSize = sizeof(executeInfo);
-        executeInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-        executeInfo.lpVerb = L"runas";
-        executeInfo.lpFile = executablePath.c_str();
+        executeInfo.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC;
+        executeInfo.lpVerb = L"open";
+        executeInfo.lpFile = elevationShimPath.c_str();
         executeInfo.nShow = SW_SHOWNORMAL;
         if (!ShellExecuteExW(&executeInfo))
         {

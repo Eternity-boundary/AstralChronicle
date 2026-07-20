@@ -127,6 +127,17 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="AstralChronicle.ElevationShim.vcxproj">
+      <Project>{8A6BAE3C-27A4-4BE7-A0F8-04F8F7258D4B}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <None Include="$(Platform)\$(Configuration)\AstralChronicle\AstralChronicleElevationShim.exe">
+      <DeploymentContent>true</DeploymentContent>
+      <Link>AstralChronicleElevationShim.exe</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <Manifest Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
