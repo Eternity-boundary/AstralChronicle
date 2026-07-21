@@ -624,7 +624,7 @@
   <data name="EventLogsFilterOpcodeBox.Header" xml:space="preserve"><value>Opcode</value></data>
   <data name="EventLogsFilterOpcodeBox.PlaceholderText" xml:space="preserve"><value>Numeric opcode</value></data>
   <data name="EventLogsFilterKeywordBox.Header" xml:space="preserve"><value>Keyword mask</value></data>
-  <data name="EventLogsFilterKeywordBox.PlaceholderText" xml:space="preserve"><value>Numeric keyword mask</value></data>
+  <data name="EventLogsFilterKeywordBox.PlaceholderText" xml:space="preserve"><value>Decimal value or 0x hexadecimal mask</value></data>
   <data name="EventLogsFilterProcessIdBox.Header" xml:space="preserve"><value>Process ID</value></data>
   <data name="EventLogsFilterProcessIdBox.PlaceholderText" xml:space="preserve"><value>Numeric process ID</value></data>
   <data name="EventLogsFilterThreadIdBox.Header" xml:space="preserve"><value>Thread ID</value></data>

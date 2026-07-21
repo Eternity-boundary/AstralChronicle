@@ -786,10 +786,27 @@ namespace winrt::AstralChronicle::implementation
             else if (m_filterLevel == L"Information") filter.Level = L"4";
         }
 
-        m_hasStructuredFilter = filter.HasStructuredFilter();
-        m_query = m_hasStructuredFilter
-            ? ::AstralChronicle::services::BuildEventQuery(filter)
-            : m_baseQuery;
+        auto const structuredFilterQuery = ::AstralChronicle::services::BuildEventQuery(filter);
+        m_hasStructuredFilter = structuredFilterQuery != L"*";
+        if (!m_hasStructuredFilter)
+        {
+            m_query = m_baseQuery;
+        }
+        else if (m_isStructuredQuery)
+        {
+            auto const filteredQuery = ::AstralChronicle::services::ApplyFilterToStructuredQuery(
+                m_baseQuery,
+                structuredFilterQuery);
+            m_query = filteredQuery.value_or(m_baseQuery);
+            m_hasStructuredFilter = filteredQuery.has_value();
+        }
+        else
+        {
+            auto const filteredQuery = ::AstralChronicle::services::CombineEventQueries(
+                m_baseQuery,
+                structuredFilterQuery);
+            m_query = filteredQuery.value_or(structuredFilterQuery);
+        }
         RaiseFilterProperties();
         Refresh();
     }

@@ -159,6 +159,7 @@
                 <AppBarButton
                     x:Name="FilterCommand"
                     x:Uid="EventLogsFilterCommand"
+                    AllowFocusOnInteraction="True"
                     AutomationProperties.AutomationId="EventLogsFilterCommand">
                     <AppBarButton.Icon>
                         <SymbolIcon Symbol="Filter" />
@@ -204,7 +205,6 @@
                                     <TextBox
                                         x:Uid="EventLogsFilterKeywordBox"
                                         AutomationProperties.AutomationId="EventLogsFilterKeywordBox"
-                                        InputScope="Number"
                                         Text="{x:Bind ViewModel.FilterKeyword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                     <TextBox
                                         x:Uid="EventLogsFilterProcessIdBox"

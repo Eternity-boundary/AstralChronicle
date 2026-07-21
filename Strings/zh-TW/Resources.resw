@@ -649,7 +649,7 @@
     <value>關鍵字遮罩</value>
   </data>
   <data name="EventLogsFilterKeywordBox.PlaceholderText" xml:space="preserve">
-    <value>數字關鍵字遮罩</value>
+    <value>十進位數值或 0x 十六進位遮罩</value>
   </data>
   <data name="EventLogsFilterProcessIdBox.Header" xml:space="preserve">
     <value>處理程序 ID</value>

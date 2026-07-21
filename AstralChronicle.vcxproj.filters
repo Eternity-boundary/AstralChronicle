@@ -124,6 +124,9 @@
     <Filter Include="Configuration">
       <UniqueIdentifier>{E2020F78-45AE-45C9-B807-25A6B48A1A91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Deployment">
+      <UniqueIdentifier>{9B9CB2A6-6F19-4D40-9C9B-EE44CFB2CC3A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Localization">
       <UniqueIdentifier>{50FD7CE0-CB02-43F5-8C76-4D31BE6E8C87}</UniqueIdentifier>
     </Filter>
@@ -343,6 +346,7 @@
     <AppxManifest Include="Package.appxmanifest"><Filter>Configuration</Filter></AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <None Include="$(Platform)\$(Configuration)\AstralChronicle\AstralChronicleElevationShim.exe"><Filter>Deployment</Filter></None>
     <None Include="packages.config"><Filter>Configuration</Filter></None>
     <None Include=".gitignore"><Filter>Configuration</Filter></None>
   </ItemGroup>
