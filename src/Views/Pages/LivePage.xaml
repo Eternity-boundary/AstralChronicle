@@ -38,7 +38,13 @@
             <Border Style="{StaticResource AstralCardBorderStyle}">
                 <StackPanel Spacing="{StaticResource AstralContentSpacing}">
                     <TextBlock x:Uid="LiveConfigurationTitle" AutomationProperties.AutomationId="LiveConfigurationTitle" Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
-                    <TextBox x:Uid="LiveChannelBox" AutomationProperties.AutomationId="LiveChannelBox" Text="{x:Bind ViewModel.Channel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <ComboBox x:Uid="LiveChannelBox" AutomationProperties.AutomationId="LiveChannelBox" SelectedValue="{x:Bind ViewModel.Channel, Mode=OneWay}" SelectedValuePath="Tag" SelectionChanged="OnChannelChanged">
+                        <ComboBoxItem x:Uid="EventLogsSystemNavigationItem" Tag="System" />
+                        <ComboBoxItem x:Uid="EventLogsApplicationNavigationItem" Tag="Application" />
+                        <ComboBoxItem x:Uid="EventLogsSecurityNavigationItem" Tag="Security" />
+                        <ComboBoxItem x:Uid="EventLogsSetupNavigationItem" Tag="Setup" />
+                        <ComboBoxItem x:Uid="EventLogsForwardedEventsNavigationItem" Tag="ForwardedEvents" />
+                    </ComboBox>
                     <TextBox x:Uid="LiveQueryBox" AutomationProperties.AutomationId="LiveQueryBox" AcceptsReturn="True" Text="{x:Bind ViewModel.Query, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
                     <TextBox x:Uid="LiveQueueLimitBox" AutomationProperties.AutomationId="LiveQueueLimitBox" Text="{x:Bind ViewModel.QueueLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     <CheckBox x:Uid="LiveAutoScrollCheckBox" AutomationProperties.AutomationId="LiveAutoScrollCheckBox" IsChecked="{x:Bind ViewModel.AutoScroll, Mode=TwoWay}" />

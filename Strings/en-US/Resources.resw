@@ -996,6 +996,8 @@
   <data name="SavedViews.Deleted.Text" xml:space="preserve"><value>Saved view deleted</value></data>
   <data name="SavedViews.Duplicated.Text" xml:space="preserve"><value>Saved view duplicated</value></data>
   <data name="SavedViews.Imported.Text" xml:space="preserve"><value>Saved views imported</value></data>
+  <data name="SavedViews.ExportSuggestedFileName.Text" xml:space="preserve"><value>SavedViews-export</value></data>
+  <data name="SavedViews.ExportTextFiles.Text" xml:space="preserve"><value>Text files (*.txt)</value></data>
   <data name="SavedViews.CustomViewWarning.Text" xml:space="preserve"><value>Windows Custom View XML is retained for portability. The app uses the stored XPath query when opening a view and warns when XML-only fields cannot be represented.</value></data>
   <data name="SavedViews.Type.User" xml:space="preserve"><value>User view</value></data>
   <data name="SavedViews.Type.Pinned" xml:space="preserve"><value>Pinned view</value></data>
@@ -1157,6 +1159,8 @@
   <data name="Sessions.Deleted.Text" xml:space="preserve"><value>Session deleted</value></data>
   <data name="Sessions.Resumed.Text" xml:space="preserve"><value>Session marked for resume</value></data>
   <data name="Sessions.Imported.Text" xml:space="preserve"><value>Sessions imported</value></data>
+  <data name="Sessions.ExportSuggestedFileName.Text" xml:space="preserve"><value>Sessions-export</value></data>
+  <data name="Sessions.ExportTextFiles.Text" xml:space="preserve"><value>Text files (*.txt)</value></data>
   <data name="Sessions.New.Text" xml:space="preserve"><value>New session</value></data>
   <data name="Sessions.Active.Text" xml:space="preserve"><value>Active session</value></data>
   <data name="Sessions.Inactive.Text" xml:space="preserve"><value>Inactive session</value></data>

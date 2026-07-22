@@ -22,4 +22,10 @@ namespace winrt::AstralChronicle::implementation
     void LivePage::OnRecordClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->ToggleRecording(); }
     void LivePage::OnExportClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->Export(); }
     void LivePage::OnBookmarkClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->BookmarkLatest(); }
+    void LivePage::OnChannelChanged(winrt::Windows::Foundation::IInspectable const& sender, Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const&) {
+        auto const combo = sender.as<Microsoft::UI::Xaml::Controls::ComboBox>();
+        if (!combo.SelectedValue()) return;
+        try { winrt::get_self<LiveViewModel>(m_viewModel)->Channel(winrt::unbox_value<winrt::hstring>(combo.SelectedValue())); }
+        catch (...) { }
+    }
 }

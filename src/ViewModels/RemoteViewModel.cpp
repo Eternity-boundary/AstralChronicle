@@ -14,6 +14,16 @@
 
 namespace
 {
+    [[nodiscard]] winrt::Windows::Foundation::Collections::IObservableVector<winrt::hstring> CreateCoreChannelOptions()
+    {
+        auto values = winrt::single_threaded_observable_vector<winrt::hstring>();
+        for (auto const channel : { L"System", L"Application", L"Security", L"Setup", L"ForwardedEvents" })
+        {
+            values.Append(channel);
+        }
+        return values;
+    }
+
     [[nodiscard]] winrt::hstring FormatResource(winrt::hstring format, winrt::hstring value)
     {
         auto text = std::wstring{ format.c_str() };
@@ -37,7 +47,7 @@ namespace winrt::AstralChronicle::implementation
         m_connectionState = strings.GetString(L"Remote.State.Disconnected"); m_securityNotice = strings.GetString(L"Remote.SecurityNotice.Text");
         m_statusText = strings.GetString(L"Remote.Ready.Text"); m_statusDetails = strings.GetString(L"Remote.ReadyDetails.Text");
         m_savedConnections = winrt::single_threaded_observable_vector<winrt::hstring>();
-        m_channels = winrt::single_threaded_observable_vector<winrt::hstring>();
+        m_channels = CreateCoreChannelOptions();
         m_queryResults = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         m_queryStatus = strings.GetString(L"Remote.QueryEmpty.Text");
         m_compareStatus = strings.GetString(L"Remote.CompareReady.Text");
@@ -62,7 +72,7 @@ namespace winrt::AstralChronicle::implementation
         StopRemoteLive();
         if (m_queryCancellation) m_queryCancellation->store(true, std::memory_order_relaxed);
         if (m_service) m_service->Disconnect(); m_connected = false; m_connectionState = m_strings->GetString(L"Remote.State.Disconnected");
-        m_channels = winrt::single_threaded_observable_vector<winrt::hstring>();
+        m_channels = CreateCoreChannelOptions();
         m_queryResults = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         m_liveEvents = winrt::single_threaded_observable_vector<winrt::hstring>();
         m_queryStatus = m_strings->GetString(L"Remote.QueryEmpty.Text");
@@ -368,8 +378,20 @@ namespace winrt::AstralChronicle::implementation
         auto dispatcher = m_dispatcher;
         co_await winrt::resume_background();
         auto const descriptors = m_service->EnumerateChannels();
-        auto values = winrt::single_threaded_observable_vector<winrt::hstring>();
-        for (auto const& descriptor : descriptors) values.Append(winrt::hstring{ descriptor.Path });
+        auto values = CreateCoreChannelOptions();
+        for (auto const& descriptor : descriptors)
+        {
+            bool exists{};
+            for (std::uint32_t index{}; index < values.Size(); ++index)
+            {
+                if (std::wstring{ values.GetAt(index).c_str() } == descriptor.Path)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) values.Append(winrt::hstring{ descriptor.Path });
+        }
         co_await wil::resume_foreground(dispatcher);
         m_channels = values;
         RaisePropertyChanged(L"Channels");

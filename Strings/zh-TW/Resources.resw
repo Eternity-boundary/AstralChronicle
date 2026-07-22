@@ -1308,6 +1308,12 @@
   <data name="SavedViews.Imported.Text" xml:space="preserve">
     <value>已匯入檢視</value>
   </data>
+  <data name="SavedViews.ExportSuggestedFileName.Text" xml:space="preserve">
+    <value>已儲存檢視匯出</value>
+  </data>
+  <data name="SavedViews.ExportTextFiles.Text" xml:space="preserve">
+    <value>文字檔案 (*.txt)</value>
+  </data>
   <data name="SavedViews.CustomViewWarning.Text" xml:space="preserve">
     <value>Windows 自訂檢視 XML 會保留以利移植。開啟檢視時，應用程式會使用已儲存的 XPath 查詢；無法表示的 XML 專屬欄位會顯示警告。</value>
   </data>
@@ -1790,6 +1796,12 @@
   </data>
   <data name="Sessions.Imported.Text" xml:space="preserve">
     <value>工作階段已匯入</value>
+  </data>
+  <data name="Sessions.ExportSuggestedFileName.Text" xml:space="preserve">
+    <value>工作階段匯出</value>
+  </data>
+  <data name="Sessions.ExportTextFiles.Text" xml:space="preserve">
+    <value>文字檔案 (*.txt)</value>
   </data>
   <data name="Sessions.New.Text" xml:space="preserve">
     <value>新增工作階段</value>
