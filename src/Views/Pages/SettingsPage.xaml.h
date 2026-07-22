@@ -22,6 +22,9 @@ namespace winrt::AstralChronicle::implementation
         void OnLanguageSelectionChanged(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
+        void OnPageRootSizeChanged(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::SizeChangedEventArgs const& args);
 
     private:
         winrt::AstralChronicle::SettingsViewModel m_viewModel{ nullptr };

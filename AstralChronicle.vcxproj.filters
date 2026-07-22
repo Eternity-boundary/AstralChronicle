@@ -144,165 +144,449 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\pch.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="src\App\AppHost.cpp"><Filter>Source Files\App</Filter></ClCompile>
-    <ClCompile Include="src\Core\Navigation\NavigationService.cpp"><Filter>Source Files\Core\Navigation</Filter></ClCompile>
-    <ClCompile Include="src\DesignSystem\Theme\ThemeService.cpp"><Filter>Source Files\DesignSystem\Theme</Filter></ClCompile>
-    <ClCompile Include="src\DesignSystem\Localization\StringResourceService.cpp"><Filter>Source Files\DesignSystem\Localization</Filter></ClCompile>
-    <ClCompile Include="src\Services\ChannelPathGrouping.cpp"><Filter>Source Files\Services</Filter></ClCompile>
-    <ClCompile Include="src\Services\EventQueryBuilder.cpp"><Filter>Source Files\Services</Filter></ClCompile>
-    <ClCompile Include="src\Services\WindowsEventLogCatalogService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
-    <ClCompile Include="src\Services\WindowsCustomViewCatalogService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
-    <ClCompile Include="src\Services\WindowsEventLiveService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
-    <ClCompile Include="src\Services\WindowsRemoteEventService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
-    <ClCompile Include="src\Services\WindowsEventProviderService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
-    <ClCompile Include="src\Services\WindowsEventQueryService.cpp"><Filter>Source Files\Services</Filter></ClCompile>
-    <ClCompile Include="src\Services\WindowsSavedViewRepository.cpp"><Filter>Source Files\Services</Filter></ClCompile>
-    <ClCompile Include="src\Services\WindowsSessionRepository.cpp"><Filter>Source Files\Services</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\DashboardViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\EventLogItemViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\EventLogsViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\ProviderItemViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\ProvidersViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\SavedViewItemViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\SavedViewsViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\SessionsViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\LiveViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\RemoteViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\FeaturePlaceholderViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\SettingsViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\ViewModels\TimelineViewModel.cpp"><Filter>Source Files\ViewModels</Filter></ClCompile>
-    <ClCompile Include="src\App\App.xaml.cpp"><Filter>Source Files\App</Filter></ClCompile>
-    <ClCompile Include="src\Views\Shell\MainWindow.xaml.cpp"><Filter>Source Files\Views\Shell</Filter></ClCompile>
-    <ClCompile Include="src\Views\Pages\DashboardPage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
-    <ClCompile Include="src\Views\Pages\EventLogsPage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
-    <ClCompile Include="src\Views\Pages\FeaturePlaceholderPage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
-    <ClCompile Include="src\Views\Pages\ProvidersPage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
-    <ClCompile Include="src\Views\Pages\SavedViewsPage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
-    <ClCompile Include="src\Views\Pages\SessionsPage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
-    <ClCompile Include="src\Views\Pages\LivePage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
-    <ClCompile Include="src\Views\Pages\RemotePage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
-    <ClCompile Include="src\Views\Pages\SettingsPage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
-    <ClCompile Include="src\Views\Pages\TimelinePage.xaml.cpp"><Filter>Source Files\Views\Pages</Filter></ClCompile>
-    <ClCompile Include="src\Tools\ElevationShim.cpp"><Filter>Source Files\Tools</Filter></ClCompile>
-    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\App\AppHost.cpp">
+      <Filter>Source Files\App</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Navigation\NavigationService.cpp">
+      <Filter>Source Files\Core\Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DesignSystem\Theme\ThemeService.cpp">
+      <Filter>Source Files\DesignSystem\Theme</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DesignSystem\Localization\StringResourceService.cpp">
+      <Filter>Source Files\DesignSystem\Localization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\ChannelPathGrouping.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\EventQueryBuilder.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\WindowsEventLogCatalogService.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\WindowsCustomViewCatalogService.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\WindowsEventLiveService.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\WindowsRemoteEventService.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\WindowsEventProviderService.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\WindowsEventQueryService.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\WindowsSavedViewRepository.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\WindowsSessionRepository.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\DashboardViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\EventLogItemViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\EventLogsViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\ProviderItemViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\ProvidersViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\SavedViewItemViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\SavedViewsViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\SessionsViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\LiveViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\RemoteViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\FeaturePlaceholderViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\SettingsViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewModels\TimelineViewModel.cpp">
+      <Filter>Source Files\ViewModels</Filter>
+    </ClCompile>
+    <ClCompile Include="src\App\App.xaml.cpp">
+      <Filter>Source Files\App</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Views\Shell\MainWindow.xaml.cpp">
+      <Filter>Source Files\Views\Shell</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\DashboardPage.xaml.cpp">
+      <Filter>Source Files\Views\Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\EventLogsPage.xaml.cpp">
+      <Filter>Source Files\Views\Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\FeaturePlaceholderPage.xaml.cpp">
+      <Filter>Source Files\Views\Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\ProvidersPage.xaml.cpp">
+      <Filter>Source Files\Views\Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\SavedViewsPage.xaml.cpp">
+      <Filter>Source Files\Views\Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\SessionsPage.xaml.cpp">
+      <Filter>Source Files\Views\Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\LivePage.xaml.cpp">
+      <Filter>Source Files\Views\Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\RemotePage.xaml.cpp">
+      <Filter>Source Files\Views\Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\SettingsPage.xaml.cpp">
+      <Filter>Source Files\Views\Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Views\Pages\TimelinePage.xaml.cpp">
+      <Filter>Source Files\Views\Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\pch.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="src\App\AppHost.h"><Filter>Header Files\App</Filter></ClInclude>
-    <ClInclude Include="src\Core\DependencyInjection\ServiceProvider.h"><Filter>Header Files\Core\DependencyInjection</Filter></ClInclude>
-    <ClInclude Include="src\Core\Navigation\INavigationService.h"><Filter>Header Files\Core\Navigation</Filter></ClInclude>
-    <ClInclude Include="src\Core\Navigation\NavigationService.h"><Filter>Header Files\Core\Navigation</Filter></ClInclude>
-    <ClInclude Include="src\DesignSystem\Theme\IThemeService.h"><Filter>Header Files\DesignSystem\Theme</Filter></ClInclude>
-    <ClInclude Include="src\DesignSystem\Theme\ThemeService.h"><Filter>Header Files\DesignSystem\Theme</Filter></ClInclude>
-    <ClInclude Include="src\DesignSystem\Localization\IStringResourceService.h"><Filter>Header Files\DesignSystem\Localization</Filter></ClInclude>
-    <ClInclude Include="src\DesignSystem\Localization\StringResourceService.h"><Filter>Header Files\DesignSystem\Localization</Filter></ClInclude>
-    <ClInclude Include="src\Services\IEventLogCatalogService.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\ICustomViewCatalogService.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\IEventLiveService.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\IEventProviderService.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\IEventQueryService.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\IRemoteEventService.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\ISavedViewRepository.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\ISessionRepository.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\ChannelPathGrouping.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\EventQueryBuilder.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\UniqueEvtHandle.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\WindowsEventLogCatalogService.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\WindowsCustomViewCatalogService.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\WindowsEventLiveService.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\WindowsEventProviderService.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\WindowsEventQueryService.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\WindowsRemoteEventService.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\WindowsSavedViewRepository.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Services\WindowsSessionRepository.h"><Filter>Header Files\Services</Filter></ClInclude>
-    <ClInclude Include="src\Models\EventChannelDescriptor.h"><Filter>Header Files\Models</Filter></ClInclude>
-    <ClInclude Include="src\Models\CustomViewTreeNode.h"><Filter>Header Files\Models</Filter></ClInclude>
-    <ClInclude Include="src\Models\EventDetails.h"><Filter>Header Files\Models</Filter></ClInclude>
-    <ClInclude Include="src\Models\EventFilter.h"><Filter>Header Files\Models</Filter></ClInclude>
-    <ClInclude Include="src\Models\EventProvider.h"><Filter>Header Files\Models</Filter></ClInclude>
-    <ClInclude Include="src\Models\SavedView.h"><Filter>Header Files\Models</Filter></ClInclude>
-    <ClInclude Include="src\Models\DiagnosticSession.h"><Filter>Header Files\Models</Filter></ClInclude>
-    <ClInclude Include="src\Models\EventRecordSummary.h"><Filter>Header Files\Models</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\DashboardViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\EventLogItemViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\EventLogsViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\ProviderItemViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\ProvidersViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\SavedViewItemViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\SavedViewsViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\SessionsViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\LiveViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\RemoteViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\FeaturePlaceholderViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\SettingsViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\ViewModels\TimelineViewModel.h"><Filter>Header Files\ViewModels</Filter></ClInclude>
-    <ClInclude Include="src\App\App.xaml.h"><Filter>Header Files\App</Filter></ClInclude>
-    <ClInclude Include="src\Views\Shell\MainWindow.xaml.h"><Filter>Header Files\Views\Shell</Filter></ClInclude>
-    <ClInclude Include="src\Views\Pages\DashboardPage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
-    <ClInclude Include="src\Views\Pages\EventLogsPage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
-    <ClInclude Include="src\Views\Pages\FeaturePlaceholderPage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
-    <ClInclude Include="src\Views\Pages\ProvidersPage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
-    <ClInclude Include="src\Views\Pages\SavedViewsPage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
-    <ClInclude Include="src\Views\Pages\SessionsPage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
-    <ClInclude Include="src\Views\Pages\LivePage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
-    <ClInclude Include="src\Views\Pages\RemotePage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
-    <ClInclude Include="src\Views\Pages\SettingsPage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
-    <ClInclude Include="src\Views\Pages\TimelinePage.xaml.h"><Filter>Header Files\Views\Pages</Filter></ClInclude>
+    <ClInclude Include="src\pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\App\AppHost.h">
+      <Filter>Header Files\App</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\DependencyInjection\ServiceProvider.h">
+      <Filter>Header Files\Core\DependencyInjection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Navigation\INavigationService.h">
+      <Filter>Header Files\Core\Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Navigation\NavigationService.h">
+      <Filter>Header Files\Core\Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DesignSystem\Theme\IThemeService.h">
+      <Filter>Header Files\DesignSystem\Theme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DesignSystem\Theme\ThemeService.h">
+      <Filter>Header Files\DesignSystem\Theme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DesignSystem\Localization\IStringResourceService.h">
+      <Filter>Header Files\DesignSystem\Localization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DesignSystem\Localization\StringResourceService.h">
+      <Filter>Header Files\DesignSystem\Localization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\IEventLogCatalogService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\ICustomViewCatalogService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\IEventLiveService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\IEventProviderService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\IEventQueryService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\IRemoteEventService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\ISavedViewRepository.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\ISessionRepository.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\ChannelPathGrouping.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\EventQueryBuilder.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\UniqueEvtHandle.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\WindowsEventLogCatalogService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\WindowsCustomViewCatalogService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\WindowsEventLiveService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\WindowsEventProviderService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\WindowsEventQueryService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\WindowsRemoteEventService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\WindowsSavedViewRepository.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\WindowsSessionRepository.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Models\EventChannelDescriptor.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Models\CustomViewTreeNode.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Models\EventDetails.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Models\EventFilter.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Models\EventProvider.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Models\SavedView.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Models\DiagnosticSession.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Models\EventRecordSummary.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\DashboardViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\EventLogItemViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\EventLogsViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\ProviderItemViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\ProvidersViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\SavedViewItemViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\SavedViewsViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\SessionsViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\LiveViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\RemoteViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\FeaturePlaceholderViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\SettingsViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\TimelineViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\App\App.xaml.h">
+      <Filter>Header Files\App</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Views\Shell\MainWindow.xaml.h">
+      <Filter>Header Files\Views\Shell</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\DashboardPage.xaml.h">
+      <Filter>Header Files\Views\Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\EventLogsPage.xaml.h">
+      <Filter>Header Files\Views\Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\FeaturePlaceholderPage.xaml.h">
+      <Filter>Header Files\Views\Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\ProvidersPage.xaml.h">
+      <Filter>Header Files\Views\Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\SavedViewsPage.xaml.h">
+      <Filter>Header Files\Views\Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\SessionsPage.xaml.h">
+      <Filter>Header Files\Views\Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\LivePage.xaml.h">
+      <Filter>Header Files\Views\Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\RemotePage.xaml.h">
+      <Filter>Header Files\Views\Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\SettingsPage.xaml.h">
+      <Filter>Header Files\Views\Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Views\Pages\TimelinePage.xaml.h">
+      <Filter>Header Files\Views\Pages</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="src\App\App.xaml"><Filter>XAML\App</Filter></ApplicationDefinition>
-    <Page Include="src\DesignSystem\DesignSystem.xaml"><Filter>XAML\DesignSystem</Filter></Page>
-    <Page Include="src\DesignSystem\Resources\Colors.xaml"><Filter>XAML\DesignSystem\Resources</Filter></Page>
-    <Page Include="src\DesignSystem\Resources\Controls.xaml"><Filter>XAML\DesignSystem\Resources</Filter></Page>
-    <Page Include="src\DesignSystem\Resources\Typography.xaml"><Filter>XAML\DesignSystem\Resources</Filter></Page>
-    <Page Include="src\Views\Shell\MainWindow.xaml"><Filter>XAML\Views\Shell</Filter></Page>
-    <Page Include="src\Views\Pages\DashboardPage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
-    <Page Include="src\Views\Pages\EventLogsPage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
-    <Page Include="src\Views\Pages\FeaturePlaceholderPage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
-    <Page Include="src\Views\Pages\ProvidersPage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
-    <Page Include="src\Views\Pages\SavedViewsPage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
-    <Page Include="src\Views\Pages\SessionsPage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
-    <Page Include="src\Views\Pages\LivePage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
-    <Page Include="src\Views\Pages\RemotePage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
-    <Page Include="src\Views\Pages\SettingsPage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
-    <Page Include="src\Views\Pages\TimelinePage.xaml"><Filter>XAML\Views\Pages</Filter></Page>
+    <ApplicationDefinition Include="src\App\App.xaml">
+      <Filter>XAML\App</Filter>
+    </ApplicationDefinition>
+    <Page Include="src\DesignSystem\DesignSystem.xaml">
+      <Filter>XAML\DesignSystem</Filter>
+    </Page>
+    <Page Include="src\DesignSystem\Resources\Colors.xaml">
+      <Filter>XAML\DesignSystem\Resources</Filter>
+    </Page>
+    <Page Include="src\DesignSystem\Resources\Controls.xaml">
+      <Filter>XAML\DesignSystem\Resources</Filter>
+    </Page>
+    <Page Include="src\DesignSystem\Resources\Typography.xaml">
+      <Filter>XAML\DesignSystem\Resources</Filter>
+    </Page>
+    <Page Include="src\Views\Shell\MainWindow.xaml">
+      <Filter>XAML\Views\Shell</Filter>
+    </Page>
+    <Page Include="src\Views\Pages\DashboardPage.xaml">
+      <Filter>XAML\Views\Pages</Filter>
+    </Page>
+    <Page Include="src\Views\Pages\EventLogsPage.xaml">
+      <Filter>XAML\Views\Pages</Filter>
+    </Page>
+    <Page Include="src\Views\Pages\FeaturePlaceholderPage.xaml">
+      <Filter>XAML\Views\Pages</Filter>
+    </Page>
+    <Page Include="src\Views\Pages\ProvidersPage.xaml">
+      <Filter>XAML\Views\Pages</Filter>
+    </Page>
+    <Page Include="src\Views\Pages\SavedViewsPage.xaml">
+      <Filter>XAML\Views\Pages</Filter>
+    </Page>
+    <Page Include="src\Views\Pages\SessionsPage.xaml">
+      <Filter>XAML\Views\Pages</Filter>
+    </Page>
+    <Page Include="src\Views\Pages\LivePage.xaml">
+      <Filter>XAML\Views\Pages</Filter>
+    </Page>
+    <Page Include="src\Views\Pages\RemotePage.xaml">
+      <Filter>XAML\Views\Pages</Filter>
+    </Page>
+    <Page Include="src\Views\Pages\SettingsPage.xaml">
+      <Filter>XAML\Views\Pages</Filter>
+    </Page>
+    <Page Include="src\Views\Pages\TimelinePage.xaml">
+      <Filter>XAML\Views\Pages</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
-    <PRIResource Include="Strings\en-US\Resources.resw"><Filter>Localization\en-US</Filter></PRIResource>
-    <PRIResource Include="Strings\zh-TW\Resources.resw"><Filter>Localization\zh-TW</Filter></PRIResource>
+    <PRIResource Include="Strings\en-US\Resources.resw">
+      <Filter>Localization\en-US</Filter>
+    </PRIResource>
+    <PRIResource Include="Strings\zh-TW\Resources.resw">
+      <Filter>Localization\zh-TW</Filter>
+    </PRIResource>
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="src\Views\Shell\MainWindow.idl"><Filter>IDL\Views\Shell</Filter></Midl>
-    <Midl Include="src\ViewModels\DashboardViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\ViewModels\EventLogItemViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\ViewModels\EventLogsViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\ViewModels\ProviderItemViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\ViewModels\ProvidersViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\ViewModels\SavedViewItemViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\ViewModels\SavedViewsViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\ViewModels\SessionsViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\ViewModels\LiveViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\ViewModels\RemoteViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\ViewModels\FeaturePlaceholderViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\ViewModels\SettingsViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\ViewModels\TimelineViewModel.idl"><Filter>IDL\ViewModels</Filter></Midl>
-    <Midl Include="src\Views\Pages\DashboardPage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
-    <Midl Include="src\Views\Pages\EventLogsPage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
-    <Midl Include="src\Views\Pages\FeaturePlaceholderPage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
-    <Midl Include="src\Views\Pages\ProvidersPage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
-    <Midl Include="src\Views\Pages\SavedViewsPage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
-    <Midl Include="src\Views\Pages\SessionsPage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
-    <Midl Include="src\Views\Pages\LivePage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
-    <Midl Include="src\Views\Pages\RemotePage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
-    <Midl Include="src\Views\Pages\SettingsPage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
-    <Midl Include="src\Views\Pages\TimelinePage.idl"><Filter>IDL\Views\Pages</Filter></Midl>
+    <Midl Include="src\Views\Shell\MainWindow.idl">
+      <Filter>IDL\Views\Shell</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\DashboardViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\EventLogItemViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\EventLogsViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\ProviderItemViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\ProvidersViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\SavedViewItemViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\SavedViewsViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\SessionsViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\LiveViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\RemoteViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\FeaturePlaceholderViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\SettingsViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\ViewModels\TimelineViewModel.idl">
+      <Filter>IDL\ViewModels</Filter>
+    </Midl>
+    <Midl Include="src\Views\Pages\DashboardPage.idl">
+      <Filter>IDL\Views\Pages</Filter>
+    </Midl>
+    <Midl Include="src\Views\Pages\EventLogsPage.idl">
+      <Filter>IDL\Views\Pages</Filter>
+    </Midl>
+    <Midl Include="src\Views\Pages\FeaturePlaceholderPage.idl">
+      <Filter>IDL\Views\Pages</Filter>
+    </Midl>
+    <Midl Include="src\Views\Pages\ProvidersPage.idl">
+      <Filter>IDL\Views\Pages</Filter>
+    </Midl>
+    <Midl Include="src\Views\Pages\SavedViewsPage.idl">
+      <Filter>IDL\Views\Pages</Filter>
+    </Midl>
+    <Midl Include="src\Views\Pages\SessionsPage.idl">
+      <Filter>IDL\Views\Pages</Filter>
+    </Midl>
+    <Midl Include="src\Views\Pages\LivePage.idl">
+      <Filter>IDL\Views\Pages</Filter>
+    </Midl>
+    <Midl Include="src\Views\Pages\RemotePage.idl">
+      <Filter>IDL\Views\Pages</Filter>
+    </Midl>
+    <Midl Include="src\Views\Pages\SettingsPage.idl">
+      <Filter>IDL\Views\Pages</Filter>
+    </Midl>
+    <Midl Include="src\Views\Pages\TimelinePage.idl">
+      <Filter>IDL\Views\Pages</Filter>
+    </Midl>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\StoreLogo.png">
       <Filter>Assets</Filter>
     </Image>
     <Image Include="Assets\Square150x150Logo.scale-200.png">
@@ -332,22 +616,194 @@
     <Image Include="Assets\LeafSide.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Assets\SmallTile.scale-100.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SmallTile.scale-125.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SmallTile.scale-150.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SmallTile.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SmallTile.scale-400.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-100.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-125.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-150.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-400.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-100.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-125.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-150.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-400.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-16.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-24.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-32.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-48.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-256.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.altform-unplated_targetsize-16.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.altform-unplated_targetsize-32.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.altform-unplated_targetsize-48.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.altform-unplated_targetsize-256.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-16.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-24.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-32.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-48.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.altform-lightunplated_targetsize-256.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\BadgeLogo.scale-100.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\BadgeLogo.scale-125.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\BadgeLogo.scale-150.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\BadgeLogo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\BadgeLogo.scale-400.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.scale-100.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.scale-125.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.scale-150.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.scale-400.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-100.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-125.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-150.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-400.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\LargeTile.scale-100.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\LargeTile.scale-125.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\LargeTile.scale-150.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\LargeTile.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\LargeTile.scale-400.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-100.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-125.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-150.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-400.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="readme.md"><Filter>Documentation</Filter></Text>
-    <Text Include="docs\architecture.md"><Filter>Documentation</Filter></Text>
-    <Text Include="docs\design-system.md"><Filter>Documentation</Filter></Text>
-    <Text Include="tests\README.md"><Filter>Tests</Filter></Text>
+    <Text Include="readme.md">
+      <Filter>Documentation</Filter>
+    </Text>
+    <Text Include="docs\architecture.md">
+      <Filter>Documentation</Filter>
+    </Text>
+    <Text Include="docs\design-system.md">
+      <Filter>Documentation</Filter>
+    </Text>
+    <Text Include="tests\README.md">
+      <Filter>Tests</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="app.manifest"><Filter>Configuration</Filter></Manifest>
+    <Manifest Include="app.manifest">
+      <Filter>Configuration</Filter>
+    </Manifest>
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest"><Filter>Configuration</Filter></AppxManifest>
+    <AppxManifest Include="Package.appxmanifest">
+      <Filter>Configuration</Filter>
+    </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(Platform)\$(Configuration)\AstralChronicle\AstralChronicleElevationShim.exe"><Filter>Deployment</Filter></None>
-    <None Include="packages.config"><Filter>Configuration</Filter></None>
-    <None Include=".gitignore"><Filter>Configuration</Filter></None>
+    <None Include="$(Platform)\$(Configuration)\AstralChronicle\AstralChronicleElevationShim.exe">
+      <Filter>Deployment</Filter>
+    </None>
+    <None Include="packages.config">
+      <Filter>Configuration</Filter>
+    </None>
+    <None Include=".gitignore">
+      <Filter>Configuration</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natstepfilter" />
   </ItemGroup>
 </Project>
