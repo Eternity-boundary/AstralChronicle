@@ -39,7 +39,7 @@ namespace winrt::AstralChronicle::implementation
         m_savedConnections = winrt::single_threaded_observable_vector<winrt::hstring>();
         m_channels = winrt::single_threaded_observable_vector<winrt::hstring>();
         m_queryResults = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
-        m_queryStatus = strings.GetString(L"Remote.Query.Empty.Text");
+        m_queryStatus = strings.GetString(L"Remote.QueryEmpty.Text");
         m_compareStatus = strings.GetString(L"Remote.CompareReady.Text");
         m_liveEvents = winrt::single_threaded_observable_vector<winrt::hstring>();
         m_liveStatus = strings.GetString(L"Remote.Live.Stopped.Text");
@@ -58,14 +58,21 @@ namespace winrt::AstralChronicle::implementation
     void RemoteViewModel::Disconnect()
     {
         ++m_connectionVersion;
+        ++m_queryVersion;
         StopRemoteLive();
         if (m_queryCancellation) m_queryCancellation->store(true, std::memory_order_relaxed);
         if (m_service) m_service->Disconnect(); m_connected = false; m_connectionState = m_strings->GetString(L"Remote.State.Disconnected");
         m_channels = winrt::single_threaded_observable_vector<winrt::hstring>();
         m_queryResults = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
+        m_liveEvents = winrt::single_threaded_observable_vector<winrt::hstring>();
+        m_queryStatus = m_strings->GetString(L"Remote.QueryEmpty.Text");
+        m_compareStatus = m_strings->GetString(L"Remote.CompareReady.Text");
         RaisePropertyChanged(L"IsConnected"); RaisePropertyChanged(L"ConnectionState");
         RaisePropertyChanged(L"Channels");
         RaisePropertyChanged(L"QueryResults");
+        RaisePropertyChanged(L"LiveEvents");
+        RaisePropertyChanged(L"QueryStatus");
+        RaisePropertyChanged(L"CompareStatus");
     }
     void RemoteViewModel::SaveConnection()
     {

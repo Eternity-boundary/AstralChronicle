@@ -43,6 +43,7 @@ namespace winrt::AstralChronicle::implementation
     SettingsPage::SettingsPage()
         : m_viewModel(winrt::make<SettingsViewModel>())
     {
+        InitializeComponent();
     }
 
     SettingsPage::~SettingsPage()

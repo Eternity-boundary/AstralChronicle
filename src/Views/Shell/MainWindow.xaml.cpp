@@ -161,7 +161,6 @@ namespace winrt::AstralChronicle::implementation
             {
                 auto page = make<DashboardPage>();
                 get_self<DashboardPage>(page)->Initialize(
-                    host.EventLogCatalog(),
                     host.EventQuery(),
                     host.Strings(),
                     RootLayout().DispatcherQueue(),
@@ -199,7 +198,11 @@ namespace winrt::AstralChronicle::implementation
                     host.EventQuery(),
                     host.Strings(),
                     RootLayout().DispatcherQueue(),
-                    host.Navigation());
+                    host.Navigation(),
+                    [this](std::wstring_view route)
+                    {
+                        SelectNavigationItemForRoute(route);
+                    });
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
@@ -210,7 +213,11 @@ namespace winrt::AstralChronicle::implementation
                 get_self<ProvidersPage>(page)->Initialize(
                     host.EventProviders(),
                     host.Strings(),
-                    host.Navigation());
+                    host.Navigation(),
+                    [this](std::wstring_view route)
+                    {
+                        SelectNavigationItemForRoute(route);
+                    });
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
@@ -229,7 +236,11 @@ namespace winrt::AstralChronicle::implementation
                 get_self<SavedViewsPage>(page)->Initialize(
                     host.SavedViews(),
                     host.Strings(),
-                    host.Navigation());
+                    host.Navigation(),
+                    [this](std::wstring_view route)
+                    {
+                        SelectNavigationItemForRoute(route);
+                    });
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({

@@ -9,6 +9,7 @@
 #include <wil/cppwinrt_helpers.h>
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <string>
 #include <utility>
@@ -61,9 +62,64 @@ namespace
         return ::AstralChronicle::models::SavedViewType::User;
     }
 
+    [[nodiscard]] std::wstring EscapeExportValue(std::wstring_view value)
+    {
+        std::wstring result;
+        result.reserve(value.size());
+        for (auto const character : value)
+        {
+            switch (character)
+            {
+            case L'\\': result += L"\\\\"; break;
+            case L'\t': result += L"\\t"; break;
+            case L'\r': result += L"\\r"; break;
+            case L'\n': result += L"\\n"; break;
+            default: result += character; break;
+            }
+        }
+        return result;
+    }
+
+    [[nodiscard]] std::wstring UnescapeExportValue(std::wstring_view value)
+    {
+        std::wstring result;
+        bool escaped{};
+        for (auto const character : value)
+        {
+            if (!escaped && character == L'\\')
+            {
+                escaped = true;
+                continue;
+            }
+            if (escaped)
+            {
+                switch (character)
+                {
+                case L't': result += L'\t'; break;
+                case L'r': result += L'\r'; break;
+                case L'n': result += L'\n'; break;
+                default: result += character; break;
+                }
+                escaped = false;
+                continue;
+            }
+            result += character;
+        }
+        if (escaped) result += L'\\';
+        return result;
+    }
+
+    [[nodiscard]] bool ParseBool(std::wstring_view value)
+    {
+        return value == L"1" || value == L"true";
+    }
+
     [[nodiscard]] std::wstring NewId()
     {
-        return L"view-" + NowText();
+        static std::atomic_uint64_t sequence{};
+        auto const timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+        return L"view-" + std::to_wstring(timestamp) + L"-" + std::to_wstring(++sequence);
     }
 }
 
@@ -165,6 +221,10 @@ namespace winrt::AstralChronicle::implementation
     void SavedViewsViewModel::SelectedView(
         winrt::AstralChronicle::SavedViewItemViewModel const& value)
     {
+        if (m_selectedView == value)
+        {
+            return;
+        }
         m_selectedView = value;
         m_hasSelection = value != nullptr;
         if (value)
@@ -337,11 +397,18 @@ namespace winrt::AstralChronicle::implementation
         std::wstring text;
         for (auto const& view : m_models)
         {
-            text += L"[" + view.Name + L"]\r\n";
-            text += L"Type=" + std::wstring{ TypeValue(view.Type) } + L"\r\n";
-            text += L"Channel=" + view.Channel + L"\r\n";
-            text += L"Query=" + view.Query + L"\r\n";
-            text += L"Description=" + view.Description + L"\r\n\r\n";
+            text += L"[" + EscapeExportValue(view.Name) + L"]\r\n";
+            text += L"Type=" + EscapeExportValue(TypeValue(view.Type).c_str()) + L"\r\n";
+            text += L"Channel=" + EscapeExportValue(view.Channel) + L"\r\n";
+            text += L"Query=" + EscapeExportValue(view.Query) + L"\r\n";
+            text += L"Description=" + EscapeExportValue(view.Description) + L"\r\n";
+            text += L"Sort=" + EscapeExportValue(view.Sort) + L"\r\n";
+            text += L"Columns=" + EscapeExportValue(view.Columns) + L"\r\n";
+            text += L"Details=" + std::wstring{ view.Details ? L"1" : L"0" } + L"\r\n";
+            text += L"Timeline=" + std::wstring{ view.Timeline ? L"1" : L"0" } + L"\r\n";
+            text += L"Tags=" + EscapeExportValue(view.Tags) + L"\r\n";
+            text += L"Pinned=" + std::wstring{ view.IsPinned ? L"1" : L"0" } + L"\r\n";
+            text += L"CustomViewXml=" + EscapeExportValue(view.CustomViewXml) + L"\r\n\r\n";
         }
         return winrt::hstring{ text };
     }
@@ -374,13 +441,20 @@ namespace winrt::AstralChronicle::implementation
             if (line.size() > 2 && line.front() == L'[' && line.back() == L']')
             {
                 commit();
-                current.Name = line.substr(1, line.size() - 2);
+                current.Name = UnescapeExportValue(line.substr(1, line.size() - 2));
                 hasCurrent = true;
             }
-            else if (line.rfind(L"Type=", 0) == 0) current.Type = ParseTypeValue(line.substr(5));
-            else if (line.rfind(L"Channel=", 0) == 0) current.Channel = line.substr(8);
-            else if (line.rfind(L"Query=", 0) == 0) current.Query = line.substr(6);
-            else if (line.rfind(L"Description=", 0) == 0) current.Description = line.substr(12);
+            else if (line.rfind(L"Type=", 0) == 0) current.Type = ParseTypeValue(UnescapeExportValue(line.substr(5)));
+            else if (line.rfind(L"Channel=", 0) == 0) current.Channel = UnescapeExportValue(line.substr(8));
+            else if (line.rfind(L"Query=", 0) == 0) current.Query = UnescapeExportValue(line.substr(6));
+            else if (line.rfind(L"Description=", 0) == 0) current.Description = UnescapeExportValue(line.substr(12));
+            else if (line.rfind(L"Sort=", 0) == 0) current.Sort = UnescapeExportValue(line.substr(5));
+            else if (line.rfind(L"Columns=", 0) == 0) current.Columns = UnescapeExportValue(line.substr(8));
+            else if (line.rfind(L"Details=", 0) == 0) current.Details = ParseBool(line.substr(8));
+            else if (line.rfind(L"Timeline=", 0) == 0) current.Timeline = ParseBool(line.substr(9));
+            else if (line.rfind(L"Tags=", 0) == 0) current.Tags = UnescapeExportValue(line.substr(5));
+            else if (line.rfind(L"Pinned=", 0) == 0) current.IsPinned = ParseBool(line.substr(7));
+            else if (line.rfind(L"CustomViewXml=", 0) == 0) current.CustomViewXml = UnescapeExportValue(line.substr(14));
             if (end == std::wstring::npos) break;
             start = end + 1;
         }

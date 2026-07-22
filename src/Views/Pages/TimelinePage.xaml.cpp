@@ -25,9 +25,11 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::services::IEventQueryService const& eventQuery,
         ::AstralChronicle::design::IStringResourceService const& strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
-        ::AstralChronicle::navigation::INavigationService& navigation)
+        ::AstralChronicle::navigation::INavigationService& navigation,
+        std::function<void(std::wstring_view)> navigationSelectionChanged)
     {
         m_navigation = &navigation;
+        m_navigationSelectionChanged = std::move(navigationSelectionChanged);
         winrt::get_self<TimelineViewModel>(m_viewModel)->Initialize(eventQuery, strings, dispatcher);
     }
 
@@ -148,6 +150,9 @@ namespace winrt::AstralChronicle::implementation
         request.Channel = ::AstralChronicle::models::EventChannelIdentifier{
             std::wstring{ item.Channel().c_str() } };
         request.Query = L"*[System[EventRecordID=" + std::to_wstring(recordId) + L"]]";
-        (void)m_navigation->Navigate(request);
+        if (m_navigation->Navigate(request) && m_navigationSelectionChanged)
+        {
+            m_navigationSelectionChanged(request.Route);
+        }
     }
 }

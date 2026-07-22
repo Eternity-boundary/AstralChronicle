@@ -8,7 +8,6 @@ namespace AstralChronicle
         DashboardViewModel();
         String Heading{ get; };
         String Summary{ get; };
-        String ChannelCountLabel{ get; };
         String RecentEventPreview{ get; };
         String ErrorCount{ get; };
         String WarningCount{ get; };

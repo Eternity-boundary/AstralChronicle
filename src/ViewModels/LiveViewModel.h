@@ -80,6 +80,7 @@ namespace winrt::AstralChronicle::implementation
     private:
         void OnTimerTick();
         void ApplyBatch(::AstralChronicle::services::LiveBatch const& batch);
+        void RebuildEventView();
         void SetStatus(winrt::hstring title, winrt::hstring details, Microsoft::UI::Xaml::Controls::InfoBarSeverity severity);
         void RaisePropertyChanged(winrt::hstring const& propertyName);
         void RaiseStatusProperties();
@@ -100,6 +101,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_eventsPerSecond{ L"0" };
         winrt::hstring m_duration{ L"0s" };
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::hstring> m_events{ nullptr };
+        std::vector<std::wstring> m_allEvents;
         std::vector<std::wstring> m_recordedEvents;
         bool m_autoScroll{ true };
         bool m_groupRepeated{};

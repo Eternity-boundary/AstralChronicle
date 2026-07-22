@@ -315,12 +315,6 @@
   <data name="Dashboard.Summary.Ready" xml:space="preserve">
     <value>Native Windows Event Log discovery is available through the service boundary.</value>
   </data>
-  <data name="Dashboard.ChannelCountLoading" xml:space="preserve">
-    <value>Discovering channels…</value>
-  </data>
-  <data name="Dashboard.ChannelCountLabel" xml:space="preserve">
-    <value>{0} event channels available</value>
-  </data>
   <data name="Dashboard.RecentEventLoading" xml:space="preserve">
     <value>Loading the latest System event…</value>
   </data>

@@ -23,7 +23,6 @@ namespace winrt::AstralChronicle::implementation
     }
 
     void DashboardPage::Initialize(
-        ::AstralChronicle::services::IEventLogCatalogService const& eventLogCatalog,
         ::AstralChronicle::services::IEventQueryService const& eventQuery,
         ::AstralChronicle::design::IStringResourceService const& strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
@@ -38,7 +37,6 @@ namespace winrt::AstralChronicle::implementation
             dispatcherForViewModel = dispatcher;
         }
         winrt::get_self<DashboardViewModel>(m_viewModel)->Initialize(
-            eventLogCatalog,
             eventQuery,
             strings,
             dispatcherForViewModel);

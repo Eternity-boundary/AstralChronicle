@@ -2,7 +2,6 @@
 #include "pch.h"
 #include "DashboardViewModel.h"
 #include "DesignSystem/Localization/IStringResourceService.h"
-#include "Services/IEventLogCatalogService.h"
 #include "Services/IEventQueryService.h"
 
 #include "DashboardViewModel.g.cpp"
@@ -108,18 +107,15 @@ namespace winrt::AstralChronicle::implementation
     }
 
     void DashboardViewModel::Initialize(
-        ::AstralChronicle::services::IEventLogCatalogService const& eventLogCatalog,
         ::AstralChronicle::services::IEventQueryService const& eventQuery,
         ::AstralChronicle::design::IStringResourceService const& strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher)
     {
-        m_eventLogCatalog = &eventLogCatalog;
         m_eventQuery = &eventQuery;
         m_strings = &strings;
         m_dispatcher = dispatcher;
         m_heading = strings.GetString(L"Dashboard.Heading");
         m_summary = strings.GetString(L"Dashboard.Summary.Initial");
-        m_channelCountLabel = strings.GetString(L"Dashboard.ChannelCountLoading");
         m_recentEventPreview = strings.GetString(L"Dashboard.RecentEventLoading");
 
         if (m_cancellation)
@@ -154,7 +150,6 @@ namespace winrt::AstralChronicle::implementation
     {
         auto lifetime = get_strong();
         co_await winrt::resume_background();
-        auto const channelCount = m_eventLogCatalog->GetAvailableChannelCount();
         auto const counts = m_eventQuery->QueryLevelCounts(L"System", querySinceMidnight, cancellation);
         auto const criticalEvents = m_eventQuery->QueryPageWithQuery(
             L"System",
@@ -173,7 +168,7 @@ namespace winrt::AstralChronicle::implementation
         {
             auto const queued = dispatcher.TryEnqueue(
                 Microsoft::UI::Dispatching::DispatcherQueuePriority::Normal,
-                [lifetime = std::move(lifetime), this, requestVersion, cancellation, channelCount,
+                [lifetime = std::move(lifetime), this, requestVersion, cancellation,
                  counts = std::move(counts), criticalEvents = std::move(criticalEvents)]()
                 {
                     if (requestVersion != m_requestVersion || cancellation != m_cancellation)
@@ -181,7 +176,7 @@ namespace winrt::AstralChronicle::implementation
                         return;
                     }
 
-                    ApplyResults(channelCount, counts, criticalEvents);
+                    ApplyResults(counts, criticalEvents);
                 });
 
             if (!queued)
@@ -196,13 +191,9 @@ namespace winrt::AstralChronicle::implementation
     }
 
     void DashboardViewModel::ApplyResults(
-        std::uint32_t const channelCount,
         ::AstralChronicle::services::EventLevelCountsResult const& counts,
         ::AstralChronicle::services::EventQueryResult const& criticalEvents)
     {
-        m_channelCountLabel = FormatResource(
-            m_strings->GetString(L"Dashboard.ChannelCountLabel"),
-            { winrt::to_hstring(channelCount) });
         m_monitoringStatus = m_strings->GetString(L"Dashboard.Monitoring.NotConfigured.Text");
         m_isLoading = false;
         m_statusDetails.clear();
@@ -289,11 +280,6 @@ namespace winrt::AstralChronicle::implementation
         return m_summary;
     }
 
-    winrt::hstring DashboardViewModel::ChannelCountLabel() const
-    {
-        return m_channelCountLabel;
-    }
-
     winrt::hstring DashboardViewModel::RecentEventPreview() const
     {
         return m_recentEventPreview;
@@ -321,7 +307,6 @@ namespace winrt::AstralChronicle::implementation
     void DashboardViewModel::RaiseDataProperties()
     {
         RaisePropertyChanged(L"Summary");
-        RaisePropertyChanged(L"ChannelCountLabel");
         RaisePropertyChanged(L"RecentEventPreview");
         RaisePropertyChanged(L"ErrorCount");
         RaisePropertyChanged(L"WarningCount");

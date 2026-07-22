@@ -25,9 +25,11 @@ namespace winrt::AstralChronicle::implementation
     void SavedViewsPage::Initialize(
         ::AstralChronicle::services::ISavedViewRepository& repository,
         ::AstralChronicle::design::IStringResourceService const& strings,
-        ::AstralChronicle::navigation::INavigationService& navigation)
+        ::AstralChronicle::navigation::INavigationService& navigation,
+        std::function<void(std::wstring_view)> navigationSelectionChanged)
     {
         m_navigation = &navigation;
+        m_navigationSelectionChanged = std::move(navigationSelectionChanged);
         winrt::get_self<SavedViewsViewModel>(m_viewModel)->Initialize(repository, strings, PageRoot().DispatcherQueue());
     }
 
@@ -49,7 +51,10 @@ namespace winrt::AstralChronicle::implementation
         request.Route = L"event-logs";
         request.Channel = ::AstralChronicle::models::EventChannelIdentifier{ std::wstring{ viewModel->EditorChannel().c_str() } };
         request.Query = std::wstring{ viewModel->EditorQuery().c_str() };
-        (void)m_navigation->Navigate(request);
+        if (m_navigation->Navigate(request) && m_navigationSelectionChanged)
+        {
+            m_navigationSelectionChanged(request.Route);
+        }
     }
 
     void SavedViewsPage::OnPinClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&)

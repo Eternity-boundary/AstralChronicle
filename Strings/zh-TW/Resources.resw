@@ -315,12 +315,6 @@
   <data name="Dashboard.Summary.Ready" xml:space="preserve">
     <value>原生 Windows 事件記錄探索已透過服務邊界提供。</value>
   </data>
-  <data name="Dashboard.ChannelCountLoading" xml:space="preserve">
-    <value>正在探索頻道…</value>
-  </data>
-  <data name="Dashboard.ChannelCountLabel" xml:space="preserve">
-    <value>可用事件頻道：{0}</value>
-  </data>
   <data name="Dashboard.RecentEventLoading" xml:space="preserve">
     <value>正在載入最新 System 事件…</value>
   </data>
