@@ -10,6 +10,7 @@
 
 #include <wil/cppwinrt_helpers.h>
 
+#include <winrt/Microsoft.Windows.Storage.Pickers.h>
 #include <winrt/Windows.Storage.h>
 
 #include <string>
@@ -20,6 +21,8 @@
 #include <algorithm>
 #include <string_view>
 #include <sstream>
+#include <filesystem>
+#include <fstream>
 
 namespace
 {
@@ -473,7 +476,7 @@ namespace winrt::AstralChronicle::implementation
         PersistBookmarks();
     }
 
-    void EventLogsViewModel::ExportSelectedEvents()
+    void EventLogsViewModel::ExportSelectedEvents(Microsoft::UI::WindowId const& windowId)
     {
         auto const text = CopySelectedEventsText();
         if (text.empty() || !m_dispatcher || !m_strings)
@@ -489,37 +492,82 @@ namespace winrt::AstralChronicle::implementation
         RaiseStatusProperties();
         ExportSelectedEventsAsync(
             std::wstring{ text.c_str(), text.size() },
-            m_requestVersion);
+            m_requestVersion,
+            windowId);
     }
 
     winrt::fire_and_forget EventLogsViewModel::ExportSelectedEventsAsync(
         std::wstring text,
-        std::uint64_t const requestVersion)
+        std::uint64_t const requestVersion,
+        Microsoft::UI::WindowId const windowId)
     {
         auto lifetime = get_strong();
         auto dispatcher = m_dispatcher;
         auto strings = m_strings;
-        co_await winrt::resume_background();
 
         winrt::hstring path;
         std::uint32_t errorCode{};
+        bool wasCancelled{};
         try
         {
-            auto const folder = winrt::Windows::Storage::ApplicationData::Current().LocalFolder();
-            auto const file = co_await folder.CreateFileAsync(
-                L"EventLogs-export.txt",
-                winrt::Windows::Storage::CreationCollisionOption::GenerateUniqueName);
-            co_await winrt::Windows::Storage::FileIO::WriteTextAsync(file, text);
-            path = file.Path();
+            Microsoft::Windows::Storage::Pickers::FileSavePicker picker{ windowId };
+            picker.SuggestedStartLocation(
+                Microsoft::Windows::Storage::Pickers::PickerLocationId::DocumentsLibrary);
+            picker.SuggestedFileName(strings->GetString(L"EventLogs.ExportSuggestedFileName.Text"));
+            picker.DefaultFileExtension(L".txt");
+
+            auto const fileTypes = winrt::single_threaded_vector<winrt::hstring>();
+            fileTypes.Append(L".txt");
+            picker.FileTypeChoices().Insert(
+                strings->GetString(L"EventLogs.ExportTextFiles.Text"),
+                fileTypes);
+
+            auto const result = co_await picker.PickSaveFileAsync();
+            if (!result)
+            {
+                wasCancelled = true;
+            }
+            else
+            {
+                path = result.Path();
+                co_await winrt::resume_background();
+                auto const content = winrt::to_string(winrt::hstring{ text });
+                std::ofstream output{
+                    std::filesystem::path{ path.c_str() },
+                    std::ios::binary | std::ios::trunc };
+                if (!output)
+                {
+                    throw winrt::hresult_error{ E_FAIL };
+                }
+
+                output.write(content.data(), static_cast<std::streamsize>(content.size()));
+                if (!output)
+                {
+                    throw winrt::hresult_error{ E_FAIL };
+                }
+            }
         }
         catch (winrt::hresult_error const& error)
         {
             errorCode = static_cast<std::uint32_t>(error.code().value);
         }
+        catch (...)
+        {
+            errorCode = static_cast<std::uint32_t>(E_FAIL);
+        }
 
         co_await wil::resume_foreground(dispatcher);
         if (requestVersion != m_requestVersion)
         {
+            co_return;
+        }
+
+        if (wasCancelled)
+        {
+            m_hasStatusMessage = false;
+            m_statusText.clear();
+            m_statusDetails.clear();
+            RaiseStatusProperties();
             co_return;
         }
 

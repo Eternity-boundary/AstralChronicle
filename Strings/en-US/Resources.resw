@@ -676,17 +676,23 @@
   <data name="EventLogsClearStructuredFilterButton.Content" xml:space="preserve">
     <value>Clear builder</value>
   </data>
-  <data name="EventLogsExportLoading.Text" xml:space="preserve">
+  <data name="EventLogs.ExportLoading.Text" xml:space="preserve">
     <value>Exporting selected events</value>
   </data>
-  <data name="EventLogsExportCompleted.Text" xml:space="preserve">
+  <data name="EventLogs.ExportCompleted.Text" xml:space="preserve">
     <value>Selected events exported</value>
   </data>
-  <data name="EventLogsExportCompletedDetails.Text" xml:space="preserve">
+  <data name="EventLogs.ExportCompletedDetails.Text" xml:space="preserve">
     <value>Saved to {0}.</value>
   </data>
-  <data name="EventLogsExportFailed.Text" xml:space="preserve">
+  <data name="EventLogs.ExportFailed.Text" xml:space="preserve">
     <value>Selected events could not be exported</value>
+  </data>
+  <data name="EventLogs.ExportSuggestedFileName.Text" xml:space="preserve">
+    <value>EventLogs-export</value>
+  </data>
+  <data name="EventLogs.ExportTextFiles.Text" xml:space="preserve">
+    <value>Text files (*.txt)</value>
   </data>
   <data name="EventLogs.FilterSummary.Structured.Text" xml:space="preserve">
     <value>Showing {0} of {1} loaded events with a structured filter.</value>

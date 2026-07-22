@@ -9,6 +9,7 @@
 
 #include <winrt/Windows.ApplicationModel.DataTransfer.h>
 
+#include <winrt/Microsoft.UI.Content.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 
 #include <string>
@@ -225,7 +226,8 @@ namespace winrt::AstralChronicle::implementation
         winrt::Windows::Foundation::IInspectable const&,
         Microsoft::UI::Xaml::RoutedEventArgs const&)
     {
-        winrt::get_self<EventLogsViewModel>(m_viewModel)->ExportSelectedEvents();
+        auto const windowId = PageRoot().XamlRoot().ContentIslandEnvironment().AppWindowId();
+        winrt::get_self<EventLogsViewModel>(m_viewModel)->ExportSelectedEvents(windowId);
     }
 
     void EventLogsPage::OnToggleDetailsClicked(

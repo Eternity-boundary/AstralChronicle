@@ -714,17 +714,23 @@
   <data name="EventLogsClearStructuredFilterButton.Content" xml:space="preserve">
     <value>清除建立器</value>
   </data>
-  <data name="EventLogsExportLoading.Text" xml:space="preserve">
+  <data name="EventLogs.ExportLoading.Text" xml:space="preserve">
     <value>正在匯出選取的事件</value>
   </data>
-  <data name="EventLogsExportCompleted.Text" xml:space="preserve">
+  <data name="EventLogs.ExportCompleted.Text" xml:space="preserve">
     <value>選取的事件已匯出</value>
   </data>
-  <data name="EventLogsExportCompletedDetails.Text" xml:space="preserve">
+  <data name="EventLogs.ExportCompletedDetails.Text" xml:space="preserve">
     <value>已儲存至 {0}。</value>
   </data>
-  <data name="EventLogsExportFailed.Text" xml:space="preserve">
+  <data name="EventLogs.ExportFailed.Text" xml:space="preserve">
     <value>無法匯出選取的事件</value>
+  </data>
+  <data name="EventLogs.ExportSuggestedFileName.Text" xml:space="preserve">
+    <value>事件記錄匯出</value>
+  </data>
+  <data name="EventLogs.ExportTextFiles.Text" xml:space="preserve">
+    <value>文字檔案 (*.txt)</value>
   </data>
   <data name="EventLogs.FilterSummary.Structured.Text" xml:space="preserve">
     <value>使用結構化篩選顯示 {0}/{1} 個已載入事件。</value>
