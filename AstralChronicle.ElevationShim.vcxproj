@@ -5,6 +5,10 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-signed|x64">
+      <Configuration>Release-signed</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
@@ -32,6 +36,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\AstralChronicle\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\ElevationShim\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-signed|x64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <OutDir>$(Platform)\$(Configuration)\AstralChronicle\</OutDir>
     <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\ElevationShim\</IntDir>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
