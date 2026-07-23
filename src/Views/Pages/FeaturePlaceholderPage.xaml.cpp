@@ -9,6 +9,7 @@ namespace winrt::AstralChronicle::implementation
     FeaturePlaceholderPage::FeaturePlaceholderPage()
         : m_viewModel(winrt::make<FeaturePlaceholderViewModel>())
     {
+        InitializeComponent();
     }
 
     winrt::AstralChronicle::FeaturePlaceholderViewModel FeaturePlaceholderPage::ViewModel() const

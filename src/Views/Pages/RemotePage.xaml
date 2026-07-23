@@ -55,7 +55,7 @@
                             </ListView>
                             <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="2*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                <TextBox x:Uid="RemoteQueryChannelBox" AutomationProperties.AutomationId="RemoteQueryChannelBox" Text="{x:Bind ViewModel.QueryChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <ComboBox x:Uid="RemoteQueryChannelBox" AutomationProperties.AutomationId="RemoteQueryChannelBox" ItemsSource="{x:Bind ViewModel.Channels, Mode=OneWay}" SelectedValue="{x:Bind ViewModel.QueryChannel, Mode=OneWay}" SelectionChanged="OnQueryChannelChanged" />
                                 <TextBox x:Uid="RemoteQueryTextBox" Grid.Column="1" AutomationProperties.AutomationId="RemoteQueryTextBox" Text="{x:Bind ViewModel.QueryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                 <Button x:Uid="RemoteQueryRunButton" Grid.Column="2" AutomationProperties.AutomationId="RemoteQueryRunButton" Click="OnRunQueryClicked" IsEnabled="{x:Bind ViewModel.IsConnected, Mode=OneWay}" />
                             </Grid>

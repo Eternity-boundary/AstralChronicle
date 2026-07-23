@@ -11,7 +11,6 @@
 
 namespace AstralChronicle::services
 {
-    struct IEventLogCatalogService;
     struct IEventQueryService;
 }
 
@@ -27,14 +26,12 @@ namespace winrt::AstralChronicle::implementation
         DashboardViewModel();
 
         void Initialize(
-            ::AstralChronicle::services::IEventLogCatalogService const& eventLogCatalog,
             ::AstralChronicle::services::IEventQueryService const& eventQuery,
             ::AstralChronicle::design::IStringResourceService const& strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher);
 
         [[nodiscard]] winrt::hstring Heading() const;
         [[nodiscard]] winrt::hstring Summary() const;
-        [[nodiscard]] winrt::hstring ChannelCountLabel() const;
         [[nodiscard]] winrt::hstring RecentEventPreview() const;
         [[nodiscard]] winrt::hstring ErrorCount() const;
         [[nodiscard]] winrt::hstring WarningCount() const;
@@ -58,7 +55,6 @@ namespace winrt::AstralChronicle::implementation
             std::wstring querySinceMidnight,
             std::wstring criticalQuery);
         void ApplyResults(
-            std::uint32_t channelCount,
             ::AstralChronicle::services::EventLevelCountsResult const& counts,
             ::AstralChronicle::services::EventQueryResult const& criticalEvents);
         void RaiseDataProperties();
@@ -66,7 +62,6 @@ namespace winrt::AstralChronicle::implementation
 
         winrt::hstring m_heading;
         winrt::hstring m_summary;
-        winrt::hstring m_channelCountLabel;
         winrt::hstring m_recentEventPreview;
         winrt::hstring m_errorCount;
         winrt::hstring m_warningCount;
@@ -76,7 +71,6 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_timelineSummary;
         winrt::hstring m_statusText;
         winrt::hstring m_statusDetails;
-        ::AstralChronicle::services::IEventLogCatalogService const* m_eventLogCatalog{};
         ::AstralChronicle::services::IEventQueryService const* m_eventQuery{};
         ::AstralChronicle::design::IStringResourceService const* m_strings{};
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };

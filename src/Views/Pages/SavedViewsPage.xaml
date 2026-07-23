@@ -210,10 +210,18 @@
                                 <ComboBoxItem x:Uid="SavedViewsTypeRecentSearch" Tag="RecentSearch" />
                                 <ComboBoxItem x:Uid="SavedViewsTypeWorkspace" Tag="Workspace" />
                             </ComboBox>
-                            <TextBox
+                            <ComboBox
                                 x:Uid="SavedViewsChannelBox"
                                 AutomationProperties.AutomationId="SavedViewsChannelBox"
-                                Text="{x:Bind ViewModel.EditorChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                SelectedValue="{x:Bind ViewModel.EditorChannel, Mode=OneWay}"
+                                SelectedValuePath="Tag"
+                                SelectionChanged="OnChannelChanged">
+                                <ComboBoxItem x:Uid="EventLogsSystemNavigationItem" Tag="System" />
+                                <ComboBoxItem x:Uid="EventLogsApplicationNavigationItem" Tag="Application" />
+                                <ComboBoxItem x:Uid="EventLogsSecurityNavigationItem" Tag="Security" />
+                                <ComboBoxItem x:Uid="EventLogsSetupNavigationItem" Tag="Setup" />
+                                <ComboBoxItem x:Uid="EventLogsForwardedEventsNavigationItem" Tag="ForwardedEvents" />
+                            </ComboBox>
                             <TextBox
                                 x:Uid="SavedViewsQueryBox"
                                 AutomationProperties.AutomationId="SavedViewsQueryBox"

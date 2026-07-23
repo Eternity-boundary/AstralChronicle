@@ -70,9 +70,11 @@ namespace winrt::AstralChronicle::implementation
     void ProvidersPage::Initialize(
         ::AstralChronicle::services::IEventProviderService const& providerService,
         ::AstralChronicle::design::IStringResourceService const& strings,
-        ::AstralChronicle::navigation::INavigationService& navigation)
+        ::AstralChronicle::navigation::INavigationService& navigation,
+        std::function<void(std::wstring_view)> navigationSelectionChanged)
     {
         m_navigation = &navigation;
+        m_navigationSelectionChanged = std::move(navigationSelectionChanged);
         winrt::get_self<ProvidersViewModel>(m_viewModel)->Initialize(
             providerService,
             strings,
@@ -141,7 +143,10 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::navigation::NavigationRequest request;
         request.Route = L"event-logs";
         request.Query = L"*[System[Provider[@Name=" + EscapeXPathLiteral(name) + L"]]]";
-        (void)m_navigation->Navigate(request);
+        if (m_navigation->Navigate(request) && m_navigationSelectionChanged)
+        {
+            m_navigationSelectionChanged(request.Route);
+        }
     }
 
     void ProvidersPage::OnExportClicked(

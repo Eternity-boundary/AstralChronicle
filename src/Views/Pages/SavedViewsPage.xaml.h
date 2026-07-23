@@ -5,6 +5,11 @@
 #include "Core/Navigation/INavigationService.h"
 #include "ViewModels/SavedViewsViewModel.h"
 
+#include <winrt/Microsoft.UI.h>
+
+#include <functional>
+#include <string_view>
+
 namespace AstralChronicle::design
 {
     struct IStringResourceService;
@@ -25,7 +30,8 @@ namespace winrt::AstralChronicle::implementation
         void Initialize(
             ::AstralChronicle::services::ISavedViewRepository& repository,
             ::AstralChronicle::design::IStringResourceService const& strings,
-            ::AstralChronicle::navigation::INavigationService& navigation);
+            ::AstralChronicle::navigation::INavigationService& navigation,
+            std::function<void(std::wstring_view)> navigationSelectionChanged);
 
         void OnNewClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
         void OnSaveClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
@@ -38,13 +44,16 @@ namespace winrt::AstralChronicle::implementation
         void OnDeleteClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
         void OnRefreshClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
         void OnTypeChanged(winrt::Windows::Foundation::IInspectable const& sender, Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
+        void OnChannelChanged(winrt::Windows::Foundation::IInspectable const& sender, Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
 
     private:
-        winrt::fire_and_forget ExportAsync(winrt::hstring text);
-        winrt::fire_and_forget ImportAsync();
+        winrt::fire_and_forget ExportAsync(winrt::hstring text, winrt::Microsoft::UI::WindowId windowId);
+        winrt::fire_and_forget ImportAsync(winrt::Microsoft::UI::WindowId windowId);
 
         winrt::AstralChronicle::SavedViewsViewModel m_viewModel{ nullptr };
+        ::AstralChronicle::design::IStringResourceService const* m_strings{};
         ::AstralChronicle::navigation::INavigationService* m_navigation{};
+        std::function<void(std::wstring_view)> m_navigationSelectionChanged;
     };
 }
 

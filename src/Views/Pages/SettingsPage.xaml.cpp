@@ -7,6 +7,7 @@
 #include <winrt/Microsoft.Windows.AppLifecycle.h>
 #include <winrt/Windows.Globalization.h>
 
+#include <algorithm>
 #include <string_view>
 
 namespace winrt::AstralChronicle::implementation
@@ -43,6 +44,7 @@ namespace winrt::AstralChronicle::implementation
     SettingsPage::SettingsPage()
         : m_viewModel(winrt::make<SettingsViewModel>())
     {
+        InitializeComponent();
     }
 
     SettingsPage::~SettingsPage()
@@ -130,5 +132,14 @@ namespace winrt::AstralChronicle::implementation
 
         Windows::Globalization::ApplicationLanguages::PrimaryLanguageOverride(LanguageTagForIndex(index));
         [[maybe_unused]] auto const restartRequested = Microsoft::Windows::AppLifecycle::AppInstance::Restart(L"");
+    }
+
+    void SettingsPage::OnPageRootSizeChanged(
+        winrt::Windows::Foundation::IInspectable const&,
+        Microsoft::UI::Xaml::SizeChangedEventArgs const& args)
+    {
+        auto const padding = PageRoot().Padding();
+        auto const contentWidth = std::max(0.0, args.NewSize().Width - padding.Left - padding.Right);
+        PageContent().Width(contentWidth);
     }
 }
