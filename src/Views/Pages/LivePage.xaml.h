@@ -24,6 +24,7 @@ namespace winrt::AstralChronicle::implementation
         void OnRecordClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
         void OnExportClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
         void OnBookmarkClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
+        void OnChannelChanged(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const&);
     private:
         winrt::AstralChronicle::LiveViewModel m_viewModel{ nullptr };
     };

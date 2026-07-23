@@ -5,6 +5,9 @@
 #include "Core/Navigation/INavigationService.h"
 #include "ViewModels/ProvidersViewModel.h"
 
+#include <functional>
+#include <string_view>
+
 namespace AstralChronicle::services
 {
     struct IEventProviderService;
@@ -25,7 +28,8 @@ namespace winrt::AstralChronicle::implementation
         void Initialize(
             ::AstralChronicle::services::IEventProviderService const& providerService,
             ::AstralChronicle::design::IStringResourceService const& strings,
-            ::AstralChronicle::navigation::INavigationService& navigation);
+            ::AstralChronicle::navigation::INavigationService& navigation,
+            std::function<void(std::wstring_view)> navigationSelectionChanged);
 
         void OnRefreshClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
@@ -49,6 +53,7 @@ namespace winrt::AstralChronicle::implementation
 
         winrt::AstralChronicle::ProvidersViewModel m_viewModel{ nullptr };
         ::AstralChronicle::navigation::INavigationService* m_navigation{};
+        std::function<void(std::wstring_view)> m_navigationSelectionChanged;
     };
 }
 

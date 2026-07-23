@@ -12,7 +12,6 @@
 
 namespace AstralChronicle::services
 {
-    struct IEventLogCatalogService;
     struct IEventQueryService;
 }
 
@@ -29,7 +28,6 @@ namespace winrt::AstralChronicle::implementation
 
         [[nodiscard]] winrt::AstralChronicle::DashboardViewModel ViewModel() const;
         void Initialize(
-            ::AstralChronicle::services::IEventLogCatalogService const& eventLogCatalog,
             ::AstralChronicle::services::IEventQueryService const& eventQuery,
             ::AstralChronicle::design::IStringResourceService const& strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,

@@ -132,6 +132,7 @@ namespace winrt::AstralChronicle::implementation
         m_queueDepth = 0;
         m_eventsPerSecond = L"0";
         m_duration = L"0s";
+        m_allEvents.clear();
         m_recordedEvents.clear();
         m_bookmarkCount = 0;
         RaisePropertyChanged(L"Events");
@@ -148,30 +149,10 @@ namespace winrt::AstralChronicle::implementation
 
     void LiveViewModel::ApplyBatch(::AstralChronicle::services::LiveBatch const& batch)
     {
-        auto values = winrt::single_threaded_observable_vector<winrt::hstring>();
-        for (auto const& existing : m_events) values.Append(existing);
-        for (auto const& event : batch.Events)
-        {
-            auto const levelStart = event.find(L"<Level>");
-            auto const levelEnd = event.find(L"</Level>", levelStart);
-            auto const level = levelStart == std::wstring::npos || levelEnd == std::wstring::npos
-                ? std::wstring{}
-                : event.substr(levelStart + 7, levelEnd - levelStart - 7);
-            if ((level == L"1" && !m_showCritical) ||
-                (level == L"2" && !m_showErrors) ||
-                (level == L"3" && !m_showWarnings) ||
-                (level != L"1" && level != L"2" && level != L"3" && !m_showInformation))
-            {
-                continue;
-            }
-            if (m_groupRepeated && values.Size() > 0 && values.GetAt(values.Size() - 1) == event)
-            {
-                continue;
-            }
-            values.Append(winrt::hstring{ event });
-        }
-        while (values.Size() > 2000) values.RemoveAt(0);
-        m_events = values;
+        m_allEvents.insert(m_allEvents.end(), batch.Events.begin(), batch.Events.end());
+        while (m_allEvents.size() > 2000) m_allEvents.erase(m_allEvents.begin());
+        RebuildEventView();
+
         m_droppedCount += batch.DroppedCount;
         if (m_isRecording)
         {
@@ -188,6 +169,8 @@ namespace winrt::AstralChronicle::implementation
         if (batch.State == ::AstralChronicle::services::LiveState::Error)
         {
             m_isRunning = false;
+            m_isPaused = false;
+            if (m_timer) m_timer.Stop();
             m_stateText = m_strings->GetString(L"Live.State.Error");
             SetStatus(m_strings->GetString(L"Live.StreamFailed.Text"),
                 m_strings->GetString(L"Live.ErrorDetails.Text"),
@@ -212,6 +195,34 @@ namespace winrt::AstralChronicle::implementation
         RaisePropertyChanged(L"Duration");
         RaisePropertyChanged(L"StateText");
         RaisePropertyChanged(L"IsRunning");
+        RaisePropertyChanged(L"CanStart");
+    }
+
+    void LiveViewModel::RebuildEventView()
+    {
+        auto values = winrt::single_threaded_observable_vector<winrt::hstring>();
+        for (auto const& event : m_allEvents)
+        {
+            auto const levelStart = event.find(L"<Level>");
+            auto const levelEnd = event.find(L"</Level>", levelStart);
+            auto const level = levelStart == std::wstring::npos || levelEnd == std::wstring::npos
+                ? std::wstring{}
+                : event.substr(levelStart + 7, levelEnd - levelStart - 7);
+            if ((level == L"1" && !m_showCritical) ||
+                (level == L"2" && !m_showErrors) ||
+                (level == L"3" && !m_showWarnings) ||
+                (level != L"1" && level != L"2" && level != L"3" && !m_showInformation))
+            {
+                continue;
+            }
+            if (m_groupRepeated && values.Size() > 0 && values.GetAt(values.Size() - 1) == event)
+            {
+                continue;
+            }
+            values.Append(winrt::hstring{ event });
+        }
+        while (values.Size() > 2000) values.RemoveAt(0);
+        m_events = values;
     }
 
     void LiveViewModel::SetStatus(winrt::hstring title, winrt::hstring details, Microsoft::UI::Xaml::Controls::InfoBarSeverity const severity)
@@ -239,13 +250,13 @@ namespace winrt::AstralChronicle::implementation
     bool LiveViewModel::GroupRepeated() const noexcept { return m_groupRepeated; }
     void LiveViewModel::GroupRepeated(bool const value) { m_groupRepeated = value; RaisePropertyChanged(L"GroupRepeated"); }
     bool LiveViewModel::ShowCritical() const noexcept { return m_showCritical; }
-    void LiveViewModel::ShowCritical(bool const value) { m_showCritical = value; RaisePropertyChanged(L"ShowCritical"); }
+    void LiveViewModel::ShowCritical(bool const value) { m_showCritical = value; RebuildEventView(); RaisePropertyChanged(L"ShowCritical"); RaisePropertyChanged(L"Events"); RaisePropertyChanged(L"EventCount"); }
     bool LiveViewModel::ShowErrors() const noexcept { return m_showErrors; }
-    void LiveViewModel::ShowErrors(bool const value) { m_showErrors = value; RaisePropertyChanged(L"ShowErrors"); }
+    void LiveViewModel::ShowErrors(bool const value) { m_showErrors = value; RebuildEventView(); RaisePropertyChanged(L"ShowErrors"); RaisePropertyChanged(L"Events"); RaisePropertyChanged(L"EventCount"); }
     bool LiveViewModel::ShowWarnings() const noexcept { return m_showWarnings; }
-    void LiveViewModel::ShowWarnings(bool const value) { m_showWarnings = value; RaisePropertyChanged(L"ShowWarnings"); }
+    void LiveViewModel::ShowWarnings(bool const value) { m_showWarnings = value; RebuildEventView(); RaisePropertyChanged(L"ShowWarnings"); RaisePropertyChanged(L"Events"); RaisePropertyChanged(L"EventCount"); }
     bool LiveViewModel::ShowInformation() const noexcept { return m_showInformation; }
-    void LiveViewModel::ShowInformation(bool const value) { m_showInformation = value; RaisePropertyChanged(L"ShowInformation"); }
+    void LiveViewModel::ShowInformation(bool const value) { m_showInformation = value; RebuildEventView(); RaisePropertyChanged(L"ShowInformation"); RaisePropertyChanged(L"Events"); RaisePropertyChanged(L"EventCount"); }
     bool LiveViewModel::IsRecording() const noexcept { return m_isRecording; }
     winrt::hstring LiveViewModel::EventsPerSecond() const { return m_eventsPerSecond; }
     std::uint64_t LiveViewModel::TotalReceived() const noexcept { return m_totalReceived; }

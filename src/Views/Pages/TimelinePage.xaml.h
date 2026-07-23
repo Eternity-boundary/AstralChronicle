@@ -5,6 +5,9 @@
 #include "Core/Navigation/INavigationService.h"
 #include "ViewModels/TimelineViewModel.h"
 
+#include <functional>
+#include <string_view>
+
 namespace AstralChronicle::services
 {
     struct IEventQueryService;
@@ -26,7 +29,8 @@ namespace winrt::AstralChronicle::implementation
             ::AstralChronicle::services::IEventQueryService const& eventQuery,
             ::AstralChronicle::design::IStringResourceService const& strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
-            ::AstralChronicle::navigation::INavigationService& navigation);
+            ::AstralChronicle::navigation::INavigationService& navigation,
+            std::function<void(std::wstring_view)> navigationSelectionChanged);
         void OnTimeRangeChanged(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
@@ -58,6 +62,7 @@ namespace winrt::AstralChronicle::implementation
 
         winrt::AstralChronicle::TimelineViewModel m_viewModel{ nullptr };
         ::AstralChronicle::navigation::INavigationService* m_navigation{};
+        std::function<void(std::wstring_view)> m_navigationSelectionChanged;
     };
 }
 

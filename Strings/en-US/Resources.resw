@@ -315,12 +315,6 @@
   <data name="Dashboard.Summary.Ready" xml:space="preserve">
     <value>Native Windows Event Log discovery is available through the service boundary.</value>
   </data>
-  <data name="Dashboard.ChannelCountLoading" xml:space="preserve">
-    <value>Discovering channels…</value>
-  </data>
-  <data name="Dashboard.ChannelCountLabel" xml:space="preserve">
-    <value>{0} event channels available</value>
-  </data>
   <data name="Dashboard.RecentEventLoading" xml:space="preserve">
     <value>Loading the latest System event…</value>
   </data>
@@ -624,7 +618,7 @@
   <data name="EventLogsFilterOpcodeBox.Header" xml:space="preserve"><value>Opcode</value></data>
   <data name="EventLogsFilterOpcodeBox.PlaceholderText" xml:space="preserve"><value>Numeric opcode</value></data>
   <data name="EventLogsFilterKeywordBox.Header" xml:space="preserve"><value>Keyword mask</value></data>
-  <data name="EventLogsFilterKeywordBox.PlaceholderText" xml:space="preserve"><value>Numeric keyword mask</value></data>
+  <data name="EventLogsFilterKeywordBox.PlaceholderText" xml:space="preserve"><value>Decimal value or 0x hexadecimal mask</value></data>
   <data name="EventLogsFilterProcessIdBox.Header" xml:space="preserve"><value>Process ID</value></data>
   <data name="EventLogsFilterProcessIdBox.PlaceholderText" xml:space="preserve"><value>Numeric process ID</value></data>
   <data name="EventLogsFilterThreadIdBox.Header" xml:space="preserve"><value>Thread ID</value></data>
@@ -676,17 +670,23 @@
   <data name="EventLogsClearStructuredFilterButton.Content" xml:space="preserve">
     <value>Clear builder</value>
   </data>
-  <data name="EventLogsExportLoading.Text" xml:space="preserve">
+  <data name="EventLogs.ExportLoading.Text" xml:space="preserve">
     <value>Exporting selected events</value>
   </data>
-  <data name="EventLogsExportCompleted.Text" xml:space="preserve">
+  <data name="EventLogs.ExportCompleted.Text" xml:space="preserve">
     <value>Selected events exported</value>
   </data>
-  <data name="EventLogsExportCompletedDetails.Text" xml:space="preserve">
+  <data name="EventLogs.ExportCompletedDetails.Text" xml:space="preserve">
     <value>Saved to {0}.</value>
   </data>
-  <data name="EventLogsExportFailed.Text" xml:space="preserve">
+  <data name="EventLogs.ExportFailed.Text" xml:space="preserve">
     <value>Selected events could not be exported</value>
+  </data>
+  <data name="EventLogs.ExportSuggestedFileName.Text" xml:space="preserve">
+    <value>EventLogs-export</value>
+  </data>
+  <data name="EventLogs.ExportTextFiles.Text" xml:space="preserve">
+    <value>Text files (*.txt)</value>
   </data>
   <data name="EventLogs.FilterSummary.Structured.Text" xml:space="preserve">
     <value>Showing {0} of {1} loaded events with a structured filter.</value>
@@ -996,6 +996,8 @@
   <data name="SavedViews.Deleted.Text" xml:space="preserve"><value>Saved view deleted</value></data>
   <data name="SavedViews.Duplicated.Text" xml:space="preserve"><value>Saved view duplicated</value></data>
   <data name="SavedViews.Imported.Text" xml:space="preserve"><value>Saved views imported</value></data>
+  <data name="SavedViews.ExportSuggestedFileName.Text" xml:space="preserve"><value>SavedViews-export</value></data>
+  <data name="SavedViews.ExportTextFiles.Text" xml:space="preserve"><value>Text files (*.txt)</value></data>
   <data name="SavedViews.CustomViewWarning.Text" xml:space="preserve"><value>Windows Custom View XML is retained for portability. The app uses the stored XPath query when opening a view and warns when XML-only fields cannot be represented.</value></data>
   <data name="SavedViews.Type.User" xml:space="preserve"><value>User view</value></data>
   <data name="SavedViews.Type.Pinned" xml:space="preserve"><value>Pinned view</value></data>
@@ -1157,6 +1159,8 @@
   <data name="Sessions.Deleted.Text" xml:space="preserve"><value>Session deleted</value></data>
   <data name="Sessions.Resumed.Text" xml:space="preserve"><value>Session marked for resume</value></data>
   <data name="Sessions.Imported.Text" xml:space="preserve"><value>Sessions imported</value></data>
+  <data name="Sessions.ExportSuggestedFileName.Text" xml:space="preserve"><value>Sessions-export</value></data>
+  <data name="Sessions.ExportTextFiles.Text" xml:space="preserve"><value>Text files (*.txt)</value></data>
   <data name="Sessions.New.Text" xml:space="preserve"><value>New session</value></data>
   <data name="Sessions.Active.Text" xml:space="preserve"><value>Active session</value></data>
   <data name="Sessions.Inactive.Text" xml:space="preserve"><value>Inactive session</value></data>

@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <cmath>
 #include <ctime>
 #include <cstddef>
 #include <string_view>
@@ -109,6 +110,10 @@ namespace winrt::AstralChronicle::implementation
         {
             m_greetingTimer.Stop();
         }
+        if (m_backdropAnimationTimer)
+        {
+            m_backdropAnimationTimer.Stop();
+        }
 
         if (m_theme && m_themeSubscriptionId != 0)
         {
@@ -161,7 +166,6 @@ namespace winrt::AstralChronicle::implementation
             {
                 auto page = make<DashboardPage>();
                 get_self<DashboardPage>(page)->Initialize(
-                    host.EventLogCatalog(),
                     host.EventQuery(),
                     host.Strings(),
                     RootLayout().DispatcherQueue(),
@@ -199,7 +203,11 @@ namespace winrt::AstralChronicle::implementation
                     host.EventQuery(),
                     host.Strings(),
                     RootLayout().DispatcherQueue(),
-                    host.Navigation());
+                    host.Navigation(),
+                    [this](std::wstring_view route)
+                    {
+                        SelectNavigationItemForRoute(route);
+                    });
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
@@ -210,7 +218,11 @@ namespace winrt::AstralChronicle::implementation
                 get_self<ProvidersPage>(page)->Initialize(
                     host.EventProviders(),
                     host.Strings(),
-                    host.Navigation());
+                    host.Navigation(),
+                    [this](std::wstring_view route)
+                    {
+                        SelectNavigationItemForRoute(route);
+                    });
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
@@ -229,7 +241,11 @@ namespace winrt::AstralChronicle::implementation
                 get_self<SavedViewsPage>(page)->Initialize(
                     host.SavedViews(),
                     host.Strings(),
-                    host.Navigation());
+                    host.Navigation(),
+                    [this](std::wstring_view route)
+                    {
+                        SelectNavigationItemForRoute(route);
+                    });
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
@@ -296,13 +312,53 @@ namespace winrt::AstralChronicle::implementation
 
     void MainWindow::UpdateThemeBackdropLayout()
     {
-        auto const paneWidth = NavigationPaneWidth();
+        SetThemeBackdropLayout(NavigationPaneWidth());
+    }
+
+    void MainWindow::SetThemeBackdropLayout(double const paneWidth)
+    {
         auto const contentMargin = Thickness{ paneWidth, 0.0, 0.0, 0.0 };
 
         ThemeNavigationBackground().Width(paneWidth);
         ThemeNavigationContrastOverlay().Width(paneWidth);
         ThemeMainBackground().Margin(contentMargin);
         ThemeMainContrastOverlay().Margin(contentMargin);
+    }
+
+    void MainWindow::AnimateThemeBackdropLayout(double const targetWidth)
+    {
+        if (!m_backdropAnimationTimer)
+        {
+            m_backdropAnimationTimer = RootLayout().DispatcherQueue().CreateTimer();
+            m_backdropAnimationTimer.Interval(std::chrono::milliseconds{ 16 });
+            m_backdropAnimationTimer.Tick([this](auto const&, auto const&)
+            {
+                constexpr double durationMilliseconds = 260.0;
+                auto const elapsed = std::chrono::duration<double, std::milli>(
+                    std::chrono::steady_clock::now() - m_backdropAnimationStart).count();
+                auto const progress = std::min(1.0, elapsed / durationMilliseconds);
+                auto const easedProgress = progress * (2.0 - progress);
+                SetThemeBackdropLayout(
+                    m_backdropAnimationFromWidth
+                    + (m_backdropAnimationTargetWidth - m_backdropAnimationFromWidth) * easedProgress);
+                if (progress >= 1.0)
+                {
+                    m_backdropAnimationTimer.Stop();
+                    SetThemeBackdropLayout(m_backdropAnimationTargetWidth);
+                }
+            });
+        }
+
+        m_backdropAnimationFromWidth = ThemeNavigationBackground().Width();
+        m_backdropAnimationTargetWidth = targetWidth;
+        m_backdropAnimationStart = std::chrono::steady_clock::now();
+        if (std::abs(m_backdropAnimationTargetWidth - m_backdropAnimationFromWidth) < 0.1)
+        {
+            m_backdropAnimationTimer.Stop();
+            SetThemeBackdropLayout(m_backdropAnimationTargetWidth);
+            return;
+        }
+        m_backdropAnimationTimer.Start();
     }
 
     double MainWindow::NavigationPaneWidth()
@@ -312,7 +368,7 @@ namespace winrt::AstralChronicle::implementation
         {
             return navigationView.IsPaneOpen()
                 ? navigationView.OpenPaneLength()
-                : 0.0;
+                : navigationView.CompactPaneLength();
         }
 
         return navigationView.IsPaneOpen()
@@ -332,14 +388,36 @@ namespace winrt::AstralChronicle::implementation
         Microsoft::UI::Xaml::Controls::NavigationView const&,
         Windows::Foundation::IInspectable const&)
     {
+        if (m_backdropAnimationTimer)
+        {
+            m_backdropAnimationTimer.Stop();
+        }
         UpdateThemeBackdropLayout();
+    }
+
+    void MainWindow::OnNavigationPaneOpening(
+        Microsoft::UI::Xaml::Controls::NavigationView const& sender,
+        Windows::Foundation::IInspectable const&)
+    {
+        AnimateThemeBackdropLayout(sender.OpenPaneLength());
     }
 
     void MainWindow::OnNavigationPaneClosed(
         Microsoft::UI::Xaml::Controls::NavigationView const&,
         Windows::Foundation::IInspectable const&)
     {
+        if (m_backdropAnimationTimer)
+        {
+            m_backdropAnimationTimer.Stop();
+        }
         UpdateThemeBackdropLayout();
+    }
+
+    void MainWindow::OnNavigationPaneClosing(
+        Microsoft::UI::Xaml::Controls::NavigationView const& sender,
+        Microsoft::UI::Xaml::Controls::NavigationViewPaneClosingEventArgs const&)
+    {
+        AnimateThemeBackdropLayout(sender.CompactPaneLength());
     }
 
     void MainWindow::SelectNavigationItemForRoute(std::wstring_view route)

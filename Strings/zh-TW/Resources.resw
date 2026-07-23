@@ -315,12 +315,6 @@
   <data name="Dashboard.Summary.Ready" xml:space="preserve">
     <value>原生 Windows 事件記錄探索已透過服務邊界提供。</value>
   </data>
-  <data name="Dashboard.ChannelCountLoading" xml:space="preserve">
-    <value>正在探索頻道…</value>
-  </data>
-  <data name="Dashboard.ChannelCountLabel" xml:space="preserve">
-    <value>可用事件頻道：{0}</value>
-  </data>
   <data name="Dashboard.RecentEventLoading" xml:space="preserve">
     <value>正在載入最新 System 事件…</value>
   </data>
@@ -649,7 +643,7 @@
     <value>關鍵字遮罩</value>
   </data>
   <data name="EventLogsFilterKeywordBox.PlaceholderText" xml:space="preserve">
-    <value>數字關鍵字遮罩</value>
+    <value>十進位數值或 0x 十六進位遮罩</value>
   </data>
   <data name="EventLogsFilterProcessIdBox.Header" xml:space="preserve">
     <value>處理程序 ID</value>
@@ -714,17 +708,23 @@
   <data name="EventLogsClearStructuredFilterButton.Content" xml:space="preserve">
     <value>清除建立器</value>
   </data>
-  <data name="EventLogsExportLoading.Text" xml:space="preserve">
+  <data name="EventLogs.ExportLoading.Text" xml:space="preserve">
     <value>正在匯出選取的事件</value>
   </data>
-  <data name="EventLogsExportCompleted.Text" xml:space="preserve">
+  <data name="EventLogs.ExportCompleted.Text" xml:space="preserve">
     <value>選取的事件已匯出</value>
   </data>
-  <data name="EventLogsExportCompletedDetails.Text" xml:space="preserve">
+  <data name="EventLogs.ExportCompletedDetails.Text" xml:space="preserve">
     <value>已儲存至 {0}。</value>
   </data>
-  <data name="EventLogsExportFailed.Text" xml:space="preserve">
+  <data name="EventLogs.ExportFailed.Text" xml:space="preserve">
     <value>無法匯出選取的事件</value>
+  </data>
+  <data name="EventLogs.ExportSuggestedFileName.Text" xml:space="preserve">
+    <value>事件記錄匯出</value>
+  </data>
+  <data name="EventLogs.ExportTextFiles.Text" xml:space="preserve">
+    <value>文字檔案 (*.txt)</value>
   </data>
   <data name="EventLogs.FilterSummary.Structured.Text" xml:space="preserve">
     <value>使用結構化篩選顯示 {0}/{1} 個已載入事件。</value>
@@ -1308,6 +1308,12 @@
   <data name="SavedViews.Imported.Text" xml:space="preserve">
     <value>已匯入檢視</value>
   </data>
+  <data name="SavedViews.ExportSuggestedFileName.Text" xml:space="preserve">
+    <value>已儲存檢視匯出</value>
+  </data>
+  <data name="SavedViews.ExportTextFiles.Text" xml:space="preserve">
+    <value>文字檔案 (*.txt)</value>
+  </data>
   <data name="SavedViews.CustomViewWarning.Text" xml:space="preserve">
     <value>Windows 自訂檢視 XML 會保留以利移植。開啟檢視時，應用程式會使用已儲存的 XPath 查詢；無法表示的 XML 專屬欄位會顯示警告。</value>
   </data>
@@ -1790,6 +1796,12 @@
   </data>
   <data name="Sessions.Imported.Text" xml:space="preserve">
     <value>工作階段已匯入</value>
+  </data>
+  <data name="Sessions.ExportSuggestedFileName.Text" xml:space="preserve">
+    <value>工作階段匯出</value>
+  </data>
+  <data name="Sessions.ExportTextFiles.Text" xml:space="preserve">
+    <value>文字檔案 (*.txt)</value>
   </data>
   <data name="Sessions.New.Text" xml:space="preserve">
     <value>新增工作階段</value>

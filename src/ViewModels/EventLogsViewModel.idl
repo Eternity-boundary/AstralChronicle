@@ -65,7 +65,6 @@ namespace AstralChronicle
         Boolean IsDetailsLoading{ get; };
         String CopySelectedEventsText();
         void ToggleBookmarks();
-        void ExportSelectedEvents();
         void Refresh();
         void ClearFilter();
         void ApplyStructuredFilter();

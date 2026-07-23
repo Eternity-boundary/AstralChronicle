@@ -136,112 +136,123 @@
                 </Border>
             </Grid>
 
-            <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
+            <Grid
+                ColumnSpacing="{StaticResource AstralContentSpacing}"
+                RowSpacing="{StaticResource AstralContentSpacing}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
-                    <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock
-                            x:Uid="DashboardRecentCriticalEventsTitle"
-                            AutomationProperties.AutomationId="DashboardRecentCriticalEventsTitle"
-                            Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
-                        <HyperlinkButton
-                            x:Uid="DashboardViewAllEventsButton"
-                            Grid.Column="1"
-                            AutomationProperties.AutomationId="DashboardViewAllEventsButton"
-                            Click="OnViewAllEventsClicked"
-                            Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                    </Grid>
-                    <Border MinHeight="280" Style="{StaticResource AstralCardBorderStyle}">
-                        <StackPanel Spacing="{StaticResource AstralContentSpacing}">
-                            <TextBlock
-                                AutomationProperties.AutomationId="DashboardRecentCriticalEventPreview"
-                                Style="{StaticResource AstralCaptionTextBlockStyle}"
-                                Text="{x:Bind ViewModel.RecentEventPreview, Mode=OneWay}"
-                                TextWrapping="Wrap" />
-                            <ListView
-                                AutomationProperties.AutomationId="DashboardRecentCriticalEventsList"
-                                ItemsSource="{x:Bind ViewModel.RecentCriticalEvents, Mode=OneWay}"
-                                IsItemClickEnabled="False"
-                                MaxHeight="220"
-                                SelectionMode="None">
-                                <ListView.ItemTemplate>
-                                    <DataTemplate x:DataType="local:EventLogItemViewModel">
-                                        <Grid ColumnSpacing="{StaticResource AstralContentSpacing}" MinHeight="48">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock
-                                                Style="{StaticResource AstralCaptionTextBlockStyle}"
-                                                Text="{x:Bind Level, Mode=OneWay}"
-                                                TextTrimming="CharacterEllipsis" />
-                                            <TextBlock
-                                                Grid.Column="1"
-                                                Style="{StaticResource AstralCaptionTextBlockStyle}"
-                                                Text="{x:Bind TimeCreated, Mode=OneWay}"
-                                                TextTrimming="CharacterEllipsis" />
-                                            <StackPanel Grid.Column="2" Spacing="{StaticResource AstralContentSpacing}">
-                                                <TextBlock
-                                                    Style="{StaticResource AstralBodyTextBlockStyle}"
-                                                    Text="{x:Bind Provider, Mode=OneWay}"
-                                                    TextTrimming="CharacterEllipsis" />
-                                                <TextBlock
-                                                    Style="{StaticResource AstralCaptionTextBlockStyle}"
-                                                    Text="{x:Bind ShortDescription, Mode=OneWay}"
-                                                    TextTrimming="CharacterEllipsis" />
-                                            </StackPanel>
-                                            <TextBlock
-                                                Grid.Column="3"
-                                                MaxWidth="140"
-                                                Style="{StaticResource AstralCaptionTextBlockStyle}"
-                                                Text="{x:Bind Channel, Mode=OneWay}"
-                                                TextTrimming="CharacterEllipsis" />
-                                            <TextBlock
-                                                Grid.Column="4"
-                                                Style="{StaticResource AstralCaptionTextBlockStyle}"
-                                                Text="{x:Bind EventId, Mode=OneWay}" />
-                                            <HyperlinkButton
-                                                x:Uid="DashboardOpenEventButton"
-                                                Grid.Column="5"
-                                                AutomationProperties.AutomationId="DashboardOpenEventButton"
-                                                Click="OnRecentEventClicked"
-                                                DataContext="{x:Bind}"
-                                                Style="{StaticResource DefaultHyperlinkButtonStyle}" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                <StackPanel Grid.Column="1" Spacing="{StaticResource AstralContentSpacing}">
+                <Grid Grid.Row="0" ColumnSpacing="{StaticResource AstralContentSpacing}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
                     <TextBlock
-                        x:Uid="DashboardCrashTimelineTitle"
-                        AutomationProperties.AutomationId="DashboardCrashTimelineTitle"
+                        x:Uid="DashboardRecentCriticalEventsTitle"
+                        AutomationProperties.AutomationId="DashboardRecentCriticalEventsTitle"
                         Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
-                    <Border MinHeight="280" Style="{StaticResource AstralCardBorderStyle}">
-                        <StackPanel Spacing="{StaticResource AstralContentSpacing}">
-                            <TextBlock
-                                AutomationProperties.AutomationId="DashboardCrashTimelineSummary"
-                                Style="{StaticResource AstralCaptionTextBlockStyle}"
-                                Text="{x:Bind ViewModel.TimelineSummary, Mode=OneWay}"
-                                TextWrapping="Wrap" />
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                    <HyperlinkButton
+                        x:Uid="DashboardViewAllEventsButton"
+                        Grid.Column="1"
+                        AutomationProperties.AutomationId="DashboardViewAllEventsButton"
+                        Click="OnViewAllEventsClicked"
+                        Style="{StaticResource DefaultHyperlinkButtonStyle}" />
+                </Grid>
+
+                <TextBlock
+                    x:Uid="DashboardCrashTimelineTitle"
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    AutomationProperties.AutomationId="DashboardCrashTimelineTitle"
+                    Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+
+                <Border Grid.Row="1" MinHeight="280" Style="{StaticResource AstralCardBorderStyle}">
+                    <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                        <TextBlock
+                            AutomationProperties.AutomationId="DashboardRecentCriticalEventPreview"
+                            Style="{StaticResource AstralCaptionTextBlockStyle}"
+                            Text="{x:Bind ViewModel.RecentEventPreview, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                        <ListView
+                            AutomationProperties.AutomationId="DashboardRecentCriticalEventsList"
+                            ItemsSource="{x:Bind ViewModel.RecentCriticalEvents, Mode=OneWay}"
+                            IsItemClickEnabled="False"
+                            MaxHeight="220"
+                            SelectionMode="None">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="local:EventLogItemViewModel">
+                                    <Grid ColumnSpacing="{StaticResource AstralContentSpacing}" MinHeight="48">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock
+                                            Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                            Text="{x:Bind Level, Mode=OneWay}"
+                                            TextTrimming="CharacterEllipsis" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                            Text="{x:Bind TimeCreated, Mode=OneWay}"
+                                            TextTrimming="CharacterEllipsis" />
+                                        <StackPanel Grid.Column="2" Spacing="{StaticResource AstralContentSpacing}">
+                                            <TextBlock
+                                                Style="{StaticResource AstralBodyTextBlockStyle}"
+                                                Text="{x:Bind Provider, Mode=OneWay}"
+                                                TextTrimming="CharacterEllipsis" />
+                                            <TextBlock
+                                                Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                                Text="{x:Bind ShortDescription, Mode=OneWay}"
+                                                TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                        <TextBlock
+                                            Grid.Column="3"
+                                            MaxWidth="140"
+                                            Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                            Text="{x:Bind Channel, Mode=OneWay}"
+                                            TextTrimming="CharacterEllipsis" />
+                                        <TextBlock
+                                            Grid.Column="4"
+                                            Style="{StaticResource AstralCaptionTextBlockStyle}"
+                                            Text="{x:Bind EventId, Mode=OneWay}" />
+                                        <HyperlinkButton
+                                            x:Uid="DashboardOpenEventButton"
+                                            Grid.Column="5"
+                                            AutomationProperties.AutomationId="DashboardOpenEventButton"
+                                            Click="OnRecentEventClicked"
+                                            DataContext="{x:Bind}"
+                                            Style="{StaticResource DefaultHyperlinkButtonStyle}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </Border>
+
+                <Border
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    MinHeight="280"
+                    Style="{StaticResource AstralCardBorderStyle}">
+                    <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                    <TextBlock
+                        AutomationProperties.AutomationId="DashboardCrashTimelineSummary"
+                        Style="{StaticResource AstralCaptionTextBlockStyle}"
+                        Text="{x:Bind ViewModel.TimelineSummary, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
             </Grid>
         </StackPanel>
     </ScrollViewer>

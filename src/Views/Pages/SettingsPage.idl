@@ -7,5 +7,7 @@ namespace AstralChronicle
         SettingsPage();
         SettingsViewModel ViewModel{ get; };
         Microsoft.UI.Xaml.Controls.RadioButtons LanguageRadioButtons{ get; };
+        Microsoft.UI.Xaml.Controls.ScrollViewer PageRoot{ get; };
+        Microsoft.UI.Xaml.Controls.StackPanel PageContent{ get; };
     }
 }

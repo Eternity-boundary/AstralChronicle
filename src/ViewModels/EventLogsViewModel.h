@@ -7,6 +7,7 @@
 #include "Models/EventFilter.h"
 #include "Services/IEventQueryService.h"
 
+#include <winrt/Microsoft.UI.h>
 #include <winrt/Microsoft.UI.Dispatching.h>
 
 #include <cstdint>
@@ -76,7 +77,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::hstring CopySelectedEventText() const;
         [[nodiscard]] winrt::hstring CopySelectedEventsText() const;
         void ToggleBookmarks();
-        void ExportSelectedEvents();
+        void ExportSelectedEvents(winrt::Microsoft::UI::WindowId const& windowId);
         [[nodiscard]] winrt::hstring SortKey() const;
         [[nodiscard]] bool SortAscending() const noexcept;
         [[nodiscard]] Microsoft::UI::Xaml::Controls::InfoBarSeverity StatusSeverity() const noexcept;
@@ -133,7 +134,8 @@ namespace winrt::AstralChronicle::implementation
             ::AstralChronicle::services::QueryCancellation cancellation);
         winrt::fire_and_forget ExportSelectedEventsAsync(
             std::wstring text,
-            std::uint64_t requestVersion);
+            std::uint64_t requestVersion,
+            winrt::Microsoft::UI::WindowId windowId);
         void ApplyResult(::AstralChronicle::services::EventQueryResult const& result);
         void ApplyDetails(::AstralChronicle::services::EventDetailsResult const& result);
         void ApplyFilter();

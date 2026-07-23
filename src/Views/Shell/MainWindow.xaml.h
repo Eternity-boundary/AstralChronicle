@@ -9,7 +9,9 @@
 #include "DesignSystem/Theme/IThemeService.h"
 
 #include <winrt/Windows.Foundation.h>
+#include <winrt/Microsoft.UI.Dispatching.h>
 
+#include <chrono>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -61,15 +63,23 @@ namespace winrt::AstralChronicle::implementation
         void OnNavigationPaneOpened(
             Microsoft::UI::Xaml::Controls::NavigationView const& sender,
             winrt::Windows::Foundation::IInspectable const& args);
+        void OnNavigationPaneOpening(
+            Microsoft::UI::Xaml::Controls::NavigationView const& sender,
+            winrt::Windows::Foundation::IInspectable const& args);
         void OnNavigationPaneClosed(
             Microsoft::UI::Xaml::Controls::NavigationView const& sender,
             winrt::Windows::Foundation::IInspectable const& args);
+        void OnNavigationPaneClosing(
+            Microsoft::UI::Xaml::Controls::NavigationView const& sender,
+            Microsoft::UI::Xaml::Controls::NavigationViewPaneClosingEventArgs const& args);
 
     private:
         void SelectNavigationItemForRoute(std::wstring_view route);
         void UpdateShellGreeting();
         void ApplyThemeBackdrop();
         void UpdateThemeBackdropLayout();
+        void SetThemeBackdropLayout(double paneWidth);
+        void AnimateThemeBackdropLayout(double targetWidth);
         double NavigationPaneWidth();
         void StartDynamicChannelLoad();
         winrt::fire_and_forget LoadDynamicChannelsAsync();
@@ -96,6 +106,10 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::services::IEventLogCatalogService* m_eventLogCatalog{};
         ::AstralChronicle::services::ICustomViewCatalogService* m_customViewCatalog{};
         winrt::Microsoft::UI::Dispatching::DispatcherQueueTimer m_greetingTimer{ nullptr };
+        winrt::Microsoft::UI::Dispatching::DispatcherQueueTimer m_backdropAnimationTimer{ nullptr };
+        std::chrono::steady_clock::time_point m_backdropAnimationStart{};
+        double m_backdropAnimationFromWidth{};
+        double m_backdropAnimationTargetWidth{};
         std::uint32_t m_themeSubscriptionId{};
         bool m_dynamicChannelLoadRequested{};
         bool m_dynamicChannelTreeLoaded{};
