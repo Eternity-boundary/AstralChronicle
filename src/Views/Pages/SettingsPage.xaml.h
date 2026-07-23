@@ -5,6 +5,8 @@
 #include "DesignSystem/Theme/IThemeService.h"
 #include "ViewModels/SettingsViewModel.h"
 
+#include <memory>
+
 namespace winrt::AstralChronicle::implementation
 {
     struct SettingsPage : SettingsPageT<SettingsPage>
@@ -14,8 +16,8 @@ namespace winrt::AstralChronicle::implementation
 
         [[nodiscard]] winrt::AstralChronicle::SettingsViewModel ViewModel() const;
         void Initialize(
-            ::AstralChronicle::design::IThemeService& theme,
-            ::AstralChronicle::design::IStringResourceService const& strings);
+            std::shared_ptr<::AstralChronicle::design::IThemeService> theme,
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings);
         void OnThemeSelectionChanged(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
@@ -28,7 +30,7 @@ namespace winrt::AstralChronicle::implementation
 
     private:
         winrt::AstralChronicle::SettingsViewModel m_viewModel{ nullptr };
-        ::AstralChronicle::design::IThemeService* m_theme{};
+        std::shared_ptr<::AstralChronicle::design::IThemeService> m_theme;
         std::uint32_t m_themeSubscriptionId{};
         bool m_isInitializing{};
     };

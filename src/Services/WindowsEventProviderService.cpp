@@ -4,6 +4,7 @@
 #include "UniqueEvtHandle.h"
 
 #include <winevt.h>
+#include <winrt/Windows.Storage.h>
 
 #include <algorithm>
 #include <cstddef>
@@ -19,6 +20,21 @@ namespace
     using AstralChronicle::services::EventQueryStatus;
     using AstralChronicle::services::QueryCancellation;
     using AstralChronicle::services::unique_evt_handle;
+
+    [[nodiscard]] bool ProviderMetadataCacheEnabled() noexcept
+    {
+        try
+        {
+            auto const values =
+                winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values();
+            auto const key = winrt::hstring{ L"Storage.CacheProviderMetadata" };
+            return !values.HasKey(key) || winrt::unbox_value<bool>(values.Lookup(key));
+        }
+        catch (...)
+        {
+            return true;
+        }
+    }
 
     [[nodiscard]] std::wstring Lowercase(std::wstring value)
     {
@@ -258,6 +274,8 @@ namespace AstralChronicle::services
             return result;
         }
 
+        auto const cacheEnabled = ProviderMetadataCacheEnabled();
+        if (cacheEnabled)
         {
             std::scoped_lock lock{ m_cacheMutex };
             auto const cached = m_detailsCache.find(std::wstring{ providerName });
@@ -293,7 +311,16 @@ namespace AstralChronicle::services
         result.Details.MetadataAvailable = true;
 
         unique_evt_handle eventEnum{ EvtOpenEventMetadataEnum(metadata.get(), 0) };
-        while (eventEnum)
+        if (!eventEnum)
+        {
+            result.ErrorCode = GetLastError();
+            if (result.ErrorCode == ERROR_SUCCESS) result.ErrorCode = ERROR_EVT_INVALID_EVENT_DATA;
+            result.Details.ErrorCode = result.ErrorCode;
+            result.Status = MapError(result.ErrorCode);
+            return result;
+        }
+
+        for (;;)
         {
             if (cancellation && cancellation->load(std::memory_order_relaxed))
             {
@@ -305,11 +332,13 @@ namespace AstralChronicle::services
             unique_evt_handle eventMetadata{ EvtNextEventMetadata(eventEnum.get(), 0) };
             if (!eventMetadata)
             {
-                if (GetLastError() == ERROR_NO_MORE_ITEMS)
+                auto const error = GetLastError();
+                if (error == ERROR_NO_MORE_ITEMS)
                 {
                     break;
                 }
-                result.ErrorCode = GetLastError();
+                result.ErrorCode = error == ERROR_SUCCESS ? ERROR_EVT_INVALID_EVENT_DATA : error;
+                result.Details.ErrorCode = result.ErrorCode;
                 break;
             }
 
@@ -328,7 +357,7 @@ namespace AstralChronicle::services
         result.Status = result.ErrorCode == 0
             ? EventQueryStatus::Succeeded
             : MapError(result.ErrorCode);
-        if (result.Status == EventQueryStatus::Succeeded)
+        if (result.Status == EventQueryStatus::Succeeded && cacheEnabled)
         {
             std::scoped_lock lock{ m_cacheMutex };
             if (m_detailsCache.size() >= 64) m_detailsCache.erase(m_detailsCache.begin());

@@ -10,8 +10,8 @@
     <Page.Resources>
         <Style
             x:Key="EventLogsColumnHeaderButtonStyle"
-            BasedOn="{StaticResource DefaultHyperlinkButtonStyle}"
-            TargetType="HyperlinkButton">
+            BasedOn="{StaticResource DefaultButtonStyle}"
+            TargetType="Button">
             <Setter Property="Background" Value="{ThemeResource AstralTransparentBrush}" />
             <Setter Property="BorderBrush" Value="{ThemeResource AstralTransparentBrush}" />
             <Setter Property="BorderThickness" Value="0" />
@@ -19,6 +19,8 @@
             <Setter Property="Foreground" Value="{ThemeResource AstralSecondaryTextBrush}" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="MinWidth" Value="0" />
             <Setter Property="Padding" Value="16,4,8,4" />
             <Setter Property="FontSize" Value="13" />
         </Style>
@@ -119,18 +121,24 @@
                     AutomationProperties.AutomationId="EventLogsHeading"
                     Style="{StaticResource AstralPageTitleTextBlockStyle}"
                     Text="{x:Bind ViewModel.Heading, Mode=OneWay}" />
-                <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}">
+                <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
                     <TextBlock
                         x:Uid="EventLogsChannelLabel"
                         Style="{StaticResource AstralCaptionTextBlockStyle}" />
                     <TextBlock
+                        Grid.Column="1"
                         AutomationProperties.AutomationId="EventLogsChannelPath"
                         Style="{StaticResource AstralCaptionTextBlockStyle}"
                         Text="{x:Bind ViewModel.ChannelPath, Mode=OneWay}"
                         TextTrimming="CharacterEllipsis" />
-                </StackPanel>
+                </Grid>
             </StackPanel>
             <AutoSuggestBox
+                x:Name="EventSearchBox"
                 x:Uid="EventLogsSearchBox"
                 Grid.Column="1"
                 Width="260"
@@ -264,14 +272,16 @@
                         <SymbolIcon Symbol="Clear" />
                     </AppBarButton.Icon>
                 </AppBarButton>
-                <AppBarButton
+                <AppBarToggleButton
+                    x:Name="ToggleDetailsCommand"
                     x:Uid="EventLogsToggleDetailsCommand"
                     AutomationProperties.AutomationId="EventLogsToggleDetailsCommand"
-                    Click="OnToggleDetailsClicked">
-                    <AppBarButton.Icon>
+                    Click="OnToggleDetailsClicked"
+                    IsChecked="True">
+                    <AppBarToggleButton.Icon>
                         <SymbolIcon Symbol="View" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
+                    </AppBarToggleButton.Icon>
+                </AppBarToggleButton>
                 <CommandBar.SecondaryCommands>
                     <AppBarButton
                         x:Uid="EventLogsCopyCommand"
@@ -417,31 +427,41 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Grid
+                <ScrollViewer
+                    x:Name="EventHeaderScrollViewer"
                     Grid.Row="0"
-                    ColumnSpacing="{StaticResource AstralContentSpacing}"
-                    MinHeight="32">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="96" />
-                        <ColumnDefinition Width="150" />
-                        <ColumnDefinition Width="160" />
-                        <ColumnDefinition Width="84" />
-                        <ColumnDefinition Width="120" />
-                        <ColumnDefinition Width="180" />
-                        <ColumnDefinition Width="120" />
-                        <ColumnDefinition Width="150" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <HyperlinkButton x:Uid="EventLogsLevelHeaderButton" Tag="Level" Click="OnSortClicked" Grid.Column="0" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsTimeHeaderButton" Tag="Time" Click="OnSortClicked" Grid.Column="1" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsProviderHeaderButton" Tag="Provider" Click="OnSortClicked" Grid.Column="2" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsIdHeaderButton" Tag="EventId" Click="OnSortClicked" Grid.Column="3" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsTaskHeaderButton" Tag="Task" Click="OnSortClicked" Grid.Column="4" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsChannelHeaderButton" Tag="Channel" Click="OnSortClicked" Grid.Column="5" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsUserHeaderButton" Tag="User" Click="OnSortClicked" Grid.Column="6" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsComputerHeaderButton" Tag="Computer" Click="OnSortClicked" Grid.Column="7" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                    <HyperlinkButton x:Uid="EventLogsDescriptionHeaderButton" Tag="Description" Click="OnSortClicked" Grid.Column="8" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                </Grid>
+                    HorizontalContentAlignment="Stretch"
+                    HorizontalScrollBarVisibility="Hidden"
+                    HorizontalScrollMode="Enabled"
+                    IsTabStop="False"
+                    VerticalScrollBarVisibility="Hidden"
+                    VerticalScrollMode="Disabled">
+                    <Grid
+                        ColumnSpacing="{StaticResource AstralContentSpacing}"
+                        MinHeight="32"
+                        MinWidth="1440">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="96" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="84" />
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="EventLevelHeaderButton" x:Uid="EventLogsLevelHeaderButton" AutomationProperties.AutomationId="EventLogsLevelHeaderButton" Tag="Level" Click="OnSortClicked" Grid.Column="0" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventTimeHeaderButton" x:Uid="EventLogsTimeHeaderButton" AutomationProperties.AutomationId="EventLogsTimeHeaderButton" Tag="Time" Click="OnSortClicked" Grid.Column="1" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventProviderHeaderButton" x:Uid="EventLogsProviderHeaderButton" AutomationProperties.AutomationId="EventLogsProviderHeaderButton" Tag="Provider" Click="OnSortClicked" Grid.Column="2" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventIdHeaderButton" x:Uid="EventLogsIdHeaderButton" AutomationProperties.AutomationId="EventLogsIdHeaderButton" Tag="EventId" Click="OnSortClicked" Grid.Column="3" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventTaskHeaderButton" x:Uid="EventLogsTaskHeaderButton" AutomationProperties.AutomationId="EventLogsTaskHeaderButton" Tag="Task" Click="OnSortClicked" Grid.Column="4" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventChannelHeaderButton" x:Uid="EventLogsChannelHeaderButton" AutomationProperties.AutomationId="EventLogsChannelHeaderButton" Tag="Channel" Click="OnSortClicked" Grid.Column="5" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventUserHeaderButton" x:Uid="EventLogsUserHeaderButton" AutomationProperties.AutomationId="EventLogsUserHeaderButton" Tag="User" Click="OnSortClicked" Grid.Column="6" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventComputerHeaderButton" x:Uid="EventLogsComputerHeaderButton" AutomationProperties.AutomationId="EventLogsComputerHeaderButton" Tag="Computer" Click="OnSortClicked" Grid.Column="7" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventDescriptionHeaderButton" x:Uid="EventLogsDescriptionHeaderButton" AutomationProperties.AutomationId="EventLogsDescriptionHeaderButton" Tag="Description" Click="OnSortClicked" Grid.Column="8" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                    </Grid>
+                </ScrollViewer>
                 <ListView
                     x:Name="EventList"
                     Grid.Row="1"
@@ -449,6 +469,7 @@
                     IsItemClickEnabled="False"
                     ItemsSource="{x:Bind ViewModel.Events, Mode=OneWay}"
                     ItemContainerStyle="{StaticResource EventLogsListItemStyle}"
+                    Loaded="OnEventListLoaded"
                     SelectionChanged="OnSelectionChanged"
                     SelectedItem="{x:Bind ViewModel.SelectedEvent, Mode=OneWay}"
                     SelectionMode="Extended"
@@ -456,7 +477,11 @@
                     ShowsScrollingPlaceholders="True">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="local:EventLogItemViewModel">
-                            <Grid ColumnSpacing="{StaticResource AstralContentSpacing}" MinHeight="40">
+                            <Grid
+                                ColumnSpacing="{StaticResource AstralContentSpacing}"
+                                ContextRequested="OnEventItemContextRequested"
+                                MinHeight="40"
+                                MinWidth="1440">
                                 <Grid.ContextFlyout>
                                     <MenuFlyout>
                                         <MenuFlyoutItem

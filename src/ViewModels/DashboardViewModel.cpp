@@ -10,6 +10,7 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -46,6 +47,7 @@ namespace winrt::AstralChronicle::implementation
             localTime.tm_hour = 0;
             localTime.tm_min = 0;
             localTime.tm_sec = 0;
+            localTime.tm_isdst = -1;
             auto const localMidnight = std::mktime(&localTime);
             if (localMidnight == static_cast<std::time_t>(-1))
             {
@@ -71,16 +73,23 @@ namespace winrt::AstralChronicle::implementation
             return L"*[System[TimeCreated[@SystemTime >= '" + timestamp.str() + L"']]]";
         }
 
-        [[nodiscard]] std::wstring CriticalQuery(std::wstring const& sinceQuery)
+        [[nodiscard]] std::wstring LevelFilteredQuery(
+            std::wstring const& sinceQuery,
+            std::wstring_view const levelExpression)
         {
             auto const marker = sinceQuery.find(L"TimeCreated[");
             if (marker == std::wstring::npos)
             {
-                return L"*[System[(Level=1 or Level=2)]]";
+                return L"*[System[(" + std::wstring{ levelExpression } + L")]]";
             }
 
             auto const timeExpression = sinceQuery.substr(marker);
-            return L"*[System[(Level=1 or Level=2) and " + timeExpression.substr(0, timeExpression.size() - 3) + L"]]]";
+            if (timeExpression.size() < 3)
+            {
+                return L"*[System[(" + std::wstring{ levelExpression } + L")]]";
+            }
+            return L"*[System[(" + std::wstring{ levelExpression } + L") and " +
+                timeExpression.substr(0, timeExpression.size() - 3) + L"]]]";
         }
 
         [[nodiscard]] winrt::Microsoft::UI::Xaml::Controls::InfoBarSeverity SeverityFor(
@@ -107,16 +116,21 @@ namespace winrt::AstralChronicle::implementation
     }
 
     void DashboardViewModel::Initialize(
-        ::AstralChronicle::services::IEventQueryService const& eventQuery,
-        ::AstralChronicle::design::IStringResourceService const& strings,
+        std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher)
     {
-        m_eventQuery = &eventQuery;
-        m_strings = &strings;
+        m_eventQuery = std::move(eventQuery);
+        m_strings = std::move(strings);
+        if (!m_eventQuery || !m_strings)
+        {
+            throw std::invalid_argument("Dashboard requires query and string services.");
+        }
         m_dispatcher = dispatcher;
-        m_heading = strings.GetString(L"Dashboard.Heading");
-        m_summary = strings.GetString(L"Dashboard.Summary.Initial");
-        m_recentEventPreview = strings.GetString(L"Dashboard.RecentEventLoading");
+        m_eventItemSettings = ::AstralChronicle::viewmodels::PersistedSettingsSnapshot::Load().EventItems;
+        m_heading = m_strings->GetString(L"Dashboard.Heading");
+        m_summary = m_strings->GetString(L"Dashboard.Summary.Initial");
+        m_recentEventPreview = m_strings->GetString(L"Dashboard.RecentEventLoading");
 
         if (m_cancellation)
         {
@@ -127,19 +141,41 @@ namespace winrt::AstralChronicle::implementation
         m_isLoading = true;
         m_hasStatusMessage = false;
         m_statusSeverity = winrt::Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational;
-        auto const metricLoading = strings.GetString(L"Dashboard.MetricLoading.Text");
+        auto const metricLoading = m_strings->GetString(L"Dashboard.MetricLoading.Text");
         m_errorCount = metricLoading;
         m_warningCount = metricLoading;
         m_criticalCount = metricLoading;
         m_todayCount = metricLoading;
-        m_monitoringStatus = strings.GetString(L"Dashboard.Monitoring.NotConfigured.Text");
-        m_timelineSummary = strings.GetString(L"Dashboard.CrashTimelineLoading.Text");
-        m_statusText = strings.GetString(L"Dashboard.Loading.Text");
-        m_statusDetails = strings.GetString(L"Dashboard.LoadingDetails.Text");
+        m_monitoringStatus = m_strings->GetString(L"Dashboard.Monitoring.NotConfigured.Text");
+        m_timelineSummary = m_strings->GetString(L"Dashboard.CrashTimelineLoading.Text");
+        m_statusText = m_strings->GetString(L"Dashboard.Loading.Text");
+        m_statusDetails = m_strings->GetString(L"Dashboard.LoadingDetails.Text");
         m_recentCriticalEvents = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         RaiseDataProperties();
         auto const querySinceMidnight = QuerySinceLocalMidnight();
-        LoadAsync(requestVersion, m_cancellation, querySinceMidnight, CriticalQuery(querySinceMidnight));
+        LoadAsync(
+            requestVersion,
+            m_cancellation,
+            querySinceMidnight,
+            LevelFilteredQuery(querySinceMidnight, L"Level=1 or Level=2"));
+    }
+
+    std::wstring DashboardViewModel::QueryForTodayLevel(std::uint8_t const level)
+    {
+        if (level < 1 || level > 5)
+        {
+            return L"*[System[Level=0]]";
+        }
+        return LevelFilteredQuery(
+            QuerySinceLocalMidnight(),
+            L"Level=" + std::to_wstring(level));
+    }
+
+    std::wstring DashboardViewModel::QueryForTodayCriticalEvents()
+    {
+        return LevelFilteredQuery(
+            QuerySinceLocalMidnight(),
+            L"Level=1 or Level=2");
     }
 
     winrt::fire_and_forget DashboardViewModel::LoadAsync(
@@ -148,35 +184,51 @@ namespace winrt::AstralChronicle::implementation
         std::wstring querySinceMidnight,
         std::wstring criticalQuery)
     {
-        auto lifetime = get_strong();
-        co_await winrt::resume_background();
-        auto const counts = m_eventQuery->QueryLevelCounts(L"System", querySinceMidnight, cancellation);
-        auto const criticalEvents = m_eventQuery->QueryPageWithQuery(
-            L"System",
-            criticalQuery,
-            6,
-            true,
-            cancellation);
-
-        auto const dispatcher = m_dispatcher;
-        if (!dispatcher)
-        {
-            co_return;
-        }
-
         try
         {
+            auto const weakThis = get_weak();
+            auto const eventQuery = m_eventQuery;
+            auto const dispatcher = m_dispatcher;
+            if (!eventQuery || !dispatcher) co_return;
+            co_await winrt::resume_background();
+
+            ::AstralChronicle::services::EventLevelCountsResult counts;
+            ::AstralChronicle::services::EventQueryResult criticalEvents;
+            try
+            {
+                counts = eventQuery->QueryLevelCounts(L"System", querySinceMidnight, cancellation);
+                criticalEvents = eventQuery->QueryPageWithQuery(
+                    L"System",
+                    criticalQuery,
+                    6,
+                    true,
+                    cancellation);
+            }
+            catch (winrt::hresult_error const& exception)
+            {
+                auto const error = static_cast<std::uint32_t>(exception.code().value);
+                counts.ErrorCode = error;
+                criticalEvents.ErrorCode = error;
+            }
+            catch (...)
+            {
+                counts.ErrorCode = static_cast<std::uint32_t>(E_FAIL);
+                criticalEvents.ErrorCode = static_cast<std::uint32_t>(E_FAIL);
+            }
+
             auto const queued = dispatcher.TryEnqueue(
                 Microsoft::UI::Dispatching::DispatcherQueuePriority::Normal,
-                [lifetime = std::move(lifetime), this, requestVersion, cancellation,
+                [weakThis, requestVersion, cancellation,
                  counts = std::move(counts), criticalEvents = std::move(criticalEvents)]()
                 {
-                    if (requestVersion != m_requestVersion || cancellation != m_cancellation)
+                    auto const strongThis = weakThis.get();
+                    if (!strongThis || requestVersion != strongThis->m_requestVersion || cancellation != strongThis->m_cancellation ||
+                        cancellation->load(std::memory_order_relaxed))
                     {
                         return;
                     }
 
-                    ApplyResults(counts, criticalEvents);
+                    strongThis->ApplyResults(counts, criticalEvents);
                 });
 
             if (!queued)
@@ -230,7 +282,8 @@ namespace winrt::AstralChronicle::implementation
             auto item = winrt::make<winrt::AstralChronicle::implementation::EventLogItemViewModel>();
             winrt::get_self<winrt::AstralChronicle::implementation::EventLogItemViewModel>(item)->Initialize(
                 event,
-                *m_strings);
+                *m_strings,
+                m_eventItemSettings);
             eventVector.Append(item);
         }
         m_recentCriticalEvents = eventVector;

@@ -4,6 +4,7 @@
 #include "DesignSystem/Theme/IThemeService.h"
 
 #include <map>
+#include <memory>
 #include <mutex>
 #include <string_view>
 
@@ -11,13 +12,14 @@
 
 namespace AstralChronicle::design
 {
-    class ThemeService final : public IThemeService
+    class ThemeService final : public IThemeService, public std::enable_shared_from_this<ThemeService>
     {
     public:
         ThemeService();
         ~ThemeService();
 
         void Initialize(winrt::Microsoft::UI::Xaml::FrameworkElement const& rootElement) override;
+        void Detach() noexcept override;
         ThemeMode CurrentMode() const noexcept override;
         void SetMode(ThemeMode mode) override;
         [[nodiscard]] ThemeBackdrop Backdrop() const override;
@@ -48,5 +50,9 @@ namespace AstralChronicle::design
         winrt::event_token m_highContrastChangedToken{};
         mutable std::map<std::uint32_t, ThemeChangedCallback> m_subscribers;
         mutable std::uint32_t m_nextSubscriptionId{ 1 };
+        mutable ThemeBackdrop m_starrySkyBackdrop;
+        mutable ThemeBackdrop m_blackSoulsLeafBackdrop;
+        mutable bool m_starrySkyBackdropInitialized{};
+        mutable bool m_blackSoulsLeafBackdropInitialized{};
     };
 }

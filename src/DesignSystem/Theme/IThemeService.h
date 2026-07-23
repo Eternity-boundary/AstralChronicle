@@ -33,6 +33,7 @@ namespace AstralChronicle::design
         virtual ~IThemeService() = default;
 
         virtual void Initialize(winrt::Microsoft::UI::Xaml::FrameworkElement const& rootElement) = 0;
+        virtual void Detach() noexcept = 0;
         virtual ThemeMode CurrentMode() const noexcept = 0;
         virtual void SetMode(ThemeMode mode) = 0;
         [[nodiscard]] virtual ThemeBackdrop Backdrop() const = 0;

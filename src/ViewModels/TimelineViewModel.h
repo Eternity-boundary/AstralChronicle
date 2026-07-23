@@ -8,6 +8,7 @@
 #include <winrt/Microsoft.UI.Dispatching.h>
 
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -21,10 +22,11 @@ namespace winrt::AstralChronicle::implementation
     struct TimelineViewModel : TimelineViewModelT<TimelineViewModel>
     {
         TimelineViewModel();
+        ~TimelineViewModel() noexcept;
 
         void Initialize(
-            ::AstralChronicle::services::IEventQueryService const& eventQuery,
-            ::AstralChronicle::design::IStringResourceService const& strings,
+            std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher);
 
         [[nodiscard]] winrt::hstring Heading() const;
@@ -68,19 +70,23 @@ namespace winrt::AstralChronicle::implementation
             ::AstralChronicle::services::QueryCancellation cancellation,
             std::wstring timeRange,
             std::wstring level,
-            std::wstring channel);
+            std::wstring channel,
+            std::uint32_t maximumRecords);
         void ApplyResults(std::vector<::AstralChronicle::models::EventRecordSummary> events,
             ::AstralChronicle::services::EventQueryStatus status,
-            std::uint32_t errorCode);
+            std::uint32_t errorCode,
+            bool partialFailure);
         void ApplySearchFilter();
         void RaisePropertyChanged(winrt::hstring const& propertyName);
         void RaiseStatusProperties();
 
-        ::AstralChronicle::services::IEventQueryService const* m_eventQuery{};
-        ::AstralChronicle::design::IStringResourceService const* m_strings{};
+        std::shared_ptr<::AstralChronicle::services::IEventQueryService> m_eventQuery;
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> m_strings;
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         std::uint64_t m_requestVersion{};
         ::AstralChronicle::services::QueryCancellation m_cancellation;
+        ::AstralChronicle::viewmodels::EventItemSettings m_eventItemSettings;
+        std::uint32_t m_queryBatchSize{ 80 };
         winrt::hstring m_heading;
         winrt::hstring m_summary;
         winrt::hstring m_statusText;

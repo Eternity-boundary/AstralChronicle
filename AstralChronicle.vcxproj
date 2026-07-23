@@ -27,7 +27,7 @@
     -->
     <TargetName>$(RootNamespace)</TargetName>
     <DefaultLanguage>zh-TW</DefaultLanguage>
-    <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
     <AppContainerApplication>false</AppContainerApplication>
     <AppxPackage>true</AppxPackage>
     <ApplicationType>Windows Store</ApplicationType>
@@ -98,7 +98,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <LanguageStandard Condition="'$(VisualStudioVersion)' &gt;= '18.0'">stdcpp23</LanguageStandard>
-      <LanguageStandard Condition="'$(VisualStudioVersion)' &lt; '18.0'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(VisualStudioVersion)' &lt; '18.0'">stdcpp20</LanguageStandard>
       <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -166,6 +166,9 @@
     <ClInclude Include="src\Services\WindowsEventLiveService.h" />
     <ClInclude Include="src\Services\WindowsEventProviderService.h" />
     <ClInclude Include="src\Services\WindowsEventQueryService.h" />
+    <ClInclude Include="src\Services\EvtVariantReader.h" />
+    <ClInclude Include="src\Services\LocalDataFile.h" />
+    <ClInclude Include="src\Services\SessionPersistence.h" />
     <ClInclude Include="src\Services\WindowsRemoteEventService.h" />
     <ClInclude Include="src\Services\WindowsSavedViewRepository.h" />
     <ClInclude Include="src\Services\WindowsSessionRepository.h" />
@@ -180,6 +183,7 @@
     <ClInclude Include="src\ViewModels\DashboardViewModel.h" />
     <ClInclude Include="src\ViewModels\EventLogItemViewModel.h" />
     <ClInclude Include="src\ViewModels\EventLogsViewModel.h" />
+    <ClInclude Include="src\ViewModels\PersistedSettings.h" />
     <ClInclude Include="src\ViewModels\ProviderItemViewModel.h" />
     <ClInclude Include="src\ViewModels\ProvidersViewModel.h" />
     <ClInclude Include="src\ViewModels\LiveViewModel.h" />

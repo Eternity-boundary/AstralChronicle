@@ -5,7 +5,10 @@
 #include "Core/Navigation/INavigationService.h"
 #include "ViewModels/ProvidersViewModel.h"
 
+#include <winrt/Microsoft.UI.Dispatching.h>
+
 #include <functional>
+#include <memory>
 #include <string_view>
 
 namespace AstralChronicle::services
@@ -23,11 +26,12 @@ namespace winrt::AstralChronicle::implementation
     struct ProvidersPage : ProvidersPageT<ProvidersPage>
     {
         ProvidersPage();
+        ~ProvidersPage();
 
         [[nodiscard]] winrt::AstralChronicle::ProvidersViewModel ViewModel() const;
         void Initialize(
-            ::AstralChronicle::services::IEventProviderService const& providerService,
-            ::AstralChronicle::design::IStringResourceService const& strings,
+            std::shared_ptr<::AstralChronicle::services::IEventProviderService> providerService,
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             ::AstralChronicle::navigation::INavigationService& navigation,
             std::function<void(std::wstring_view)> navigationSelectionChanged);
 
@@ -49,11 +53,14 @@ namespace winrt::AstralChronicle::implementation
 
     private:
         [[nodiscard]] winrt::hstring BuildCopyText() const;
+        void ApplyPendingSearch();
         winrt::fire_and_forget ExportAsync(winrt::hstring text);
 
         winrt::AstralChronicle::ProvidersViewModel m_viewModel{ nullptr };
         ::AstralChronicle::navigation::INavigationService* m_navigation{};
         std::function<void(std::wstring_view)> m_navigationSelectionChanged;
+        Microsoft::UI::Dispatching::DispatcherQueueTimer m_searchDebounceTimer{ nullptr };
+        Microsoft::UI::Dispatching::DispatcherQueueTimer::Tick_revoker m_searchDebounceTickRevoker{};
     };
 }
 

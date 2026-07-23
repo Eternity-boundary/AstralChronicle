@@ -104,7 +104,14 @@
                     <TextBlock x:Uid="SharedComponentsGalleryTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
                     <TextBlock x:Uid="SharedComponentsGalleryDescription" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
                     <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}">
-                        <Button x:Uid="SharedComponentsGalleryButton" AutomationProperties.AutomationId="SharedComponentsGalleryButton" />
+                        <Button
+                            x:Uid="SharedComponentsGalleryButton"
+                            AutomationProperties.AutomationId="SharedComponentsGalleryButton"
+                            IsEnabled="False">
+                            <ToolTipService.ToolTip>
+                                <TextBlock x:Uid="SharedComponentsGalleryUnavailableTooltip" />
+                            </ToolTipService.ToolTip>
+                        </Button>
                         <InfoBar x:Uid="SharedComponentsGalleryInfoBar" AutomationProperties.AutomationId="SharedComponentsGalleryInfoBar" IsOpen="True" IsClosable="False" />
                     </StackPanel>
                 </StackPanel>

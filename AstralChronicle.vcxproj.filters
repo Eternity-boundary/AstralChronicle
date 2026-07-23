@@ -344,6 +344,15 @@
     <ClInclude Include="src\Services\WindowsEventQueryService.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
+    <ClInclude Include="src\Services\EvtVariantReader.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\LocalDataFile.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\SessionPersistence.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
     <ClInclude Include="src\Services\WindowsRemoteEventService.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
@@ -378,6 +387,9 @@
       <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="src\ViewModels\DashboardViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\PersistedSettings.h">
       <Filter>Header Files\ViewModels</Filter>
     </ClInclude>
     <ClInclude Include="src\ViewModels\EventLogItemViewModel.h">

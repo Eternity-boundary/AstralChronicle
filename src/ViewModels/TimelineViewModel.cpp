@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <cwctype>
+#include <stdexcept>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -85,6 +86,19 @@ namespace
             ? winrt::Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error
             : winrt::Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational;
     }
+
+    [[nodiscard]] std::wstring EscapeTsvField(winrt::hstring const& value)
+    {
+        auto result = std::wstring{ value.c_str(), value.size() };
+        for (auto& character : result)
+        {
+            if (character == L'\t' || character == L'\r' || character == L'\n')
+            {
+                character = L' ';
+            }
+        }
+        return result;
+    }
 }
 
 namespace winrt::AstralChronicle::implementation
@@ -94,18 +108,34 @@ namespace winrt::AstralChronicle::implementation
     {
     }
 
+    TimelineViewModel::~TimelineViewModel() noexcept
+    {
+        if (m_cancellation)
+        {
+            m_cancellation->store(true, std::memory_order_relaxed);
+        }
+    }
+
     void TimelineViewModel::Initialize(
-        ::AstralChronicle::services::IEventQueryService const& eventQuery,
-        ::AstralChronicle::design::IStringResourceService const& strings,
+        std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher)
     {
-        m_eventQuery = &eventQuery;
-        m_strings = &strings;
+        m_eventQuery = std::move(eventQuery);
+        m_strings = std::move(strings);
+        if (!m_eventQuery || !m_strings)
+        {
+            throw std::invalid_argument("Timeline requires query and string services.");
+        }
         m_dispatcher = dispatcher;
-        m_heading = strings.GetString(L"Timeline.Heading");
-        m_summary = strings.GetString(L"Timeline.Summary");
-        m_filterSummary = strings.GetString(L"Timeline.FilterNone.Text");
-        m_correlationSummary = strings.GetString(L"Timeline.Correlation.Text");
+        auto const settings = ::AstralChronicle::viewmodels::PersistedSettingsSnapshot::Load();
+        m_eventItemSettings = settings.EventItems;
+        m_queryBatchSize = settings.QueryBatchSize;
+        m_groupRepeated = settings.GroupRepeatedEvents;
+        m_heading = m_strings->GetString(L"Timeline.Heading");
+        m_summary = m_strings->GetString(L"Timeline.Summary");
+        m_filterSummary = m_strings->GetString(L"Timeline.FilterNone.Text");
+        m_correlationSummary = m_strings->GetString(L"Timeline.Correlation.Text");
         Refresh();
     }
 
@@ -124,7 +154,8 @@ namespace winrt::AstralChronicle::implementation
         LoadAsync(requestVersion, m_cancellation,
             std::wstring{ m_timeRange.c_str() },
             std::wstring{ m_levelFilter.c_str() },
-            std::wstring{ m_channelFilter.c_str() });
+            std::wstring{ m_channelFilter.c_str() },
+            m_queryBatchSize);
     }
 
     winrt::fire_and_forget TimelineViewModel::LoadAsync(
@@ -132,55 +163,90 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::services::QueryCancellation cancellation,
         std::wstring timeRange,
         std::wstring level,
-        std::wstring channel)
+        std::wstring channel,
+        std::uint32_t const maximumRecords)
     {
-        auto lifetime = get_strong();
-        co_await winrt::resume_background();
-        std::vector<::AstralChronicle::models::EventRecordSummary> events;
-        auto status = ::AstralChronicle::services::EventQueryStatus::NoEvents;
-        std::uint32_t errorCode{};
-        auto const query = QueryFor(timeRange, level);
-        std::vector<std::wstring> channels = channel == L"Any"
-            ? std::vector<std::wstring>{ L"System", L"Application", L"Security" }
-            : std::vector<std::wstring>{ channel };
-        for (auto const& currentChannel : channels)
+        try
         {
-            auto const result = m_eventQuery->QueryPageWithQuery(currentChannel, query, 80, true, cancellation);
-            if (result.Status == ::AstralChronicle::services::EventQueryStatus::Succeeded)
+            auto const weakThis = get_weak();
+            auto const eventQuery = m_eventQuery;
+            auto const dispatcher = m_dispatcher;
+            if (!eventQuery || !dispatcher) co_return;
+            co_await winrt::resume_background();
+            std::vector<::AstralChronicle::models::EventRecordSummary> events;
+            auto status = ::AstralChronicle::services::EventQueryStatus::NoEvents;
+            auto failureStatus = ::AstralChronicle::services::EventQueryStatus::NoEvents;
+            std::uint32_t errorCode{};
+            bool hadFailure{};
+            auto const query = QueryFor(timeRange, level);
+            std::vector<std::wstring> channels = channel == L"Any"
+                ? std::vector<std::wstring>{ L"System", L"Application", L"Security" }
+                : std::vector<std::wstring>{ channel };
+            for (auto const& currentChannel : channels)
             {
-                events.insert(events.end(), result.Events.begin(), result.Events.end());
-                status = result.Status;
+                auto const result = eventQuery->QueryPageWithQuery(currentChannel, query, maximumRecords, true, cancellation);
+                if (result.Status == ::AstralChronicle::services::EventQueryStatus::Succeeded)
+                {
+                    events.insert(events.end(), result.Events.begin(), result.Events.end());
+                    status = result.Status;
+                }
+                else if (result.Status != ::AstralChronicle::services::EventQueryStatus::NoEvents &&
+                    result.Status != ::AstralChronicle::services::EventQueryStatus::Cancelled)
+                {
+                    if (!hadFailure)
+                    {
+                        failureStatus = result.Status;
+                        errorCode = result.ErrorCode;
+                    }
+                    hadFailure = true;
+                }
+                if (cancellation->load(std::memory_order_relaxed) ||
+                    result.Status == ::AstralChronicle::services::EventQueryStatus::Cancelled)
+                {
+                    status = ::AstralChronicle::services::EventQueryStatus::Cancelled;
+                    errorCode = result.ErrorCode;
+                    break;
+                }
             }
-            else if (events.empty() && result.Status != ::AstralChronicle::services::EventQueryStatus::NoEvents)
+            auto const cancelled = status == ::AstralChronicle::services::EventQueryStatus::Cancelled;
+            auto const partialFailure = !cancelled && hadFailure && !events.empty();
+            if (!cancelled && events.empty() && hadFailure)
             {
-                status = result.Status;
-                errorCode = result.ErrorCode;
+                status = failureStatus;
             }
-            if (cancellation->load(std::memory_order_relaxed))
+            std::sort(events.begin(), events.end(), [](auto const& left, auto const& right)
             {
-                status = ::AstralChronicle::services::EventQueryStatus::Cancelled;
-                break;
+                return left.TimeCreated > right.TimeCreated;
+            });
+            co_await wil::resume_foreground(dispatcher);
+            auto const strongThis = weakThis.get();
+            if (!strongThis || requestVersion != strongThis->m_requestVersion || cancellation != strongThis->m_cancellation ||
+                cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
             }
+            strongThis->ApplyResults(std::move(events), status, errorCode, partialFailure);
         }
-        std::sort(events.begin(), events.end(), [](auto const& left, auto const& right)
+        catch (...)
         {
-            return left.TimeCreated > right.TimeCreated;
-        });
-        co_await wil::resume_foreground(m_dispatcher);
-        if (requestVersion != m_requestVersion || cancellation != m_cancellation) co_return;
-        ApplyResults(std::move(events), status, errorCode);
+            co_return;
+        }
     }
 
     void TimelineViewModel::ApplyResults(
         std::vector<::AstralChronicle::models::EventRecordSummary> events,
         ::AstralChronicle::services::EventQueryStatus const status,
-        std::uint32_t const errorCode)
+        std::uint32_t const errorCode,
+        bool const partialFailure)
     {
         auto values = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         for (auto const& event : events)
         {
             auto item = winrt::make<winrt::AstralChronicle::implementation::EventLogItemViewModel>();
-            winrt::get_self<winrt::AstralChronicle::implementation::EventLogItemViewModel>(item)->Initialize(event, *m_strings);
+            winrt::get_self<winrt::AstralChronicle::implementation::EventLogItemViewModel>(item)->Initialize(
+                event,
+                *m_strings,
+                m_eventItemSettings);
             values.Append(item);
         }
         m_allEvents = values;
@@ -191,8 +257,9 @@ namespace winrt::AstralChronicle::implementation
         m_isLoading = false;
         m_statusSeverity = SeverityFor(status);
         m_statusDetails.clear();
-        if (status == ::AstralChronicle::services::EventQueryStatus::Succeeded ||
+        if (!partialFailure && (status == ::AstralChronicle::services::EventQueryStatus::Succeeded ||
             status == ::AstralChronicle::services::EventQueryStatus::NoEvents)
+        )
         {
             m_hasStatusMessage = false;
             m_statusText = m_strings->GetString(L"Timeline.Ready.Text");
@@ -201,8 +268,13 @@ namespace winrt::AstralChronicle::implementation
         else
         {
             m_hasStatusMessage = true;
+            if (partialFailure)
+            {
+                m_statusSeverity = Microsoft::UI::Xaml::Controls::InfoBarSeverity::Warning;
+            }
             m_statusText = m_strings->GetString(L"Timeline.QueryFailed.Text");
             m_statusDetails = FormatResource(m_strings->GetString(L"Timeline.ErrorDetails.Text"), { winrt::to_hstring(errorCode) });
+            m_summary = FormatResource(m_strings->GetString(L"Timeline.SummaryCount.Text"), { winrt::to_hstring(events.size()) });
         }
         RaiseStatusProperties();
         RaisePropertyChanged(L"Summary");
@@ -233,6 +305,25 @@ namespace winrt::AstralChronicle::implementation
             }
         }
         m_events = filtered;
+        if (m_selectedEvent)
+        {
+            bool selectionVisible{};
+            for (auto const& item : m_events)
+            {
+                if (item == m_selectedEvent)
+                {
+                    selectionVisible = true;
+                    break;
+                }
+            }
+            if (!selectionVisible)
+            {
+                m_selectedEvent = nullptr;
+                m_selectedEventDetails.clear();
+                RaisePropertyChanged(L"SelectedEvent");
+                RaisePropertyChanged(L"SelectedEventDetails");
+            }
+        }
         m_filterSummary = FormatResource(
             m_strings->GetString(L"Timeline.FilterSummary.Text"),
             { winrt::to_hstring(m_events.Size()), winrt::to_hstring(m_allEvents ? m_allEvents.Size() : 0) });
@@ -299,14 +390,14 @@ namespace winrt::AstralChronicle::implementation
 
     winrt::hstring TimelineViewModel::ExportText() const
     {
-        std::wstring result{ L"Time\tLevel\tProvider\tEventId\tChannel\tDescription\n" };
+        std::wstring result{ L"Time\tLevel\tProvider\tEventId\tChannel\tDescription\r\n" };
         if (m_events)
         {
             for (auto const& item : m_events)
             {
-                result += std::wstring{ item.TimeCreated().c_str() } + L"\t" + item.Level().c_str() + L"\t" +
-                    item.Provider().c_str() + L"\t" + item.EventId().c_str() + L"\t" + item.Channel().c_str() + L"\t" +
-                    item.ShortDescription().c_str() + L"\n";
+                result += EscapeTsvField(item.TimeCreated()) + L"\t" + EscapeTsvField(item.Level()) + L"\t" +
+                    EscapeTsvField(item.Provider()) + L"\t" + EscapeTsvField(item.EventId()) + L"\t" +
+                    EscapeTsvField(item.Channel()) + L"\t" + EscapeTsvField(item.ShortDescription()) + L"\r\n";
             }
         }
         return winrt::hstring{ result };

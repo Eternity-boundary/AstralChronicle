@@ -8,6 +8,7 @@
 #include <winrt/Microsoft.UI.Dispatching.h>
 
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -21,10 +22,11 @@ namespace winrt::AstralChronicle::implementation
     struct ProvidersViewModel : ProvidersViewModelT<ProvidersViewModel>
     {
         ProvidersViewModel();
+        ~ProvidersViewModel() noexcept;
 
         void Initialize(
-            ::AstralChronicle::services::IEventProviderService const& providerService,
-            ::AstralChronicle::design::IStringResourceService const& strings,
+            std::shared_ptr<::AstralChronicle::services::IEventProviderService> providerService,
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher);
 
         [[nodiscard]] winrt::hstring Heading() const;
@@ -70,8 +72,8 @@ namespace winrt::AstralChronicle::implementation
         void RaisePropertyChanged(winrt::hstring const& propertyName);
         void RaiseStatusProperties();
 
-        ::AstralChronicle::services::IEventProviderService const* m_providerService{};
-        ::AstralChronicle::design::IStringResourceService const* m_strings{};
+        std::shared_ptr<::AstralChronicle::services::IEventProviderService> m_providerService;
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> m_strings;
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         ::AstralChronicle::services::QueryCancellation m_cancellation;
         ::AstralChronicle::services::QueryCancellation m_detailsCancellation;

@@ -6,6 +6,7 @@
 #include "ViewModels/TimelineViewModel.h"
 
 #include <functional>
+#include <memory>
 #include <string_view>
 
 namespace AstralChronicle::services
@@ -26,8 +27,8 @@ namespace winrt::AstralChronicle::implementation
 
         [[nodiscard]] winrt::AstralChronicle::TimelineViewModel ViewModel() const;
         void Initialize(
-            ::AstralChronicle::services::IEventQueryService const& eventQuery,
-            ::AstralChronicle::design::IStringResourceService const& strings,
+            std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
             ::AstralChronicle::navigation::INavigationService& navigation,
             std::function<void(std::wstring_view)> navigationSelectionChanged);

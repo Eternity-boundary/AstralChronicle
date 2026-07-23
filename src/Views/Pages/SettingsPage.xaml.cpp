@@ -49,9 +49,15 @@ namespace winrt::AstralChronicle::implementation
 
     SettingsPage::~SettingsPage()
     {
-        if (m_theme && m_themeSubscriptionId != 0)
+        try
         {
-            m_theme->Unsubscribe(m_themeSubscriptionId);
+            if (m_theme && m_themeSubscriptionId != 0)
+            {
+                m_theme->Unsubscribe(m_themeSubscriptionId);
+            }
+        }
+        catch (...)
+        {
         }
     }
 
@@ -61,23 +67,37 @@ namespace winrt::AstralChronicle::implementation
     }
 
     void SettingsPage::Initialize(
-        ::AstralChronicle::design::IThemeService& theme,
-        ::AstralChronicle::design::IStringResourceService const& strings)
+        std::shared_ptr<::AstralChronicle::design::IThemeService> theme,
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings)
     {
-        m_theme = &theme;
+        if (!theme || !strings)
+        {
+            throw std::invalid_argument("Settings require theme and string services.");
+        }
+        if (m_theme && m_themeSubscriptionId != 0)
+        {
+            m_theme->Unsubscribe(m_themeSubscriptionId);
+            m_themeSubscriptionId = 0;
+        }
+        m_theme = std::move(theme);
         m_isInitializing = true;
         winrt::get_self<SettingsViewModel>(m_viewModel)->Initialize(
-            static_cast<std::int32_t>(theme.CurrentMode()),
-            strings.GetString(L"Settings.Heading"),
-            strings.GetString(L"Settings.Description"),
-            strings.GetString(L"Settings.ThemeHint"));
+            static_cast<std::int32_t>(m_theme->CurrentMode()),
+            strings->GetString(L"Settings.Heading"),
+            strings->GetString(L"Settings.Description"),
+            strings->GetString(L"Settings.ThemeHint"));
         LanguageRadioButtons().SelectedIndex(CurrentLanguageIndex());
         m_isInitializing = false;
 
+        auto const weak = get_weak();
         m_themeSubscriptionId = m_theme->Subscribe(
-            [this](::AstralChronicle::design::ThemeMode mode)
+            [weak](::AstralChronicle::design::ThemeMode mode)
             {
-                winrt::get_self<SettingsViewModel>(m_viewModel)->SelectedThemeIndex(static_cast<std::int32_t>(mode));
+                if (auto const self = weak.get())
+                {
+                    winrt::get_self<SettingsViewModel>(self->m_viewModel)->SelectedThemeIndex(
+                        static_cast<std::int32_t>(mode));
+                }
             });
     }
 

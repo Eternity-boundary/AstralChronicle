@@ -2,6 +2,8 @@
 #include "pch.h"
 #include "EventLogsPage.xaml.h"
 
+#include "DesignSystem/Localization/IStringResourceService.h"
+
 #include "EventLogsPage.g.cpp"
 
 #include <shellapi.h>
@@ -10,13 +12,35 @@
 #include <winrt/Windows.ApplicationModel.DataTransfer.h>
 
 #include <winrt/Microsoft.UI.Content.h>
+#include <winrt/Microsoft.UI.Xaml.Automation.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
+#include <winrt/Microsoft.UI.Xaml.Media.h>
 
+#include <array>
 #include <string>
 #include <vector>
 
 namespace
 {
+    template <typename T>
+    [[nodiscard]] T FindVisualDescendant(winrt::Microsoft::UI::Xaml::DependencyObject const& root)
+    {
+        auto const childCount = winrt::Microsoft::UI::Xaml::Media::VisualTreeHelper::GetChildrenCount(root);
+        for (std::int32_t index = 0; index < childCount; ++index)
+        {
+            auto const child = winrt::Microsoft::UI::Xaml::Media::VisualTreeHelper::GetChild(root, index);
+            if (auto const match = child.try_as<T>())
+            {
+                return match;
+            }
+            if (auto const descendant = FindVisualDescendant<T>(child))
+            {
+                return descendant;
+            }
+        }
+        return nullptr;
+    }
+
     [[nodiscard]] std::wstring CurrentExecutablePath()
     {
         std::vector<wchar_t> buffer(260);
@@ -95,11 +119,15 @@ namespace winrt::AstralChronicle::implementation
     }
 
     void EventLogsPage::Initialize(
-        ::AstralChronicle::services::IEventQueryService const& eventQuery,
-        ::AstralChronicle::design::IStringResourceService const& strings,
+        std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel,
         std::optional<std::wstring> const& query)
     {
+        m_strings = strings;
+        Microsoft::UI::Xaml::Automation::AutomationProperties::SetName(
+            EventSearchBox(),
+            strings->GetString(L"EventLogsSearchBox.PlaceholderText"));
         if (m_viewModelPropertyChangedToken.value != 0)
         {
             m_viewModel.PropertyChanged(m_viewModelPropertyChangedToken);
@@ -112,15 +140,20 @@ namespace winrt::AstralChronicle::implementation
                 {
                     UpdateAccessDeniedAction();
                 }
+                else if (args.PropertyName() == L"SortKey" || args.PropertyName() == L"SortAscending")
+                {
+                    UpdateSortAutomation();
+                }
             });
         UpdateAccessDeniedAction();
 
         winrt::get_self<EventLogsViewModel>(m_viewModel)->Initialize(
-            eventQuery,
-            strings,
+            std::move(eventQuery),
+            std::move(strings),
             PageRoot().DispatcherQueue(),
             channel,
             query);
+        UpdateSortAutomation();
     }
 
     void EventLogsPage::UpdateAccessDeniedAction()
@@ -179,6 +212,39 @@ namespace winrt::AstralChronicle::implementation
         winrt::get_self<EventLogsViewModel>(m_viewModel)->SortBy(key);
     }
 
+    void EventLogsPage::UpdateSortAutomation()
+    {
+        if (!m_strings)
+        {
+            return;
+        }
+
+        auto const headers = std::array<Microsoft::UI::Xaml::FrameworkElement, 9>{
+            EventLevelHeaderButton(),
+            EventTimeHeaderButton(),
+            EventProviderHeaderButton(),
+            EventIdHeaderButton(),
+            EventTaskHeaderButton(),
+            EventChannelHeaderButton(),
+            EventUserHeaderButton(),
+            EventComputerHeaderButton(),
+            EventDescriptionHeaderButton(),
+        };
+        auto const sortKey = m_viewModel.SortKey();
+        auto const sortState = m_strings->GetString(
+            m_viewModel.SortAscending()
+                ? L"EventLogs.SortAscending.Text"
+                : L"EventLogs.SortDescending.Text");
+
+        for (auto const& header : headers)
+        {
+            auto const key = winrt::unbox_value<winrt::hstring>(header.Tag());
+            Microsoft::UI::Xaml::Automation::AutomationProperties::SetItemStatus(
+                header,
+                key == sortKey ? sortState : winrt::hstring{});
+        }
+    }
+
     void EventLogsPage::OnApplyStructuredFilterClicked(
         winrt::Windows::Foundation::IInspectable const&,
         Microsoft::UI::Xaml::RoutedEventArgs const&)
@@ -234,8 +300,16 @@ namespace winrt::AstralChronicle::implementation
         winrt::Windows::Foundation::IInspectable const&,
         Microsoft::UI::Xaml::RoutedEventArgs const&)
     {
-        m_detailsPaneVisible = !m_detailsPaneVisible;
-        UpdateResponsiveLayout(ContentGrid().ActualWidth());
+        auto const width = ContentGrid().ActualWidth();
+        if (width < 800.0)
+        {
+            m_narrowDetailsPaneVisible = !m_narrowDetailsPaneVisible;
+        }
+        else
+        {
+            m_detailsPaneVisible = !m_detailsPaneVisible;
+        }
+        UpdateResponsiveLayout(width);
     }
 
     void EventLogsPage::OnContentGridSizeChanged(
@@ -257,23 +331,33 @@ namespace winrt::AstralChronicle::implementation
         auto const star = Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(
             1.0,
             Microsoft::UI::Xaml::GridUnitType::Star);
+        auto const twoStar = Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(
+            2.0,
+            Microsoft::UI::Xaml::GridUnitType::Star);
+        auto const threeStar = Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(
+            3.0,
+            Microsoft::UI::Xaml::GridUnitType::Star);
         auto const zero = Microsoft::UI::Xaml::GridLengthHelper::FromPixels(0.0);
-        auto const details = Microsoft::UI::Xaml::GridLengthHelper::FromPixels(480.0);
+        auto const channel = Microsoft::UI::Xaml::GridLengthHelper::FromPixels(220.0);
+        auto const wideDetails = Microsoft::UI::Xaml::GridLengthHelper::FromPixels(400.0);
+        auto const mediumDetails = Microsoft::UI::Xaml::GridLengthHelper::FromPixels(360.0);
 
         if (width >= 1200.0)
         {
-            columns.GetAt(0).Width(zero);
+            columns.GetAt(0).Width(channel);
             columns.GetAt(1).Width(star);
-            columns.GetAt(2).Width(m_detailsPaneVisible ? details : zero);
+            columns.GetAt(2).Width(m_detailsPaneVisible ? wideDetails : zero);
             rows.GetAt(0).Height(star);
             rows.GetAt(1).Height(zero);
-            ChannelPane().Visibility(Microsoft::UI::Xaml::Visibility::Collapsed);
+            ChannelPane().Visibility(Microsoft::UI::Xaml::Visibility::Visible);
             EventListPane().Visibility(Microsoft::UI::Xaml::Visibility::Visible);
             DetailsPane().Visibility(m_detailsPaneVisible
                 ? Microsoft::UI::Xaml::Visibility::Visible
                 : Microsoft::UI::Xaml::Visibility::Collapsed);
             Microsoft::UI::Xaml::Controls::Grid::SetRow(DetailsPane(), 0);
             Microsoft::UI::Xaml::Controls::Grid::SetColumn(DetailsPane(), 2);
+            ToggleDetailsCommand().IsChecked(
+                winrt::box_value(m_detailsPaneVisible).as<winrt::Windows::Foundation::IReference<bool>>());
             return;
         }
 
@@ -281,7 +365,7 @@ namespace winrt::AstralChronicle::implementation
         {
             columns.GetAt(0).Width(zero);
             columns.GetAt(1).Width(star);
-            columns.GetAt(2).Width(m_detailsPaneVisible ? details : zero);
+            columns.GetAt(2).Width(m_detailsPaneVisible ? mediumDetails : zero);
             rows.GetAt(0).Height(star);
             rows.GetAt(1).Height(zero);
             ChannelPane().Visibility(Microsoft::UI::Xaml::Visibility::Collapsed);
@@ -291,21 +375,85 @@ namespace winrt::AstralChronicle::implementation
                 : Microsoft::UI::Xaml::Visibility::Collapsed);
             Microsoft::UI::Xaml::Controls::Grid::SetRow(DetailsPane(), 0);
             Microsoft::UI::Xaml::Controls::Grid::SetColumn(DetailsPane(), 2);
+            ToggleDetailsCommand().IsChecked(
+                winrt::box_value(m_detailsPaneVisible).as<winrt::Windows::Foundation::IReference<bool>>());
             return;
         }
 
+        auto const detailsVisible = m_narrowDetailsPaneVisible;
         columns.GetAt(0).Width(zero);
         columns.GetAt(1).Width(star);
         columns.GetAt(2).Width(zero);
-        rows.GetAt(0).Height(star);
-        rows.GetAt(1).Height(m_detailsPaneVisible ? details : zero);
+        rows.GetAt(0).Height(detailsVisible ? threeStar : star);
+        rows.GetAt(1).Height(detailsVisible ? twoStar : zero);
         ChannelPane().Visibility(Microsoft::UI::Xaml::Visibility::Collapsed);
         EventListPane().Visibility(Microsoft::UI::Xaml::Visibility::Visible);
-        DetailsPane().Visibility(m_detailsPaneVisible
+        DetailsPane().Visibility(detailsVisible
             ? Microsoft::UI::Xaml::Visibility::Visible
             : Microsoft::UI::Xaml::Visibility::Collapsed);
         Microsoft::UI::Xaml::Controls::Grid::SetRow(DetailsPane(), 1);
         Microsoft::UI::Xaml::Controls::Grid::SetColumn(DetailsPane(), 1);
+        ToggleDetailsCommand().IsChecked(
+            winrt::box_value(detailsVisible).as<winrt::Windows::Foundation::IReference<bool>>());
+    }
+
+    void EventLogsPage::OnEventListLoaded(
+        winrt::Windows::Foundation::IInspectable const&,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        auto const scrollViewer = FindVisualDescendant<Microsoft::UI::Xaml::Controls::ScrollViewer>(EventList());
+        if (!scrollViewer || scrollViewer == m_eventListScrollViewer)
+        {
+            return;
+        }
+
+        m_eventListViewChangedRevoker.revoke();
+        m_eventListScrollViewer = scrollViewer;
+        m_eventListViewChangedRevoker = scrollViewer.ViewChanged(
+            winrt::auto_revoke,
+            { this, &EventLogsPage::OnEventListViewChanged });
+        OnEventListViewChanged(scrollViewer, nullptr);
+    }
+
+    void EventLogsPage::OnEventListViewChanged(
+        winrt::Windows::Foundation::IInspectable const& sender,
+        Microsoft::UI::Xaml::Controls::ScrollViewerViewChangedEventArgs const&)
+    {
+        auto const scrollViewer = sender.try_as<Microsoft::UI::Xaml::Controls::ScrollViewer>();
+        if (!scrollViewer)
+        {
+            return;
+        }
+
+        auto const horizontalOffset = winrt::box_value(scrollViewer.HorizontalOffset())
+            .as<winrt::Windows::Foundation::IReference<double>>();
+        (void)EventHeaderScrollViewer().ChangeView(horizontalOffset, nullptr, nullptr, true);
+    }
+
+    void EventLogsPage::OnEventItemContextRequested(
+        winrt::Windows::Foundation::IInspectable const& sender,
+        Microsoft::UI::Xaml::Input::ContextRequestedEventArgs const&)
+    {
+        auto const element = sender.try_as<Microsoft::UI::Xaml::FrameworkElement>();
+        auto const item = element
+            ? element.DataContext().try_as<winrt::AstralChronicle::EventLogItemViewModel>()
+            : nullptr;
+        if (!item)
+        {
+            return;
+        }
+
+        auto const selectedItems = EventList().SelectedItems();
+        for (auto const& selectedValue : selectedItems)
+        {
+            if (selectedValue.try_as<winrt::AstralChronicle::EventLogItemViewModel>() == item)
+            {
+                return;
+            }
+        }
+
+        selectedItems.Clear();
+        selectedItems.Append(item);
     }
 
     void EventLogsPage::OnSelectionChanged(

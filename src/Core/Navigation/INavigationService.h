@@ -36,6 +36,7 @@ namespace AstralChronicle::navigation
         virtual ~INavigationService() = default;
 
         virtual void Attach(winrt::Microsoft::UI::Xaml::Controls::Frame const& frame) = 0;
+        virtual void Detach() noexcept = 0;
         virtual void Register(PageRegistration registration) = 0;
         [[nodiscard]] virtual bool Navigate(std::wstring_view route) = 0;
         [[nodiscard]] virtual bool Navigate(NavigationRequest const& request) = 0;

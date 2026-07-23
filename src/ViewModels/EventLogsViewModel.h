@@ -11,6 +11,7 @@
 #include <winrt/Microsoft.UI.Dispatching.h>
 
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <string>
 #include <unordered_set>
@@ -26,10 +27,11 @@ namespace winrt::AstralChronicle::implementation
     struct EventLogsViewModel : EventLogsViewModelT<EventLogsViewModel>
     {
         EventLogsViewModel();
+        ~EventLogsViewModel() noexcept;
 
         void Initialize(
-            ::AstralChronicle::services::IEventQueryService const& eventQuery,
-            ::AstralChronicle::design::IStringResourceService const& strings,
+            std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
             std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel = std::nullopt,
             std::optional<std::wstring> const& query = std::nullopt);
@@ -126,6 +128,8 @@ namespace winrt::AstralChronicle::implementation
         winrt::fire_and_forget LoadAsync(
             std::uint64_t requestVersion,
             std::wstring channel,
+            std::wstring query,
+            std::uint32_t maximumRecords,
             ::AstralChronicle::services::QueryCancellation cancellation);
         winrt::fire_and_forget LoadDetailsAsync(
             std::uint64_t requestVersion,
@@ -147,8 +151,8 @@ namespace winrt::AstralChronicle::implementation
         void LoadBookmarks();
         void PersistBookmarks() const;
 
-        ::AstralChronicle::services::IEventQueryService const* m_eventQuery{};
-        ::AstralChronicle::design::IStringResourceService const* m_strings{};
+        std::shared_ptr<::AstralChronicle::services::IEventQueryService> m_eventQuery;
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> m_strings;
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         std::wstring m_channelPath;
         bool m_isStructuredQuery{};
@@ -159,6 +163,8 @@ namespace winrt::AstralChronicle::implementation
         std::uint64_t m_detailsRequestVersion{};
         ::AstralChronicle::services::QueryCancellation m_cancellation;
         ::AstralChronicle::services::QueryCancellation m_detailsCancellation;
+        ::AstralChronicle::viewmodels::EventItemSettings m_eventItemSettings;
+        std::uint32_t m_queryBatchSize{ 256 };
         winrt::hstring m_heading;
         winrt::hstring m_statusText;
         winrt::hstring m_statusDetails;
@@ -213,6 +219,7 @@ namespace winrt::AstralChronicle::implementation
         bool m_isDetailsLoading{};
         bool m_filterAfterToday{};
         bool m_hasStructuredFilter{};
+        bool m_persistBookmarks{ true };
         std::unordered_set<std::wstring> m_bookmarkedKeys;
         Microsoft::UI::Xaml::Controls::InfoBarSeverity m_statusSeverity{
             Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational };

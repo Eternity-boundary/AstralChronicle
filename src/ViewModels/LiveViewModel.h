@@ -6,7 +6,9 @@
 
 #include <winrt/Microsoft.UI.Dispatching.h>
 
+#include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 namespace AstralChronicle::design
@@ -19,10 +21,11 @@ namespace winrt::AstralChronicle::implementation
     struct LiveViewModel : LiveViewModelT<LiveViewModel>
     {
         LiveViewModel();
+        ~LiveViewModel() noexcept;
 
         void Initialize(
-            ::AstralChronicle::services::IEventLiveService& liveService,
-            ::AstralChronicle::design::IStringResourceService const& strings,
+            std::shared_ptr<::AstralChronicle::services::IEventLiveService> liveService,
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher);
 
         [[nodiscard]] winrt::hstring Heading() const;
@@ -73,6 +76,7 @@ namespace winrt::AstralChronicle::implementation
         void ToggleRecording();
         void Export();
         void BookmarkLatest();
+        void Shutdown() noexcept;
 
         winrt::event_token PropertyChanged(Microsoft::UI::Xaml::Data::PropertyChangedEventHandler const& handler);
         void PropertyChanged(winrt::event_token const& token) noexcept;
@@ -84,12 +88,18 @@ namespace winrt::AstralChronicle::implementation
         void SetStatus(winrt::hstring title, winrt::hstring details, Microsoft::UI::Xaml::Controls::InfoBarSeverity severity);
         void RaisePropertyChanged(winrt::hstring const& propertyName);
         void RaiseStatusProperties();
-        winrt::fire_and_forget ExportAsync(std::vector<std::wstring> events);
+        void RaiseMetricProperties();
+        winrt::fire_and_forget ExportAsync(
+            std::vector<std::wstring> events,
+            std::uint64_t lifetimeVersion,
+            bool redactComputerName,
+            bool redactUserNames);
 
-        ::AstralChronicle::services::IEventLiveService* m_liveService{};
-        ::AstralChronicle::design::IStringResourceService const* m_strings{};
+        std::shared_ptr<::AstralChronicle::services::IEventLiveService> m_liveService;
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> m_strings;
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         Microsoft::UI::Dispatching::DispatcherQueueTimer m_timer{ nullptr };
+        winrt::event_token m_timerTickToken{};
         winrt::hstring m_heading;
         winrt::hstring m_summary;
         winrt::hstring m_statusText;
@@ -105,6 +115,8 @@ namespace winrt::AstralChronicle::implementation
         std::vector<std::wstring> m_recordedEvents;
         bool m_autoScroll{ true };
         bool m_groupRepeated{};
+        bool m_redactComputerName{};
+        bool m_redactUserNames{};
         bool m_showCritical{ true };
         bool m_showErrors{ true };
         bool m_showWarnings{ true };
@@ -120,6 +132,9 @@ namespace winrt::AstralChronicle::implementation
         std::uint32_t m_warningCount{};
         std::uint32_t m_queueDepth{};
         std::uint32_t m_bookmarkCount{};
+        std::size_t m_maxVisibleRows{ 2'000 };
+        std::uint64_t m_lifetimeVersion{};
+        bool m_timerTickSubscribed{};
         Microsoft::UI::Xaml::Controls::InfoBarSeverity m_statusSeverity{
             Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational };
         winrt::event<Microsoft::UI::Xaml::Data::PropertyChangedEventHandler> m_propertyChanged;

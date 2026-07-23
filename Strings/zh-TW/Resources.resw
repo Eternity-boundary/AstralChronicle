@@ -162,6 +162,15 @@
   <data name="ShellSearchBox.PlaceholderText" xml:space="preserve">
     <value>搜尋</value>
   </data>
+  <data name="ShellSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>全域搜尋</value>
+  </data>
+  <data name="ShellSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.HelpText" xml:space="preserve">
+    <value>全域搜尋功能尚未開放。</value>
+  </data>
+  <data name="ShellSearchUnavailableTooltip.Text" xml:space="preserve">
+    <value>全域搜尋功能尚未開放。</value>
+  </data>
   <data name="DashboardNavigationItem.Content" xml:space="preserve">
     <value>儀表板</value>
   </data>
@@ -360,6 +369,24 @@
   <data name="DashboardTodayCardTitle.Text" xml:space="preserve">
     <value>今日重大事件</value>
   </data>
+  <data name="DashboardErrorNavigationCard.AutomationProperties.HelpText" xml:space="preserve">
+    <value>開啟今天的錯誤事件。</value>
+  </data>
+  <data name="DashboardErrorNavigationCard.AutomationProperties.LocalizedControlType" xml:space="preserve">
+    <value>導覽卡片</value>
+  </data>
+  <data name="DashboardWarningNavigationCard.AutomationProperties.HelpText" xml:space="preserve">
+    <value>開啟今天的警告事件。</value>
+  </data>
+  <data name="DashboardWarningNavigationCard.AutomationProperties.LocalizedControlType" xml:space="preserve">
+    <value>導覽卡片</value>
+  </data>
+  <data name="DashboardCriticalNavigationCard.AutomationProperties.HelpText" xml:space="preserve">
+    <value>開啟今天的重大事件。</value>
+  </data>
+  <data name="DashboardCriticalNavigationCard.AutomationProperties.LocalizedControlType" xml:space="preserve">
+    <value>導覽卡片</value>
+  </data>
   <data name="DashboardLiveCardTitle.Text" xml:space="preserve">
     <value>即時</value>
   </data>
@@ -509,6 +536,12 @@
   </data>
   <data name="EventLogsSearchBox.PlaceholderText" xml:space="preserve">
     <value>搜尋已載入的事件摘要</value>
+  </data>
+  <data name="EventLogs.SortAscending.Text" xml:space="preserve">
+    <value>已依升冪排序</value>
+  </data>
+  <data name="EventLogs.SortDescending.Text" xml:space="preserve">
+    <value>已依降冪排序</value>
   </data>
   <data name="EventLogsRefreshButton.Content" xml:space="preserve">
     <value>重新整理</value>
@@ -1061,6 +1094,12 @@
   </data>
   <data name="SharedComponentsGalleryButton.Content" xml:space="preserve">
     <value>語意按鈕</value>
+  </data>
+  <data name="SharedComponentsGalleryButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.HelpText" xml:space="preserve">
+    <value>此設計系統範例僅供展示，目前沒有可執行的動作。</value>
+  </data>
+  <data name="SharedComponentsGalleryUnavailableTooltip.Text" xml:space="preserve">
+    <value>此設計系統範例僅供展示，目前沒有可執行的動作。</value>
   </data>
   <data name="SharedComponentsGalleryInfoBar.Title" xml:space="preserve">
     <value>語意狀態</value>
@@ -1755,6 +1794,15 @@
   <data name="RemoteSavedConnectionsTitle.Text" xml:space="preserve">
     <value>已儲存的連線</value>
   </data>
+  <data name="RemoteSavedQueriesList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>已儲存的遠端查詢</value>
+  </data>
+  <data name="RemoteLiveEventsList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>遠端即時事件</value>
+  </data>
+  <data name="RemoteQueryResultsList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>遠端查詢結果</value>
+  </data>
   <data name="RemoteStateTitle.Text" xml:space="preserve">
     <value>連線狀態</value>
   </data>
@@ -1785,11 +1833,20 @@
   <data name="Sessions.NameRequired.Text" xml:space="preserve">
     <value>儲存前請輸入工作階段名稱。</value>
   </data>
+  <data name="Sessions.SaveFailed.Text" xml:space="preserve">
+    <value>無法儲存工作階段。</value>
+  </data>
+  <data name="Sessions.ImportFailed.Text" xml:space="preserve">
+    <value>無法匯入一或多個工作階段。</value>
+  </data>
   <data name="Sessions.Saved.Text" xml:space="preserve">
     <value>工作階段已儲存</value>
   </data>
   <data name="Sessions.Deleted.Text" xml:space="preserve">
     <value>工作階段已刪除</value>
+  </data>
+  <data name="Sessions.Duplicated.Text" xml:space="preserve">
+    <value>工作階段已複製</value>
   </data>
   <data name="Sessions.Resumed.Text" xml:space="preserve">
     <value>工作階段已標記為可繼續</value>

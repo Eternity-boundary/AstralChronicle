@@ -2,6 +2,7 @@
 #pragma once
 #include "RemotePage.g.h"
 #include "ViewModels/RemoteViewModel.h"
+#include <memory>
 namespace AstralChronicle::services { struct IRemoteEventService; struct IEventQueryService; }
 namespace AstralChronicle::design { struct IStringResourceService; }
 namespace winrt::AstralChronicle::implementation
@@ -10,7 +11,7 @@ namespace winrt::AstralChronicle::implementation
     {
         RemotePage();
         [[nodiscard]] winrt::AstralChronicle::RemoteViewModel ViewModel() const;
-        void Initialize(::AstralChronicle::services::IRemoteEventService& service, ::AstralChronicle::services::IEventQueryService const& localQuery, ::AstralChronicle::design::IStringResourceService const& strings);
+        void Initialize(std::shared_ptr<::AstralChronicle::services::IRemoteEventService> service, std::shared_ptr<::AstralChronicle::services::IEventQueryService> localQuery, std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings);
         void OnConnectClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
         void OnDisconnectClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
         void OnSaveConnectionClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
@@ -27,6 +28,7 @@ namespace winrt::AstralChronicle::implementation
         void OnStopRemoteLiveClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
         void OnSavedConnectionSelectionChanged(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const&);
         void OnPasswordChanged(winrt::Windows::Foundation::IInspectable const& sender, Microsoft::UI::Xaml::RoutedEventArgs const& args);
+        void OnUnloaded(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
     private:
         winrt::AstralChronicle::RemoteViewModel m_viewModel{ nullptr };
     };

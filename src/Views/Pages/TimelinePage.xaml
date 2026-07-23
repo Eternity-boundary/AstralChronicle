@@ -10,6 +10,93 @@
         x:Name="PageRoot"
         RowSpacing="{StaticResource AstralContentSpacing}"
         Style="{StaticResource AstralPageGridStyle}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="TimelineLayoutStates">
+                <VisualState x:Name="TimelineNarrowLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TimelineToolbarColumn0.Width" Value="*" />
+                        <Setter Target="TimelineToolbarColumn1.Width" Value="0" />
+                        <Setter Target="TimelineToolbarColumn2.Width" Value="0" />
+                        <Setter Target="TimelineToolbarColumn3.Width" Value="0" />
+                        <Setter Target="TimelineToolbarColumn4.Width" Value="0" />
+                        <Setter Target="TimelineToolbarRow0.Height" Value="Auto" />
+                        <Setter Target="TimelineToolbarRow1.Height" Value="Auto" />
+                        <Setter Target="TimelineToolbarRow2.Height" Value="Auto" />
+                        <Setter Target="TimelineToolbarRow3.Height" Value="Auto" />
+                        <Setter Target="TimelineToolbarRow4.Height" Value="Auto" />
+                        <Setter Target="TimelineToolbarGrid.ColumnSpacing" Value="0" />
+                        <Setter Target="TimelineTimeRangeBox.(Grid.Column)" Value="0" />
+                        <Setter Target="TimelineTimeRangeBox.(Grid.Row)" Value="1" />
+                        <Setter Target="TimelineTimeRangeBox.Margin" Value="0,8,0,0" />
+                        <Setter Target="TimelineLevelFilterBox.(Grid.Column)" Value="0" />
+                        <Setter Target="TimelineLevelFilterBox.(Grid.Row)" Value="2" />
+                        <Setter Target="TimelineLevelFilterBox.Margin" Value="0,8,0,0" />
+                        <Setter Target="TimelineChannelFilterBox.(Grid.Column)" Value="0" />
+                        <Setter Target="TimelineChannelFilterBox.(Grid.Row)" Value="3" />
+                        <Setter Target="TimelineChannelFilterBox.Margin" Value="0,8,0,0" />
+                        <Setter Target="TimelineActionsGrid.(Grid.Column)" Value="0" />
+                        <Setter Target="TimelineActionsGrid.(Grid.ColumnSpan)" Value="1" />
+                        <Setter Target="TimelineActionsGrid.(Grid.Row)" Value="4" />
+                        <Setter Target="TimelineActionsGrid.Margin" Value="0,8,0,0" />
+                        <Setter Target="TimelineActionColumn0.Width" Value="*" />
+                        <Setter Target="TimelineActionColumn1.Width" Value="*" />
+                        <Setter Target="TimelineActionColumn2.Width" Value="0" />
+                        <Setter Target="TimelineActionColumn3.Width" Value="0" />
+                        <Setter Target="TimelineActionRow0.Height" Value="Auto" />
+                        <Setter Target="TimelineActionRow1.Height" Value="Auto" />
+                        <Setter Target="TimelineRefreshButton.(Grid.Column)" Value="0" />
+                        <Setter Target="TimelineRefreshButton.(Grid.Row)" Value="0" />
+                        <Setter Target="TimelineOpenButton.(Grid.Column)" Value="1" />
+                        <Setter Target="TimelineOpenButton.(Grid.Row)" Value="0" />
+                        <Setter Target="TimelineBookmarkButton.(Grid.Column)" Value="0" />
+                        <Setter Target="TimelineBookmarkButton.(Grid.Row)" Value="1" />
+                        <Setter Target="TimelineBookmarkButton.Margin" Value="0,8,0,0" />
+                        <Setter Target="TimelineExportButton.(Grid.Column)" Value="1" />
+                        <Setter Target="TimelineExportButton.(Grid.Row)" Value="1" />
+                        <Setter Target="TimelineExportButton.Margin" Value="0,8,0,0" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="TimelineMediumLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="720" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TimelineToolbarColumn0.Width" Value="*" />
+                        <Setter Target="TimelineToolbarColumn1.Width" Value="*" />
+                        <Setter Target="TimelineToolbarColumn2.Width" Value="*" />
+                        <Setter Target="TimelineToolbarColumn3.Width" Value="0" />
+                        <Setter Target="TimelineToolbarColumn4.Width" Value="0" />
+                        <Setter Target="TimelineToolbarRow0.Height" Value="Auto" />
+                        <Setter Target="TimelineToolbarRow1.Height" Value="Auto" />
+                        <Setter Target="TimelineToolbarRow2.Height" Value="Auto" />
+                        <Setter Target="TimelineToolbarRow3.Height" Value="0" />
+                        <Setter Target="TimelineToolbarRow4.Height" Value="0" />
+                        <Setter Target="TimelineSearchBox.(Grid.ColumnSpan)" Value="3" />
+                        <Setter Target="TimelineTimeRangeBox.(Grid.Column)" Value="0" />
+                        <Setter Target="TimelineTimeRangeBox.(Grid.Row)" Value="1" />
+                        <Setter Target="TimelineTimeRangeBox.Margin" Value="0,8,0,0" />
+                        <Setter Target="TimelineLevelFilterBox.(Grid.Column)" Value="1" />
+                        <Setter Target="TimelineLevelFilterBox.(Grid.Row)" Value="1" />
+                        <Setter Target="TimelineLevelFilterBox.Margin" Value="0,8,0,0" />
+                        <Setter Target="TimelineChannelFilterBox.(Grid.Column)" Value="2" />
+                        <Setter Target="TimelineChannelFilterBox.(Grid.Row)" Value="1" />
+                        <Setter Target="TimelineChannelFilterBox.Margin" Value="0,8,0,0" />
+                        <Setter Target="TimelineActionsGrid.(Grid.Column)" Value="0" />
+                        <Setter Target="TimelineActionsGrid.(Grid.ColumnSpan)" Value="3" />
+                        <Setter Target="TimelineActionsGrid.(Grid.Row)" Value="2" />
+                        <Setter Target="TimelineActionsGrid.Margin" Value="0,8,0,0" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="TimelineWideLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1200" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -23,15 +110,27 @@
             AutomationProperties.AutomationId="TimelineHeading"
             Style="{StaticResource AstralPageTitleTextBlockStyle}" />
 
-        <Grid Grid.Row="1" ColumnSpacing="{StaticResource AstralContentSpacing}">
+        <Grid
+            x:Name="TimelineToolbarGrid"
+            Grid.Row="1"
+            ColumnSpacing="{StaticResource AstralContentSpacing}"
+            RowSpacing="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition x:Name="TimelineToolbarColumn0" Width="*" />
+                <ColumnDefinition x:Name="TimelineToolbarColumn1" Width="Auto" />
+                <ColumnDefinition x:Name="TimelineToolbarColumn2" Width="Auto" />
+                <ColumnDefinition x:Name="TimelineToolbarColumn3" Width="Auto" />
+                <ColumnDefinition x:Name="TimelineToolbarColumn4" Width="Auto" />
             </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="TimelineToolbarRow0" Height="Auto" />
+                <RowDefinition x:Name="TimelineToolbarRow1" Height="0" />
+                <RowDefinition x:Name="TimelineToolbarRow2" Height="0" />
+                <RowDefinition x:Name="TimelineToolbarRow3" Height="0" />
+                <RowDefinition x:Name="TimelineToolbarRow4" Height="0" />
+            </Grid.RowDefinitions>
             <AutoSuggestBox
+                x:Name="TimelineSearchBox"
                 x:Uid="TimelineSearchBox"
                 AutomationProperties.AutomationId="TimelineSearchBox"
                 Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
@@ -40,6 +139,7 @@
                 </AutoSuggestBox.QueryIcon>
             </AutoSuggestBox>
             <ComboBox
+                x:Name="TimelineTimeRangeBox"
                 x:Uid="TimelineTimeRangeBox"
                 Grid.Column="1"
                 AutomationProperties.AutomationId="TimelineTimeRangeBox"
@@ -53,6 +153,7 @@
                 <ComboBoxItem x:Uid="TimelineTimeRangeAny" Tag="Any" />
             </ComboBox>
             <ComboBox
+                x:Name="TimelineLevelFilterBox"
                 x:Uid="TimelineLevelFilterBox"
                 Grid.Column="2"
                 AutomationProperties.AutomationId="TimelineLevelFilterBox"
@@ -66,6 +167,7 @@
                 <ComboBoxItem x:Uid="TimelineLevelInformation" Tag="Information" />
             </ComboBox>
             <ComboBox
+                x:Name="TimelineChannelFilterBox"
                 x:Uid="TimelineChannelFilterBox"
                 Grid.Column="3"
                 AutomationProperties.AutomationId="TimelineChannelFilterBox"
@@ -77,12 +179,49 @@
                 <ComboBoxItem x:Uid="TimelineChannelApplication" Tag="Application" />
                 <ComboBoxItem x:Uid="TimelineChannelSecurity" Tag="Security" />
             </ComboBox>
-            <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}">
-                <Button x:Uid="TimelineRefreshButton" AutomationProperties.AutomationId="TimelineRefreshButton" Click="OnRefreshClicked" />
-                <Button x:Uid="TimelineOpenButton" AutomationProperties.AutomationId="TimelineOpenButton" Click="OnOpenClicked" />
-                <Button x:Uid="TimelineBookmarkButton" AutomationProperties.AutomationId="TimelineBookmarkButton" Click="OnBookmarkClicked" />
-                <Button x:Uid="TimelineExportButton" AutomationProperties.AutomationId="TimelineExportButton" Click="OnExportClicked" />
-            </StackPanel>
+            <Grid
+                x:Name="TimelineActionsGrid"
+                Grid.Column="4"
+                ColumnSpacing="{StaticResource AstralContentSpacing}"
+                RowSpacing="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition x:Name="TimelineActionColumn0" Width="Auto" />
+                    <ColumnDefinition x:Name="TimelineActionColumn1" Width="Auto" />
+                    <ColumnDefinition x:Name="TimelineActionColumn2" Width="Auto" />
+                    <ColumnDefinition x:Name="TimelineActionColumn3" Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition x:Name="TimelineActionRow0" Height="Auto" />
+                    <RowDefinition x:Name="TimelineActionRow1" Height="0" />
+                </Grid.RowDefinitions>
+                <Button
+                    x:Name="TimelineRefreshButton"
+                    x:Uid="TimelineRefreshButton"
+                    HorizontalAlignment="Stretch"
+                    AutomationProperties.AutomationId="TimelineRefreshButton"
+                    Click="OnRefreshClicked" />
+                <Button
+                    x:Name="TimelineOpenButton"
+                    x:Uid="TimelineOpenButton"
+                    Grid.Column="1"
+                    HorizontalAlignment="Stretch"
+                    AutomationProperties.AutomationId="TimelineOpenButton"
+                    Click="OnOpenClicked" />
+                <Button
+                    x:Name="TimelineBookmarkButton"
+                    x:Uid="TimelineBookmarkButton"
+                    Grid.Column="2"
+                    HorizontalAlignment="Stretch"
+                    AutomationProperties.AutomationId="TimelineBookmarkButton"
+                    Click="OnBookmarkClicked" />
+                <Button
+                    x:Name="TimelineExportButton"
+                    x:Uid="TimelineExportButton"
+                    Grid.Column="3"
+                    HorizontalAlignment="Stretch"
+                    AutomationProperties.AutomationId="TimelineExportButton"
+                    Click="OnExportClicked" />
+            </Grid>
         </Grid>
 
         <InfoBar
@@ -99,8 +238,8 @@
             <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                 <TextBox x:Uid="TimelineProviderFilterBox" AutomationProperties.AutomationId="TimelineProviderFilterBox" Text="{x:Bind ViewModel.ProviderFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                <CheckBox x:Uid="TimelineGroupRepeatedCheckBox" Grid.Column="1" IsChecked="{x:Bind ViewModel.GroupRepeated, Mode=TwoWay}" />
-                <TextBlock Grid.Column="2" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.BookmarkCount, Mode=OneWay}" VerticalAlignment="Center" />
+                <CheckBox x:Uid="TimelineGroupRepeatedCheckBox" Grid.Column="1" AutomationProperties.AutomationId="TimelineGroupRepeatedCheckBox" IsChecked="{x:Bind ViewModel.GroupRepeated, Mode=TwoWay}" />
+                <TextBlock Grid.Column="2" AutomationProperties.AutomationId="TimelineBookmarkCount" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.BookmarkCount, Mode=OneWay}" VerticalAlignment="Center" />
             </Grid>
             <TextBlock
                 AutomationProperties.AutomationId="TimelineSummary"

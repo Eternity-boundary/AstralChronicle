@@ -5,19 +5,31 @@
 #include "UniqueEvtHandle.h"
 
 #include <deque>
+#include <future>
+#include <memory>
 #include <mutex>
 #include <string>
+#include <thread>
+
+#include <wil/resource.h>
 
 namespace AstralChronicle::services
 {
     class WindowsRemoteEventService final : public IRemoteEventService
     {
     public:
+        ~WindowsRemoteEventService() override;
+
         [[nodiscard]] bool Connect(std::wstring_view host, std::wstring_view domain, std::wstring_view user, std::wstring_view password) override;
+        [[nodiscard]] RemoteProbeResult Probe(
+            std::wstring_view host,
+            std::wstring_view domain,
+            std::wstring_view user,
+            std::wstring_view password) const override;
         void Disconnect() noexcept override;
         [[nodiscard]] bool IsConnected() const noexcept override;
         [[nodiscard]] std::uint32_t LastError() const noexcept override;
-        [[nodiscard]] std::wstring_view Host() const noexcept override;
+        [[nodiscard]] std::wstring Host() const override;
         [[nodiscard]] std::vector<models::EventChannelDescriptor> EnumerateChannels() const override;
         [[nodiscard]] EventQueryResult QueryPage(
             std::wstring_view channel,
@@ -30,20 +42,66 @@ namespace AstralChronicle::services
         [[nodiscard]] LiveBatch TakeLiveBatch(std::uint32_t maximumEvents) override;
 
     private:
-        static DWORD WINAPI NotificationCallback(EVT_SUBSCRIBE_NOTIFY_ACTION action, PVOID userContext, EVT_HANDLE event);
-        void HandleNotification(EVT_SUBSCRIBE_NOTIFY_ACTION action, EVT_HANDLE event) noexcept;
+        struct SessionState final
+        {
+            SessionState(unique_evt_handle session, std::wstring host, std::uint64_t generation)
+                : Handle(std::move(session)), Host(std::move(host)), Generation(generation)
+            {
+            }
+
+            unique_evt_handle Handle;
+            mutable std::mutex ApiMutex;
+            std::wstring Host;
+            std::uint64_t Generation{};
+        };
+
+        struct SessionOpenResult final
+        {
+            unique_evt_handle Session;
+            std::uint32_t ErrorCode{};
+        };
+
+        struct WorkerStartResult final
+        {
+            bool Success{};
+            std::uint32_t ErrorCode{};
+        };
+
+        [[nodiscard]] static SessionOpenResult OpenValidatedSession(
+            std::wstring_view host,
+            std::wstring_view domain,
+            std::wstring_view user,
+            std::wstring_view password);
+        [[nodiscard]] static std::uint32_t ValidateSession(EVT_HANDLE session);
+        [[nodiscard]] std::shared_ptr<SessionState> SnapshotSession() const;
+        void RunLiveWorker(
+            std::stop_token stopToken,
+            HANDLE stopEvent,
+            std::shared_ptr<SessionState> session,
+            std::wstring channel,
+            std::wstring query,
+            std::promise<WorkerStartResult> startup);
+        void ProcessLiveEvent(EVT_HANDLE event);
+        void SetLiveError(std::uint32_t errorCode) noexcept;
+        void StopLiveWorkerLocked() noexcept;
         [[nodiscard]] std::wstring RenderEvent(EVT_HANDLE event) const;
-        unique_evt_handle m_session;
-        unique_evt_handle m_liveSubscription;
+
+        mutable std::mutex m_stateMutex;
+        std::shared_ptr<SessionState> m_session;
+        std::uint64_t m_generation{};
+        std::uint32_t m_lastError{};
+
         mutable std::mutex m_liveMutex;
         std::deque<std::wstring> m_liveEvents;
         std::uint32_t m_liveQueueLimit{ 5000 };
-        std::uint32_t m_liveDroppedCount{};
+        std::uint32_t m_liveDroppedSinceLastBatch{};
         std::uint32_t m_liveErrorCode{};
         std::uint64_t m_liveTotalReceived{};
         std::chrono::steady_clock::time_point m_liveStartedAt{};
         LiveState m_liveState{ LiveState::Ready };
-        std::wstring m_host;
-        std::uint32_t m_lastError{};
+
+        std::mutex m_liveWorkerMutex;
+        wil::unique_handle m_liveStopEvent;
+        std::jthread m_liveWorker;
     };
 }
