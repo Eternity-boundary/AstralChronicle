@@ -15,3 +15,6 @@ BundleArtifacts/
 
 # User-specific project settings
 *.vcxproj.user
+/AstralChronicle/Release-signed
+/Release-signed/AstralChronicle
+/BuildPerfCpp_trace_2dd67a_20260723_193935.etl
