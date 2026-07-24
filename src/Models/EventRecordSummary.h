@@ -12,7 +12,9 @@ namespace AstralChronicle::models
         std::uint64_t RecordId{};
         std::uint16_t EventId{};
         std::uint8_t Version{};
-        std::uint8_t Level{};
+        // 0 is a valid Windows event level (LogAlways), used by Security audit events.
+        // Reserve 0xFF for records where the level could not be read.
+        std::uint8_t Level{ 0xFF };
         std::uint8_t Opcode{};
         std::uint64_t Keywords{};
         std::chrono::system_clock::time_point TimeCreated{};

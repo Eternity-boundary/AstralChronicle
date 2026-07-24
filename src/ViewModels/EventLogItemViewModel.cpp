@@ -28,6 +28,9 @@ namespace
     {
         switch (level)
         {
+        case 0:
+            // Security audit events use LogAlways (0); Event Viewer presents it as Information.
+            return L"EventLogs.Level.Information";
         case 1:
             return L"EventLogs.Level.Critical";
         case 2:

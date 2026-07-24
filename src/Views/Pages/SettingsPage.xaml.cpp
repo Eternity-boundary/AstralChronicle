@@ -5,7 +5,7 @@
 #include "SettingsPage.g.cpp"
 
 #include <winrt/Microsoft.Windows.AppLifecycle.h>
-#include <winrt/Windows.Globalization.h>
+#include <winrt/Microsoft.Windows.Globalization.h>
 
 #include <algorithm>
 #include <string_view>
@@ -32,10 +32,10 @@ namespace winrt::AstralChronicle::implementation
 
         std::int32_t CurrentLanguageIndex()
         {
-            auto language = Windows::Globalization::ApplicationLanguages::PrimaryLanguageOverride();
+            auto language = Microsoft::Windows::Globalization::ApplicationLanguages::PrimaryLanguageOverride();
             if (language.empty())
             {
-                auto const languages = Windows::Globalization::ApplicationLanguages::Languages();
+                auto const languages = Microsoft::Windows::Globalization::ApplicationLanguages::Languages();
                 if (languages.Size() > 0)
                 {
                     language = languages.GetAt(0);
@@ -168,8 +168,15 @@ namespace winrt::AstralChronicle::implementation
             return;
         }
 
-        Windows::Globalization::ApplicationLanguages::PrimaryLanguageOverride(LanguageTagForIndex(index));
-        [[maybe_unused]] auto const restartRequested = Microsoft::Windows::AppLifecycle::AppInstance::Restart(L"");
+        Microsoft::Windows::Globalization::ApplicationLanguages::PrimaryLanguageOverride(
+            LanguageTagForIndex(index));
+
+        // Restart only returns when it fails. Preserve the failure reason for
+        // diagnostics instead of silently leaving the current UI unchanged.
+        auto const restartFailure = Microsoft::Windows::AppLifecycle::AppInstance::Restart(L"");
+        auto const diagnostic = std::wstring{ L"Language switch restart failed. Reason: " }
+            + std::to_wstring(static_cast<std::int32_t>(restartFailure));
+        OutputDebugStringW(diagnostic.c_str());
     }
 
     void SettingsPage::OnPageRootSizeChanged(
