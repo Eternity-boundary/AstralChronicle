@@ -7,7 +7,6 @@ ARM64/
 Generated Files/
 *.obj
 *.etl
-out/
 Release-signed/
 
 # NuGet restore cache
@@ -22,4 +21,4 @@ BundleArtifacts/
 /AstralChronicle/Release-signed
 /Release-signed/AstralChronicle
 /BuildPerfCpp_trace_2dd67a_20260723_193935.etl
-/out/tests/ChannelPathGrouping.obj
+/out
