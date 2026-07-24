@@ -7,6 +7,10 @@
 #include <mutex>
 #include <deque>
 #include <chrono>
+#include <future>
+#include <thread>
+
+#include <wil/resource.h>
 
 namespace AstralChronicle::services
 {
@@ -23,20 +27,27 @@ namespace AstralChronicle::services
         [[nodiscard]] LiveBatch TakeBatch(std::uint32_t maximumEvents) override;
 
     private:
-        static DWORD WINAPI NotificationCallback(
-            EVT_SUBSCRIBE_NOTIFY_ACTION action,
-            PVOID userContext,
-            EVT_HANDLE event);
-        void HandleNotification(EVT_SUBSCRIBE_NOTIFY_ACTION action, EVT_HANDLE event) noexcept;
+        struct WorkerStartResult final
+        {
+            bool Success{};
+            std::uint32_t ErrorCode{};
+        };
+
+        void RunWorker(
+            std::stop_token stopToken,
+            HANDLE stopEvent,
+            std::wstring channel,
+            std::wstring query,
+            std::promise<WorkerStartResult> startup);
+        void ProcessEvent(EVT_HANDLE event);
+        void SetWorkerError(std::uint32_t errorCode) noexcept;
+        void StopWorkerLocked() noexcept;
         [[nodiscard]] std::wstring RenderEvent(EVT_HANDLE event) const;
 
-        unique_evt_handle m_subscription;
         mutable std::mutex m_mutex;
         std::deque<std::wstring> m_events;
-        std::wstring m_channel;
-        std::wstring m_query;
         std::uint32_t m_queueLimit{ 5000 };
-        std::uint32_t m_droppedCount{};
+        std::uint32_t m_droppedSinceLastBatch{};
         std::uint32_t m_errorCode{};
         std::uint64_t m_totalReceived{};
         std::uint32_t m_criticalCount{};
@@ -44,5 +55,10 @@ namespace AstralChronicle::services
         std::uint32_t m_warningCount{};
         std::chrono::steady_clock::time_point m_startedAt{};
         LiveState m_state{ LiveState::Ready };
+        bool m_pauseRequested{};
+
+        std::mutex m_workerMutex;
+        wil::unique_handle m_stopEvent;
+        std::jthread m_worker;
     };
 }

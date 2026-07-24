@@ -8,6 +8,7 @@
 #include <winrt/Microsoft.UI.h>
 
 #include <functional>
+#include <memory>
 #include <string_view>
 
 namespace AstralChronicle::design
@@ -28,8 +29,8 @@ namespace winrt::AstralChronicle::implementation
 
         [[nodiscard]] winrt::AstralChronicle::SavedViewsViewModel ViewModel() const;
         void Initialize(
-            ::AstralChronicle::services::ISavedViewRepository& repository,
-            ::AstralChronicle::design::IStringResourceService const& strings,
+            std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> repository,
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             ::AstralChronicle::navigation::INavigationService& navigation,
             std::function<void(std::wstring_view)> navigationSelectionChanged);
 
@@ -51,7 +52,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::fire_and_forget ImportAsync(winrt::Microsoft::UI::WindowId windowId);
 
         winrt::AstralChronicle::SavedViewsViewModel m_viewModel{ nullptr };
-        ::AstralChronicle::design::IStringResourceService const* m_strings{};
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> m_strings;
         ::AstralChronicle::navigation::INavigationService* m_navigation{};
         std::function<void(std::wstring_view)> m_navigationSelectionChanged;
     };

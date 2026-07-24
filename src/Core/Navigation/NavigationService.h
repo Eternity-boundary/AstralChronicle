@@ -11,6 +11,7 @@ namespace AstralChronicle::navigation
     {
     public:
         void Attach(winrt::Microsoft::UI::Xaml::Controls::Frame const& frame) override;
+        void Detach() noexcept override;
         void Register(PageRegistration registration) override;
         [[nodiscard]] bool Navigate(std::wstring_view route) override;
         [[nodiscard]] bool Navigate(NavigationRequest const& request) override;

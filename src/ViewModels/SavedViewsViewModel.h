@@ -8,6 +8,7 @@
 #include <winrt/Microsoft.UI.Dispatching.h>
 
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -23,8 +24,8 @@ namespace winrt::AstralChronicle::implementation
         SavedViewsViewModel();
 
         void Initialize(
-            ::AstralChronicle::services::ISavedViewRepository& repository,
-            ::AstralChronicle::design::IStringResourceService const& strings,
+            std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> repository,
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher);
 
         [[nodiscard]] winrt::hstring Heading() const;
@@ -87,8 +88,8 @@ namespace winrt::AstralChronicle::implementation
         void RaisePropertyChanged(winrt::hstring const& propertyName);
         void RaiseStatusProperties();
 
-        ::AstralChronicle::services::ISavedViewRepository* m_repository{};
-        ::AstralChronicle::design::IStringResourceService const* m_strings{};
+        std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> m_repository;
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> m_strings;
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         std::uint64_t m_requestVersion{};
         winrt::hstring m_heading;
@@ -107,6 +108,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_editorCustomViewXml;
         winrt::hstring m_customViewWarning;
         std::vector<::AstralChronicle::models::SavedView> m_models;
+        std::wstring m_pendingSelectedId;
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::SavedViewItemViewModel> m_views{ nullptr };
         winrt::AstralChronicle::SavedViewItemViewModel m_selectedView{ nullptr };
         bool m_editorDetails{};

@@ -29,16 +29,7 @@ namespace AstralChronicle::design
 
     ThemeService::~ThemeService()
     {
-        try
-        {
-            if (m_accessibilitySettings && m_highContrastChangedToken.value != 0)
-            {
-                m_accessibilitySettings.HighContrastChanged(m_highContrastChangedToken);
-            }
-        }
-        catch (...)
-        {
-        }
+        Detach();
     }
 
     void ThemeService::Initialize(FrameworkElement const& rootElement)
@@ -46,6 +37,7 @@ namespace AstralChronicle::design
         {
             std::lock_guard lock(m_mutex);
             m_rootElement = rootElement;
+            m_dispatcher = rootElement.DispatcherQueue();
         }
 
         try
@@ -53,11 +45,14 @@ namespace AstralChronicle::design
             if (!m_accessibilitySettings)
             {
                 m_accessibilitySettings = Windows::UI::ViewManagement::AccessibilitySettings{};
+                auto const weak = weak_from_this();
                 m_highContrastChangedToken = m_accessibilitySettings.HighContrastChanged(
-                    [this](auto const&, auto const&)
+                    [weak](auto const&, auto const&)
                     {
-                        ApplyMode();
-                        NotifyThemeChanged(CurrentMode());
+                        if (auto const self = weak.lock())
+                        {
+                            self->OnHighContrastChanged();
+                        }
                     });
             }
         }
@@ -67,6 +62,34 @@ namespace AstralChronicle::design
         }
 
         ApplyMode();
+    }
+
+    void ThemeService::Detach() noexcept
+    {
+        auto accessibilitySettings = m_accessibilitySettings;
+        auto const token = m_highContrastChangedToken;
+        m_highContrastChangedToken = {};
+        m_accessibilitySettings = nullptr;
+
+        try
+        {
+            if (accessibilitySettings && token.value != 0)
+            {
+                accessibilitySettings.HighContrastChanged(token);
+            }
+        }
+        catch (...)
+        {
+        }
+
+        std::lock_guard lock(m_mutex);
+        m_rootElement = nullptr;
+        m_dispatcher = nullptr;
+        m_subscribers.clear();
+        m_starrySkyBackdrop = {};
+        m_blackSoulsLeafBackdrop = {};
+        m_starrySkyBackdropInitialized = false;
+        m_blackSoulsLeafBackdropInitialized = false;
     }
 
     ThemeMode ThemeService::CurrentMode() const noexcept
@@ -120,17 +143,49 @@ namespace AstralChronicle::design
         switch (mode)
         {
         case ThemeMode::StarrySky:
-            return ThemeBackdrop{
+        {
+            {
+                std::lock_guard lock(m_mutex);
+                if (m_starrySkyBackdropInitialized)
+                {
+                    return m_starrySkyBackdrop;
+                }
+            }
+            auto backdrop = ThemeBackdrop{
                 CreateImageBrush(L"ms-appx:///Assets/StarrySkyMain.png"),
                 CreateImageBrush(L"ms-appx:///Assets/StarrySkySide.png"),
                 CreateOverlayBrush(2, 8, 24, 0.55),
                 CreateOverlayBrush(0, 8, 18, 0.72) };
+            std::lock_guard lock(m_mutex);
+            if (!m_starrySkyBackdropInitialized)
+            {
+                m_starrySkyBackdrop = std::move(backdrop);
+                m_starrySkyBackdropInitialized = true;
+            }
+            return m_starrySkyBackdrop;
+        }
         case ThemeMode::BlackSoulsLeaf:
-            return ThemeBackdrop{
+        {
+            {
+                std::lock_guard lock(m_mutex);
+                if (m_blackSoulsLeafBackdropInitialized)
+                {
+                    return m_blackSoulsLeafBackdrop;
+                }
+            }
+            auto backdrop = ThemeBackdrop{
                 CreateImageBrush(L"ms-appx:///Assets/LeafMain.png"),
                 CreateImageBrush(L"ms-appx:///Assets/LeafSide.png"),
                 CreateOverlayBrush(9, 20, 10, 0.68),
                 CreateOverlayBrush(10, 28, 13, 0.78) };
+            std::lock_guard lock(m_mutex);
+            if (!m_blackSoulsLeafBackdropInitialized)
+            {
+                m_blackSoulsLeafBackdrop = std::move(backdrop);
+                m_blackSoulsLeafBackdropInitialized = true;
+            }
+            return m_blackSoulsLeafBackdrop;
+        }
         default:
             return {};
         }
@@ -259,6 +314,39 @@ namespace AstralChronicle::design
         }
     }
 
+    void ThemeService::OnHighContrastChanged() noexcept
+    {
+        try
+        {
+            Microsoft::UI::Dispatching::DispatcherQueue dispatcher{ nullptr };
+            {
+                std::lock_guard lock(m_mutex);
+                dispatcher = m_dispatcher;
+            }
+
+            if (dispatcher && !dispatcher.HasThreadAccess())
+            {
+                auto const weak = weak_from_this();
+                (void)dispatcher.TryEnqueue([weak]
+                    {
+                        if (auto const self = weak.lock())
+                        {
+                            self->ApplyMode();
+                            self->NotifyThemeChanged(self->CurrentMode());
+                        }
+                    });
+                return;
+            }
+
+            ApplyMode();
+            NotifyThemeChanged(CurrentMode());
+        }
+        catch (...)
+        {
+            // Accessibility notifications must not escape the OS event callback.
+        }
+    }
+
     void ThemeService::ApplyMode() const
     {
         FrameworkElement rootElement{ nullptr };
@@ -308,7 +396,14 @@ namespace AstralChronicle::design
             (void)subscriptionId;
             if (callback)
             {
-                callback(mode);
+                try
+                {
+                    callback(mode);
+                }
+                catch (...)
+                {
+                    // One subscriber must not prevent the remaining UI from updating.
+                }
             }
         }
     }

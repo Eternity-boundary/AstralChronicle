@@ -2,13 +2,17 @@
 #include "pch.h"
 #include "ProvidersPage.xaml.h"
 
+#include "DesignSystem/Localization/IStringResourceService.h"
+
 #include "ProvidersPage.g.cpp"
 
 #include <wil/cppwinrt_helpers.h>
 
 #include <winrt/Windows.ApplicationModel.DataTransfer.h>
 #include <winrt/Windows.Storage.h>
+#include <winrt/Microsoft.UI.Xaml.Automation.h>
 
+#include <chrono>
 #include <string>
 
 namespace
@@ -26,28 +30,26 @@ namespace
 
         std::wstring expression{ L"concat(" };
         std::size_t start{};
-        bool first{};
-        for (std::size_t index{}; index <= value.size(); ++index)
+        bool first = true;
+        for (;;)
         {
-            if (index == value.size() || value[index] == L'\'' || value[index] == L'\"')
+            auto const apostrophe = value.find(L'\'', start);
+            if (!first)
             {
-                if (!first)
-                {
-                    first = true;
-                }
-                else
-                {
-                    expression += L",";
-                }
-                expression += L"'" + value.substr(start, index - start) + L"'";
-                if (index < value.size())
-                {
-                    expression += L",\"";
-                    expression += value[index];
-                    expression += L"\"";
-                    start = index + 1;
-                }
+                expression += L",";
             }
+            expression += L"'" + value.substr(
+                start,
+                apostrophe == std::wstring::npos ? std::wstring::npos : apostrophe - start) + L"'";
+            first = false;
+
+            if (apostrophe == std::wstring::npos)
+            {
+                break;
+            }
+
+            expression += L",\"'\"";
+            start = apostrophe + 1;
         }
         expression += L")";
         return expression;
@@ -62,22 +64,51 @@ namespace winrt::AstralChronicle::implementation
         InitializeComponent();
     }
 
+    ProvidersPage::~ProvidersPage()
+    {
+        if (m_searchDebounceTimer)
+        {
+            m_searchDebounceTimer.Stop();
+        }
+        m_searchDebounceTickRevoker.revoke();
+    }
+
     winrt::AstralChronicle::ProvidersViewModel ProvidersPage::ViewModel() const
     {
         return m_viewModel;
     }
 
     void ProvidersPage::Initialize(
-        ::AstralChronicle::services::IEventProviderService const& providerService,
-        ::AstralChronicle::design::IStringResourceService const& strings,
+        std::shared_ptr<::AstralChronicle::services::IEventProviderService> providerService,
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         ::AstralChronicle::navigation::INavigationService& navigation,
         std::function<void(std::wstring_view)> navigationSelectionChanged)
     {
         m_navigation = &navigation;
         m_navigationSelectionChanged = std::move(navigationSelectionChanged);
+        Microsoft::UI::Xaml::Automation::AutomationProperties::SetName(
+            ProviderSearchBox(),
+            strings->GetString(L"ProvidersSearchBox.PlaceholderText"));
+        if (!m_searchDebounceTimer)
+        {
+            m_searchDebounceTimer = PageRoot().DispatcherQueue().CreateTimer();
+            m_searchDebounceTimer.Interval(std::chrono::milliseconds{ 275 });
+            m_searchDebounceTimer.IsRepeating(false);
+            auto const weak = get_weak();
+            m_searchDebounceTickRevoker = m_searchDebounceTimer.Tick(
+                winrt::auto_revoke,
+                [weak](Microsoft::UI::Dispatching::DispatcherQueueTimer const&,
+                    winrt::Windows::Foundation::IInspectable const&)
+                {
+                    if (auto const self = weak.get())
+                    {
+                        self->ApplyPendingSearch();
+                    }
+                });
+        }
         winrt::get_self<ProvidersViewModel>(m_viewModel)->Initialize(
-            providerService,
-            strings,
+            std::move(providerService),
+            std::move(strings),
             PageRoot().DispatcherQueue());
     }
 
@@ -96,6 +127,18 @@ namespace winrt::AstralChronicle::implementation
         {
             return;
         }
+        if (!m_searchDebounceTimer)
+        {
+            ApplyPendingSearch();
+            return;
+        }
+
+        m_searchDebounceTimer.Stop();
+        m_searchDebounceTimer.Start();
+    }
+
+    void ProvidersPage::ApplyPendingSearch()
+    {
         winrt::get_self<ProvidersViewModel>(m_viewModel)->SearchText(ProviderSearchBox().Text());
         winrt::get_self<ProvidersViewModel>(m_viewModel)->Refresh();
     }
@@ -162,10 +205,10 @@ namespace winrt::AstralChronicle::implementation
 
     winrt::fire_and_forget ProvidersPage::ExportAsync(winrt::hstring text)
     {
-        auto lifetime = get_strong();
-        co_await winrt::resume_background();
         try
         {
+            auto lifetime = get_strong();
+            co_await winrt::resume_background();
             auto const folder = winrt::Windows::Storage::ApplicationData::Current().LocalFolder();
             auto const file = co_await folder.CreateFileAsync(
                 L"EventProvider-metadata.txt",

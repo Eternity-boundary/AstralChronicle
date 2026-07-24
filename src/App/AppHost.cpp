@@ -44,6 +44,27 @@ namespace AstralChronicle::app
             std::make_shared<navigation::NavigationService>());
     }
 
+    AppHost::~AppHost()
+    {
+        // The service container is unordered. Break UI/service references in a
+        // deterministic order before the container starts releasing entries.
+        try
+        {
+            Navigation().Detach();
+        }
+        catch (...)
+        {
+        }
+
+        try
+        {
+            Theme().Detach();
+        }
+        catch (...)
+        {
+        }
+    }
+
     core::ServiceProvider const& AppHost::Services() const noexcept
     {
         return m_services;

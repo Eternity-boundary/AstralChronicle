@@ -6,6 +6,7 @@
 #include "ViewModels/TimelineViewModel.h"
 
 #include <functional>
+#include <memory>
 #include <string_view>
 
 namespace AstralChronicle::services
@@ -23,11 +24,12 @@ namespace winrt::AstralChronicle::implementation
     struct TimelinePage : TimelinePageT<TimelinePage>
     {
         TimelinePage();
+        ~TimelinePage();
 
         [[nodiscard]] winrt::AstralChronicle::TimelineViewModel ViewModel() const;
         void Initialize(
-            ::AstralChronicle::services::IEventQueryService const& eventQuery,
-            ::AstralChronicle::design::IStringResourceService const& strings,
+            std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
             ::AstralChronicle::navigation::INavigationService& navigation,
             std::function<void(std::wstring_view)> navigationSelectionChanged);
@@ -41,6 +43,9 @@ namespace winrt::AstralChronicle::implementation
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
         void OnRefreshClicked(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::RoutedEventArgs const& args);
+        void OnRestartAsAdministratorClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);
         void OnOpenClicked(
@@ -57,10 +62,12 @@ namespace winrt::AstralChronicle::implementation
             Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
 
     private:
+        void UpdateAccessDeniedAction();
         void NavigateToEvent(winrt::AstralChronicle::EventLogItemViewModel const& item);
         winrt::fire_and_forget ExportAsync(winrt::hstring text);
 
         winrt::AstralChronicle::TimelineViewModel m_viewModel{ nullptr };
+        winrt::event_token m_viewModelPropertyChangedToken{};
         ::AstralChronicle::navigation::INavigationService* m_navigation{};
         std::function<void(std::wstring_view)> m_navigationSelectionChanged;
     };

@@ -20,6 +20,7 @@ namespace AstralChronicle::app
     {
     public:
         AppHost();
+        ~AppHost();
 
         [[nodiscard]] core::ServiceProvider const& Services() const noexcept;
         [[nodiscard]] design::IStringResourceService& Strings() const;

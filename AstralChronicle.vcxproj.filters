@@ -136,6 +136,12 @@
     <Filter Include="Localization\zh-TW">
       <UniqueIdentifier>{FE6A77B4-F68E-4A65-8DD7-0D2B1827E494}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Localization\zh-CN">
+      <UniqueIdentifier>{99E081C7-75E8-41A3-ABC9-73C989CC99B6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Localization\ja-JP">
+      <UniqueIdentifier>{4BEB0D29-A77B-4FE5-9E0C-EDB3BDF9F020}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Documentation">
       <UniqueIdentifier>{3C810659-17B1-441E-8383-5EE8E058F0B9}</UniqueIdentifier>
     </Filter>
@@ -323,6 +329,9 @@
     <ClInclude Include="src\Services\ChannelPathGrouping.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
+    <ClInclude Include="src\Services\ElevationRestart.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
     <ClInclude Include="src\Services\EventQueryBuilder.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
@@ -342,6 +351,18 @@
       <Filter>Header Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="src\Services\WindowsEventQueryService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\EvtVariantReader.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\BookmarkPersistence.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\LocalDataFile.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\SessionPersistence.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="src\Services\WindowsRemoteEventService.h">
@@ -378,6 +399,9 @@
       <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="src\ViewModels\DashboardViewModel.h">
+      <Filter>Header Files\ViewModels</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewModels\PersistedSettings.h">
       <Filter>Header Files\ViewModels</Filter>
     </ClInclude>
     <ClInclude Include="src\ViewModels\EventLogItemViewModel.h">
@@ -509,6 +533,12 @@
     </PRIResource>
     <PRIResource Include="Strings\zh-TW\Resources.resw">
       <Filter>Localization\zh-TW</Filter>
+    </PRIResource>
+    <PRIResource Include="Strings\zh-CN\Resources.resw">
+      <Filter>Localization\zh-CN</Filter>
+    </PRIResource>
+    <PRIResource Include="Strings\ja-JP\Resources.resw">
+      <Filter>Localization\ja-JP</Filter>
     </PRIResource>
   </ItemGroup>
   <ItemGroup>

@@ -5,6 +5,7 @@
 #include <cerrno>
 #include <cwchar>
 #include <cwctype>
+#include <limits>
 #include <optional>
 #include <string_view>
 #include <vector>
@@ -23,7 +24,11 @@ namespace
         return value.substr(start, end - start + 1);
     }
 
-    [[nodiscard]] std::optional<std::wstring> NumericLiteral(std::wstring_view value)
+    constexpr std::wstring_view MatchNoneQuery = L"*[System[EventRecordID=0 and EventRecordID=1]]";
+
+    [[nodiscard]] std::optional<std::wstring> NumericLiteral(
+        std::wstring_view value,
+        std::uint64_t const maximumValue)
     {
         auto const trimmed = Trim(value);
         if (trimmed.empty() || trimmed.front() == L'-')
@@ -50,6 +55,10 @@ namespace
         errno = 0;
         auto const valueAsNumber = std::wcstoull(numberText.c_str(), &end, base);
         if (errno == ERANGE || end != numberText.c_str() + numberText.size())
+        {
+            return std::nullopt;
+        }
+        if (valueAsNumber > maximumValue)
         {
             return std::nullopt;
         }
@@ -107,6 +116,112 @@ namespace
         return result;
     }
 
+    [[nodiscard]] std::optional<std::uint32_t> XmlEntityCodePoint(std::wstring_view entity)
+    {
+        if (entity == L"amp") return L'&';
+        if (entity == L"lt") return L'<';
+        if (entity == L"gt") return L'>';
+        if (entity == L"quot") return L'"';
+        if (entity == L"apos") return L'\'';
+        if (entity.size() < 2 || entity.front() != L'#') return std::nullopt;
+
+        std::size_t cursor{ 1 };
+        std::uint32_t base{ 10 };
+        if (cursor < entity.size() && (entity[cursor] == L'x' || entity[cursor] == L'X'))
+        {
+            base = 16;
+            ++cursor;
+        }
+        if (cursor == entity.size()) return std::nullopt;
+
+        std::uint32_t value{};
+        for (; cursor < entity.size(); ++cursor)
+        {
+            auto const character = entity[cursor];
+            std::uint32_t digit{};
+            if (character >= L'0' && character <= L'9')
+            {
+                digit = static_cast<std::uint32_t>(character - L'0');
+            }
+            else if (base == 16 && character >= L'a' && character <= L'f')
+            {
+                digit = static_cast<std::uint32_t>(character - L'a' + 10);
+            }
+            else if (base == 16 && character >= L'A' && character <= L'F')
+            {
+                digit = static_cast<std::uint32_t>(character - L'A' + 10);
+            }
+            else
+            {
+                return std::nullopt;
+            }
+            if (digit >= base || value > (0x10FFFFu - digit) / base)
+            {
+                return std::nullopt;
+            }
+            value = value * base + digit;
+        }
+        if (value == 0 || value > 0x10FFFFu || (value >= 0xD800u && value <= 0xDFFFu))
+        {
+            return std::nullopt;
+        }
+        return value;
+    }
+
+    [[nodiscard]] std::optional<std::wstring> DecodeXmlText(std::wstring_view value)
+    {
+        std::wstring result;
+        result.reserve(value.size());
+        for (std::size_t cursor{}; cursor < value.size(); ++cursor)
+        {
+            if (value[cursor] != L'&')
+            {
+                result.push_back(value[cursor]);
+                continue;
+            }
+
+            auto const terminator = value.find(L';', cursor + 1);
+            if (terminator == std::wstring_view::npos)
+            {
+                return std::nullopt;
+            }
+            auto const codePoint = XmlEntityCodePoint(value.substr(cursor + 1, terminator - cursor - 1));
+            if (!codePoint)
+            {
+                return std::nullopt;
+            }
+            if (*codePoint <= 0xFFFFu)
+            {
+                result.push_back(static_cast<wchar_t>(*codePoint));
+            }
+            else
+            {
+                auto const supplementary = *codePoint - 0x10000u;
+                result.push_back(static_cast<wchar_t>(0xD800u + (supplementary >> 10)));
+                result.push_back(static_cast<wchar_t>(0xDC00u + (supplementary & 0x3FFu)));
+            }
+            cursor = terminator;
+        }
+        return result;
+    }
+
+    [[nodiscard]] std::wstring EncodeXmlText(std::wstring_view value)
+    {
+        std::wstring result;
+        result.reserve(value.size());
+        for (auto const character : value)
+        {
+            switch (character)
+            {
+            case L'&': result += L"&amp;"; break;
+            case L'<': result += L"&lt;"; break;
+            case L'>': result += L"&gt;"; break;
+            default: result.push_back(character); break;
+            }
+        }
+        return result;
+    }
+
 }
 
 namespace AstralChronicle::services
@@ -119,37 +234,81 @@ namespace AstralChronicle::services
         }
 
         std::vector<std::wstring> predicates;
+        auto const addNumericPredicate = [&predicates](
+            std::wstring_view const input,
+            std::uint64_t const maximumValue,
+            std::wstring_view const prefix,
+            std::wstring_view const suffix = std::wstring_view{})
+        {
+            if (Trim(input).empty())
+            {
+                return true;
+            }
+            auto const value = NumericLiteral(input, maximumValue);
+            if (!value)
+            {
+                return false;
+            }
+            predicates.emplace_back(
+                std::wstring{ prefix } + *value + std::wstring{ suffix });
+            return true;
+        };
+
         if (!filter.Provider.empty())
         {
             predicates.emplace_back(L"Provider[@Name=" + XPathLiteral(filter.Provider) + L']');
         }
-        if (auto const eventId = NumericLiteral(filter.EventId))
+        if (!addNumericPredicate(
+                filter.EventId,
+                (std::numeric_limits<std::uint16_t>::max)(),
+                L"EventID="))
         {
-            predicates.emplace_back(L"EventID=" + *eventId);
+            return std::wstring{ MatchNoneQuery };
         }
-        if (auto const level = NumericLiteral(filter.Level))
+        if (!addNumericPredicate(
+                filter.Level,
+                (std::numeric_limits<std::uint8_t>::max)(),
+                L"Level="))
         {
-            predicates.emplace_back(L"Level=" + *level);
+            return std::wstring{ MatchNoneQuery };
         }
-        if (auto const task = NumericLiteral(filter.Task))
+        if (!addNumericPredicate(
+                filter.Task,
+                (std::numeric_limits<std::uint16_t>::max)(),
+                L"Task="))
         {
-            predicates.emplace_back(L"Task=" + *task);
+            return std::wstring{ MatchNoneQuery };
         }
-        if (auto const opcode = NumericLiteral(filter.Opcode))
+        if (!addNumericPredicate(
+                filter.Opcode,
+                (std::numeric_limits<std::uint8_t>::max)(),
+                L"Opcode="))
         {
-            predicates.emplace_back(L"Opcode=" + *opcode);
+            return std::wstring{ MatchNoneQuery };
         }
-        if (auto const keyword = NumericLiteral(filter.Keyword))
+        if (!addNumericPredicate(
+                filter.Keyword,
+                (std::numeric_limits<std::uint64_t>::max)(),
+                L"band(Keywords, ",
+                L")"))
         {
-            predicates.emplace_back(L"band(Keywords, " + *keyword + L")");
+            return std::wstring{ MatchNoneQuery };
         }
-        if (auto const processId = NumericLiteral(filter.ProcessId))
+        if (!addNumericPredicate(
+                filter.ProcessId,
+                (std::numeric_limits<std::uint32_t>::max)(),
+                L"Execution[@ProcessID=",
+                L"]"))
         {
-            predicates.emplace_back(L"Execution[@ProcessID=" + *processId + L"]");
+            return std::wstring{ MatchNoneQuery };
         }
-        if (auto const threadId = NumericLiteral(filter.ThreadId))
+        if (!addNumericPredicate(
+                filter.ThreadId,
+                (std::numeric_limits<std::uint32_t>::max)(),
+                L"Execution[@ThreadID=",
+                L"]"))
         {
-            predicates.emplace_back(L"Execution[@ThreadID=" + *threadId + L"]");
+            return std::wstring{ MatchNoneQuery };
         }
         if (!filter.User.empty())
         {
@@ -243,14 +402,19 @@ namespace AstralChronicle::services
             auto const originalQuery = queryList.substr(
                 contentStart + 1,
                 selectEnd - contentStart - 1);
-            auto const combinedQuery = CombineEventQueries(originalQuery, additionalQuery);
+            auto const decodedQuery = DecodeXmlText(originalQuery);
+            if (!decodedQuery)
+            {
+                return std::nullopt;
+            }
+            auto const combinedQuery = CombineEventQueries(*decodedQuery, additionalQuery);
             if (!combinedQuery)
             {
                 return std::nullopt;
             }
 
             result.append(queryList.substr(cursor, contentStart + 1 - cursor));
-            result.append(*combinedQuery);
+            result.append(EncodeXmlText(*combinedQuery));
             cursor = selectEnd;
             applied = true;
         }

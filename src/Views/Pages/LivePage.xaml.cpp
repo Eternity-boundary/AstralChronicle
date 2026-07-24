@@ -9,10 +9,13 @@ namespace winrt::AstralChronicle::implementation
     LivePage::LivePage() : m_viewModel(winrt::make<LiveViewModel>()) { InitializeComponent(); }
     winrt::AstralChronicle::LiveViewModel LivePage::ViewModel() const { return m_viewModel; }
     void LivePage::Initialize(
-        ::AstralChronicle::services::IEventLiveService& liveService,
-        ::AstralChronicle::design::IStringResourceService const& strings)
+        std::shared_ptr<::AstralChronicle::services::IEventLiveService> liveService,
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings)
     {
-        winrt::get_self<LiveViewModel>(m_viewModel)->Initialize(liveService, strings, PageRoot().DispatcherQueue());
+        winrt::get_self<LiveViewModel>(m_viewModel)->Initialize(
+            std::move(liveService),
+            std::move(strings),
+            PageRoot().DispatcherQueue());
     }
     void LivePage::OnStartClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->Start(); }
     void LivePage::OnPauseClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->Pause(); }
@@ -22,6 +25,10 @@ namespace winrt::AstralChronicle::implementation
     void LivePage::OnRecordClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->ToggleRecording(); }
     void LivePage::OnExportClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->Export(); }
     void LivePage::OnBookmarkClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&) { winrt::get_self<LiveViewModel>(m_viewModel)->BookmarkLatest(); }
+    void LivePage::OnUnloaded(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        winrt::get_self<LiveViewModel>(m_viewModel)->Shutdown();
+    }
     void LivePage::OnChannelChanged(winrt::Windows::Foundation::IInspectable const& sender, Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const&) {
         auto const combo = sender.as<Microsoft::UI::Xaml::Controls::ComboBox>();
         if (!combo.SelectedValue()) return;

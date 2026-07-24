@@ -12,6 +12,7 @@ namespace AstralChronicle
         String StatusDetails{ get; };
         Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
         Boolean HasStatusMessage{ get; };
+        Boolean IsAccessDenied{ get; };
         Boolean IsLoading{ get; };
         String SearchText{ get; set; };
         String TimeRange{ get; set; };

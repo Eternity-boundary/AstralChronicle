@@ -16,10 +16,18 @@ namespace winrt::AstralChronicle::implementation
     {
         constexpr std::int32_t EnglishLanguageIndex = 0;
         constexpr std::int32_t TraditionalChineseLanguageIndex = 1;
+        constexpr std::int32_t SimplifiedChineseLanguageIndex = 2;
+        constexpr std::int32_t JapaneseLanguageIndex = 3;
 
         hstring LanguageTagForIndex(std::int32_t const index)
         {
-            return index == TraditionalChineseLanguageIndex ? L"zh-TW" : L"en-US";
+            switch (index)
+            {
+            case TraditionalChineseLanguageIndex: return L"zh-TW";
+            case SimplifiedChineseLanguageIndex: return L"zh-CN";
+            case JapaneseLanguageIndex: return L"ja-JP";
+            default: return L"en-US";
+            }
         }
 
         std::int32_t CurrentLanguageIndex()
@@ -35,9 +43,19 @@ namespace winrt::AstralChronicle::implementation
             }
 
             auto const languageView = std::wstring_view{ language.c_str(), language.size() };
-            return languageView.starts_with(L"zh")
-                ? TraditionalChineseLanguageIndex
-                : EnglishLanguageIndex;
+            if (languageView.starts_with(L"zh-CN") || languageView.starts_with(L"zh-Hans"))
+            {
+                return SimplifiedChineseLanguageIndex;
+            }
+            if (languageView.starts_with(L"zh"))
+            {
+                return TraditionalChineseLanguageIndex;
+            }
+            if (languageView.starts_with(L"ja"))
+            {
+                return JapaneseLanguageIndex;
+            }
+            return EnglishLanguageIndex;
         }
     }
 
@@ -49,9 +67,15 @@ namespace winrt::AstralChronicle::implementation
 
     SettingsPage::~SettingsPage()
     {
-        if (m_theme && m_themeSubscriptionId != 0)
+        try
         {
-            m_theme->Unsubscribe(m_themeSubscriptionId);
+            if (m_theme && m_themeSubscriptionId != 0)
+            {
+                m_theme->Unsubscribe(m_themeSubscriptionId);
+            }
+        }
+        catch (...)
+        {
         }
     }
 
@@ -61,23 +85,37 @@ namespace winrt::AstralChronicle::implementation
     }
 
     void SettingsPage::Initialize(
-        ::AstralChronicle::design::IThemeService& theme,
-        ::AstralChronicle::design::IStringResourceService const& strings)
+        std::shared_ptr<::AstralChronicle::design::IThemeService> theme,
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings)
     {
-        m_theme = &theme;
+        if (!theme || !strings)
+        {
+            throw std::invalid_argument("Settings require theme and string services.");
+        }
+        if (m_theme && m_themeSubscriptionId != 0)
+        {
+            m_theme->Unsubscribe(m_themeSubscriptionId);
+            m_themeSubscriptionId = 0;
+        }
+        m_theme = std::move(theme);
         m_isInitializing = true;
         winrt::get_self<SettingsViewModel>(m_viewModel)->Initialize(
-            static_cast<std::int32_t>(theme.CurrentMode()),
-            strings.GetString(L"Settings.Heading"),
-            strings.GetString(L"Settings.Description"),
-            strings.GetString(L"Settings.ThemeHint"));
+            static_cast<std::int32_t>(m_theme->CurrentMode()),
+            strings->GetString(L"Settings.Heading"),
+            strings->GetString(L"Settings.Description"),
+            strings->GetString(L"Settings.ThemeHint"));
         LanguageRadioButtons().SelectedIndex(CurrentLanguageIndex());
         m_isInitializing = false;
 
+        auto const weak = get_weak();
         m_themeSubscriptionId = m_theme->Subscribe(
-            [this](::AstralChronicle::design::ThemeMode mode)
+            [weak](::AstralChronicle::design::ThemeMode mode)
             {
-                winrt::get_self<SettingsViewModel>(m_viewModel)->SelectedThemeIndex(static_cast<std::int32_t>(mode));
+                if (auto const self = weak.get())
+                {
+                    winrt::get_self<SettingsViewModel>(self->m_viewModel)->SelectedThemeIndex(
+                        static_cast<std::int32_t>(mode));
+                }
             });
     }
 
@@ -120,7 +158,7 @@ namespace winrt::AstralChronicle::implementation
         }
 
         auto const index = radioButtons.SelectedIndex();
-        if (index != EnglishLanguageIndex && index != TraditionalChineseLanguageIndex)
+        if (index < EnglishLanguageIndex || index > JapaneseLanguageIndex)
         {
             return;
         }

@@ -1,22 +1,70 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!-- Created by EternityBoundary on Jul 20,2026 -->
-<Page x:Class="AstralChronicle.RemotePage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:AstralChronicle">
+<Page x:Class="AstralChronicle.RemotePage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:AstralChronicle" Unloaded="OnUnloaded">
     <Grid x:Name="PageRoot" RowSpacing="{StaticResource AstralContentSpacing}" Style="{StaticResource AstralPageGridStyle}">
-        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="RemoteLayoutStates">
+                <VisualState x:Name="RemoteNarrowLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RemoteConnectionColumn.Width" Value="*" />
+                        <Setter Target="RemoteWorkspaceColumn.Width" Value="0" />
+                        <Setter Target="RemotePrimaryRow.Height" Value="2*" />
+                        <Setter Target="RemoteSecondaryRow.Height" Value="3*" />
+                        <Setter Target="RemoteContentGrid.RowSpacing" Value="{StaticResource AstralContentSpacing}" />
+                        <Setter Target="RemoteConnectionPane.(Grid.Column)" Value="0" />
+                        <Setter Target="RemoteConnectionPane.(Grid.Row)" Value="0" />
+                        <Setter Target="RemoteWorkspacePane.(Grid.Column)" Value="0" />
+                        <Setter Target="RemoteWorkspacePane.(Grid.Row)" Value="1" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="RemoteWideLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="900" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         <StackPanel Spacing="{StaticResource AstralContentSpacing}">
             <TextBlock x:Uid="RemoteHeading" AutomationProperties.AutomationId="RemoteHeading" Style="{StaticResource AstralPageTitleTextBlockStyle}" />
             <TextBlock AutomationProperties.AutomationId="RemoteSummary" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.Summary, Mode=OneWay}" TextWrapping="Wrap" />
         </StackPanel>
-        <InfoBar x:Uid="RemoteStatusInfoBar" Grid.Row="2" AutomationProperties.AutomationId="RemoteStatusInfoBar" IsClosable="False" IsOpen="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay}" Message="{x:Bind ViewModel.StatusDetails, Mode=OneWay}" Severity="{x:Bind ViewModel.StatusSeverity, Mode=OneWay}" Title="{x:Bind ViewModel.StatusText, Mode=OneWay}" />
-        <Grid Grid.Row="3" ColumnSpacing="{StaticResource AstralContentSpacing}">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="360" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-            <Border Style="{StaticResource AstralCardBorderStyle}">
-                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+        <InfoBar x:Uid="RemoteStatusInfoBar" Grid.Row="1" AutomationProperties.AutomationId="RemoteStatusInfoBar" IsClosable="False" IsOpen="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay}" Message="{x:Bind ViewModel.StatusDetails, Mode=OneWay}" Severity="{x:Bind ViewModel.StatusSeverity, Mode=OneWay}" Title="{x:Bind ViewModel.StatusText, Mode=OneWay}" />
+        <Grid
+            x:Name="RemoteContentGrid"
+            Grid.Row="2"
+            ColumnSpacing="{StaticResource AstralContentSpacing}"
+            RowSpacing="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="RemoteConnectionColumn" Width="360" />
+                <ColumnDefinition x:Name="RemoteWorkspaceColumn" Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="RemotePrimaryRow" Height="*" />
+                <RowDefinition x:Name="RemoteSecondaryRow" Height="0" />
+            </Grid.RowDefinitions>
+            <Border
+                x:Name="RemoteConnectionPane"
+                Grid.Row="0"
+                Grid.Column="0"
+                Style="{StaticResource AstralCardBorderStyle}">
+                <ScrollViewer
+                    AutomationProperties.AutomationId="RemoteConnectionScrollViewer"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="{StaticResource AstralContentSpacing}">
                     <TextBlock x:Uid="RemoteConnectionTitle" AutomationProperties.AutomationId="RemoteConnectionTitle" Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
-                    <TextBox x:Uid="RemoteHostBox" AutomationProperties.AutomationId="RemoteHostBox" Text="{x:Bind ViewModel.Host, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox x:Uid="RemoteDomainBox" AutomationProperties.AutomationId="RemoteDomainBox" Text="{x:Bind ViewModel.Domain, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox x:Uid="RemoteUserBox" AutomationProperties.AutomationId="RemoteUserBox" Text="{x:Bind ViewModel.User, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    <PasswordBox x:Uid="RemotePasswordBox" AutomationProperties.AutomationId="RemotePasswordBox" PasswordChanged="OnPasswordChanged" />
+                    <TextBox x:Uid="RemoteHostBox" AutomationProperties.AutomationId="RemoteHostBox" MaxLength="255" Text="{x:Bind ViewModel.Host, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox x:Uid="RemoteDomainBox" AutomationProperties.AutomationId="RemoteDomainBox" MaxLength="255" Text="{x:Bind ViewModel.Domain, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox x:Uid="RemoteUserBox" AutomationProperties.AutomationId="RemoteUserBox" MaxLength="1024" Text="{x:Bind ViewModel.User, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <PasswordBox x:Name="RemotePasswordBox" x:Uid="RemotePasswordBox" AutomationProperties.AutomationId="RemotePasswordBox" MaxLength="1024" PasswordChanged="OnPasswordChanged" />
                     <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}">
                         <Button x:Uid="RemoteConnectButton" AutomationProperties.AutomationId="RemoteConnectButton" Click="OnConnectClicked" />
                         <Button x:Uid="RemoteDisconnectButton" AutomationProperties.AutomationId="RemoteDisconnectButton" Click="OnDisconnectClicked" IsEnabled="{x:Bind ViewModel.IsConnected, Mode=OneWay}" />
@@ -26,18 +74,28 @@
                         <Button x:Uid="RemoteSaveButton" AutomationProperties.AutomationId="RemoteSaveButton" Click="OnSaveConnectionClicked" />
                         <Button x:Uid="RemoteRemoveButton" AutomationProperties.AutomationId="RemoteRemoveButton" Click="OnRemoveConnectionClicked" />
                     </StackPanel>
-                    <TextBlock x:Uid="RemoteSavedConnectionsTitle" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                    <TextBlock x:Name="RemoteSavedConnectionsTitleText" x:Uid="RemoteSavedConnectionsTitle" Style="{StaticResource AstralCaptionTextBlockStyle}" />
                     <ListView
                         AutomationProperties.AutomationId="RemoteSavedConnections"
+                        AutomationProperties.LabeledBy="{x:Bind RemoteSavedConnectionsTitleText, Mode=OneTime}"
                         ItemsSource="{x:Bind ViewModel.SavedConnections, Mode=OneWay}"
                         SelectionChanged="OnSavedConnectionSelectionChanged"
                         MaxHeight="160">
-                        <ListView.ItemTemplate><DataTemplate><TextBlock Style="{StaticResource AstralBodyTextBlockStyle}" Text="{Binding}" TextTrimming="CharacterEllipsis" /></DataTemplate></ListView.ItemTemplate>
+                        <ListView.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind Mode=OneTime}" TextTrimming="CharacterEllipsis" /></DataTemplate></ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
             </Border>
-            <Border Grid.Column="1" Style="{StaticResource AstralCardBorderStyle}">
-                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+            <Border
+                x:Name="RemoteWorkspacePane"
+                Grid.Row="0"
+                Grid.Column="1"
+                Style="{StaticResource AstralCardBorderStyle}">
+                <ScrollViewer
+                    AutomationProperties.AutomationId="RemoteWorkspaceScrollViewer"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="{StaticResource AstralContentSpacing}">
                     <TextBlock x:Uid="RemoteStateTitle" AutomationProperties.AutomationId="RemoteStateTitle" Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
                     <TextBlock AutomationProperties.AutomationId="RemoteConnectionState" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" Text="{x:Bind ViewModel.ConnectionState, Mode=OneWay}" />
                     <TextBlock AutomationProperties.AutomationId="RemoteSecurityNotice" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SecurityNotice, Mode=OneWay}" TextWrapping="Wrap" />
@@ -46,33 +104,42 @@
                             <TextBlock x:Uid="RemoteQueryTitle" Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
                             <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                <TextBox x:Uid="RemoteQueryNameBox" AutomationProperties.AutomationId="RemoteQueryNameBox" Text="{x:Bind ViewModel.QueryName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox x:Uid="RemoteQueryNameBox" AutomationProperties.AutomationId="RemoteQueryNameBox" MaxLength="256" Text="{x:Bind ViewModel.QueryName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                 <Button x:Uid="RemoteQuerySaveButton" Grid.Column="1" AutomationProperties.AutomationId="RemoteQuerySaveButton" Click="OnSaveQueryClicked" />
                                 <Button x:Uid="RemoteQueryRemoveButton" Grid.Column="2" AutomationProperties.AutomationId="RemoteQueryRemoveButton" Click="OnRemoveQueryClicked" />
                             </Grid>
-                            <ListView AutomationProperties.AutomationId="RemoteSavedQueries" ItemsSource="{x:Bind ViewModel.SavedQueries, Mode=OneWay}" SelectionChanged="OnSavedQuerySelectionChanged" MaxHeight="120" SelectionMode="Single">
-                                <ListView.ItemTemplate><DataTemplate><TextBlock Style="{StaticResource AstralBodyTextBlockStyle}" Text="{Binding}" TextTrimming="CharacterEllipsis" /></DataTemplate></ListView.ItemTemplate>
+                            <ListView x:Uid="RemoteSavedQueriesList" AutomationProperties.AutomationId="RemoteSavedQueries" ItemsSource="{x:Bind ViewModel.SavedQueries, Mode=OneWay}" SelectionChanged="OnSavedQuerySelectionChanged" MaxHeight="120" SelectionMode="Single">
+                                <ListView.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind Mode=OneTime}" TextTrimming="CharacterEllipsis" /></DataTemplate></ListView.ItemTemplate>
                             </ListView>
                             <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="2*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                 <ComboBox x:Uid="RemoteQueryChannelBox" AutomationProperties.AutomationId="RemoteQueryChannelBox" ItemsSource="{x:Bind ViewModel.Channels, Mode=OneWay}" SelectedValue="{x:Bind ViewModel.QueryChannel, Mode=OneWay}" SelectionChanged="OnQueryChannelChanged" />
-                                <TextBox x:Uid="RemoteQueryTextBox" Grid.Column="1" AutomationProperties.AutomationId="RemoteQueryTextBox" Text="{x:Bind ViewModel.QueryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox x:Uid="RemoteQueryTextBox" Grid.Column="1" AutomationProperties.AutomationId="RemoteQueryTextBox" MaxLength="1048576" Text="{x:Bind ViewModel.QueryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                 <Button x:Uid="RemoteQueryRunButton" Grid.Column="2" AutomationProperties.AutomationId="RemoteQueryRunButton" Click="OnRunQueryClicked" IsEnabled="{x:Bind ViewModel.IsConnected, Mode=OneWay}" />
                             </Grid>
-                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}">
+                            <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
                                 <Button x:Uid="RemoteCompareButton" AutomationProperties.AutomationId="RemoteCompareButton" Click="OnCompareQueryClicked" IsEnabled="{x:Bind ViewModel.IsConnected, Mode=OneWay}" />
-                                <TextBlock AutomationProperties.AutomationId="RemoteCompareStatus" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.CompareStatus, Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Center" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}">
+                                <TextBlock Grid.Column="1" AutomationProperties.AutomationId="RemoteCompareStatus" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.CompareStatus, Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            </Grid>
+                            <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
                                 <Button x:Uid="RemoteLiveStartButton" AutomationProperties.AutomationId="RemoteLiveStartButton" Click="OnStartRemoteLiveClicked" IsEnabled="{x:Bind ViewModel.IsConnected, Mode=OneWay}" />
-                                <Button x:Uid="RemoteLiveStopButton" AutomationProperties.AutomationId="RemoteLiveStopButton" Click="OnStopRemoteLiveClicked" IsEnabled="{x:Bind ViewModel.IsRemoteLive, Mode=OneWay}" />
-                                <TextBlock AutomationProperties.AutomationId="RemoteLiveStatus" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.LiveStatus, Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Center" />
-                            </StackPanel>
-                            <ListView AutomationProperties.AutomationId="RemoteLiveEvents" ItemsSource="{x:Bind ViewModel.LiveEvents, Mode=OneWay}" MaxHeight="220" SelectionMode="None">
-                                <ListView.ItemTemplate><DataTemplate><TextBlock Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{Binding}" TextWrapping="Wrap" /></DataTemplate></ListView.ItemTemplate>
+                                <Button x:Uid="RemoteLiveStopButton" Grid.Column="1" AutomationProperties.AutomationId="RemoteLiveStopButton" Click="OnStopRemoteLiveClicked" IsEnabled="{x:Bind ViewModel.IsRemoteLive, Mode=OneWay}" />
+                                <TextBlock Grid.Column="2" AutomationProperties.AutomationId="RemoteLiveStatus" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.LiveStatus, Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            </Grid>
+                            <ListView x:Uid="RemoteLiveEventsList" AutomationProperties.AutomationId="RemoteLiveEvents" ItemsSource="{x:Bind ViewModel.LiveEvents, Mode=OneWay}" MaxHeight="220" SelectionMode="None">
+                                <ListView.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind Mode=OneTime}" TextWrapping="Wrap" /></DataTemplate></ListView.ItemTemplate>
                             </ListView>
                             <TextBlock AutomationProperties.AutomationId="RemoteQueryStatus" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.QueryStatus, Mode=OneWay}" TextWrapping="Wrap" />
-                            <ListView AutomationProperties.AutomationId="RemoteQueryResults" ItemsSource="{x:Bind ViewModel.QueryResults, Mode=OneWay}" MaxHeight="280" SelectionMode="None">
+                            <ListView x:Uid="RemoteQueryResultsList" AutomationProperties.AutomationId="RemoteQueryResults" ItemsSource="{x:Bind ViewModel.QueryResults, Mode=OneWay}" MaxHeight="280" SelectionMode="None">
                                 <ListView.ItemTemplate>
                                     <DataTemplate x:DataType="local:EventLogItemViewModel">
                                         <Grid ColumnSpacing="{StaticResource AstralContentSpacing}" Padding="4">
@@ -88,13 +155,14 @@
                     </Border>
                     <TextBlock x:Uid="RemoteCapabilitiesText" AutomationProperties.AutomationId="RemoteCapabilitiesText" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
                     <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}">
-                        <TextBlock x:Uid="RemoteChannelsTitle" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                        <TextBlock x:Name="RemoteChannelsTitleText" x:Uid="RemoteChannelsTitle" Style="{StaticResource AstralCaptionTextBlockStyle}" />
                         <Button x:Uid="RemoteRefreshChannelsButton" AutomationProperties.AutomationId="RemoteRefreshChannelsButton" Click="OnRefreshChannelsClicked" IsEnabled="{x:Bind ViewModel.IsConnected, Mode=OneWay}" />
                     </StackPanel>
-                    <ListView AutomationProperties.AutomationId="RemoteChannelList" ItemsSource="{x:Bind ViewModel.Channels, Mode=OneWay}" SelectionMode="None">
-                        <ListView.ItemTemplate><DataTemplate><TextBlock Style="{StaticResource AstralBodyTextBlockStyle}" Text="{Binding}" TextTrimming="CharacterEllipsis" /></DataTemplate></ListView.ItemTemplate>
+                    <ListView AutomationProperties.AutomationId="RemoteChannelList" AutomationProperties.LabeledBy="{x:Bind RemoteChannelsTitleText, Mode=OneTime}" ItemsSource="{x:Bind ViewModel.Channels, Mode=OneWay}" MaxHeight="240" SelectionMode="None" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListView.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind Mode=OneTime}" TextTrimming="CharacterEllipsis" /></DataTemplate></ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
     </Grid>

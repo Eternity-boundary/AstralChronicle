@@ -5,11 +5,18 @@
 #include "Models/EventChannelDescriptor.h"
 #include "IEventQueryService.h"
 #include "IEventLiveService.h"
+#include <string>
 #include <vector>
 #include <string_view>
 
 namespace AstralChronicle::services
 {
+    struct RemoteProbeResult final
+    {
+        bool Success{};
+        std::uint32_t ErrorCode{};
+    };
+
     struct IRemoteEventService
     {
         virtual ~IRemoteEventService() = default;
@@ -18,10 +25,15 @@ namespace AstralChronicle::services
             std::wstring_view domain,
             std::wstring_view user,
             std::wstring_view password) = 0;
+        [[nodiscard]] virtual RemoteProbeResult Probe(
+            std::wstring_view host,
+            std::wstring_view domain,
+            std::wstring_view user,
+            std::wstring_view password) const = 0;
         virtual void Disconnect() noexcept = 0;
         [[nodiscard]] virtual bool IsConnected() const noexcept = 0;
         [[nodiscard]] virtual std::uint32_t LastError() const noexcept = 0;
-        [[nodiscard]] virtual std::wstring_view Host() const noexcept = 0;
+        [[nodiscard]] virtual std::wstring Host() const = 0;
         [[nodiscard]] virtual std::vector<models::EventChannelDescriptor> EnumerateChannels() const = 0;
         [[nodiscard]] virtual EventQueryResult QueryPage(
             std::wstring_view channel,

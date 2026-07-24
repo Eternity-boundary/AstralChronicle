@@ -11,7 +11,9 @@
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Microsoft.UI.Dispatching.h>
 
+#include <atomic>
 #include <chrono>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -74,6 +76,7 @@ namespace winrt::AstralChronicle::implementation
             Microsoft::UI::Xaml::Controls::NavigationViewPaneClosingEventArgs const& args);
 
     private:
+        void Shutdown() noexcept;
         void SelectNavigationItemForRoute(std::wstring_view route);
         void UpdateShellGreeting();
         void ApplyThemeBackdrop();
@@ -100,17 +103,22 @@ namespace winrt::AstralChronicle::implementation
             std::wstring parentPath);
         void IndexDynamicChannelNodes(::AstralChronicle::services::ChannelPathTreeNode& node);
 
-        ::AstralChronicle::navigation::INavigationService* m_navigation{};
-        ::AstralChronicle::design::IStringResourceService* m_strings{};
-        ::AstralChronicle::design::IThemeService* m_theme{};
-        ::AstralChronicle::services::IEventLogCatalogService* m_eventLogCatalog{};
-        ::AstralChronicle::services::ICustomViewCatalogService* m_customViewCatalog{};
+        std::shared_ptr<::AstralChronicle::navigation::INavigationService> m_navigation;
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> m_strings;
+        std::shared_ptr<::AstralChronicle::design::IThemeService> m_theme;
+        std::shared_ptr<::AstralChronicle::services::IEventLogCatalogService> m_eventLogCatalog;
+        std::shared_ptr<::AstralChronicle::services::ICustomViewCatalogService> m_customViewCatalog;
         winrt::Microsoft::UI::Dispatching::DispatcherQueueTimer m_greetingTimer{ nullptr };
         winrt::Microsoft::UI::Dispatching::DispatcherQueueTimer m_backdropAnimationTimer{ nullptr };
+        winrt::event_token m_closedToken{};
+        winrt::event_token m_greetingTimerTickToken{};
+        winrt::event_token m_backdropAnimationTimerTickToken{};
+        std::shared_ptr<std::atomic_bool> m_shutdownRequested{ std::make_shared<std::atomic_bool>(false) };
         std::chrono::steady_clock::time_point m_backdropAnimationStart{};
         double m_backdropAnimationFromWidth{};
         double m_backdropAnimationTargetWidth{};
         std::uint32_t m_themeSubscriptionId{};
+        bool m_shuttingDown{};
         bool m_dynamicChannelLoadRequested{};
         bool m_dynamicChannelTreeLoaded{};
         bool m_customViewLoadRequested{};

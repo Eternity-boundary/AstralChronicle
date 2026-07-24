@@ -1,42 +1,468 @@
-// Created by EternityBoundary on Jul 20,2026
+// Created by EternityBoundary on Jul 20, 2026
 #include "pch.h"
 #include "WindowsSessionRepository.h"
+
+#include "LocalDataFile.h"
+#include "SessionPersistence.h"
+
 #include <winrt/Windows.Storage.h>
+
 #include <algorithm>
-#include <mutex>
+#include <array>
+#include <optional>
 #include <string>
+#include <string_view>
+#include <utility>
 #include <vector>
 
 namespace
 {
     namespace models = AstralChronicle::models;
-    constexpr wchar_t Key[] = L"DiagnosticSessions.Items";
-    std::mutex Mutex;
-    std::wstring Escape(std::wstring_view value) { std::wstring out; for (auto c : value) { if (c == L'\\') out += L"\\\\"; else if (c == L'\t') out += L"\\t"; else if (c == L'\n') out += L"\\n"; else out += c; } return out; }
-    std::wstring Unescape(std::wstring_view value) { std::wstring out; bool slash{}; for (auto c : value) { if (!slash && c == L'\\') { slash = true; continue; } if (slash) { out += c == L't' ? L'\t' : c == L'n' ? L'\n' : c; slash = false; } else out += c; } if (slash) out += L'\\'; return out; }
-    std::vector<std::wstring> Split(std::wstring_view line) { std::vector<std::wstring> out; std::size_t start{}; bool slash{}; for (std::size_t i{}; i <= line.size(); ++i) { if (i < line.size() && !slash && line[i] == L'\\') { slash = true; continue; } if (i < line.size() && slash) { slash = false; continue; } if (i == line.size() || line[i] == L'\t') { out.emplace_back(Unescape(line.substr(start, i - start))); start = i + 1; } } return out; }
-    bool Bool(std::wstring_view v) { return v == L"1"; }
-    std::wstring Text(bool v) { return v ? L"1" : L"0"; }
-    std::vector<models::DiagnosticSession> LoadUnlocked()
+    namespace storage = AstralChronicle::services::details;
+
+    constexpr wchar_t PersistSessionsSettingKey[] = L"Storage.PersistSessions";
+    constexpr std::size_t MaximumStorageBytes = 16 * 1024 * 1024;
+
+    struct SessionsLoadResult final
+    {
+        std::vector<models::DiagnosticSession> Items;
+        bool CanPersist{ true };
+    };
+
+    struct SessionsParseResult final
+    {
+        std::vector<models::DiagnosticSession> Items;
+        bool Valid{ true };
+    };
+
+    [[nodiscard]] std::wstring Escape(std::wstring_view const value)
+    {
+        std::wstring result;
+        result.reserve(value.size());
+        for (auto const character : value)
+        {
+            switch (character)
+            {
+            case L'\\': result += L"\\\\"; break;
+            case L'\t': result += L"\\t"; break;
+            case L'\r': result += L"\\r"; break;
+            case L'\n': result += L"\\n"; break;
+            default: result += character; break;
+            }
+        }
+        return result;
+    }
+
+    [[nodiscard]] std::wstring Unescape(std::wstring_view const value)
+    {
+        std::wstring result;
+        bool escaped{};
+        for (auto const character : value)
+        {
+            if (!escaped && character == L'\\')
+            {
+                escaped = true;
+                continue;
+            }
+            if (escaped)
+            {
+                switch (character)
+                {
+                case L't': result += L'\t'; break;
+                case L'r': result += L'\r'; break;
+                case L'n': result += L'\n'; break;
+                default: result += character; break;
+                }
+                escaped = false;
+                continue;
+            }
+            result += character;
+        }
+        if (escaped)
+        {
+            result += L'\\';
+        }
+        return result;
+    }
+
+    [[nodiscard]] std::vector<std::wstring> Split(std::wstring_view const line)
+    {
+        std::vector<std::wstring> result;
+        std::size_t start{};
+        bool escaped{};
+        for (std::size_t index{}; index <= line.size(); ++index)
+        {
+            if (index < line.size() && !escaped && line[index] == L'\\')
+            {
+                escaped = true;
+                continue;
+            }
+            if (index < line.size() && escaped)
+            {
+                escaped = false;
+                continue;
+            }
+            if (index == line.size() || line[index] == L'\t')
+            {
+                result.emplace_back(Unescape(line.substr(start, index - start)));
+                start = index + 1;
+            }
+        }
+        return result;
+    }
+
+    [[nodiscard]] std::optional<bool> ParseBool(std::wstring_view const value) noexcept
+    {
+        if (value == L"1" || value == L"true")
+        {
+            return true;
+        }
+        if (value == L"0" || value == L"false")
+        {
+            return false;
+        }
+        return std::nullopt;
+    }
+
+    [[nodiscard]] std::wstring Serialize(
+        std::vector<models::DiagnosticSession> const& sessions)
+    {
+        std::wstring result;
+        for (auto const& session : sessions)
+        {
+            std::array<std::wstring, 18> const fields{
+                session.Id,
+                session.Name,
+                session.Description,
+                session.Channels,
+                session.Filter,
+                session.Tags,
+                session.Notes,
+                session.CorrelationGroup,
+                session.RemoteTarget,
+                session.CreatedAt,
+                session.LastResumedAt,
+                session.IsPinned ? L"1" : L"0",
+                session.IsActive ? L"1" : L"0",
+                session.StartAt,
+                session.EndAt,
+                session.BookmarkedEventIds,
+                session.ExportSettings,
+                session.IsArchived ? L"1" : L"0",
+            };
+            for (std::size_t index{}; index < fields.size(); ++index)
+            {
+                if (index != 0)
+                {
+                    result += L'\t';
+                }
+                result += Escape(fields[index]);
+            }
+            result += L'\n';
+        }
+        return result;
+    }
+
+    [[nodiscard]] SessionsParseResult Deserialize(std::wstring_view const text)
+    {
+        SessionsParseResult result;
+        std::size_t start{};
+        for (std::size_t index{}; index <= text.size(); ++index)
+        {
+            if (index != text.size() && text[index] != L'\n')
+            {
+                continue;
+            }
+
+            auto const line = text.substr(start, index - start);
+            start = index + 1;
+            if (line.empty())
+            {
+                continue;
+            }
+
+            auto fields = Split(line);
+            if (fields.size() < 13 || fields.size() > 18 || fields[0].empty())
+            {
+                result.Valid = false;
+                result.Items.clear();
+                return result;
+            }
+
+            auto const pinned = ParseBool(fields[11]);
+            auto const active = ParseBool(fields[12]);
+            auto const archived = fields.size() > 17
+                ? ParseBool(fields[17])
+                : std::optional<bool>{ false };
+            if (!pinned || !active || !archived)
+            {
+                result.Valid = false;
+                result.Items.clear();
+                return result;
+            }
+
+            models::DiagnosticSession session;
+            session.Id = std::move(fields[0]);
+            session.Name = std::move(fields[1]);
+            session.Description = std::move(fields[2]);
+            session.Channels = std::move(fields[3]);
+            session.Filter = std::move(fields[4]);
+            session.Tags = std::move(fields[5]);
+            session.Notes = std::move(fields[6]);
+            session.CorrelationGroup = std::move(fields[7]);
+            session.RemoteTarget = std::move(fields[8]);
+            session.CreatedAt = std::move(fields[9]);
+            session.LastResumedAt = std::move(fields[10]);
+            session.IsPinned = *pinned;
+            session.IsActive = *active;
+            if (fields.size() > 13) session.StartAt = std::move(fields[13]);
+            if (fields.size() > 14) session.EndAt = std::move(fields[14]);
+            if (fields.size() > 15) session.BookmarkedEventIds = std::move(fields[15]);
+            if (fields.size() > 16) session.ExportSettings = std::move(fields[16]);
+            session.IsArchived = *archived;
+            result.Items.emplace_back(std::move(session));
+        }
+        return result;
+    }
+
+    [[nodiscard]] storage::LocalTextReadResult ReadLegacyText() noexcept
     {
         try
         {
-            auto values = winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values();
-            auto key = winrt::hstring{ Key }; if (!values.HasKey(key)) return {};
-            auto text = winrt::unbox_value<winrt::hstring>(values.Lookup(key)); std::wstring input{ text.c_str() }; std::vector<models::DiagnosticSession> result; std::size_t start{};
-            for (std::size_t i{}; i <= input.size(); ++i) { if (i != input.size() && input[i] != L'\n') continue; auto f = Split(std::wstring_view{ input }.substr(start, i - start)); start = i + 1; if (f.size() < 13 || f[0].empty()) continue; models::DiagnosticSession s; s.Id=std::move(f[0]); s.Name=std::move(f[1]); s.Description=std::move(f[2]); s.Channels=std::move(f[3]); s.Filter=std::move(f[4]); s.Tags=std::move(f[5]); s.Notes=std::move(f[6]); s.CorrelationGroup=std::move(f[7]); s.RemoteTarget=std::move(f[8]); s.CreatedAt=std::move(f[9]); s.LastResumedAt=std::move(f[10]); s.IsPinned=Bool(f[11]); s.IsActive=Bool(f[12]); if (f.size() > 13) s.StartAt=std::move(f[13]); if (f.size() > 14) s.EndAt=std::move(f[14]); if (f.size() > 15) s.BookmarkedEventIds=std::move(f[15]); if (f.size() > 16) s.ExportSettings=std::move(f[16]); if (f.size() > 17) s.IsArchived=Bool(f[17]); result.emplace_back(std::move(s)); }
-            return result;
+            auto const values =
+                winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values();
+            auto const key =
+                winrt::hstring{ storage::DiagnosticSessionsLegacyStorageKey };
+            if (!values.HasKey(key))
+            {
+                return { storage::LocalTextReadStatus::Missing, {} };
+            }
+            auto const text = winrt::unbox_value<winrt::hstring>(values.Lookup(key));
+            return {
+                storage::LocalTextReadStatus::Succeeded,
+                std::wstring{ text.c_str(), text.size() },
+            };
         }
-        catch (...) { return {}; }
+        catch (...)
+        {
+            return {};
+        }
     }
-    bool Persist(std::vector<models::DiagnosticSession> const& sessions)
+
+    [[nodiscard]] bool PersistenceEnabled() noexcept
     {
-        try { std::wstring text; for (auto const& s : sessions) { std::vector<std::wstring> f{s.Id,s.Name,s.Description,s.Channels,s.Filter,s.Tags,s.Notes,s.CorrelationGroup,s.RemoteTarget,s.CreatedAt,s.LastResumedAt,Text(s.IsPinned),Text(s.IsActive),s.StartAt,s.EndAt,s.BookmarkedEventIds,s.ExportSettings,Text(s.IsArchived)}; for (std::size_t i{}; i<f.size(); ++i) { if (i) text += L'\t'; text += Escape(f[i]); } text += L'\n'; } auto values=winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values(); values.Insert(winrt::hstring{Key}, winrt::box_value(winrt::hstring{text})); return true; } catch (...) { return false; }
+        try
+        {
+            auto const values =
+                winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values();
+            auto const key = winrt::hstring{ PersistSessionsSettingKey };
+            return !values.HasKey(key) || winrt::unbox_value<bool>(values.Lookup(key));
+        }
+        catch (...)
+        {
+            return true;
+        }
+    }
+
+    [[nodiscard]] bool Persist(
+        std::vector<models::DiagnosticSession> const& sessions)
+    {
+        auto const serialized = Serialize(sessions);
+        if (!storage::WriteLocalUtf8TextAtomically(
+                storage::DiagnosticSessionsStorageFileName,
+                serialized,
+                MaximumStorageBytes))
+        {
+            return false;
+        }
+        (void)storage::RemoveLegacyDiagnosticSessions();
+        return true;
+    }
+
+    [[nodiscard]] SessionsLoadResult LoadFromStorage()
+    {
+        auto const file = storage::ReadLocalUtf8Text(
+            storage::DiagnosticSessionsStorageFileName,
+            MaximumStorageBytes);
+        if (file.Status == storage::LocalTextReadStatus::Succeeded)
+        {
+            auto parsed = Deserialize(file.Text);
+            if (!parsed.Valid)
+            {
+                return { {}, false };
+            }
+            (void)storage::RemoveLegacyDiagnosticSessions();
+            return { std::move(parsed.Items), true };
+        }
+        if (file.Status == storage::LocalTextReadStatus::Failed)
+        {
+            return { {}, false };
+        }
+
+        auto const legacy = ReadLegacyText();
+        if (legacy.Status == storage::LocalTextReadStatus::Missing)
+        {
+            return {};
+        }
+        if (legacy.Status == storage::LocalTextReadStatus::Failed)
+        {
+            return { {}, false };
+        }
+
+        auto parsed = Deserialize(legacy.Text);
+        if (!parsed.Valid)
+        {
+            return { {}, false };
+        }
+        if (Persist(parsed.Items))
+        {
+            (void)storage::RemoveLegacyDiagnosticSessions();
+        }
+        return { std::move(parsed.Items), true };
     }
 }
+
 namespace AstralChronicle::services
 {
-    std::vector<models::DiagnosticSession> WindowsSessionRepository::Load() const { std::scoped_lock lock{Mutex}; return LoadUnlocked(); }
-    bool WindowsSessionRepository::Upsert(models::DiagnosticSession const& session) { if (session.Id.empty()) return false; std::scoped_lock lock{Mutex}; auto all=LoadUnlocked(); auto it=std::find_if(all.begin(),all.end(),[&](auto const& x){return x.Id==session.Id;}); if(it==all.end()) all.push_back(session); else *it=session; return Persist(all); }
-    bool WindowsSessionRepository::Remove(std::wstring_view id) { std::scoped_lock lock{Mutex}; auto all=LoadUnlocked(); auto old=all.size(); all.erase(std::remove_if(all.begin(),all.end(),[&](auto const& x){return x.Id==id;}),all.end()); return old != all.size() && Persist(all); }
+    void WindowsSessionRepository::EnsureLoaded() const
+    {
+        auto const persistenceEnabled = PersistenceEnabled();
+        if (!persistenceEnabled)
+        {
+            if (!m_loaded)
+            {
+                m_sessions.clear();
+                m_loaded = true;
+            }
+            m_persistenceDisabledObserved = true;
+            if (!m_persistenceDisabledApplied)
+            {
+                m_persistenceDisabledApplied =
+                    storage::ClearPersistedDiagnosticSessions();
+                if (m_persistenceDisabledApplied)
+                {
+                    m_storageHealthy = true;
+                }
+            }
+            return;
+        }
+
+        if (m_persistenceDisabledObserved)
+        {
+            m_storageHealthy = m_persistenceDisabledApplied && Persist(m_sessions);
+            if (m_storageHealthy)
+            {
+                m_persistenceDisabledApplied = false;
+                m_persistenceDisabledObserved = false;
+            }
+            m_loaded = true;
+            return;
+        }
+
+        auto loaded = LoadFromStorage();
+        if (loaded.CanPersist)
+        {
+            m_sessions = std::move(loaded.Items);
+        }
+        m_storageHealthy = loaded.CanPersist;
+        m_persistenceDisabledApplied = false;
+        m_persistenceDisabledObserved = false;
+        m_loaded = true;
+    }
+
+    std::vector<models::DiagnosticSession> WindowsSessionRepository::Load() const
+    {
+        std::scoped_lock lock{ m_mutex };
+        storage::LocalDataTransactionLock const transaction{
+            storage::DiagnosticSessionsStorageFileName,
+        };
+        if (!transaction)
+        {
+            return {};
+        }
+        EnsureLoaded();
+        return m_sessions;
+    }
+
+    bool WindowsSessionRepository::Upsert(models::DiagnosticSession const& session)
+    {
+        if (session.Id.empty())
+        {
+            return false;
+        }
+
+        std::scoped_lock lock{ m_mutex };
+        storage::LocalDataTransactionLock const transaction{
+            storage::DiagnosticSessionsStorageFileName,
+        };
+        if (!transaction)
+        {
+            return false;
+        }
+        EnsureLoaded();
+        auto staged = m_sessions;
+        auto existing = std::find_if(
+            staged.begin(),
+            staged.end(),
+            [&session](auto const& candidate)
+            {
+                return candidate.Id == session.Id;
+            });
+        if (existing == staged.end())
+        {
+            staged.emplace_back(session);
+        }
+        else
+        {
+            *existing = session;
+        }
+
+        if (PersistenceEnabled())
+        {
+            if (!m_storageHealthy || !Persist(staged))
+            {
+                return false;
+            }
+        }
+        m_sessions = std::move(staged);
+        return true;
+    }
+
+    bool WindowsSessionRepository::Remove(std::wstring_view const id)
+    {
+        std::scoped_lock lock{ m_mutex };
+        storage::LocalDataTransactionLock const transaction{
+            storage::DiagnosticSessionsStorageFileName,
+        };
+        if (!transaction)
+        {
+            return false;
+        }
+        EnsureLoaded();
+        auto staged = m_sessions;
+        auto const oldSize = staged.size();
+        staged.erase(
+            std::remove_if(
+                staged.begin(),
+                staged.end(),
+                [id](auto const& session)
+                {
+                    return session.Id == id;
+                }),
+            staged.end());
+        if (oldSize == staged.size())
+        {
+            return false;
+        }
+
+        if (PersistenceEnabled())
+        {
+            if (!m_storageHealthy || !Persist(staged))
+            {
+                return false;
+            }
+        }
+        m_sessions = std::move(staged);
+        return true;
+    }
 }

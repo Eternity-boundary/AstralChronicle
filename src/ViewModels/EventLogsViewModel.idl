@@ -25,6 +25,7 @@ namespace AstralChronicle
         String FilterUser{ get; set; };
         String FilterComputer{ get; set; };
         String RawXPath{ get; set; };
+        Boolean RawXPathEnabled{ get; };
         Boolean FilterAfterToday{ get; set; };
         String FilterAfterHours{ get; set; };
         Boolean HasStructuredFilter{ get; };

@@ -4,6 +4,7 @@
 #include "UniqueEvtHandle.h"
 
 #include <winevt.h>
+#include <winrt/Windows.Storage.h>
 
 #include <algorithm>
 #include <cstddef>
@@ -19,6 +20,21 @@ namespace
     using AstralChronicle::services::EventQueryStatus;
     using AstralChronicle::services::QueryCancellation;
     using AstralChronicle::services::unique_evt_handle;
+
+    [[nodiscard]] bool ProviderMetadataCacheEnabled() noexcept
+    {
+        try
+        {
+            auto const values =
+                winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values();
+            auto const key = winrt::hstring{ L"Storage.CacheProviderMetadata" };
+            return !values.HasKey(key) || winrt::unbox_value<bool>(values.Lookup(key));
+        }
+        catch (...)
+        {
+            return true;
+        }
+    }
 
     [[nodiscard]] std::wstring Lowercase(std::wstring value)
     {
@@ -55,8 +71,10 @@ namespace
             return {};
         }
 
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetPublisherMetadataProperty(
                 metadata,
                 propertyId,
@@ -82,8 +100,10 @@ namespace
             return {};
         }
 
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetPublisherMetadataProperty(
                 metadata,
                 propertyId,
@@ -112,8 +132,10 @@ namespace
         {
             return 0;
         }
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetEventMetadataProperty(eventMetadata, propertyId, 0, bufferBytes, value, &bufferBytes))
         {
             return 0;
@@ -131,8 +153,10 @@ namespace
         {
             return 0;
         }
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetEventMetadataProperty(eventMetadata, propertyId, 0, bufferBytes, value, &bufferBytes))
         {
             return 0;
@@ -154,8 +178,10 @@ namespace
         {
             return {};
         }
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetEventMetadataProperty(
                 eventMetadata,
                 EventMetadataEventTemplate,
@@ -258,6 +284,8 @@ namespace AstralChronicle::services
             return result;
         }
 
+        auto const cacheEnabled = ProviderMetadataCacheEnabled();
+        if (cacheEnabled)
         {
             std::scoped_lock lock{ m_cacheMutex };
             auto const cached = m_detailsCache.find(std::wstring{ providerName });
@@ -293,42 +321,53 @@ namespace AstralChronicle::services
         result.Details.MetadataAvailable = true;
 
         unique_evt_handle eventEnum{ EvtOpenEventMetadataEnum(metadata.get(), 0) };
-        while (eventEnum)
+        if (!eventEnum)
         {
-            if (cancellation && cancellation->load(std::memory_order_relaxed))
+            // Some classic or partially registered providers expose publisher metadata but
+            // have no event-definition catalog. Keep the metadata that was successfully
+            // read instead of treating the entire provider as unavailable.
+            auto const error = GetLastError();
+            result.Details.ErrorCode = error == ERROR_SUCCESS ? ERROR_EVT_INVALID_EVENT_DATA : error;
+        }
+        else
+        {
+            for (;;)
             {
-                result.Status = EventQueryStatus::Cancelled;
-                result.ErrorCode = ERROR_CANCELLED;
-                return result;
-            }
-
-            unique_evt_handle eventMetadata{ EvtNextEventMetadata(eventEnum.get(), 0) };
-            if (!eventMetadata)
-            {
-                if (GetLastError() == ERROR_NO_MORE_ITEMS)
+                if (cancellation && cancellation->load(std::memory_order_relaxed))
                 {
+                    result.Status = EventQueryStatus::Cancelled;
+                    result.ErrorCode = ERROR_CANCELLED;
+                    return result;
+                }
+
+                unique_evt_handle eventMetadata{ EvtNextEventMetadata(eventEnum.get(), 0) };
+                if (!eventMetadata)
+                {
+                    auto const error = GetLastError();
+                    if (error != ERROR_NO_MORE_ITEMS)
+                    {
+                        result.Details.ErrorCode = error == ERROR_SUCCESS
+                            ? ERROR_EVT_INVALID_EVENT_DATA
+                            : error;
+                    }
                     break;
                 }
-                result.ErrorCode = GetLastError();
-                break;
-            }
 
-            models::EventProviderEventDefinition definition;
-            definition.EventId = GetUInt32Property(EventMetadataEventID, eventMetadata.get());
-            definition.Version = GetUInt32Property(EventMetadataEventVersion, eventMetadata.get());
-            definition.Channel = GetUInt32Property(EventMetadataEventChannel, eventMetadata.get());
-            definition.Level = GetUInt32Property(EventMetadataEventLevel, eventMetadata.get());
-            definition.Opcode = GetUInt32Property(EventMetadataEventOpcode, eventMetadata.get());
-            definition.Task = GetUInt32Property(EventMetadataEventTask, eventMetadata.get());
-            definition.Keyword = GetUInt64Property(EventMetadataEventKeyword, eventMetadata.get());
-            definition.Template = GetEventTemplate(eventMetadata.get());
-            result.Details.EventDefinitions.emplace_back(std::move(definition));
+                models::EventProviderEventDefinition definition;
+                definition.EventId = GetUInt32Property(EventMetadataEventID, eventMetadata.get());
+                definition.Version = GetUInt32Property(EventMetadataEventVersion, eventMetadata.get());
+                definition.Channel = GetUInt32Property(EventMetadataEventChannel, eventMetadata.get());
+                definition.Level = GetUInt32Property(EventMetadataEventLevel, eventMetadata.get());
+                definition.Opcode = GetUInt32Property(EventMetadataEventOpcode, eventMetadata.get());
+                definition.Task = GetUInt32Property(EventMetadataEventTask, eventMetadata.get());
+                definition.Keyword = GetUInt64Property(EventMetadataEventKeyword, eventMetadata.get());
+                definition.Template = GetEventTemplate(eventMetadata.get());
+                result.Details.EventDefinitions.emplace_back(std::move(definition));
+            }
         }
 
-        result.Status = result.ErrorCode == 0
-            ? EventQueryStatus::Succeeded
-            : MapError(result.ErrorCode);
-        if (result.Status == EventQueryStatus::Succeeded)
+        result.Status = EventQueryStatus::Succeeded;
+        if (cacheEnabled)
         {
             std::scoped_lock lock{ m_cacheMutex };
             if (m_detailsCache.size() >= 64) m_detailsCache.erase(m_detailsCache.begin());

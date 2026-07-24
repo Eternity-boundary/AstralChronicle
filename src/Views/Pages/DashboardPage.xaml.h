@@ -5,9 +5,8 @@
 #include "Core/Navigation/INavigationService.h"
 #include "ViewModels/DashboardViewModel.h"
 
-#include <winrt/Microsoft.UI.Xaml.Input.h>
-
 #include <functional>
+#include <memory>
 #include <string_view>
 
 namespace AstralChronicle::services
@@ -28,20 +27,17 @@ namespace winrt::AstralChronicle::implementation
 
         [[nodiscard]] winrt::AstralChronicle::DashboardViewModel ViewModel() const;
         void Initialize(
-            ::AstralChronicle::services::IEventQueryService const& eventQuery,
-            ::AstralChronicle::design::IStringResourceService const& strings,
+            std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
             ::AstralChronicle::navigation::INavigationService& navigation,
             std::function<void(std::wstring_view)> navigationSelectionChanged);
-        void OnErrorCardTapped(
+        void OnNavigationCardTapped(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::Input::TappedRoutedEventArgs const& args);
-        void OnWarningCardTapped(
+        void OnNavigationCardKeyDown(
             winrt::Windows::Foundation::IInspectable const& sender,
-            Microsoft::UI::Xaml::Input::TappedRoutedEventArgs const& args);
-        void OnCriticalCardTapped(
-            winrt::Windows::Foundation::IInspectable const& sender,
-            Microsoft::UI::Xaml::Input::TappedRoutedEventArgs const& args);
+            Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& args);
         void OnRecentEventClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);
@@ -51,8 +47,9 @@ namespace winrt::AstralChronicle::implementation
 
     private:
         bool Navigate(::AstralChronicle::navigation::NavigationRequest const& request);
+        bool NavigateFromCard(winrt::Windows::Foundation::IInspectable const& sender);
         void NavigateToLevel(std::uint8_t level);
-        void NavigateToEvent(winrt::hstring const& channel, winrt::hstring const& recordId);
+        void NavigateToEvent(winrt::hstring const& channel, std::uint64_t recordId);
         winrt::AstralChronicle::DashboardViewModel m_viewModel{ nullptr };
         ::AstralChronicle::navigation::INavigationService* m_navigation{};
         std::function<void(std::wstring_view)> m_navigationSelectionChanged;

@@ -30,15 +30,18 @@ namespace winrt::AstralChronicle::implementation
     }
 
     void SavedViewsPage::Initialize(
-        ::AstralChronicle::services::ISavedViewRepository& repository,
-        ::AstralChronicle::design::IStringResourceService const& strings,
+        std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> repository,
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         ::AstralChronicle::navigation::INavigationService& navigation,
         std::function<void(std::wstring_view)> navigationSelectionChanged)
     {
-        m_strings = &strings;
+        m_strings = strings;
         m_navigation = &navigation;
         m_navigationSelectionChanged = std::move(navigationSelectionChanged);
-        winrt::get_self<SavedViewsViewModel>(m_viewModel)->Initialize(repository, strings, PageRoot().DispatcherQueue());
+        winrt::get_self<SavedViewsViewModel>(m_viewModel)->Initialize(
+            std::move(repository),
+            std::move(strings),
+            PageRoot().DispatcherQueue());
     }
 
     void SavedViewsPage::OnNewClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&)
@@ -144,17 +147,18 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring text,
         winrt::Microsoft::UI::WindowId windowId)
     {
-        auto lifetime = get_strong();
         try
         {
+            auto lifetime = get_strong();
+            auto const strings = m_strings;
             Microsoft::Windows::Storage::Pickers::FileSavePicker picker{ windowId };
             picker.SuggestedStartLocation(Microsoft::Windows::Storage::Pickers::PickerLocationId::DocumentsLibrary);
-            picker.SuggestedFileName(m_strings ? m_strings->GetString(L"SavedViews.ExportSuggestedFileName.Text") : winrt::hstring{ L"SavedViews-export" });
+            picker.SuggestedFileName(strings ? strings->GetString(L"SavedViews.ExportSuggestedFileName.Text") : winrt::hstring{ L"SavedViews-export" });
             picker.DefaultFileExtension(L".txt");
             auto const fileTypes = winrt::single_threaded_vector<winrt::hstring>();
             fileTypes.Append(L".txt");
             picker.FileTypeChoices().Insert(
-                m_strings ? m_strings->GetString(L"SavedViews.ExportTextFiles.Text") : winrt::hstring{ L"Text files (*.txt)" },
+                strings ? strings->GetString(L"SavedViews.ExportTextFiles.Text") : winrt::hstring{ L"Text files (*.txt)" },
                 fileTypes);
             auto const result = co_await picker.PickSaveFileAsync();
             if (result)
@@ -184,37 +188,67 @@ namespace winrt::AstralChronicle::implementation
 
     winrt::fire_and_forget SavedViewsPage::ImportAsync(winrt::Microsoft::UI::WindowId windowId)
     {
-        auto lifetime = get_strong();
-        auto const dispatcher = PageRoot().DispatcherQueue();
-        std::string content;
         try
         {
+            auto lifetime = get_strong();
+            auto const dispatcher = PageRoot().DispatcherQueue();
             Microsoft::Windows::Storage::Pickers::FileOpenPicker picker{ windowId };
             picker.SuggestedStartLocation(Microsoft::Windows::Storage::Pickers::PickerLocationId::DocumentsLibrary);
             picker.FileTypeFilter().Append(L".txt");
             auto const result = co_await picker.PickSingleFileAsync();
-            if (result)
+            if (!result)
             {
-                auto const path = result.Path();
-                co_await winrt::resume_background();
-                std::ifstream input{ std::filesystem::path{ path.c_str() }, std::ios::binary };
-                if (!input)
-                {
-                    throw winrt::hresult_error{ E_FAIL };
-                }
+                co_return;
+            }
 
-                std::ostringstream buffer;
-                buffer << input.rdbuf();
-                content = buffer.str();
+            auto const path = result.Path();
+            co_await winrt::resume_background();
+            std::ifstream input{
+                std::filesystem::path{ path.c_str() },
+                std::ios::binary | std::ios::ate };
+            if (!input)
+            {
+                throw winrt::hresult_error{ E_FAIL };
+            }
+
+            constexpr std::streamoff maxImportBytes = 4 * 1024 * 1024;
+            auto const size = input.tellg();
+            if (size <= 0 || size > maxImportBytes)
+            {
+                co_return;
+            }
+
+            input.seekg(0, std::ios::beg);
+            std::string content(static_cast<std::size_t>(size), '\0');
+            input.read(content.data(), static_cast<std::streamsize>(content.size()));
+            if (!input)
+            {
+                throw winrt::hresult_error{ E_FAIL };
+            }
+
+            if (content.size() >= 3 &&
+                static_cast<unsigned char>(content[0]) == 0xEF &&
+                static_cast<unsigned char>(content[1]) == 0xBB &&
+                static_cast<unsigned char>(content[2]) == 0xBF)
+            {
+                content.erase(0, 3);
+            }
+            if (content.size() >= 2 &&
+                ((static_cast<unsigned char>(content[0]) == 0xFF && static_cast<unsigned char>(content[1]) == 0xFE) ||
+                    (static_cast<unsigned char>(content[0]) == 0xFE && static_cast<unsigned char>(content[1]) == 0xFF)))
+            {
+                co_return;
+            }
+
+            auto const decoded = winrt::to_hstring(content);
+            co_await wil::resume_foreground(dispatcher);
+            if (!decoded.empty())
+            {
+                winrt::get_self<SavedViewsViewModel>(m_viewModel)->ImportText(decoded);
             }
         }
         catch (...)
         {
-        }
-        co_await wil::resume_foreground(dispatcher);
-        if (!content.empty())
-        {
-            winrt::get_self<SavedViewsViewModel>(m_viewModel)->ImportText(winrt::to_hstring(content));
         }
     }
 }
