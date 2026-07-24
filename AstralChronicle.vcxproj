@@ -159,6 +159,7 @@
     <ClInclude Include="src\Services\ISavedViewRepository.h" />
     <ClInclude Include="src\Services\ISessionRepository.h" />
     <ClInclude Include="src\Services\ChannelPathGrouping.h" />
+    <ClInclude Include="src\Services\ElevationRestart.h" />
     <ClInclude Include="src\Services\EventQueryBuilder.h" />
     <ClInclude Include="src\Services\UniqueEvtHandle.h" />
     <ClInclude Include="src\Services\WindowsEventLogCatalogService.h" />
@@ -326,6 +327,8 @@
   <ItemGroup>
     <PRIResource Include="Strings\en-US\Resources.resw" />
     <PRIResource Include="Strings\zh-TW\Resources.resw" />
+    <PRIResource Include="Strings\zh-CN\Resources.resw" />
+    <PRIResource Include="Strings\ja-JP\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="src\Views\Shell\MainWindow.idl">

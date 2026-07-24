@@ -3,12 +3,10 @@
 #include "EventLogsPage.xaml.h"
 
 #include "DesignSystem/Localization/IStringResourceService.h"
+#include "Services/ElevationRestart.h"
 #include "ViewModels/PersistedSettings.h"
 
 #include "EventLogsPage.g.cpp"
-
-#include <shellapi.h>
-#pragma comment(lib, "Shell32.lib")
 
 #include <winrt/Windows.ApplicationModel.DataTransfer.h>
 
@@ -42,60 +40,6 @@ namespace
         return nullptr;
     }
 
-    [[nodiscard]] std::wstring CurrentExecutablePath()
-    {
-        std::vector<wchar_t> buffer(260);
-        for (;;)
-        {
-            auto const length = GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
-            if (length == 0)
-            {
-                return {};
-            }
-
-            if (length < buffer.size() - 1 || buffer.size() >= 32768)
-            {
-                return std::wstring{ buffer.data(), length };
-            }
-
-            buffer.resize(buffer.size() * 2);
-        }
-    }
-
-    [[nodiscard]] bool RestartAsAdministrator()
-    {
-        auto executablePath = CurrentExecutablePath();
-        if (executablePath.empty())
-        {
-            return false;
-        }
-
-        auto const separator = executablePath.find_last_of(L"\\/");
-        if (separator == std::wstring::npos)
-        {
-            return false;
-        }
-
-        auto elevationShimPath = executablePath.substr(0, separator + 1);
-        elevationShimPath += L"AstralChronicleElevationShim.exe";
-
-        SHELLEXECUTEINFOW executeInfo{};
-        executeInfo.cbSize = sizeof(executeInfo);
-        executeInfo.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC;
-        executeInfo.lpVerb = L"open";
-        executeInfo.lpFile = elevationShimPath.c_str();
-        executeInfo.nShow = SW_SHOWNORMAL;
-        if (!ShellExecuteExW(&executeInfo))
-        {
-            return false;
-        }
-
-        if (executeInfo.hProcess)
-        {
-            CloseHandle(executeInfo.hProcess);
-        }
-        return true;
-    }
 }
 
 namespace winrt::AstralChronicle::implementation
@@ -187,7 +131,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::Windows::Foundation::IInspectable const&,
         Microsoft::UI::Xaml::RoutedEventArgs const&)
     {
-        if (RestartAsAdministrator())
+        if (::AstralChronicle::services::RestartElevatedApplication())
         {
             Microsoft::UI::Xaml::Application::Current().Exit();
         }

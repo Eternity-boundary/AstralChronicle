@@ -16,10 +16,18 @@ namespace winrt::AstralChronicle::implementation
     {
         constexpr std::int32_t EnglishLanguageIndex = 0;
         constexpr std::int32_t TraditionalChineseLanguageIndex = 1;
+        constexpr std::int32_t SimplifiedChineseLanguageIndex = 2;
+        constexpr std::int32_t JapaneseLanguageIndex = 3;
 
         hstring LanguageTagForIndex(std::int32_t const index)
         {
-            return index == TraditionalChineseLanguageIndex ? L"zh-TW" : L"en-US";
+            switch (index)
+            {
+            case TraditionalChineseLanguageIndex: return L"zh-TW";
+            case SimplifiedChineseLanguageIndex: return L"zh-CN";
+            case JapaneseLanguageIndex: return L"ja-JP";
+            default: return L"en-US";
+            }
         }
 
         std::int32_t CurrentLanguageIndex()
@@ -35,9 +43,19 @@ namespace winrt::AstralChronicle::implementation
             }
 
             auto const languageView = std::wstring_view{ language.c_str(), language.size() };
-            return languageView.starts_with(L"zh")
-                ? TraditionalChineseLanguageIndex
-                : EnglishLanguageIndex;
+            if (languageView.starts_with(L"zh-CN") || languageView.starts_with(L"zh-Hans"))
+            {
+                return SimplifiedChineseLanguageIndex;
+            }
+            if (languageView.starts_with(L"zh"))
+            {
+                return TraditionalChineseLanguageIndex;
+            }
+            if (languageView.starts_with(L"ja"))
+            {
+                return JapaneseLanguageIndex;
+            }
+            return EnglishLanguageIndex;
         }
     }
 
@@ -140,7 +158,7 @@ namespace winrt::AstralChronicle::implementation
         }
 
         auto const index = radioButtons.SelectedIndex();
-        if (index != EnglishLanguageIndex && index != TraditionalChineseLanguageIndex)
+        if (index < EnglishLanguageIndex || index > JapaneseLanguageIndex)
         {
             return;
         }

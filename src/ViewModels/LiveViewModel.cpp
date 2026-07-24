@@ -395,6 +395,13 @@ namespace winrt::AstralChronicle::implementation
         m_isPaused = false;
         m_stateText = m_strings->GetString(L"Live.State.Stopped");
         if (m_timer) m_timer.Stop();
+        if (m_strings)
+        {
+            SetStatus(
+                m_strings->GetString(L"Live.Stopped.Text"),
+                m_strings->GetString(L"Live.StoppedDetails.Text"),
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational);
+        }
         RaisePropertyChanged(L"StateText");
         RaisePropertyChanged(L"IsRunning");
         RaisePropertyChanged(L"IsPaused");

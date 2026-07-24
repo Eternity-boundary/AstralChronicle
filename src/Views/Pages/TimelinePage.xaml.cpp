@@ -3,11 +3,13 @@
 #include "TimelinePage.xaml.h"
 
 #include "DesignSystem/Localization/IStringResourceService.h"
+#include "Services/ElevationRestart.h"
 
 #include "TimelinePage.g.cpp"
 
 #include <wil/cppwinrt_helpers.h>
 #include <winrt/Windows.Storage.h>
+#include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Automation.h>
 
 namespace winrt::AstralChronicle::implementation
@@ -16,6 +18,14 @@ namespace winrt::AstralChronicle::implementation
         : m_viewModel(winrt::make<TimelineViewModel>())
     {
         InitializeComponent();
+    }
+
+    TimelinePage::~TimelinePage()
+    {
+        if (m_viewModel && m_viewModelPropertyChangedToken.value != 0)
+        {
+            m_viewModel.PropertyChanged(m_viewModelPropertyChangedToken);
+        }
     }
 
     winrt::AstralChronicle::TimelineViewModel TimelinePage::ViewModel() const
@@ -32,6 +42,22 @@ namespace winrt::AstralChronicle::implementation
     {
         m_navigation = &navigation;
         m_navigationSelectionChanged = std::move(navigationSelectionChanged);
+        if (m_viewModelPropertyChangedToken.value != 0)
+        {
+            m_viewModel.PropertyChanged(m_viewModelPropertyChangedToken);
+        }
+        auto const weak = get_weak();
+        m_viewModelPropertyChangedToken = m_viewModel.PropertyChanged(
+            [weak](winrt::Windows::Foundation::IInspectable const&,
+                Microsoft::UI::Xaml::Data::PropertyChangedEventArgs const& args)
+            {
+                auto const self = weak.get();
+                if (self && args.PropertyName() == L"IsAccessDenied")
+                {
+                    self->UpdateAccessDeniedAction();
+                }
+            });
+        UpdateAccessDeniedAction();
         Microsoft::UI::Xaml::Automation::AutomationProperties::SetName(
             TimelineSearchBox(),
             strings->GetString(L"TimelineSearchBox.PlaceholderText"));
@@ -91,6 +117,24 @@ namespace winrt::AstralChronicle::implementation
         Microsoft::UI::Xaml::RoutedEventArgs const&)
     {
         winrt::get_self<TimelineViewModel>(m_viewModel)->Refresh();
+    }
+
+    void TimelinePage::OnRestartAsAdministratorClicked(
+        winrt::Windows::Foundation::IInspectable const&,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        if (::AstralChronicle::services::RestartElevatedApplication())
+        {
+            Microsoft::UI::Xaml::Application::Current().Exit();
+        }
+    }
+
+    void TimelinePage::UpdateAccessDeniedAction()
+    {
+        TimelineRestartAsAdministratorButton().Visibility(
+            m_viewModel.IsAccessDenied()
+                ? Microsoft::UI::Xaml::Visibility::Visible
+                : Microsoft::UI::Xaml::Visibility::Collapsed);
     }
 
     void TimelinePage::OnOpenClicked(

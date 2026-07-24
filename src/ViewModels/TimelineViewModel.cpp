@@ -146,6 +146,7 @@ namespace winrt::AstralChronicle::implementation
         m_cancellation = ::AstralChronicle::services::MakeQueryCancellation();
         auto const requestVersion = ++m_requestVersion;
         m_isLoading = true;
+        m_isAccessDenied = false;
         m_hasStatusMessage = true;
         m_statusSeverity = Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational;
         m_statusText = m_strings->GetString(L"Timeline.Loading.Text");
@@ -180,7 +181,7 @@ namespace winrt::AstralChronicle::implementation
             bool hadFailure{};
             auto const query = QueryFor(timeRange, level);
             std::vector<std::wstring> channels = channel == L"Any"
-                ? std::vector<std::wstring>{ L"System", L"Application", L"Security" }
+                ? std::vector<std::wstring>{ L"System", L"Application" }
                 : std::vector<std::wstring>{ channel };
             for (auto const& currentChannel : channels)
             {
@@ -256,6 +257,7 @@ namespace winrt::AstralChronicle::implementation
         ApplySearchFilter();
         m_isLoading = false;
         m_statusSeverity = SeverityFor(status);
+        m_isAccessDenied = status == ::AstralChronicle::services::EventQueryStatus::AccessDenied;
         m_statusDetails.clear();
         if (!partialFailure && (status == ::AstralChronicle::services::EventQueryStatus::Succeeded ||
             status == ::AstralChronicle::services::EventQueryStatus::NoEvents)
@@ -272,7 +274,9 @@ namespace winrt::AstralChronicle::implementation
             {
                 m_statusSeverity = Microsoft::UI::Xaml::Controls::InfoBarSeverity::Warning;
             }
-            m_statusText = m_strings->GetString(L"Timeline.QueryFailed.Text");
+            m_statusText = m_strings->GetString(m_isAccessDenied
+                ? L"Timeline.AccessDenied.Text"
+                : L"Timeline.QueryFailed.Text");
             m_statusDetails = FormatResource(m_strings->GetString(L"Timeline.ErrorDetails.Text"), { winrt::to_hstring(errorCode) });
             m_summary = FormatResource(m_strings->GetString(L"Timeline.SummaryCount.Text"), { winrt::to_hstring(events.size()) });
         }
@@ -338,6 +342,7 @@ namespace winrt::AstralChronicle::implementation
     winrt::hstring TimelineViewModel::StatusDetails() const { return m_statusDetails; }
     Microsoft::UI::Xaml::Controls::InfoBarSeverity TimelineViewModel::StatusSeverity() const noexcept { return m_statusSeverity; }
     bool TimelineViewModel::HasStatusMessage() const noexcept { return m_hasStatusMessage; }
+    bool TimelineViewModel::IsAccessDenied() const noexcept { return m_isAccessDenied; }
     bool TimelineViewModel::IsLoading() const noexcept { return m_isLoading; }
     winrt::hstring TimelineViewModel::SearchText() const { return m_searchText; }
     void TimelineViewModel::SearchText(winrt::hstring const& value) { m_searchText = value; ApplySearchFilter(); RaisePropertyChanged(L"SearchText"); }
@@ -409,6 +414,7 @@ namespace winrt::AstralChronicle::implementation
         RaisePropertyChanged(L"StatusDetails");
         RaisePropertyChanged(L"StatusSeverity");
         RaisePropertyChanged(L"HasStatusMessage");
+        RaisePropertyChanged(L"IsAccessDenied");
         RaisePropertyChanged(L"IsLoading");
     }
     winrt::event_token TimelineViewModel::PropertyChanged(Microsoft::UI::Xaml::Data::PropertyChangedEventHandler const& handler) { return m_propertyChanged.add(handler); }

@@ -134,6 +134,8 @@
                         SelectionChanged="OnLanguageSelectionChanged">
                         <RadioButton x:Uid="LanguageEnglishOption" AutomationProperties.AutomationId="LanguageEnglishOption" />
                         <RadioButton x:Uid="LanguageTraditionalChineseOption" AutomationProperties.AutomationId="LanguageTraditionalChineseOption" />
+                        <RadioButton x:Uid="LanguageSimplifiedChineseOption" AutomationProperties.AutomationId="LanguageSimplifiedChineseOption" />
+                        <RadioButton x:Uid="LanguageJapaneseOption" AutomationProperties.AutomationId="LanguageJapaneseOption" />
                     </RadioButtons>
                 </StackPanel>
             </Border>

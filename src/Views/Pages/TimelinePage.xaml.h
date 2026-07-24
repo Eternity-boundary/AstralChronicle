@@ -24,6 +24,7 @@ namespace winrt::AstralChronicle::implementation
     struct TimelinePage : TimelinePageT<TimelinePage>
     {
         TimelinePage();
+        ~TimelinePage();
 
         [[nodiscard]] winrt::AstralChronicle::TimelineViewModel ViewModel() const;
         void Initialize(
@@ -44,6 +45,9 @@ namespace winrt::AstralChronicle::implementation
         void OnRefreshClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);
+        void OnRestartAsAdministratorClicked(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::RoutedEventArgs const& args);
         void OnOpenClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);
@@ -58,10 +62,12 @@ namespace winrt::AstralChronicle::implementation
             Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
 
     private:
+        void UpdateAccessDeniedAction();
         void NavigateToEvent(winrt::AstralChronicle::EventLogItemViewModel const& item);
         winrt::fire_and_forget ExportAsync(winrt::hstring text);
 
         winrt::AstralChronicle::TimelineViewModel m_viewModel{ nullptr };
+        winrt::event_token m_viewModelPropertyChangedToken{};
         ::AstralChronicle::navigation::INavigationService* m_navigation{};
         std::function<void(std::wstring_view)> m_navigationSelectionChanged;
     };

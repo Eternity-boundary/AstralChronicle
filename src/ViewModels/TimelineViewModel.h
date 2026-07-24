@@ -35,6 +35,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::hstring StatusDetails() const;
         [[nodiscard]] Microsoft::UI::Xaml::Controls::InfoBarSeverity StatusSeverity() const noexcept;
         [[nodiscard]] bool HasStatusMessage() const noexcept;
+        [[nodiscard]] bool IsAccessDenied() const noexcept;
         [[nodiscard]] bool IsLoading() const noexcept;
         [[nodiscard]] winrt::hstring SearchText() const;
         void SearchText(winrt::hstring const& value);
@@ -104,6 +105,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> m_events{ nullptr };
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> m_allEvents{ nullptr };
         bool m_hasStatusMessage{ true };
+        bool m_isAccessDenied{};
         bool m_isLoading{};
         bool m_correlationEnabled{ true };
         bool m_groupRepeated{};

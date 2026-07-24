@@ -232,7 +232,16 @@
             IsOpen="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay}"
             Message="{x:Bind ViewModel.StatusDetails, Mode=OneWay}"
             Severity="{x:Bind ViewModel.StatusSeverity, Mode=OneWay}"
-            Title="{x:Bind ViewModel.StatusText, Mode=OneWay}" />
+            Title="{x:Bind ViewModel.StatusText, Mode=OneWay}">
+            <InfoBar.ActionButton>
+                <Button
+                    x:Name="TimelineRestartAsAdministratorButton"
+                    x:Uid="TimelineRestartAsAdministratorButton"
+                    AutomationProperties.AutomationId="TimelineRestartAsAdministratorButton"
+                    Click="OnRestartAsAdministratorClicked"
+                    Visibility="Collapsed" />
+            </InfoBar.ActionButton>
+        </InfoBar>
 
         <StackPanel Grid.Row="3" Spacing="{StaticResource AstralContentSpacing}">
             <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">

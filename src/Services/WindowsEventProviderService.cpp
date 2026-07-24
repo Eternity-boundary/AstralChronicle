@@ -323,51 +323,51 @@ namespace AstralChronicle::services
         unique_evt_handle eventEnum{ EvtOpenEventMetadataEnum(metadata.get(), 0) };
         if (!eventEnum)
         {
-            result.ErrorCode = GetLastError();
-            if (result.ErrorCode == ERROR_SUCCESS) result.ErrorCode = ERROR_EVT_INVALID_EVENT_DATA;
-            result.Details.ErrorCode = result.ErrorCode;
-            result.Status = MapError(result.ErrorCode);
-            return result;
+            // Some classic or partially registered providers expose publisher metadata but
+            // have no event-definition catalog. Keep the metadata that was successfully
+            // read instead of treating the entire provider as unavailable.
+            auto const error = GetLastError();
+            result.Details.ErrorCode = error == ERROR_SUCCESS ? ERROR_EVT_INVALID_EVENT_DATA : error;
         }
-
-        for (;;)
+        else
         {
-            if (cancellation && cancellation->load(std::memory_order_relaxed))
+            for (;;)
             {
-                result.Status = EventQueryStatus::Cancelled;
-                result.ErrorCode = ERROR_CANCELLED;
-                return result;
-            }
-
-            unique_evt_handle eventMetadata{ EvtNextEventMetadata(eventEnum.get(), 0) };
-            if (!eventMetadata)
-            {
-                auto const error = GetLastError();
-                if (error == ERROR_NO_MORE_ITEMS)
+                if (cancellation && cancellation->load(std::memory_order_relaxed))
                 {
+                    result.Status = EventQueryStatus::Cancelled;
+                    result.ErrorCode = ERROR_CANCELLED;
+                    return result;
+                }
+
+                unique_evt_handle eventMetadata{ EvtNextEventMetadata(eventEnum.get(), 0) };
+                if (!eventMetadata)
+                {
+                    auto const error = GetLastError();
+                    if (error != ERROR_NO_MORE_ITEMS)
+                    {
+                        result.Details.ErrorCode = error == ERROR_SUCCESS
+                            ? ERROR_EVT_INVALID_EVENT_DATA
+                            : error;
+                    }
                     break;
                 }
-                result.ErrorCode = error == ERROR_SUCCESS ? ERROR_EVT_INVALID_EVENT_DATA : error;
-                result.Details.ErrorCode = result.ErrorCode;
-                break;
-            }
 
-            models::EventProviderEventDefinition definition;
-            definition.EventId = GetUInt32Property(EventMetadataEventID, eventMetadata.get());
-            definition.Version = GetUInt32Property(EventMetadataEventVersion, eventMetadata.get());
-            definition.Channel = GetUInt32Property(EventMetadataEventChannel, eventMetadata.get());
-            definition.Level = GetUInt32Property(EventMetadataEventLevel, eventMetadata.get());
-            definition.Opcode = GetUInt32Property(EventMetadataEventOpcode, eventMetadata.get());
-            definition.Task = GetUInt32Property(EventMetadataEventTask, eventMetadata.get());
-            definition.Keyword = GetUInt64Property(EventMetadataEventKeyword, eventMetadata.get());
-            definition.Template = GetEventTemplate(eventMetadata.get());
-            result.Details.EventDefinitions.emplace_back(std::move(definition));
+                models::EventProviderEventDefinition definition;
+                definition.EventId = GetUInt32Property(EventMetadataEventID, eventMetadata.get());
+                definition.Version = GetUInt32Property(EventMetadataEventVersion, eventMetadata.get());
+                definition.Channel = GetUInt32Property(EventMetadataEventChannel, eventMetadata.get());
+                definition.Level = GetUInt32Property(EventMetadataEventLevel, eventMetadata.get());
+                definition.Opcode = GetUInt32Property(EventMetadataEventOpcode, eventMetadata.get());
+                definition.Task = GetUInt32Property(EventMetadataEventTask, eventMetadata.get());
+                definition.Keyword = GetUInt64Property(EventMetadataEventKeyword, eventMetadata.get());
+                definition.Template = GetEventTemplate(eventMetadata.get());
+                result.Details.EventDefinitions.emplace_back(std::move(definition));
+            }
         }
 
-        result.Status = result.ErrorCode == 0
-            ? EventQueryStatus::Succeeded
-            : MapError(result.ErrorCode);
-        if (result.Status == EventQueryStatus::Succeeded && cacheEnabled)
+        result.Status = EventQueryStatus::Succeeded;
+        if (cacheEnabled)
         {
             std::scoped_lock lock{ m_cacheMutex };
             if (m_detailsCache.size() >= 64) m_detailsCache.erase(m_detailsCache.begin());

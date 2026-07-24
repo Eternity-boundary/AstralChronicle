@@ -891,6 +891,12 @@
   <data name="LanguageTraditionalChineseOption.Content" xml:space="preserve">
     <value>Traditional Chinese</value>
   </data>
+  <data name="LanguageSimplifiedChineseOption.Content" xml:space="preserve">
+    <value>Simplified Chinese</value>
+  </data>
+  <data name="LanguageJapaneseOption.Content" xml:space="preserve">
+    <value>Japanese</value>
+  </data>
   <data name="AboutCardTitle.Text" xml:space="preserve">
     <value>About AstralChronicle</value>
   </data>
@@ -962,6 +968,7 @@
   <data name="Timeline.LoadingDetails.Text" xml:space="preserve"><value>Events are queried in the background from System, Application, and Security.</value></data>
   <data name="Timeline.Ready.Text" xml:space="preserve"><value>Timeline ready</value></data>
   <data name="Timeline.QueryFailed.Text" xml:space="preserve"><value>The timeline query could not be completed.</value></data>
+  <data name="Timeline.AccessDenied.Text" xml:space="preserve"><value>Access to the selected channel is denied.</value></data>
   <data name="Timeline.ErrorDetails.Text" xml:space="preserve"><value>Technical details — Win32 error {0}.</value></data>
   <data name="Timeline.FilterNone.Text" xml:space="preserve"><value>Showing the loaded timeline events.</value></data>
   <data name="Timeline.FilterSummary.Text" xml:space="preserve"><value>Showing {0} of {1} loaded timeline events.</value></data>
@@ -985,6 +992,7 @@
   <data name="TimelineChannelApplication.Content" xml:space="preserve"><value>Application</value></data>
   <data name="TimelineChannelSecurity.Content" xml:space="preserve"><value>Security</value></data>
   <data name="TimelineRefreshButton.Content" xml:space="preserve"><value>Refresh</value></data>
+  <data name="TimelineRestartAsAdministratorButton.Content" xml:space="preserve"><value>Restart as administrator</value></data>
   <data name="Providers.Heading" xml:space="preserve"><value>Providers</value></data>
   <data name="Providers.Summary" xml:space="preserve"><value>Inspect registered Windows Event Log publishers and their manifest metadata.</value></data>
   <data name="Providers.SummaryCount.Text" xml:space="preserve"><value>{0} providers match the current search.</value></data>
@@ -1087,6 +1095,8 @@
   <data name="Live.ReadyDetails.Text" xml:space="preserve"><value>Configure a channel and XPath query, then start the subscription.</value></data>
   <data name="Live.Started.Text" xml:space="preserve"><value>Live capture started</value></data>
   <data name="Live.StartedDetails.Text" xml:space="preserve"><value>Events are collected through EvtSubscribe into a bounded queue.</value></data>
+  <data name="Live.Stopped.Text" xml:space="preserve"><value>Live capture stopped</value></data>
+  <data name="Live.StoppedDetails.Text" xml:space="preserve"><value>The subscription has ended. Configure the capture and start again when ready.</value></data>
   <data name="Live.StartFailed.Text" xml:space="preserve"><value>Live capture could not start</value></data>
   <data name="Live.StreamFailed.Text" xml:space="preserve"><value>Live subscription stopped with an error</value></data>
   <data name="Live.ErrorDetails.Text" xml:space="preserve"><value>Check the channel, XPath query, service state, and access rights.</value></data>

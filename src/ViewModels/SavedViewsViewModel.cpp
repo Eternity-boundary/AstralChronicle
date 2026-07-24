@@ -213,7 +213,11 @@ namespace winrt::AstralChronicle::implementation
 
     void SavedViewsViewModel::ApplyLoaded(std::vector<::AstralChronicle::models::SavedView> views)
     {
-        auto const selectedId = m_selectedView ? std::wstring{ m_selectedView.Id().c_str() } : std::wstring{};
+        auto selectedId = m_pendingSelectedId;
+        if (selectedId.empty() && m_selectedView)
+        {
+            selectedId = std::wstring{ m_selectedView.Id().c_str() };
+        }
         std::sort(views.begin(), views.end(), [](auto const& left, auto const& right)
         {
             if (left.IsPinned != right.IsPinned) return left.IsPinned > right.IsPinned;
@@ -246,6 +250,7 @@ namespace winrt::AstralChronicle::implementation
             // Reset the editor instead of turning stale data into a new view.
             NewView();
         }
+        m_pendingSelectedId.clear();
         m_isLoading = false;
         m_summary = FormatResource(m_strings->GetString(L"SavedViews.SummaryCount.Text"), winrt::to_hstring(m_models.size()));
         SetStatus(
@@ -316,6 +321,7 @@ namespace winrt::AstralChronicle::implementation
 
     void SavedViewsViewModel::NewView()
     {
+        m_pendingSelectedId.clear();
         m_selectedView = nullptr;
         m_hasSelection = false;
         m_selectedViewName.clear();
@@ -388,6 +394,7 @@ namespace winrt::AstralChronicle::implementation
             SetStatus(m_strings->GetString(L"SavedViews.SaveFailed.Text"), {}, Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
             return;
         }
+        m_pendingSelectedId = view.Id;
         m_selectedViewName = view.Name;
         SetStatus(m_strings->GetString(L"SavedViews.Saved.Text"), {}, Microsoft::UI::Xaml::Controls::InfoBarSeverity::Success);
         Refresh();
@@ -423,6 +430,7 @@ namespace winrt::AstralChronicle::implementation
         copy.UpdatedAt = copy.CreatedAt;
         if (m_repository->Upsert(copy))
         {
+            m_pendingSelectedId = copy.Id;
             SetStatus(m_strings->GetString(L"SavedViews.Duplicated.Text"), {}, Microsoft::UI::Xaml::Controls::InfoBarSeverity::Success);
             Refresh();
         }

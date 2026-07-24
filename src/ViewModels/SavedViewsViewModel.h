@@ -108,6 +108,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_editorCustomViewXml;
         winrt::hstring m_customViewWarning;
         std::vector<::AstralChronicle::models::SavedView> m_models;
+        std::wstring m_pendingSelectedId;
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::SavedViewItemViewModel> m_views{ nullptr };
         winrt::AstralChronicle::SavedViewItemViewModel m_selectedView{ nullptr };
         bool m_editorDetails{};
