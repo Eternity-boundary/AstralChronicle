@@ -61,10 +61,10 @@
                     VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="{StaticResource AstralContentSpacing}">
                     <TextBlock x:Uid="RemoteConnectionTitle" AutomationProperties.AutomationId="RemoteConnectionTitle" Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
-                    <TextBox x:Uid="RemoteHostBox" AutomationProperties.AutomationId="RemoteHostBox" Text="{x:Bind ViewModel.Host, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox x:Uid="RemoteDomainBox" AutomationProperties.AutomationId="RemoteDomainBox" Text="{x:Bind ViewModel.Domain, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox x:Uid="RemoteUserBox" AutomationProperties.AutomationId="RemoteUserBox" Text="{x:Bind ViewModel.User, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    <PasswordBox x:Name="RemotePasswordBox" x:Uid="RemotePasswordBox" AutomationProperties.AutomationId="RemotePasswordBox" PasswordChanged="OnPasswordChanged" />
+                    <TextBox x:Uid="RemoteHostBox" AutomationProperties.AutomationId="RemoteHostBox" MaxLength="255" Text="{x:Bind ViewModel.Host, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox x:Uid="RemoteDomainBox" AutomationProperties.AutomationId="RemoteDomainBox" MaxLength="255" Text="{x:Bind ViewModel.Domain, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox x:Uid="RemoteUserBox" AutomationProperties.AutomationId="RemoteUserBox" MaxLength="1024" Text="{x:Bind ViewModel.User, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <PasswordBox x:Name="RemotePasswordBox" x:Uid="RemotePasswordBox" AutomationProperties.AutomationId="RemotePasswordBox" MaxLength="1024" PasswordChanged="OnPasswordChanged" />
                     <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}">
                         <Button x:Uid="RemoteConnectButton" AutomationProperties.AutomationId="RemoteConnectButton" Click="OnConnectClicked" />
                         <Button x:Uid="RemoteDisconnectButton" AutomationProperties.AutomationId="RemoteDisconnectButton" Click="OnDisconnectClicked" IsEnabled="{x:Bind ViewModel.IsConnected, Mode=OneWay}" />
@@ -104,7 +104,7 @@
                             <TextBlock x:Uid="RemoteQueryTitle" Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
                             <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                <TextBox x:Uid="RemoteQueryNameBox" AutomationProperties.AutomationId="RemoteQueryNameBox" Text="{x:Bind ViewModel.QueryName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox x:Uid="RemoteQueryNameBox" AutomationProperties.AutomationId="RemoteQueryNameBox" MaxLength="256" Text="{x:Bind ViewModel.QueryName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                 <Button x:Uid="RemoteQuerySaveButton" Grid.Column="1" AutomationProperties.AutomationId="RemoteQuerySaveButton" Click="OnSaveQueryClicked" />
                                 <Button x:Uid="RemoteQueryRemoveButton" Grid.Column="2" AutomationProperties.AutomationId="RemoteQueryRemoveButton" Click="OnRemoveQueryClicked" />
                             </Grid>
@@ -114,7 +114,7 @@
                             <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="2*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                 <ComboBox x:Uid="RemoteQueryChannelBox" AutomationProperties.AutomationId="RemoteQueryChannelBox" ItemsSource="{x:Bind ViewModel.Channels, Mode=OneWay}" SelectedValue="{x:Bind ViewModel.QueryChannel, Mode=OneWay}" SelectionChanged="OnQueryChannelChanged" />
-                                <TextBox x:Uid="RemoteQueryTextBox" Grid.Column="1" AutomationProperties.AutomationId="RemoteQueryTextBox" Text="{x:Bind ViewModel.QueryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox x:Uid="RemoteQueryTextBox" Grid.Column="1" AutomationProperties.AutomationId="RemoteQueryTextBox" MaxLength="1048576" Text="{x:Bind ViewModel.QueryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                 <Button x:Uid="RemoteQueryRunButton" Grid.Column="2" AutomationProperties.AutomationId="RemoteQueryRunButton" Click="OnRunQueryClicked" IsEnabled="{x:Bind ViewModel.IsConnected, Mode=OneWay}" />
                             </Grid>
                             <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">

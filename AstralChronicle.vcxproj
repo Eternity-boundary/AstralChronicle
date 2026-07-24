@@ -167,6 +167,7 @@
     <ClInclude Include="src\Services\WindowsEventProviderService.h" />
     <ClInclude Include="src\Services\WindowsEventQueryService.h" />
     <ClInclude Include="src\Services\EvtVariantReader.h" />
+    <ClInclude Include="src\Services\BookmarkPersistence.h" />
     <ClInclude Include="src\Services\LocalDataFile.h" />
     <ClInclude Include="src\Services\SessionPersistence.h" />
     <ClInclude Include="src\Services\WindowsRemoteEventService.h" />

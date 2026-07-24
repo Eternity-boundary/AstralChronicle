@@ -76,6 +76,11 @@ namespace
 
         using WindowsDuration = std::chrono::duration<std::int64_t, std::ratio<1, 10'000'000>>;
         auto const unixTicks = windowsTicks - WindowsEpochOffset100Nanoseconds;
+        if (unixTicks > static_cast<std::uint64_t>(
+                (std::numeric_limits<std::int64_t>::max)()))
+        {
+            return {};
+        }
         return std::chrono::system_clock::time_point{
             std::chrono::duration_cast<std::chrono::system_clock::duration>(
                 WindowsDuration{ static_cast<std::int64_t>(unixTicks) }) };
@@ -106,8 +111,10 @@ namespace
             return std::nullopt;
         }
 
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const values = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const values = buffer.data();
         if (!EvtRender(renderContext, eventHandle, EvtRenderEventValues, bufferBytes, values, &bufferBytes, &propertyCount))
         {
             errorCode = GetLastError();
@@ -289,8 +296,10 @@ namespace
             return {};
         }
 
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetPublisherMetadataProperty(metadata, propertyId, 0, bufferBytes, value, &bufferBytes) ||
             value->Type != EvtVarTypeString || !value->StringVal)
         {
@@ -314,8 +323,10 @@ namespace
             return {};
         }
 
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetPublisherMetadataProperty(
                 metadata,
                 EvtPublisherMetadataPublisherGuid,
@@ -386,8 +397,10 @@ namespace
             return std::nullopt;
         }
 
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const values = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const values = buffer.data();
         if (!EvtRender(renderContext, eventHandle, EvtRenderEventValues, bufferBytes, values, &bufferBytes, &propertyCount))
         {
             errorCode = GetLastError();

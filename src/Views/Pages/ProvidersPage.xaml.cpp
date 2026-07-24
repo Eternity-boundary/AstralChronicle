@@ -94,12 +94,16 @@ namespace winrt::AstralChronicle::implementation
             m_searchDebounceTimer = PageRoot().DispatcherQueue().CreateTimer();
             m_searchDebounceTimer.Interval(std::chrono::milliseconds{ 275 });
             m_searchDebounceTimer.IsRepeating(false);
+            auto const weak = get_weak();
             m_searchDebounceTickRevoker = m_searchDebounceTimer.Tick(
                 winrt::auto_revoke,
-                [this](Microsoft::UI::Dispatching::DispatcherQueueTimer const&,
+                [weak](Microsoft::UI::Dispatching::DispatcherQueueTimer const&,
                     winrt::Windows::Foundation::IInspectable const&)
                 {
-                    ApplyPendingSearch();
+                    if (auto const self = weak.get())
+                    {
+                        self->ApplyPendingSearch();
+                    }
                 });
         }
         winrt::get_self<ProvidersViewModel>(m_viewModel)->Initialize(

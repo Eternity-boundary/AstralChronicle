@@ -37,6 +37,7 @@ namespace AstralChronicle::design
         {
             std::lock_guard lock(m_mutex);
             m_rootElement = rootElement;
+            m_dispatcher = rootElement.DispatcherQueue();
         }
 
         try
@@ -50,8 +51,7 @@ namespace AstralChronicle::design
                     {
                         if (auto const self = weak.lock())
                         {
-                            self->ApplyMode();
-                            self->NotifyThemeChanged(self->CurrentMode());
+                            self->OnHighContrastChanged();
                         }
                     });
             }
@@ -84,6 +84,7 @@ namespace AstralChronicle::design
 
         std::lock_guard lock(m_mutex);
         m_rootElement = nullptr;
+        m_dispatcher = nullptr;
         m_subscribers.clear();
         m_starrySkyBackdrop = {};
         m_blackSoulsLeafBackdrop = {};
@@ -313,6 +314,39 @@ namespace AstralChronicle::design
         }
     }
 
+    void ThemeService::OnHighContrastChanged() noexcept
+    {
+        try
+        {
+            Microsoft::UI::Dispatching::DispatcherQueue dispatcher{ nullptr };
+            {
+                std::lock_guard lock(m_mutex);
+                dispatcher = m_dispatcher;
+            }
+
+            if (dispatcher && !dispatcher.HasThreadAccess())
+            {
+                auto const weak = weak_from_this();
+                (void)dispatcher.TryEnqueue([weak]
+                    {
+                        if (auto const self = weak.lock())
+                        {
+                            self->ApplyMode();
+                            self->NotifyThemeChanged(self->CurrentMode());
+                        }
+                    });
+                return;
+            }
+
+            ApplyMode();
+            NotifyThemeChanged(CurrentMode());
+        }
+        catch (...)
+        {
+            // Accessibility notifications must not escape the OS event callback.
+        }
+    }
+
     void ThemeService::ApplyMode() const
     {
         FrameworkElement rootElement{ nullptr };
@@ -362,7 +396,14 @@ namespace AstralChronicle::design
             (void)subscriptionId;
             if (callback)
             {
-                callback(mode);
+                try
+                {
+                    callback(mode);
+                }
+                catch (...)
+                {
+                    // One subscriber must not prevent the remaining UI from updating.
+                }
             }
         }
     }

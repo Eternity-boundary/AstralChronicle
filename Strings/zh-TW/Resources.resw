@@ -1078,7 +1078,10 @@
     <value>啟用診斷記錄</value>
   </data>
   <data name="SettingsDebugLoggingToggle.OffContent" xml:space="preserve">
-    <value>停用診斷記錄</value>
+    <value>此版本不提供診斷記錄</value>
+  </data>
+  <data name="SettingsDebugLoggingToggle.AutomationProperties.HelpText" xml:space="preserve">
+    <value>此版本尚未實作診斷記錄，因此無法使用這項設定。</value>
   </data>
   <data name="SettingsHighContrastInfoBar.Title" xml:space="preserve">
     <value>高對比度相容性</value>
@@ -1718,6 +1721,12 @@
   </data>
   <data name="Remote.ConnectionRemoved.Text" xml:space="preserve">
     <value>已移除遠端連線</value>
+  </data>
+  <data name="Remote.StorageFailed.Text" xml:space="preserve">
+    <value>無法儲存遠端資料</value>
+  </data>
+  <data name="Remote.StorageFailedDetails.Text" xml:space="preserve">
+    <value>儲存項目無效、過大，或本機應用程式儲存空間無法使用。既有資料未被變更。</value>
   </data>
   <data name="Remote.TestSucceeded.Text" xml:space="preserve">
     <value>遠端連線測試成功</value>

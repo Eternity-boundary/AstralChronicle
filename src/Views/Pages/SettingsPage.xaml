@@ -95,7 +95,11 @@
                     <TextBlock x:Uid="SettingsAdvancedTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
                     <TextBlock x:Uid="SettingsAdvancedDescription" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
                     <ToggleSwitch x:Uid="SettingsRawXPathToggle" AutomationProperties.AutomationId="SettingsRawXPathToggle" IsOn="{x:Bind ViewModel.RawXPathMode, Mode=TwoWay}" />
-                    <ToggleSwitch x:Uid="SettingsDebugLoggingToggle" AutomationProperties.AutomationId="SettingsDebugLoggingToggle" IsOn="{x:Bind ViewModel.DebugLogging, Mode=TwoWay}" />
+                    <ToggleSwitch
+                        x:Uid="SettingsDebugLoggingToggle"
+                        AutomationProperties.AutomationId="SettingsDebugLoggingToggle"
+                        IsEnabled="False"
+                        IsOn="False" />
                 </StackPanel>
             </Border>
 

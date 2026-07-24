@@ -245,6 +245,7 @@
                                         x:Uid="EventLogsRawXPathBox"
                                         AutomationProperties.AutomationId="EventLogsRawXPathBox"
                                         AcceptsReturn="True"
+                                        IsEnabled="{x:Bind ViewModel.RawXPathEnabled, Mode=OneWay}"
                                         MaxHeight="120"
                                         Text="{x:Bind ViewModel.RawXPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         TextWrapping="Wrap" />

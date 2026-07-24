@@ -67,6 +67,7 @@ namespace winrt::AstralChronicle::implementation
         void FilterComputer(winrt::hstring const& value);
         [[nodiscard]] winrt::hstring RawXPath() const;
         void RawXPath(winrt::hstring const& value);
+        [[nodiscard]] bool RawXPathEnabled() const noexcept;
         [[nodiscard]] bool FilterAfterToday() const noexcept;
         void FilterAfterToday(bool value);
         [[nodiscard]] winrt::hstring FilterAfterHours() const;
@@ -219,7 +220,7 @@ namespace winrt::AstralChronicle::implementation
         bool m_isDetailsLoading{};
         bool m_filterAfterToday{};
         bool m_hasStructuredFilter{};
-        bool m_persistBookmarks{ true };
+        bool m_rawXPathEnabled{};
         std::unordered_set<std::wstring> m_bookmarkedKeys;
         Microsoft::UI::Xaml::Controls::InfoBarSeverity m_statusSeverity{
             Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational };

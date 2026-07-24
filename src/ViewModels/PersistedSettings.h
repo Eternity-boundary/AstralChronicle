@@ -122,7 +122,10 @@ namespace AstralChronicle::viewmodels
     {
         bool DefaultSortDescending{ true };
         bool GroupRepeatedEvents{};
+        bool DetailsPaneOpen{ true };
+        bool AnimationsEnabled{ true };
         bool PersistBookmarks{ true };
+        bool RawXPathMode{};
         std::uint32_t LiveQueueLimit{ 5'000 };
         std::uint32_t QueryBatchSize{ 64 };
         std::uint32_t MaxVisibleLiveRows{ 2'000 };
@@ -138,9 +141,18 @@ namespace AstralChronicle::viewmodels
             result.GroupRepeatedEvents = reader.ReadBool(
                 L"EventDisplay.GroupRepeatedEvents",
                 result.GroupRepeatedEvents);
+            result.DetailsPaneOpen = reader.ReadBool(
+                L"EventDisplay.DetailsPaneOpen",
+                result.DetailsPaneOpen);
+            result.AnimationsEnabled = reader.ReadBool(
+                L"Appearance.AnimationsEnabled",
+                result.AnimationsEnabled);
             result.PersistBookmarks = reader.ReadBool(
                 L"Storage.PersistBookmarks",
                 result.PersistBookmarks);
+            result.RawXPathMode = reader.ReadBool(
+                L"Advanced.RawXPathMode",
+                result.RawXPathMode);
             result.LiveQueueLimit = reader.ReadUInt32(
                 L"Monitoring.LiveQueueLimit",
                 result.LiveQueueLimit,

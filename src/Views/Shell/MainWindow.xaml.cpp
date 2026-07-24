@@ -14,6 +14,7 @@
 #include "Views/Pages/SessionsPage.xaml.h"
 #include "Views/Pages/SettingsPage.xaml.h"
 #include "Views/Pages/TimelinePage.xaml.h"
+#include "ViewModels/PersistedSettings.h"
 
 #include "MainWindow.g.cpp"
 
@@ -462,6 +463,19 @@ namespace winrt::AstralChronicle::implementation
 
     void MainWindow::AnimateThemeBackdropLayout(double const targetWidth)
     {
+        auto const animationsEnabled =
+            ::AstralChronicle::viewmodels::PersistedSettingsSnapshot::Load()
+                .AnimationsEnabled;
+        if (!animationsEnabled)
+        {
+            if (m_backdropAnimationTimer)
+            {
+                m_backdropAnimationTimer.Stop();
+            }
+            SetThemeBackdropLayout(targetWidth);
+            return;
+        }
+
         if (!m_backdropAnimationTimer)
         {
             m_backdropAnimationTimer = RootLayout().DispatcherQueue().CreateTimer();

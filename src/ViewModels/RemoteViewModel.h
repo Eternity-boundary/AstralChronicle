@@ -119,10 +119,12 @@ namespace winrt::AstralChronicle::implementation
             std::wstring query);
         void ApplyQuery(::AstralChronicle::services::EventQueryResult const& result);
         void LoadConnections();
-        void PersistConnections() const;
+        [[nodiscard]] bool LoadConnectionModels();
+        [[nodiscard]] bool PersistConnections() const;
         void RebuildConnectionView();
         void LoadSavedQueries();
-        void PersistSavedQueries() const;
+        [[nodiscard]] bool LoadSavedQueryModels();
+        [[nodiscard]] bool PersistSavedQueries() const;
         void RebuildSavedQueryView();
         std::shared_ptr<::AstralChronicle::services::IRemoteEventService> m_service;
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> m_localQuery;

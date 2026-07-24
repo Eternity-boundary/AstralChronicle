@@ -941,7 +941,8 @@
   <data name="SettingsRawXPathToggle.OnContent" xml:space="preserve"><value>Enable raw XPath mode</value></data>
   <data name="SettingsRawXPathToggle.OffContent" xml:space="preserve"><value>Use the structured filter builder</value></data>
   <data name="SettingsDebugLoggingToggle.OnContent" xml:space="preserve"><value>Enable diagnostic logging</value></data>
-  <data name="SettingsDebugLoggingToggle.OffContent" xml:space="preserve"><value>Disable diagnostic logging</value></data>
+  <data name="SettingsDebugLoggingToggle.OffContent" xml:space="preserve"><value>Diagnostic logging is not available in this build</value></data>
+  <data name="SettingsDebugLoggingToggle.AutomationProperties.HelpText" xml:space="preserve"><value>This setting is disabled because diagnostic logging is not implemented in this build.</value></data>
   <data name="SettingsHighContrastInfoBar.Title" xml:space="preserve"><value>High Contrast compatibility</value></data>
   <data name="SettingsHighContrastInfoBar.Message" xml:space="preserve"><value>High Contrast remains controlled by Windows system colors; artwork and semantic severity colors do not override it.</value></data>
   <data name="SharedComponentsGalleryTitle.Text" xml:space="preserve"><value>Shared component gallery</value></data>
@@ -1155,6 +1156,8 @@
   <data name="Remote.ConnectionSaved.Text" xml:space="preserve"><value>Remote connection saved</value></data>
   <data name="Remote.ConnectionSavedDetails.Text" xml:space="preserve"><value>Only the host, domain, and user are stored. The password remains in memory for the current session.</value></data>
   <data name="Remote.ConnectionRemoved.Text" xml:space="preserve"><value>Remote connection removed</value></data>
+  <data name="Remote.StorageFailed.Text" xml:space="preserve"><value>Remote data could not be saved</value></data>
+  <data name="Remote.StorageFailedDetails.Text" xml:space="preserve"><value>The saved item is invalid, too large, or local app storage is unavailable. Existing data was left unchanged.</value></data>
   <data name="Remote.TestSucceeded.Text" xml:space="preserve"><value>Remote connection test succeeded</value></data>
   <data name="Remote.TestSucceededDetails.Text" xml:space="preserve"><value>The session was opened and closed without saving credentials.</value></data>
   <data name="Remote.TestFailed.Text" xml:space="preserve"><value>Remote connection test failed</value></data>

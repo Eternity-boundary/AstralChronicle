@@ -3,6 +3,7 @@
 #include "EventLogsPage.xaml.h"
 
 #include "DesignSystem/Localization/IStringResourceService.h"
+#include "ViewModels/PersistedSettings.h"
 
 #include "EventLogsPage.g.cpp"
 
@@ -132,21 +133,31 @@ namespace winrt::AstralChronicle::implementation
         {
             m_viewModel.PropertyChanged(m_viewModelPropertyChangedToken);
         }
+        auto const weak = get_weak();
         m_viewModelPropertyChangedToken = m_viewModel.PropertyChanged(
-            [this](winrt::Windows::Foundation::IInspectable const&,
+            [weak](winrt::Windows::Foundation::IInspectable const&,
                 Microsoft::UI::Xaml::Data::PropertyChangedEventArgs const& args)
             {
+                auto const self = weak.get();
+                if (!self)
+                {
+                    return;
+                }
                 if (args.PropertyName() == L"IsAccessDenied")
                 {
-                    UpdateAccessDeniedAction();
+                    self->UpdateAccessDeniedAction();
                 }
                 else if (args.PropertyName() == L"SortKey" || args.PropertyName() == L"SortAscending")
                 {
-                    UpdateSortAutomation();
+                    self->UpdateSortAutomation();
                 }
             });
         UpdateAccessDeniedAction();
 
+        auto const settings =
+            ::AstralChronicle::viewmodels::PersistedSettingsSnapshot::Load();
+        m_detailsPaneVisible = settings.DetailsPaneOpen;
+        m_narrowDetailsPaneVisible = settings.DetailsPaneOpen;
         winrt::get_self<EventLogsViewModel>(m_viewModel)->Initialize(
             std::move(eventQuery),
             std::move(strings),
@@ -154,6 +165,7 @@ namespace winrt::AstralChronicle::implementation
             channel,
             query);
         UpdateSortAutomation();
+        UpdateResponsiveLayout(ContentGrid().ActualWidth());
     }
 
     void EventLogsPage::UpdateAccessDeniedAction()

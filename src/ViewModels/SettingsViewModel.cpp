@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "SettingsViewModel.h"
 #include "PersistedSettings.h"
+#include "Services/BookmarkPersistence.h"
 #include "Services/SessionPersistence.h"
 
 #include "SettingsViewModel.g.cpp"
@@ -214,16 +215,7 @@ namespace winrt::AstralChronicle::implementation
         SaveBoolSetting(L"Storage.PersistBookmarks", value);
         if (!value)
         {
-            try
-            {
-                Windows::Storage::ApplicationData::Current()
-                    .LocalSettings()
-                    .Values()
-                    .Remove(L"EventLogs.BookmarkedRecordIds");
-            }
-            catch (...)
-            {
-            }
+            (void)::AstralChronicle::services::details::ClearPersistedEventLogBookmarks();
         }
         RaisePropertyChanged(L"PersistBookmarks");
     }

@@ -9,6 +9,7 @@
 #include <string_view>
 
 #include <winrt/Windows.UI.ViewManagement.h>
+#include <winrt/Microsoft.UI.Dispatching.h>
 
 namespace AstralChronicle::design
 {
@@ -40,12 +41,14 @@ namespace AstralChronicle::design
 
         void LoadMode();
         void SaveMode() const;
+        void OnHighContrastChanged() noexcept;
         void ApplyMode() const;
         void NotifyThemeChanged(ThemeMode mode) const;
 
         mutable std::mutex m_mutex;
         ThemeMode m_mode{ ThemeMode::System };
         winrt::Microsoft::UI::Xaml::FrameworkElement m_rootElement{ nullptr };
+        winrt::Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         winrt::Windows::UI::ViewManagement::AccessibilitySettings m_accessibilitySettings{ nullptr };
         winrt::event_token m_highContrastChangedToken{};
         mutable std::map<std::uint32_t, ThemeChangedCallback> m_subscribers;

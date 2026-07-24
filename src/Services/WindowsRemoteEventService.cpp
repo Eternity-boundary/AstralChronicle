@@ -8,6 +8,7 @@
 #include <array>
 #include <algorithm>
 #include <chrono>
+#include <limits>
 #include <new>
 #include <ratio>
 #include <vector>
@@ -51,8 +52,14 @@ namespace
     {
         if (ticks < WindowsEpochOffset100Nanoseconds) return {};
         using WindowsDuration = std::chrono::duration<std::int64_t, std::ratio<1, 10'000'000>>;
+        auto const unixTicks = ticks - WindowsEpochOffset100Nanoseconds;
+        if (unixTicks > static_cast<std::uint64_t>(
+                (std::numeric_limits<std::int64_t>::max)()))
+        {
+            return {};
+        }
         return std::chrono::system_clock::time_point{ std::chrono::duration_cast<std::chrono::system_clock::duration>(
-            WindowsDuration{ static_cast<std::int64_t>(ticks - WindowsEpochOffset100Nanoseconds) }) };
+            WindowsDuration{ static_cast<std::int64_t>(unixTicks) }) };
     }
 
     [[nodiscard]] AstralChronicle::services::EventQueryStatus MapError(DWORD const error)
@@ -95,8 +102,10 @@ namespace
         {
             return std::nullopt;
         }
-        std::vector<std::byte> buffer(bytes);
-        auto const values = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const values = buffer.data();
         if (!EvtRender(renderContext, eventHandle, EvtRenderEventValues, bytes, values, &bytes, &propertyCount))
         {
             errorCode = GetLastError();
@@ -650,6 +659,13 @@ namespace AstralChronicle::services
                     SetLiveError(waitResult == WAIT_FAILED ? GetLastError() : ERROR_GEN_FAILURE);
                     return;
                 }
+                // Reset before the drain so an arrival racing with EvtNext can
+                // signal the event again instead of being cleared afterward.
+                if (!ResetEvent(subscriptionEvent.get()))
+                {
+                    SetLiveError(GetLastError());
+                    return;
+                }
                 while (!stopToken.stop_requested())
                 {
                     std::array<EVT_HANDLE, EventBatchSize> rawEvents{};
@@ -673,11 +689,6 @@ namespace AstralChronicle::services
                     {
                         if (error == ERROR_NO_MORE_ITEMS || error == ERROR_TIMEOUT)
                         {
-                            if (!ResetEvent(subscriptionEvent.get()))
-                            {
-                                SetLiveError(GetLastError());
-                                return;
-                            }
                             break;
                         }
                         SetLiveError(error);

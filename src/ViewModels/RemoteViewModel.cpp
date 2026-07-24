@@ -3,6 +3,7 @@
 #include "RemoteViewModel.h"
 
 #include "DesignSystem/Localization/IStringResourceService.h"
+#include "Services/LocalDataFile.h"
 
 #include "RemoteViewModel.g.cpp"
 
@@ -17,6 +18,54 @@
 
 namespace
 {
+    constexpr std::wstring_view RemoteConnectionsFileName =
+        L"remote-connections.v1.tsv";
+    constexpr std::wstring_view RemoteConnectionsLegacySetting =
+        L"Remote.Connections";
+    constexpr std::wstring_view RemoteSavedQueriesFileName =
+        L"remote-saved-queries.v1.tsv";
+    constexpr std::wstring_view RemoteSavedQueriesLegacySetting =
+        L"Remote.SavedQueries";
+    constexpr std::size_t MaximumRemoteProfilesFileBytes = 4u * 1024u * 1024u;
+    constexpr std::size_t MaximumRemoteProfileCount = 4'096u;
+    constexpr std::size_t MaximumHostCharacters = 255u;
+    constexpr std::size_t MaximumDomainCharacters = 255u;
+    constexpr std::size_t MaximumUserCharacters = 1'024u;
+    constexpr std::size_t MaximumQueryNameCharacters = 256u;
+    constexpr std::size_t MaximumChannelCharacters = 32u * 1'024u;
+    constexpr std::size_t MaximumQueryCharacters = 1024u * 1'024u;
+
+    class SensitiveStringGuard final
+    {
+    public:
+        explicit SensitiveStringGuard(std::wstring& value) noexcept
+            : m_value(value)
+        {
+        }
+
+        ~SensitiveStringGuard()
+        {
+            Clear();
+        }
+
+        SensitiveStringGuard(SensitiveStringGuard const&) = delete;
+        SensitiveStringGuard& operator=(SensitiveStringGuard const&) = delete;
+
+        void Clear() noexcept
+        {
+            if (!m_value.empty())
+            {
+                ::SecureZeroMemory(
+                    m_value.data(),
+                    m_value.size() * sizeof(wchar_t));
+                m_value.clear();
+            }
+        }
+
+    private:
+        std::wstring& m_value;
+    };
+
     [[nodiscard]] winrt::Windows::Foundation::Collections::IObservableVector<winrt::hstring> CreateCoreChannelOptions()
     {
         auto values = winrt::single_threaded_observable_vector<winrt::hstring>();
@@ -53,19 +102,29 @@ namespace
         return result;
     }
 
-    [[nodiscard]] std::wstring UnescapePersistedField(std::wstring_view const value)
+    [[nodiscard]] std::optional<std::wstring> UnescapePersistedField(
+        std::wstring_view const value)
     {
         std::wstring result;
         result.reserve(value.size());
         for (std::size_t index{}; index < value.size(); ++index)
         {
             auto const character = value[index];
-            if (character != L'\\' || index + 1 >= value.size())
+            if (character != L'\\')
             {
+                if (character == L'\t' || character == L'\r' ||
+                    character == L'\n' || character == L'\0')
+                {
+                    return std::nullopt;
+                }
                 result.push_back(character);
                 continue;
             }
 
+            if (index + 1 >= value.size())
+            {
+                return std::nullopt;
+            }
             auto const escaped = value[++index];
             switch (escaped)
             {
@@ -74,9 +133,7 @@ namespace
             case L'r': result.push_back(L'\r'); break;
             case L'n': result.push_back(L'\n'); break;
             default:
-                result.push_back(L'\\');
-                result.push_back(escaped);
-                break;
+                return std::nullopt;
             }
         }
         return result;
@@ -94,23 +151,83 @@ namespace
         auto start = Prefix.size();
         for (std::size_t index{}; index < fieldCount; ++index)
         {
-            auto const separator = index + 1 == fieldCount
-                ? std::wstring_view::npos
-                : line.find(L'\t', start);
-            if (separator == std::wstring_view::npos && index + 1 != fieldCount)
+            auto const separator = line.find(L'\t', start);
+            if ((index + 1 == fieldCount && separator != std::wstring_view::npos) ||
+                (index + 1 != fieldCount && separator == std::wstring_view::npos))
             {
                 return std::nullopt;
             }
             auto const field = line.substr(
                 start,
                 separator == std::wstring_view::npos ? std::wstring_view::npos : separator - start);
-            fields.emplace_back(UnescapePersistedField(field));
+            auto decoded = UnescapePersistedField(field);
+            if (!decoded)
+            {
+                return std::nullopt;
+            }
+            fields.emplace_back(std::move(*decoded));
             if (separator == std::wstring_view::npos) break;
             start = separator + 1;
         }
         return fields.size() == fieldCount
             ? std::optional<std::vector<std::wstring>>{ std::move(fields) }
             : std::nullopt;
+    }
+
+    [[nodiscard]] bool IsValidPersistedField(
+        std::wstring_view const value,
+        std::size_t const maximumCharacters,
+        bool const allowEmpty,
+        bool const allowLineBreaks = false) noexcept
+    {
+        if ((!allowEmpty && value.empty()) || value.size() > maximumCharacters ||
+            value.find(L'\0') != std::wstring_view::npos)
+        {
+            return false;
+        }
+        return allowLineBreaks ||
+            value.find_first_of(L"\t\r\n") == std::wstring_view::npos;
+    }
+
+    template <typename Handler>
+    [[nodiscard]] bool ParsePersistedRecords(
+        std::wstring_view const text,
+        Handler&& handler)
+    {
+        if (text.size() > MaximumRemoteProfilesFileBytes)
+        {
+            return false;
+        }
+        if (text.empty())
+        {
+            return true;
+        }
+
+        std::size_t count{};
+        std::size_t start{};
+        while (start < text.size())
+        {
+            if (++count > MaximumRemoteProfileCount)
+            {
+                return false;
+            }
+            auto const end = text.find(L'\n', start);
+            auto const line = text.substr(
+                start,
+                end == std::wstring_view::npos
+                    ? std::wstring_view::npos
+                    : end - start);
+            if (line.empty() || !handler(line))
+            {
+                return false;
+            }
+            if (end == std::wstring_view::npos)
+            {
+                return true;
+            }
+            start = end + 1;
+        }
+        return true;
     }
 }
 
@@ -222,13 +339,70 @@ namespace winrt::AstralChronicle::implementation
             SetStatus(m_strings->GetString(L"Remote.HostRequired.Text"), {}, Microsoft::UI::Xaml::Controls::InfoBarSeverity::Warning);
             return;
         }
-        ConnectionProfile profile{ std::wstring{ m_host.c_str() }, std::wstring{ m_domain.c_str() }, std::wstring{ m_user.c_str() } };
+        ConnectionProfile profile{
+            std::wstring{ m_host.c_str() },
+            std::wstring{ m_domain.c_str() },
+            std::wstring{ m_user.c_str() },
+        };
+        if (!IsValidPersistedField(
+                profile.Host,
+                MaximumHostCharacters,
+                false) ||
+            !IsValidPersistedField(
+                profile.Domain,
+                MaximumDomainCharacters,
+                true) ||
+            !IsValidPersistedField(
+                profile.User,
+                MaximumUserCharacters,
+                true))
+        {
+            SetStatus(
+                m_strings->GetString(L"Remote.StorageFailed.Text"),
+                m_strings->GetString(L"Remote.StorageFailedDetails.Text"),
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+            return;
+        }
+
+        ::AstralChronicle::services::details::LocalDataTransactionLock const transaction{
+            RemoteConnectionsFileName,
+        };
+        if (!transaction || !LoadConnectionModels())
+        {
+            SetStatus(
+                m_strings->GetString(L"Remote.StorageFailed.Text"),
+                m_strings->GetString(L"Remote.StorageFailedDetails.Text"),
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+            return;
+        }
+
+        auto const original = m_connections;
         auto const existing = std::find_if(m_connections.begin(), m_connections.end(), [&profile](auto const& item)
         {
             return item.Host == profile.Host && item.Domain == profile.Domain && item.User == profile.User;
         });
-        if (existing == m_connections.end()) m_connections.emplace_back(std::move(profile));
-        PersistConnections();
+        if (existing == m_connections.end())
+        {
+            if (m_connections.size() >= MaximumRemoteProfileCount)
+            {
+                SetStatus(
+                    m_strings->GetString(L"Remote.StorageFailed.Text"),
+                    m_strings->GetString(L"Remote.StorageFailedDetails.Text"),
+                    Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+                return;
+            }
+            m_connections.emplace_back(std::move(profile));
+        }
+        if (!PersistConnections())
+        {
+            m_connections = original;
+            RebuildConnectionView();
+            SetStatus(
+                m_strings->GetString(L"Remote.StorageFailed.Text"),
+                m_strings->GetString(L"Remote.StorageFailedDetails.Text"),
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+            return;
+        }
         RebuildConnectionView();
         SetStatus(m_strings->GetString(L"Remote.ConnectionSaved.Text"), m_strings->GetString(L"Remote.ConnectionSavedDetails.Text"), Microsoft::UI::Xaml::Controls::InfoBarSeverity::Success);
     }
@@ -238,13 +412,34 @@ namespace winrt::AstralChronicle::implementation
             std::wstring{ m_host.c_str() },
             std::wstring{ m_domain.c_str() },
             std::wstring{ m_user.c_str() } };
+        ::AstralChronicle::services::details::LocalDataTransactionLock const transaction{
+            RemoteConnectionsFileName,
+        };
+        if (!transaction || !LoadConnectionModels())
+        {
+            SetStatus(
+                m_strings->GetString(L"Remote.StorageFailed.Text"),
+                m_strings->GetString(L"Remote.StorageFailedDetails.Text"),
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+            return;
+        }
+        auto const original = m_connections;
         m_connections.erase(std::remove_if(m_connections.begin(), m_connections.end(), [&profile](auto const& item)
         {
             return item.Host == profile.Host &&
                 item.Domain == profile.Domain &&
                 item.User == profile.User;
         }), m_connections.end());
-        PersistConnections();
+        if (!PersistConnections())
+        {
+            m_connections = original;
+            RebuildConnectionView();
+            SetStatus(
+                m_strings->GetString(L"Remote.StorageFailed.Text"),
+                m_strings->GetString(L"Remote.StorageFailedDetails.Text"),
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+            return;
+        }
         RebuildConnectionView();
         SetStatus(m_strings->GetString(L"Remote.ConnectionRemoved.Text"), {}, Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational);
     }
@@ -281,6 +476,7 @@ namespace winrt::AstralChronicle::implementation
     {
         auto const service = m_service;
         auto const weakThis = get_weak();
+        SensitiveStringGuard passwordGuard{ password };
         try
         {
             auto const dispatcher = m_dispatcher;
@@ -317,6 +513,7 @@ namespace winrt::AstralChronicle::implementation
                 }
             }
 
+            passwordGuard.Clear();
             co_await wil::resume_foreground(dispatcher);
             auto const strongThis = weakThis.get();
             if (!strongThis || strongThis->m_operationState != state ||
@@ -379,6 +576,7 @@ namespace winrt::AstralChronicle::implementation
         std::wstring password)
     {
         auto const service = m_service;
+        SensitiveStringGuard passwordGuard{ password };
         try
         {
             auto const weakThis = get_weak();
@@ -398,6 +596,7 @@ namespace winrt::AstralChronicle::implementation
             {
                 probe.ErrorCode = static_cast<std::uint32_t>(E_FAIL);
             }
+            passwordGuard.Clear();
             co_await wil::resume_foreground(dispatcher);
             auto const strongThis = weakThis.get();
             if (!strongThis || strongThis->m_operationState != state ||
@@ -451,11 +650,74 @@ namespace winrt::AstralChronicle::implementation
             SetStatus(m_strings->GetString(L"Remote.QueryNameRequired.Text"), {}, Microsoft::UI::Xaml::Controls::InfoBarSeverity::Warning);
             return;
         }
-        auto existing = std::find_if(m_savedQueryModels.begin(), m_savedQueryModels.end(), [this](auto const& item) { return item.Name == m_queryName.c_str(); });
-        QueryProfile profile{ std::wstring{ m_queryName.c_str() }, std::wstring{ m_queryChannel.c_str() }, std::wstring{ m_queryText.c_str() } };
-        if (existing == m_savedQueryModels.end()) m_savedQueryModels.emplace_back(std::move(profile));
+        QueryProfile profile{
+            std::wstring{ m_queryName.c_str() },
+            std::wstring{ m_queryChannel.c_str() },
+            std::wstring{ m_queryText.c_str() },
+        };
+        if (!IsValidPersistedField(
+                profile.Name,
+                MaximumQueryNameCharacters,
+                false) ||
+            !IsValidPersistedField(
+                profile.Channel,
+                MaximumChannelCharacters,
+                false) ||
+            !IsValidPersistedField(
+                profile.Query,
+                MaximumQueryCharacters,
+                true,
+                true))
+        {
+            SetStatus(
+                m_strings->GetString(L"Remote.StorageFailed.Text"),
+                m_strings->GetString(L"Remote.StorageFailedDetails.Text"),
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+            return;
+        }
+
+        ::AstralChronicle::services::details::LocalDataTransactionLock const transaction{
+            RemoteSavedQueriesFileName,
+        };
+        if (!transaction || !LoadSavedQueryModels())
+        {
+            SetStatus(
+                m_strings->GetString(L"Remote.StorageFailed.Text"),
+                m_strings->GetString(L"Remote.StorageFailedDetails.Text"),
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+            return;
+        }
+        auto const original = m_savedQueryModels;
+        auto existing = std::find_if(
+            m_savedQueryModels.begin(),
+            m_savedQueryModels.end(),
+            [&profile](auto const& item)
+            {
+                return item.Name == profile.Name;
+            });
+        if (existing == m_savedQueryModels.end())
+        {
+            if (m_savedQueryModels.size() >= MaximumRemoteProfileCount)
+            {
+                SetStatus(
+                    m_strings->GetString(L"Remote.StorageFailed.Text"),
+                    m_strings->GetString(L"Remote.StorageFailedDetails.Text"),
+                    Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+                return;
+            }
+            m_savedQueryModels.emplace_back(std::move(profile));
+        }
         else *existing = std::move(profile);
-        PersistSavedQueries();
+        if (!PersistSavedQueries())
+        {
+            m_savedQueryModels = original;
+            RebuildSavedQueryView();
+            SetStatus(
+                m_strings->GetString(L"Remote.StorageFailed.Text"),
+                m_strings->GetString(L"Remote.StorageFailedDetails.Text"),
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+            return;
+        }
         RebuildSavedQueryView();
         SetStatus(m_strings->GetString(L"Remote.QuerySaved.Text"), {}, Microsoft::UI::Xaml::Controls::InfoBarSeverity::Success);
     }
@@ -463,8 +725,29 @@ namespace winrt::AstralChronicle::implementation
     void RemoteViewModel::RemoveQuery()
     {
         auto const name = std::wstring{ m_queryName.c_str() };
+        ::AstralChronicle::services::details::LocalDataTransactionLock const transaction{
+            RemoteSavedQueriesFileName,
+        };
+        if (!transaction || !LoadSavedQueryModels())
+        {
+            SetStatus(
+                m_strings->GetString(L"Remote.StorageFailed.Text"),
+                m_strings->GetString(L"Remote.StorageFailedDetails.Text"),
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+            return;
+        }
+        auto const original = m_savedQueryModels;
         m_savedQueryModels.erase(std::remove_if(m_savedQueryModels.begin(), m_savedQueryModels.end(), [&name](auto const& item) { return item.Name == name; }), m_savedQueryModels.end());
-        PersistSavedQueries();
+        if (!PersistSavedQueries())
+        {
+            m_savedQueryModels = original;
+            RebuildSavedQueryView();
+            SetStatus(
+                m_strings->GetString(L"Remote.StorageFailed.Text"),
+                m_strings->GetString(L"Remote.StorageFailedDetails.Text"),
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+            return;
+        }
         RebuildSavedQueryView();
         SetStatus(m_strings->GetString(L"Remote.QueryRemoved.Text"), {}, Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational);
     }
@@ -962,45 +1245,146 @@ namespace winrt::AstralChronicle::implementation
 
     void RemoteViewModel::LoadConnections()
     {
-        m_connections.clear();
+        ::AstralChronicle::services::details::LocalDataTransactionLock const transaction{
+            RemoteConnectionsFileName,
+        };
+        if (transaction)
+        {
+            (void)LoadConnectionModels();
+        }
+        RebuildConnectionView();
+    }
+
+    bool RemoteViewModel::LoadConnectionModels()
+    {
+        auto parse = [](std::wstring_view const text)
+            -> std::optional<std::vector<ConnectionProfile>>
+        {
+            std::vector<ConnectionProfile> parsed;
+            auto const succeeded = ParsePersistedRecords(
+                text,
+                [&parsed](std::wstring_view const line)
+                {
+                    std::vector<std::wstring> fields;
+                    if (line.starts_with(L"@v2\t"))
+                    {
+                        auto decoded = ParseV2Record(line, 3);
+                        if (!decoded)
+                        {
+                            return false;
+                        }
+                        fields = std::move(*decoded);
+                    }
+                    else
+                    {
+                        auto const first = line.find(L'\t');
+                        auto const second = first == std::wstring_view::npos
+                            ? std::wstring_view::npos
+                            : line.find(L'\t', first + 1);
+                        if (first == std::wstring_view::npos ||
+                            second == std::wstring_view::npos ||
+                            line.find(L'\t', second + 1) != std::wstring_view::npos)
+                        {
+                            return false;
+                        }
+                        fields.emplace_back(line.substr(0, first));
+                        fields.emplace_back(
+                            line.substr(first + 1, second - first - 1));
+                        fields.emplace_back(line.substr(second + 1));
+                    }
+
+                    if (!IsValidPersistedField(
+                            fields[0],
+                            MaximumHostCharacters,
+                            false) ||
+                        !IsValidPersistedField(
+                            fields[1],
+                            MaximumDomainCharacters,
+                            true) ||
+                        !IsValidPersistedField(
+                            fields[2],
+                            MaximumUserCharacters,
+                            true))
+                    {
+                        return false;
+                    }
+                    parsed.push_back({
+                        std::move(fields[0]),
+                        std::move(fields[1]),
+                        std::move(fields[2]),
+                    });
+                    return true;
+                });
+            return succeeded
+                ? std::optional<std::vector<ConnectionProfile>>{
+                    std::move(parsed),
+                }
+                : std::nullopt;
+        };
+
+        auto const file = ::AstralChronicle::services::details::ReadLocalUtf8Text(
+            RemoteConnectionsFileName,
+            MaximumRemoteProfilesFileBytes);
+        if (file.Status ==
+            ::AstralChronicle::services::details::LocalTextReadStatus::Succeeded)
+        {
+            auto parsed = parse(file.Text);
+            if (!parsed)
+            {
+                return false;
+            }
+            m_connections = std::move(*parsed);
+            try
+            {
+                winrt::Windows::Storage::ApplicationData::Current()
+                    .LocalSettings()
+                    .Values()
+                    .Remove(winrt::hstring{ RemoteConnectionsLegacySetting });
+            }
+            catch (...)
+            {
+            }
+            return true;
+        }
+        if (file.Status ==
+            ::AstralChronicle::services::details::LocalTextReadStatus::Failed)
+        {
+            return false;
+        }
+
         try
         {
             auto const values = winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values();
-            if (!values.HasKey(L"Remote.Connections")) return;
-            auto const stored = winrt::unbox_value<winrt::hstring>(values.Lookup(L"Remote.Connections"));
-            std::wstring text{ stored.c_str(), stored.size() };
-            std::size_t start{};
-            while (start < text.size())
+            auto const legacyKey = winrt::hstring{
+                RemoteConnectionsLegacySetting,
+            };
+            if (!values.HasKey(legacyKey))
             {
-                auto const end = text.find(L'\n', start);
-                auto const line = text.substr(start, end == std::wstring::npos ? std::wstring::npos : end - start);
-                if (line.starts_with(L"@v2\t"))
-                {
-                    if (auto fields = ParseV2Record(line, 3))
-                    {
-                        m_connections.push_back({
-                            std::move((*fields)[0]),
-                            std::move((*fields)[1]),
-                            std::move((*fields)[2]) });
-                    }
-                }
-                else
-                {
-                    auto const first = line.find(L'\t');
-                    auto const second = first == std::wstring::npos ? std::wstring::npos : line.find(L'\t', first + 1);
-                    if (first != std::wstring::npos && second != std::wstring::npos)
-                    {
-                        m_connections.push_back({ line.substr(0, first), line.substr(first + 1, second - first - 1), line.substr(second + 1) });
-                    }
-                }
-                if (end == std::wstring::npos) break;
-                start = end + 1;
+                m_connections.clear();
+                return true;
             }
+            auto const stored =
+                winrt::unbox_value<winrt::hstring>(values.Lookup(legacyKey));
+            auto parsed = parse(
+                std::wstring_view{ stored.c_str(), stored.size() });
+            if (!parsed)
+            {
+                return false;
+            }
+            m_connections = std::move(*parsed);
+            if (PersistConnections())
+            {
+                values.Remove(legacyKey);
+            }
+            return true;
         }
-        catch (...) { }
-        RebuildConnectionView();
+        catch (...)
+        {
+            return false;
+        }
     }
-    void RemoteViewModel::PersistConnections() const
+
+    bool RemoteViewModel::PersistConnections() const
     {
         try
         {
@@ -1012,10 +1396,15 @@ namespace winrt::AstralChronicle::implementation
                     EscapePersistedField(connection.Domain) + L'\t' +
                     EscapePersistedField(connection.User);
             }
-            winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Insert(
-                L"Remote.Connections", winrt::box_value(winrt::hstring{ text }));
+            return ::AstralChronicle::services::details::WriteLocalUtf8TextAtomically(
+                RemoteConnectionsFileName,
+                text,
+                MaximumRemoteProfilesFileBytes);
         }
-        catch (...) { }
+        catch (...)
+        {
+            return false;
+        }
     }
     void RemoteViewModel::RebuildConnectionView()
     {
@@ -1035,46 +1424,146 @@ namespace winrt::AstralChronicle::implementation
 
     void RemoteViewModel::LoadSavedQueries()
     {
-        m_savedQueryModels.clear();
-        try
+        ::AstralChronicle::services::details::LocalDataTransactionLock const transaction{
+            RemoteSavedQueriesFileName,
+        };
+        if (transaction)
         {
-            auto const values = winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values();
-            if (!values.HasKey(L"Remote.SavedQueries")) { RebuildSavedQueryView(); return; }
-            auto const stored = winrt::unbox_value<winrt::hstring>(values.Lookup(L"Remote.SavedQueries"));
-            std::wstring text{ stored.c_str(), stored.size() };
-            std::size_t start{};
-            while (start < text.size())
-            {
-                auto const end = text.find(L'\n', start);
-                auto const line = text.substr(start, end == std::wstring::npos ? std::wstring::npos : end - start);
-                if (line.starts_with(L"@v2\t"))
-                {
-                    if (auto fields = ParseV2Record(line, 3))
-                    {
-                        m_savedQueryModels.push_back({
-                            std::move((*fields)[0]),
-                            std::move((*fields)[1]),
-                            std::move((*fields)[2]) });
-                    }
-                }
-                else
-                {
-                    auto const first = line.find(L'\t');
-                    auto const second = first == std::wstring::npos ? std::wstring::npos : line.find(L'\t', first + 1);
-                    if (first != std::wstring::npos && second != std::wstring::npos)
-                    {
-                        m_savedQueryModels.push_back({ line.substr(0, first), line.substr(first + 1, second - first - 1), line.substr(second + 1) });
-                    }
-                }
-                if (end == std::wstring::npos) break;
-                start = end + 1;
-            }
+            (void)LoadSavedQueryModels();
         }
-        catch (...) { }
         RebuildSavedQueryView();
     }
 
-    void RemoteViewModel::PersistSavedQueries() const
+    bool RemoteViewModel::LoadSavedQueryModels()
+    {
+        auto parse = [](std::wstring_view const text)
+            -> std::optional<std::vector<QueryProfile>>
+        {
+            std::vector<QueryProfile> parsed;
+            auto const succeeded = ParsePersistedRecords(
+                text,
+                [&parsed](std::wstring_view const line)
+                {
+                    std::vector<std::wstring> fields;
+                    if (line.starts_with(L"@v2\t"))
+                    {
+                        auto decoded = ParseV2Record(line, 3);
+                        if (!decoded)
+                        {
+                            return false;
+                        }
+                        fields = std::move(*decoded);
+                    }
+                    else
+                    {
+                        auto const first = line.find(L'\t');
+                        auto const second = first == std::wstring_view::npos
+                            ? std::wstring_view::npos
+                            : line.find(L'\t', first + 1);
+                        if (first == std::wstring_view::npos ||
+                            second == std::wstring_view::npos)
+                        {
+                            return false;
+                        }
+                        fields.emplace_back(line.substr(0, first));
+                        fields.emplace_back(
+                            line.substr(first + 1, second - first - 1));
+                        fields.emplace_back(line.substr(second + 1));
+                    }
+
+                    if (!IsValidPersistedField(
+                            fields[0],
+                            MaximumQueryNameCharacters,
+                            false) ||
+                        !IsValidPersistedField(
+                            fields[1],
+                            MaximumChannelCharacters,
+                            false) ||
+                        !IsValidPersistedField(
+                            fields[2],
+                            MaximumQueryCharacters,
+                            true,
+                            true))
+                    {
+                        return false;
+                    }
+                    parsed.push_back({
+                        std::move(fields[0]),
+                        std::move(fields[1]),
+                        std::move(fields[2]),
+                    });
+                    return true;
+                });
+            return succeeded
+                ? std::optional<std::vector<QueryProfile>>{
+                    std::move(parsed),
+                }
+                : std::nullopt;
+        };
+
+        auto const file = ::AstralChronicle::services::details::ReadLocalUtf8Text(
+            RemoteSavedQueriesFileName,
+            MaximumRemoteProfilesFileBytes);
+        if (file.Status ==
+            ::AstralChronicle::services::details::LocalTextReadStatus::Succeeded)
+        {
+            auto parsed = parse(file.Text);
+            if (!parsed)
+            {
+                return false;
+            }
+            m_savedQueryModels = std::move(*parsed);
+            try
+            {
+                winrt::Windows::Storage::ApplicationData::Current()
+                    .LocalSettings()
+                    .Values()
+                    .Remove(winrt::hstring{ RemoteSavedQueriesLegacySetting });
+            }
+            catch (...)
+            {
+            }
+            return true;
+        }
+        if (file.Status ==
+            ::AstralChronicle::services::details::LocalTextReadStatus::Failed)
+        {
+            return false;
+        }
+
+        try
+        {
+            auto const values = winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values();
+            auto const legacyKey = winrt::hstring{
+                RemoteSavedQueriesLegacySetting,
+            };
+            if (!values.HasKey(legacyKey))
+            {
+                m_savedQueryModels.clear();
+                return true;
+            }
+            auto const stored =
+                winrt::unbox_value<winrt::hstring>(values.Lookup(legacyKey));
+            auto parsed = parse(
+                std::wstring_view{ stored.c_str(), stored.size() });
+            if (!parsed)
+            {
+                return false;
+            }
+            m_savedQueryModels = std::move(*parsed);
+            if (PersistSavedQueries())
+            {
+                values.Remove(legacyKey);
+            }
+            return true;
+        }
+        catch (...)
+        {
+            return false;
+        }
+    }
+
+    bool RemoteViewModel::PersistSavedQueries() const
     {
         try
         {
@@ -1086,9 +1575,15 @@ namespace winrt::AstralChronicle::implementation
                     EscapePersistedField(profile.Channel) + L'\t' +
                     EscapePersistedField(profile.Query);
             }
-            winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Insert(L"Remote.SavedQueries", winrt::box_value(winrt::hstring{ text }));
+            return ::AstralChronicle::services::details::WriteLocalUtf8TextAtomically(
+                RemoteSavedQueriesFileName,
+                text,
+                MaximumRemoteProfilesFileBytes);
         }
-        catch (...) { }
+        catch (...)
+        {
+            return false;
+        }
     }
 
     void RemoteViewModel::RebuildSavedQueryView()

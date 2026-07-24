@@ -280,6 +280,14 @@ namespace AstralChronicle::services
                     SetWorkerError(waitResult == WAIT_FAILED ? GetLastError() : ERROR_GEN_FAILURE);
                     return;
                 }
+                // Clear the notification before draining. If an event arrives
+                // while EvtNext is running, the service can signal it again;
+                // resetting after the drain would lose that wake-up.
+                if (!ResetEvent(subscriptionEvent.get()))
+                {
+                    SetWorkerError(GetLastError());
+                    return;
+                }
                 while (!stopToken.stop_requested())
                 {
                     std::array<EVT_HANDLE, EventBatchSize> rawEvents{};
@@ -303,11 +311,6 @@ namespace AstralChronicle::services
                     {
                         if (error == ERROR_NO_MORE_ITEMS || error == ERROR_TIMEOUT)
                         {
-                            if (!ResetEvent(subscriptionEvent.get()))
-                            {
-                                SetWorkerError(GetLastError());
-                                return;
-                            }
                             break;
                         }
                         SetWorkerError(error);
@@ -386,11 +389,14 @@ namespace AstralChronicle::services
         {
             return {};
         }
-        std::vector<std::byte> buffer(bufferBytes);
+        std::vector<wchar_t> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(wchar_t) - 1) /
+                sizeof(wchar_t) +
+            1);
         if (!EvtRender(nullptr, event, EvtRenderEventXml, bufferBytes, buffer.data(), &bufferBytes, &propertyCount))
         {
             return {};
         }
-        return static_cast<wchar_t const*>(static_cast<void const*>(buffer.data()));
+        return buffer.front() == L'\0' ? std::wstring{} : std::wstring{ buffer.data() };
     }
 }

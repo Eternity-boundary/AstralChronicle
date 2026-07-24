@@ -48,7 +48,9 @@ namespace AstralChronicle::services::details
                 return;
             }
 
-            auto const waitResult = ::WaitForSingleObject(m_handle, INFINITE);
+            // Persistence is called from UI actions as well as background work.
+            // A wedged peer process must not block the UI indefinitely.
+            auto const waitResult = ::WaitForSingleObject(m_handle, 5'000);
             if (waitResult == WAIT_OBJECT_0 || waitResult == WAIT_ABANDONED)
             {
                 m_acquired = true;

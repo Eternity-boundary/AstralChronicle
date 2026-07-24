@@ -4,8 +4,8 @@
 
 #include "DesignSystem/Localization/IStringResourceService.h"
 #include "EventLogItemViewModel.h"
+#include "Services/BookmarkPersistence.h"
 #include "Services/EventQueryBuilder.h"
-#include "Services/LocalDataFile.h"
 
 #include "EventLogsViewModel.g.cpp"
 
@@ -28,9 +28,6 @@
 
 namespace
 {
-    constexpr std::wstring_view BookmarksFileName = L"event-log-bookmarks.v2.txt";
-    constexpr std::wstring_view LegacyBookmarksSetting = L"EventLogs.BookmarkedRecordIds";
-    constexpr std::size_t MaximumBookmarksFileBytes = 4u * 1024u * 1024u;
     constexpr std::size_t MaximumBookmarkCount = 100'000u;
     constexpr std::size_t MaximumBookmarkKeyCharacters = 256u * 1024u;
 
@@ -267,7 +264,8 @@ namespace
         std::unordered_set<std::wstring>& result) noexcept
     {
         result.clear();
-        if (text.size() > MaximumBookmarksFileBytes)
+        if (text.size() >
+            ::AstralChronicle::services::details::MaximumEventLogBookmarksFileBytes)
         {
             return false;
         }
@@ -414,7 +412,7 @@ namespace winrt::AstralChronicle::implementation
         auto const settings = ::AstralChronicle::viewmodels::PersistedSettingsSnapshot::Load();
         m_eventItemSettings = settings.EventItems;
         m_queryBatchSize = settings.QueryBatchSize;
-        m_persistBookmarks = settings.PersistBookmarks;
+        m_rawXPathEnabled = settings.RawXPathMode;
         m_sortAscending = !settings.DefaultSortDescending;
         m_heading = m_strings->GetString(L"EventLogs.Heading");
         auto const defaultChannel = m_strings->GetString(L"EventLogs.ChannelDefault.Text");
@@ -455,6 +453,7 @@ namespace winrt::AstralChronicle::implementation
         ClearSelection();
         RaisePropertyChanged(L"Heading");
         RaisePropertyChanged(L"ChannelPath");
+        RaisePropertyChanged(L"RawXPathEnabled");
         Refresh();
     }
 
@@ -579,6 +578,10 @@ namespace winrt::AstralChronicle::implementation
         }
         m_rawXPath = value;
         RaisePropertyChanged(L"RawXPath");
+    }
+    bool EventLogsViewModel::RawXPathEnabled() const noexcept
+    {
+        return m_rawXPathEnabled;
     }
     bool EventLogsViewModel::FilterAfterToday() const noexcept { return m_filterAfterToday; }
     void EventLogsViewModel::FilterAfterToday(bool const value)
@@ -1060,7 +1063,10 @@ namespace winrt::AstralChronicle::implementation
         filter.ThreadId = std::wstring{ m_filterThreadId.c_str() };
         filter.User = std::wstring{ m_filterUser.c_str() };
         filter.Computer = std::wstring{ m_filterComputer.c_str() };
-        filter.RawXPath = std::wstring{ m_rawXPath.c_str() };
+        if (m_rawXPathEnabled)
+        {
+            filter.RawXPath = std::wstring{ m_rawXPath.c_str() };
+        }
         filter.AfterToday = m_filterAfterToday;
         try
         {
@@ -1529,14 +1535,23 @@ namespace winrt::AstralChronicle::implementation
     void EventLogsViewModel::LoadBookmarks()
     {
         m_bookmarkedKeys.clear();
-        if (!m_persistBookmarks)
+        if (!::AstralChronicle::services::details::EventLogBookmarkPersistenceEnabled())
+        {
+            (void)::AstralChronicle::services::details::ClearPersistedEventLogBookmarks();
+            return;
+        }
+
+        ::AstralChronicle::services::details::LocalDataTransactionLock const transaction{
+            ::AstralChronicle::services::details::EventLogBookmarksStorageFileName,
+        };
+        if (!transaction)
         {
             return;
         }
 
         auto const file = ::AstralChronicle::services::details::ReadLocalUtf8Text(
-            BookmarksFileName,
-            MaximumBookmarksFileBytes);
+            ::AstralChronicle::services::details::EventLogBookmarksStorageFileName,
+            ::AstralChronicle::services::details::MaximumEventLogBookmarksFileBytes);
         if (file.Status == ::AstralChronicle::services::details::LocalTextReadStatus::Succeeded)
         {
             std::unordered_set<std::wstring> parsed;
@@ -1548,9 +1563,13 @@ namespace winrt::AstralChronicle::implementation
                     auto const values = winrt::Windows::Storage::ApplicationData::Current()
                         .LocalSettings()
                         .Values();
-                    if (values.HasKey(LegacyBookmarksSetting))
+                    auto const legacyKey = winrt::hstring{
+                        ::AstralChronicle::services::details::
+                            EventLogBookmarksLegacyStorageKey,
+                    };
+                    if (values.HasKey(legacyKey))
                     {
-                        values.Remove(LegacyBookmarksSetting);
+                        values.Remove(legacyKey);
                     }
                 }
                 catch (...)
@@ -1565,13 +1584,16 @@ namespace winrt::AstralChronicle::implementation
             auto const values = winrt::Windows::Storage::ApplicationData::Current()
                 .LocalSettings()
                 .Values();
-            if (!values.HasKey(LegacyBookmarksSetting))
+            auto const legacyKey = winrt::hstring{
+                ::AstralChronicle::services::details::EventLogBookmarksLegacyStorageKey,
+            };
+            if (!values.HasKey(legacyKey))
             {
                 return;
             }
 
             auto const stored = winrt::unbox_value<winrt::hstring>(
-                values.Lookup(LegacyBookmarksSetting));
+                values.Lookup(legacyKey));
             std::unordered_set<std::wstring> parsed;
             if (!ParseBookmarks(
                     std::wstring_view{ stored.c_str(), stored.size() },
@@ -1583,11 +1605,13 @@ namespace winrt::AstralChronicle::implementation
             m_bookmarkedKeys = std::move(parsed);
             auto const text = SerializeBookmarks(m_bookmarkedKeys);
             if (::AstralChronicle::services::details::WriteLocalUtf8TextAtomically(
-                    BookmarksFileName,
+                    ::AstralChronicle::services::details::
+                        EventLogBookmarksStorageFileName,
                     text,
-                    MaximumBookmarksFileBytes))
+                    ::AstralChronicle::services::details::
+                        MaximumEventLogBookmarksFileBytes))
             {
-                values.Remove(LegacyBookmarksSetting);
+                values.Remove(legacyKey);
             }
         }
         catch (...)
@@ -1598,17 +1622,28 @@ namespace winrt::AstralChronicle::implementation
 
     void EventLogsViewModel::PersistBookmarks() const
     {
-        if (!m_persistBookmarks)
+        if (!::AstralChronicle::services::details::EventLogBookmarkPersistenceEnabled())
         {
+            (void)::AstralChronicle::services::details::ClearPersistedEventLogBookmarks();
             return;
         }
         try
         {
+            ::AstralChronicle::services::details::LocalDataTransactionLock const transaction{
+                ::AstralChronicle::services::details::
+                    EventLogBookmarksStorageFileName,
+            };
+            if (!transaction)
+            {
+                return;
+            }
             auto const text = SerializeBookmarks(m_bookmarkedKeys);
             (void)::AstralChronicle::services::details::WriteLocalUtf8TextAtomically(
-                BookmarksFileName,
+                ::AstralChronicle::services::details::
+                    EventLogBookmarksStorageFileName,
                 text,
-                MaximumBookmarksFileBytes);
+                ::AstralChronicle::services::details::
+                    MaximumEventLogBookmarksFileBytes);
         }
         catch (...)
         {

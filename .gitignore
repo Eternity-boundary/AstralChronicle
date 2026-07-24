@@ -5,6 +5,10 @@ Release/
 x64/
 ARM64/
 Generated Files/
+*.obj
+*.etl
+out/
+Release-signed/
 
 # NuGet restore cache
 packages/

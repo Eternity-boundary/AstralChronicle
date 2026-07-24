@@ -71,8 +71,10 @@ namespace
             return {};
         }
 
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetPublisherMetadataProperty(
                 metadata,
                 propertyId,
@@ -98,8 +100,10 @@ namespace
             return {};
         }
 
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetPublisherMetadataProperty(
                 metadata,
                 propertyId,
@@ -128,8 +132,10 @@ namespace
         {
             return 0;
         }
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetEventMetadataProperty(eventMetadata, propertyId, 0, bufferBytes, value, &bufferBytes))
         {
             return 0;
@@ -147,8 +153,10 @@ namespace
         {
             return 0;
         }
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetEventMetadataProperty(eventMetadata, propertyId, 0, bufferBytes, value, &bufferBytes))
         {
             return 0;
@@ -170,8 +178,10 @@ namespace
         {
             return {};
         }
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetEventMetadataProperty(
                 eventMetadata,
                 EventMetadataEventTemplate,
