@@ -1,5 +1,8 @@
 <Solution>
   <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <BuildType Name="Release-signed" />
     <Platform Name="ARM64" />
     <Platform Name="x64" />
     <Platform Name="x86" />
@@ -7,5 +10,8 @@
   <Project Path="AstralChronicle.vcxproj" Id="39177f23-dcb4-4f9c-98fe-404df8507b9a">
     <Deploy />
   </Project>
-  <Project Path="AstralChronicle.ElevationShim.vcxproj" Id="8a6bae3c-27a4-4be7-a0f8-04f8f7258d4b" />
+  <Project Path="AstralChronicle.ElevationShim.vcxproj" Id="8a6bae3c-27a4-4be7-a0f8-04f8f7258d4b">
+    <Platform Solution="Release-signed|ARM64" Project="x64" />
+    <Platform Solution="Release-signed|x86" Project="x64" />
+  </Project>
 </Solution>
