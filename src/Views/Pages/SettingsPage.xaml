@@ -95,7 +95,11 @@
                     <TextBlock x:Uid="SettingsAdvancedTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
                     <TextBlock x:Uid="SettingsAdvancedDescription" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
                     <ToggleSwitch x:Uid="SettingsRawXPathToggle" AutomationProperties.AutomationId="SettingsRawXPathToggle" IsOn="{x:Bind ViewModel.RawXPathMode, Mode=TwoWay}" />
-                    <ToggleSwitch x:Uid="SettingsDebugLoggingToggle" AutomationProperties.AutomationId="SettingsDebugLoggingToggle" IsOn="{x:Bind ViewModel.DebugLogging, Mode=TwoWay}" />
+                    <ToggleSwitch
+                        x:Uid="SettingsDebugLoggingToggle"
+                        AutomationProperties.AutomationId="SettingsDebugLoggingToggle"
+                        IsEnabled="False"
+                        IsOn="False" />
                 </StackPanel>
             </Border>
 
@@ -104,7 +108,14 @@
                     <TextBlock x:Uid="SharedComponentsGalleryTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
                     <TextBlock x:Uid="SharedComponentsGalleryDescription" Style="{StaticResource AstralCaptionTextBlockStyle}" TextWrapping="Wrap" />
                     <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}">
-                        <Button x:Uid="SharedComponentsGalleryButton" AutomationProperties.AutomationId="SharedComponentsGalleryButton" />
+                        <Button
+                            x:Uid="SharedComponentsGalleryButton"
+                            AutomationProperties.AutomationId="SharedComponentsGalleryButton"
+                            IsEnabled="False">
+                            <ToolTipService.ToolTip>
+                                <TextBlock x:Uid="SharedComponentsGalleryUnavailableTooltip" />
+                            </ToolTipService.ToolTip>
+                        </Button>
                         <InfoBar x:Uid="SharedComponentsGalleryInfoBar" AutomationProperties.AutomationId="SharedComponentsGalleryInfoBar" IsOpen="True" IsClosable="False" />
                     </StackPanel>
                 </StackPanel>
@@ -123,6 +134,8 @@
                         SelectionChanged="OnLanguageSelectionChanged">
                         <RadioButton x:Uid="LanguageEnglishOption" AutomationProperties.AutomationId="LanguageEnglishOption" />
                         <RadioButton x:Uid="LanguageTraditionalChineseOption" AutomationProperties.AutomationId="LanguageTraditionalChineseOption" />
+                        <RadioButton x:Uid="LanguageSimplifiedChineseOption" AutomationProperties.AutomationId="LanguageSimplifiedChineseOption" />
+                        <RadioButton x:Uid="LanguageJapaneseOption" AutomationProperties.AutomationId="LanguageJapaneseOption" />
                     </RadioButtons>
                 </StackPanel>
             </Border>

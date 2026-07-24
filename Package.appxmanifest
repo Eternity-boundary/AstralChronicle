@@ -12,11 +12,7 @@
   <Identity
     Name="d3233729-ad46-4230-a400-584c08d92639"
     Publisher="CN=EternityBoundary"
-<<<<<<< Updated upstream
-    Version="0.0.1.0" />
-=======
     Version="0.0.6.0" />
->>>>>>> Stashed changes
 
   <mp:PhoneIdentity PhoneProductId="d3233729-ad46-4230-a400-584c08d92639" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -38,6 +34,8 @@
   <Resources>
     <Resource Language="en-US"/>
     <Resource Language="zh-TW"/>
+    <Resource Language="zh-CN"/>
+    <Resource Language="ja-JP"/>
   </Resources>
 
   <Applications>

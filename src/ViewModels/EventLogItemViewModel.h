@@ -3,6 +3,7 @@
 
 #include "EventLogItemViewModel.g.h"
 #include "Models/EventRecordSummary.h"
+#include "PersistedSettings.h"
 
 namespace AstralChronicle::design
 {
@@ -17,7 +18,8 @@ namespace winrt::AstralChronicle::implementation
 
         void Initialize(
             ::AstralChronicle::models::EventRecordSummary const& summary,
-            ::AstralChronicle::design::IStringResourceService const& strings);
+            ::AstralChronicle::design::IStringResourceService const& strings,
+            ::AstralChronicle::viewmodels::EventItemSettings const& settings);
 
         [[nodiscard]] winrt::hstring TimeCreated() const;
         [[nodiscard]] winrt::hstring Level() const;

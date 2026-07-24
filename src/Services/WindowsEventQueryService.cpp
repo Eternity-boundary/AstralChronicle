@@ -1,6 +1,7 @@
 ﻿// Created by EternityBoundary on Jul 20,2026
 #include "pch.h"
 #include "WindowsEventQueryService.h"
+#include "EvtVariantReader.h"
 #include "UniqueEvtHandle.h"
 
 #include <winevt.h>
@@ -75,117 +76,146 @@ namespace
 
         using WindowsDuration = std::chrono::duration<std::int64_t, std::ratio<1, 10'000'000>>;
         auto const unixTicks = windowsTicks - WindowsEpochOffset100Nanoseconds;
+        if (unixTicks > static_cast<std::uint64_t>(
+                (std::numeric_limits<std::int64_t>::max)()))
+        {
+            return {};
+        }
         return std::chrono::system_clock::time_point{
             std::chrono::duration_cast<std::chrono::system_clock::duration>(
                 WindowsDuration{ static_cast<std::int64_t>(unixTicks) }) };
     }
 
-    [[nodiscard]] AstralChronicle::models::EventRecordSummary RenderSummary(
+    [[nodiscard]] std::optional<AstralChronicle::models::EventRecordSummary> RenderSummary(
         EVT_HANDLE const eventHandle,
-        EVT_HANDLE const renderContext)
+        EVT_HANDLE const renderContext,
+        DWORD& errorCode)
     {
+        errorCode = ERROR_SUCCESS;
+        if (!renderContext)
+        {
+            errorCode = ERROR_INVALID_HANDLE;
+            return std::nullopt;
+        }
+
         DWORD bufferBytes{};
         DWORD propertyCount{};
-        if (!renderContext || !EvtRender(renderContext, eventHandle, EvtRenderEventValues, 0, nullptr, &bufferBytes, &propertyCount))
+        if (EvtRender(renderContext, eventHandle, EvtRenderEventValues, 0, nullptr, &bufferBytes, &propertyCount))
         {
-            auto const error = GetLastError();
-            if (error != ERROR_INSUFFICIENT_BUFFER)
-            {
-                return {};
-            }
+            errorCode = ERROR_EVT_INVALID_EVENT_DATA;
+            return std::nullopt;
+        }
+        errorCode = GetLastError();
+        if (errorCode != ERROR_INSUFFICIENT_BUFFER || bufferBytes == 0)
+        {
+            return std::nullopt;
+        }
+
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const values = buffer.data();
+        if (!EvtRender(renderContext, eventHandle, EvtRenderEventValues, bufferBytes, values, &bufferBytes, &propertyCount))
+        {
+            errorCode = GetLastError();
+            return std::nullopt;
+        }
+        errorCode = ERROR_SUCCESS;
+
+        using AstralChronicle::services::details::ReadEventId;
+        using AstralChronicle::services::details::ReadKeywords;
+        using AstralChronicle::services::details::TryGetSystemVariant;
+        auto const provider = TryGetSystemVariant(values, propertyCount, EvtSystemProviderName, EvtVarTypeString);
+        auto const eventId = ReadEventId(values, propertyCount);
+        auto const recordId = TryGetSystemVariant(values, propertyCount, EvtSystemEventRecordId, EvtVarTypeUInt64);
+        if (!provider || !provider->StringVal || !eventId || !recordId)
+        {
+            errorCode = ERROR_EVT_INVALID_EVENT_DATA;
+            return std::nullopt;
         }
 
         AstralChronicle::models::EventRecordSummary summary;
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const values = reinterpret_cast<PEVT_VARIANT>(buffer.data());
-        if (!EvtRender(renderContext, eventHandle, EvtRenderEventValues, bufferBytes, values, &bufferBytes, &propertyCount))
-        {
-            return {};
-        }
+        summary.Provider = provider->StringVal;
+        summary.EventId = *eventId;
+        summary.RecordId = recordId->UInt64Val;
 
-        if (propertyCount > EvtSystemProviderName && values[EvtSystemProviderName].StringVal)
-        {
-            summary.Provider = values[EvtSystemProviderName].StringVal;
-        }
-        if (propertyCount > EvtSystemProviderGuid && values[EvtSystemProviderGuid].GuidVal)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemProviderGuid, EvtVarTypeGuid);
+            value && value->GuidVal)
         {
             wchar_t guid[64]{};
-            if (StringFromGUID2(*values[EvtSystemProviderGuid].GuidVal, guid, ARRAYSIZE(guid)) != 0)
+            if (StringFromGUID2(*value->GuidVal, guid, ARRAYSIZE(guid)) != 0)
             {
                 summary.ProviderGuid = guid;
             }
         }
-        if (propertyCount > EvtSystemEventID)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemLevel, EvtVarTypeByte))
         {
-            summary.EventId = values[EvtSystemEventID].UInt16Val;
+            summary.Level = value->ByteVal;
         }
-        if (propertyCount > EvtSystemLevel)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemVersion, EvtVarTypeByte))
         {
-            summary.Level = values[EvtSystemLevel].ByteVal;
+            summary.Version = value->ByteVal;
         }
-        if (propertyCount > EvtSystemVersion)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemOpcode, EvtVarTypeByte))
         {
-            summary.Version = values[EvtSystemVersion].ByteVal;
+            summary.Opcode = value->ByteVal;
         }
-        if (propertyCount > EvtSystemOpcode)
+        if (auto const keywords = ReadKeywords(values, propertyCount))
         {
-            summary.Opcode = values[EvtSystemOpcode].ByteVal;
+            summary.Keywords = *keywords;
         }
-        if (propertyCount > EvtSystemKeywords)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemTimeCreated, EvtVarTypeFileTime))
         {
-            summary.Keywords = values[EvtSystemKeywords].UInt64Val;
+            summary.TimeCreated = TimePointFromWindowsTicks(value->FileTimeVal);
         }
-        if (propertyCount > EvtSystemEventRecordId)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemChannel, EvtVarTypeString);
+            value && value->StringVal)
         {
-            summary.RecordId = values[EvtSystemEventRecordId].UInt64Val;
+            summary.Channel = value->StringVal;
         }
-        if (propertyCount > EvtSystemTimeCreated)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemTask, EvtVarTypeUInt16))
         {
-            summary.TimeCreated = TimePointFromWindowsTicks(values[EvtSystemTimeCreated].FileTimeVal);
+            summary.TaskDisplayName = std::to_wstring(value->UInt16Val);
         }
-        if (propertyCount > EvtSystemChannel && values[EvtSystemChannel].StringVal)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemComputer, EvtVarTypeString);
+            value && value->StringVal)
         {
-            summary.Channel = values[EvtSystemChannel].StringVal;
+            summary.Computer = value->StringVal;
         }
-        if (propertyCount > EvtSystemTask)
-        {
-            summary.TaskDisplayName = std::to_wstring(values[EvtSystemTask].UInt16Val);
-        }
-        if (propertyCount > EvtSystemComputer && values[EvtSystemComputer].StringVal)
-        {
-            summary.Computer = values[EvtSystemComputer].StringVal;
-        }
-        if (propertyCount > EvtSystemUserID && values[EvtSystemUserID].SidVal)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemUserID, EvtVarTypeSid);
+            value && value->SidVal)
         {
             unique_local_string userSid;
-            if (ConvertSidToStringSidW(values[EvtSystemUserID].SidVal, userSid.put()))
+            if (ConvertSidToStringSidW(value->SidVal, userSid.put()))
             {
                 summary.User = userSid.get();
             }
         }
-        if (propertyCount > EvtSystemActivityID && values[EvtSystemActivityID].GuidVal)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemActivityID, EvtVarTypeGuid);
+            value && value->GuidVal)
         {
             wchar_t guid[64]{};
-            if (StringFromGUID2(*values[EvtSystemActivityID].GuidVal, guid, ARRAYSIZE(guid)) != 0)
+            if (StringFromGUID2(*value->GuidVal, guid, ARRAYSIZE(guid)) != 0)
             {
                 summary.ActivityId = guid;
             }
         }
-        if (propertyCount > EvtSystemRelatedActivityID && values[EvtSystemRelatedActivityID].GuidVal)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemRelatedActivityID, EvtVarTypeGuid);
+            value && value->GuidVal)
         {
             wchar_t guid[64]{};
-            if (StringFromGUID2(*values[EvtSystemRelatedActivityID].GuidVal, guid, ARRAYSIZE(guid)) != 0)
+            if (StringFromGUID2(*value->GuidVal, guid, ARRAYSIZE(guid)) != 0)
             {
                 summary.RelatedActivityId = guid;
             }
         }
-        if (propertyCount > EvtSystemProcessID)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemProcessID, EvtVarTypeUInt32))
         {
-            summary.ProcessId = values[EvtSystemProcessID].UInt32Val;
+            summary.ProcessId = value->UInt32Val;
         }
-        if (propertyCount > EvtSystemThreadID)
+        if (auto const value = TryGetSystemVariant(values, propertyCount, EvtSystemThreadID, EvtVarTypeUInt32))
         {
-            summary.ThreadId = values[EvtSystemThreadID].UInt32Val;
+            summary.ThreadId = value->UInt32Val;
         }
         return summary;
     }
@@ -266,8 +296,10 @@ namespace
             return {};
         }
 
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetPublisherMetadataProperty(metadata, propertyId, 0, bufferBytes, value, &bufferBytes) ||
             value->Type != EvtVarTypeString || !value->StringVal)
         {
@@ -291,8 +323,10 @@ namespace
             return {};
         }
 
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const value = reinterpret_cast<PEVT_VARIANT>(buffer.data());
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const value = buffer.data();
         if (!EvtGetPublisherMetadataProperty(
                 metadata,
                 EvtPublisherMetadataPublisherGuid,
@@ -338,50 +372,88 @@ namespace
             : details.Summary.RelatedActivityId;
     }
 
-    [[nodiscard]] std::uint8_t RenderLevel(
+    [[nodiscard]] std::optional<std::uint8_t> RenderLevel(
         EVT_HANDLE const eventHandle,
-        EVT_HANDLE const renderContext)
+        EVT_HANDLE const renderContext,
+        DWORD& errorCode)
     {
+        errorCode = ERROR_SUCCESS;
+        if (!renderContext)
+        {
+            errorCode = ERROR_INVALID_HANDLE;
+            return std::nullopt;
+        }
+
         DWORD bufferBytes{};
         DWORD propertyCount{};
-        if (!renderContext || EvtRender(renderContext, eventHandle, EvtRenderEventValues, 0, nullptr, &bufferBytes, &propertyCount) ||
-            GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+        if (EvtRender(renderContext, eventHandle, EvtRenderEventValues, 0, nullptr, &bufferBytes, &propertyCount))
         {
-            return 0;
+            errorCode = ERROR_EVT_INVALID_EVENT_DATA;
+            return std::nullopt;
+        }
+        errorCode = GetLastError();
+        if (errorCode != ERROR_INSUFFICIENT_BUFFER || bufferBytes == 0)
+        {
+            return std::nullopt;
         }
 
-        std::vector<std::byte> buffer(bufferBytes);
-        auto const values = reinterpret_cast<PEVT_VARIANT>(buffer.data());
-        if (!EvtRender(renderContext, eventHandle, EvtRenderEventValues, bufferBytes, values, &bufferBytes, &propertyCount) ||
-            propertyCount <= EvtSystemLevel)
+        std::vector<EVT_VARIANT> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(EVT_VARIANT) - 1) /
+            sizeof(EVT_VARIANT));
+        auto const values = buffer.data();
+        if (!EvtRender(renderContext, eventHandle, EvtRenderEventValues, bufferBytes, values, &bufferBytes, &propertyCount))
         {
-            return 0;
+            errorCode = GetLastError();
+            return std::nullopt;
         }
 
-        return values[EvtSystemLevel].ByteVal;
+        errorCode = ERROR_SUCCESS;
+        auto const level = AstralChronicle::services::details::TryGetSystemVariant(
+            values,
+            propertyCount,
+            EvtSystemLevel,
+            EvtVarTypeByte);
+        return level ? level->ByteVal : 0;
     }
 
-    [[nodiscard]] std::wstring RenderXml(EVT_HANDLE const eventHandle)
+    [[nodiscard]] std::optional<std::wstring> RenderXml(
+        EVT_HANDLE const eventHandle,
+        DWORD& errorCode)
     {
+        errorCode = ERROR_SUCCESS;
         DWORD bufferBytes{};
         DWORD propertyCount{};
-        if (EvtRender(nullptr, eventHandle, EvtRenderEventXml, 0, nullptr, &bufferBytes, &propertyCount) ||
-            GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+        if (EvtRender(nullptr, eventHandle, EvtRenderEventXml, 0, nullptr, &bufferBytes, &propertyCount))
         {
-            std::vector<wchar_t> buffer((bufferBytes / sizeof(wchar_t)) + 1);
-            if (EvtRender(
-                    nullptr,
-                    eventHandle,
-                    EvtRenderEventXml,
-                    bufferBytes,
-                    buffer.data(),
-                    &bufferBytes,
-                    &propertyCount))
-            {
-                return buffer.data();
-            }
+            errorCode = ERROR_EVT_INVALID_EVENT_DATA;
+            return std::nullopt;
         }
-        return {};
+        errorCode = GetLastError();
+        if (errorCode != ERROR_INSUFFICIENT_BUFFER || bufferBytes == 0)
+        {
+            return std::nullopt;
+        }
+
+        std::vector<wchar_t> buffer((bufferBytes / sizeof(wchar_t)) + 1);
+        if (!EvtRender(
+                nullptr,
+                eventHandle,
+                EvtRenderEventXml,
+                bufferBytes,
+                buffer.data(),
+                &bufferBytes,
+                &propertyCount))
+        {
+            errorCode = GetLastError();
+            return std::nullopt;
+        }
+        if (buffer.front() == L'\0')
+        {
+            errorCode = ERROR_EVT_INVALID_EVENT_DATA;
+            return std::nullopt;
+        }
+        errorCode = ERROR_SUCCESS;
+        return std::wstring{ buffer.data() };
     }
 
     [[nodiscard]] std::wstring FormatMessage(
@@ -509,6 +581,7 @@ namespace AstralChronicle::services
 
         auto const batchSize = std::min<std::uint32_t>(maximumRecords, 64u);
         std::vector<EVT_HANDLE> events(batchSize);
+        std::vector<unique_evt_handle> ownedEvents(batchSize);
         result.Events.reserve(maximumRecords);
 
         while (result.Events.size() < maximumRecords)
@@ -517,19 +590,28 @@ namespace AstralChronicle::services
             {
                 EvtCancel(queryHandle.get());
                 result.Status = EventQueryStatus::Cancelled;
+                result.ErrorCode = ERROR_CANCELLED;
                 return result;
             }
 
             DWORD returned{};
-            if (!EvtNext(
-                    queryHandle.get(),
-                    static_cast<DWORD>(std::min<std::size_t>(events.size(), maximumRecords - result.Events.size())),
-                    events.data(),
-                    100,
-                    0,
-                    &returned))
+            std::fill(events.begin(), events.end(), nullptr);
+            for (auto& event : ownedEvents) event.reset();
+            auto const succeeded = EvtNext(
+                queryHandle.get(),
+                static_cast<DWORD>(std::min<std::size_t>(events.size(), maximumRecords - result.Events.size())),
+                events.data(),
+                100,
+                0,
+                &returned);
+            auto const error = succeeded ? ERROR_SUCCESS : GetLastError();
+            for (std::size_t index{}; index < events.size(); ++index)
             {
-                auto const error = GetLastError();
+                ownedEvents[index].reset(events[index]);
+            }
+
+            if (!succeeded)
+            {
                 if (error == ERROR_TIMEOUT)
                 {
                     continue;
@@ -551,12 +633,20 @@ namespace AstralChronicle::services
 
             for (DWORD index{}; index < returned; ++index)
             {
-                unique_evt_handle event{ events[index] };
-                auto summary = RenderSummary(event.get(), renderContext.get());
-                if (summary.RecordId != 0 || !summary.Provider.empty())
+                DWORD renderError{};
+                auto summary = RenderSummary(
+                    ownedEvents[index].get(),
+                    renderContext.get(),
+                    renderError);
+                if (!summary)
                 {
-                    result.Events.emplace_back(std::move(summary));
+                    result.Status = EventQueryStatus::Failed;
+                    result.ErrorCode = renderError == ERROR_SUCCESS
+                        ? ERROR_EVT_INVALID_EVENT_DATA
+                        : renderError;
+                    return result;
                 }
+                result.Events.emplace_back(std::move(*summary));
             }
 
             if (returned == 0)
@@ -604,6 +694,7 @@ namespace AstralChronicle::services
 
         constexpr DWORD batchSize = 64;
         std::vector<EVT_HANDLE> events(batchSize);
+        std::vector<unique_evt_handle> ownedEvents(batchSize);
         for (;;)
         {
             if (cancellation && cancellation->load(std::memory_order_relaxed))
@@ -615,9 +706,17 @@ namespace AstralChronicle::services
             }
 
             DWORD returned{};
-            if (!EvtNext(queryHandle.get(), batchSize, events.data(), 100, 0, &returned))
+            std::fill(events.begin(), events.end(), nullptr);
+            for (auto& event : ownedEvents) event.reset();
+            auto const succeeded = EvtNext(queryHandle.get(), batchSize, events.data(), 100, 0, &returned);
+            auto const error = succeeded ? ERROR_SUCCESS : GetLastError();
+            for (std::size_t index{}; index < events.size(); ++index)
             {
-                auto const error = GetLastError();
+                ownedEvents[index].reset(events[index]);
+            }
+
+            if (!succeeded)
+            {
                 if (error == ERROR_TIMEOUT)
                 {
                     continue;
@@ -633,9 +732,21 @@ namespace AstralChronicle::services
 
             for (DWORD index{}; index < returned; ++index)
             {
-                unique_evt_handle event{ events[index] };
+                DWORD renderError{};
+                auto const level = RenderLevel(
+                    ownedEvents[index].get(),
+                    renderContext.get(),
+                    renderError);
+                if (!level)
+                {
+                    result.Status = EventQueryStatus::Failed;
+                    result.ErrorCode = renderError == ERROR_SUCCESS
+                        ? ERROR_EVT_INVALID_EVENT_DATA
+                        : renderError;
+                    return result;
+                }
                 ++result.Counts.Total;
-                switch (RenderLevel(event.get(), renderContext.get()))
+                switch (*level)
                 {
                 case 1:
                     ++result.Counts.Critical;
@@ -688,28 +799,72 @@ namespace AstralChronicle::services
             return result;
         }
 
-        EVT_HANDLE eventValue{};
-        DWORD returned{};
-        if (cancellation && cancellation->load(std::memory_order_relaxed))
+        unique_evt_handle event;
+        for (;;)
         {
-            EvtCancel(query.get());
-            result.Status = EventQueryStatus::Cancelled;
-            result.ErrorCode = ERROR_CANCELLED;
-            return result;
-        }
+            if (cancellation && cancellation->load(std::memory_order_relaxed))
+            {
+                EvtCancel(query.get());
+                result.Status = EventQueryStatus::Cancelled;
+                result.ErrorCode = ERROR_CANCELLED;
+                return result;
+            }
 
-        if (!EvtNext(query.get(), 1, &eventValue, 100, 0, &returned))
-        {
-            result.ErrorCode = GetLastError();
-            result.Status = result.ErrorCode == ERROR_NO_MORE_ITEMS
+            EVT_HANDLE eventValue{};
+            DWORD returned{};
+            auto const succeeded = EvtNext(query.get(), 1, &eventValue, 100, 0, &returned);
+            auto const error = succeeded ? ERROR_SUCCESS : GetLastError();
+            unique_evt_handle candidate{ eventValue };
+            if (succeeded)
+            {
+                if (returned != 1 || !candidate)
+                {
+                    result.Status = EventQueryStatus::Failed;
+                    result.ErrorCode = ERROR_EVT_INVALID_EVENT_DATA;
+                    return result;
+                }
+                event = std::move(candidate);
+                break;
+            }
+            if (error == ERROR_TIMEOUT)
+            {
+                continue;
+            }
+            if (cancellation && cancellation->load(std::memory_order_relaxed))
+            {
+                result.Status = EventQueryStatus::Cancelled;
+                result.ErrorCode = ERROR_CANCELLED;
+                return result;
+            }
+            result.ErrorCode = error;
+            result.Status = error == ERROR_NO_MORE_ITEMS
                 ? EventQueryStatus::NoEvents
-                : MapQueryError(result.ErrorCode);
+                : MapQueryError(error);
             return result;
         }
 
-        unique_evt_handle event{ eventValue };
-        result.Details.Summary = RenderSummary(event.get(), renderContext.get());
-        result.Details.RawXml = RenderXml(event.get());
+        DWORD summaryError{};
+        auto summary = RenderSummary(event.get(), renderContext.get(), summaryError);
+        if (!summary)
+        {
+            result.Status = EventQueryStatus::Failed;
+            result.ErrorCode = summaryError == ERROR_SUCCESS
+                ? ERROR_EVT_INVALID_EVENT_DATA
+                : summaryError;
+            return result;
+        }
+        DWORD xmlError{};
+        auto rawXml = RenderXml(event.get(), xmlError);
+        if (!rawXml)
+        {
+            result.Status = EventQueryStatus::Failed;
+            result.ErrorCode = xmlError == ERROR_SUCCESS
+                ? ERROR_EVT_INVALID_EVENT_DATA
+                : xmlError;
+            return result;
+        }
+        result.Details.Summary = std::move(*summary);
+        result.Details.RawXml = std::move(*rawXml);
         PopulateDetails(result.Details, result.Details.RawXml);
         result.Details.ProviderMetadata.Name = result.Details.Summary.Provider;
         result.Details.FormattedMessage = FormatMessage(

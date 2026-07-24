@@ -7,6 +7,7 @@
 
 #include <winrt/Microsoft.UI.Dispatching.h>
 
+#include <memory>
 #include <string>
 
 namespace AstralChronicle::services
@@ -26,9 +27,11 @@ namespace winrt::AstralChronicle::implementation
         DashboardViewModel();
 
         void Initialize(
-            ::AstralChronicle::services::IEventQueryService const& eventQuery,
-            ::AstralChronicle::design::IStringResourceService const& strings,
+            std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher);
+        [[nodiscard]] static std::wstring QueryForTodayLevel(std::uint8_t level);
+        [[nodiscard]] static std::wstring QueryForTodayCriticalEvents();
 
         [[nodiscard]] winrt::hstring Heading() const;
         [[nodiscard]] winrt::hstring Summary() const;
@@ -71,10 +74,11 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_timelineSummary;
         winrt::hstring m_statusText;
         winrt::hstring m_statusDetails;
-        ::AstralChronicle::services::IEventQueryService const* m_eventQuery{};
-        ::AstralChronicle::design::IStringResourceService const* m_strings{};
+        std::shared_ptr<::AstralChronicle::services::IEventQueryService> m_eventQuery;
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> m_strings;
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         ::AstralChronicle::services::QueryCancellation m_cancellation;
+        ::AstralChronicle::viewmodels::EventItemSettings m_eventItemSettings;
         std::uint64_t m_requestVersion{};
         bool m_hasStatusMessage{};
         bool m_isLoading{};

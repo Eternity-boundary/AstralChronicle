@@ -4,7 +4,9 @@
 
 #include <winevt.h>
 
+#include <array>
 #include <cstddef>
+#include <new>
 #include <string_view>
 #include <vector>
 
@@ -14,6 +16,8 @@ namespace AstralChronicle::services
 {
     namespace
     {
+        constexpr DWORD EventBatchSize = 32;
+
         [[nodiscard]] std::wstring XmlValue(std::wstring const& xml, std::wstring_view tag)
         {
             auto const open = xml.find(L"<" + std::wstring{ tag } + L">");
@@ -34,13 +38,15 @@ namespace AstralChronicle::services
         std::wstring_view query,
         std::uint32_t const queueLimit)
     {
-        Stop();
+        std::scoped_lock workerLock{ m_workerMutex };
+        StopWorkerLocked();
+
+        std::wstring channelText{ channel.empty() ? L"System" : channel };
+        std::wstring queryText{ query.empty() ? L"*" : query };
         {
             std::scoped_lock lock{ m_mutex };
-            m_channel = channel.empty() ? L"System" : std::wstring{ channel };
-            m_query = query.empty() ? L"*" : std::wstring{ query };
             m_queueLimit = std::max<std::uint32_t>(queueLimit, 64);
-            m_droppedCount = 0;
+            m_droppedSinceLastBatch = 0;
             m_errorCode = 0;
             m_events.clear();
             m_totalReceived = 0;
@@ -49,48 +55,112 @@ namespace AstralChronicle::services
             m_warningCount = 0;
             m_startedAt = std::chrono::steady_clock::now();
             m_state = LiveState::Starting;
+            m_pauseRequested = false;
         }
-        unique_evt_handle subscription{ EvtSubscribe(
-            nullptr,
-            nullptr,
-            m_channel.c_str(),
-            m_query.c_str(),
-            nullptr,
-            this,
-            &WindowsEventLiveService::NotificationCallback,
-            EvtSubscribeToFutureEvents) };
-        std::scoped_lock lock{ m_mutex };
-        if (!subscription)
+
+        m_stopEvent.reset(CreateEventW(nullptr, TRUE, FALSE, nullptr));
+        if (!m_stopEvent)
         {
-            m_errorCode = GetLastError();
-            m_state = LiveState::Error;
+            SetWorkerError(GetLastError());
             return false;
         }
-        m_subscription = std::move(subscription);
-        m_state = LiveState::Running;
-        return true;
+
+        std::promise<WorkerStartResult> startup;
+        auto startupResult = startup.get_future();
+        auto const stopEvent = m_stopEvent.get();
+        try
+        {
+            m_worker = std::jthread(
+                [this,
+                 stopEvent,
+                 channel = std::move(channelText),
+                 query = std::move(queryText),
+                 startup = std::move(startup)](std::stop_token const stopToken) mutable
+                {
+                    RunWorker(
+                        stopToken,
+                        stopEvent,
+                        std::move(channel),
+                        std::move(query),
+                        std::move(startup));
+                });
+        }
+        catch (...)
+        {
+            m_stopEvent.reset();
+            SetWorkerError(ERROR_NOT_ENOUGH_MEMORY);
+            return false;
+        }
+
+        WorkerStartResult result;
+        try
+        {
+            result = startupResult.get();
+        }
+        catch (...)
+        {
+            result.ErrorCode = ERROR_GEN_FAILURE;
+        }
+
+        if (!result.Success)
+        {
+            if (m_worker.joinable())
+            {
+                m_worker.request_stop();
+                SetEvent(m_stopEvent.get());
+                m_worker.join();
+            }
+            m_stopEvent.reset();
+            SetWorkerError(result.ErrorCode == 0 ? ERROR_GEN_FAILURE : result.ErrorCode);
+        }
+        return result.Success;
     }
 
     void WindowsEventLiveService::Pause() noexcept
     {
         std::scoped_lock lock{ m_mutex };
-        if (m_state == LiveState::Running || m_state == LiveState::EventsLost) m_state = LiveState::Paused;
+        if (m_state == LiveState::Running || m_state == LiveState::EventsLost)
+        {
+            m_pauseRequested = true;
+            m_state = LiveState::Paused;
+        }
     }
 
     void WindowsEventLiveService::Resume() noexcept
     {
         std::scoped_lock lock{ m_mutex };
-        if (m_state == LiveState::Paused) m_state = LiveState::Running;
+        if (m_state == LiveState::Paused)
+        {
+            m_pauseRequested = false;
+            m_state = LiveState::Running;
+        }
     }
 
     void WindowsEventLiveService::Stop() noexcept
     {
+        std::scoped_lock workerLock{ m_workerMutex };
+        StopWorkerLocked();
+    }
+
+    void WindowsEventLiveService::StopWorkerLocked() noexcept
+    {
+        if (m_worker.joinable())
         {
-            std::scoped_lock lock{ m_mutex };
-            if (m_subscription) m_state = LiveState::Stopping;
+            {
+                std::scoped_lock lock{ m_mutex };
+                m_state = LiveState::Stopping;
+            }
+            m_worker.request_stop();
+            if (m_stopEvent)
+            {
+                SetEvent(m_stopEvent.get());
+            }
+            m_worker.join();
         }
-        m_subscription.reset();
+        m_stopEvent.reset();
+
         std::scoped_lock lock{ m_mutex };
+        m_pauseRequested = false;
         m_state = LiveState::Stopped;
     }
 
@@ -98,7 +168,11 @@ namespace AstralChronicle::services
     {
         std::scoped_lock lock{ m_mutex };
         m_events.clear();
-        m_droppedCount = 0;
+        m_droppedSinceLastBatch = 0;
+        if (m_state == LiveState::EventsLost)
+        {
+            m_state = m_pauseRequested ? LiveState::Paused : LiveState::Running;
+        }
     }
 
     LiveBatch WindowsEventLiveService::TakeBatch(std::uint32_t const maximumEvents)
@@ -107,7 +181,7 @@ namespace AstralChronicle::services
         LiveBatch result;
         result.State = m_state;
         result.ErrorCode = m_errorCode;
-        result.DroppedCount = m_droppedCount;
+        result.DroppedCount = m_droppedSinceLastBatch;
         result.QueueDepth = static_cast<std::uint32_t>(m_events.size());
         result.TotalReceived = m_totalReceived;
         result.CriticalCount = m_criticalCount;
@@ -117,74 +191,192 @@ namespace AstralChronicle::services
             ? std::chrono::milliseconds{}
             : std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now() - m_startedAt);
-        m_droppedCount = 0;
-        auto const limit = maximumEvents;
-        if (limit == 0)
+
+        m_droppedSinceLastBatch = 0;
+        if (m_state == LiveState::EventsLost)
         {
-            return result;
+            m_state = m_pauseRequested ? LiveState::Paused : LiveState::Running;
         }
-        while (!m_events.empty() && result.Events.size() < limit)
+
+        while (!m_events.empty() && result.Events.size() < maximumEvents)
         {
             result.Events.emplace_back(std::move(m_events.front()));
             m_events.pop_front();
         }
+        result.QueueDepth = static_cast<std::uint32_t>(m_events.size());
         return result;
     }
 
-    DWORD WINAPI WindowsEventLiveService::NotificationCallback(
-        EVT_SUBSCRIBE_NOTIFY_ACTION const action,
-        PVOID const userContext,
-        EVT_HANDLE const event)
+    void WindowsEventLiveService::RunWorker(
+        std::stop_token const stopToken,
+        HANDLE const stopEvent,
+        std::wstring channel,
+        std::wstring query,
+        std::promise<WorkerStartResult> startup)
     {
-        if (userContext)
+        bool startupReported{};
+        auto reportStartup = [&startup, &startupReported](WorkerStartResult const result) noexcept
         {
-            static_cast<WindowsEventLiveService*>(userContext)->HandleNotification(action, event);
-        }
-        return 0;
-    }
+            if (startupReported) return;
+            startupReported = true;
+            try
+            {
+                startup.set_value(result);
+            }
+            catch (...)
+            {
+            }
+        };
 
-    void WindowsEventLiveService::HandleNotification(
-        EVT_SUBSCRIBE_NOTIFY_ACTION const action,
-        EVT_HANDLE const event) noexcept
-    {
-        if (action == EvtSubscribeActionError)
-        {
-            std::scoped_lock lock{ m_mutex };
-            m_errorCode = event ? static_cast<std::uint32_t>(reinterpret_cast<ULONG_PTR>(event)) : ERROR_EVT_QUERY_RESULT_STALE;
-            m_state = LiveState::Error;
-            return;
-        }
-        if (action != EvtSubscribeActionDeliver || !event)
-        {
-            return;
-        }
         try
         {
-            auto rendered = RenderEvent(event);
-            if (rendered.empty()) return;
-            std::scoped_lock lock{ m_mutex };
-            if (m_state != LiveState::Running && m_state != LiveState::Paused && m_state != LiveState::EventsLost)
+            wil::unique_handle subscriptionEvent;
+            subscriptionEvent.reset(CreateEventW(nullptr, TRUE, FALSE, nullptr));
+            if (!subscriptionEvent)
             {
+                auto const error = GetLastError();
+                SetWorkerError(error);
+                reportStartup({ false, error });
                 return;
             }
-            ++m_totalReceived;
-            auto const level = XmlValue(rendered, L"Level");
-            if (level == L"1") ++m_criticalCount;
-            else if (level == L"2") ++m_errorCount;
-            else if (level == L"3") ++m_warningCount;
-            if (m_events.size() >= m_queueLimit)
+
+            unique_evt_handle subscription{ EvtSubscribe(
+                nullptr,
+                subscriptionEvent.get(),
+                channel.c_str(),
+                query.c_str(),
+                nullptr,
+                nullptr,
+                nullptr,
+                EvtSubscribeToFutureEvents) };
+            if (!subscription)
             {
-                m_events.pop_front();
-                ++m_droppedCount;
-                m_state = LiveState::EventsLost;
+                auto const error = GetLastError();
+                SetWorkerError(error);
+                reportStartup({ false, error });
+                return;
             }
-            m_events.emplace_back(std::move(rendered));
+
+            {
+                std::scoped_lock lock{ m_mutex };
+                m_state = m_pauseRequested ? LiveState::Paused : LiveState::Running;
+            }
+            reportStartup({ true, ERROR_SUCCESS });
+
+            HANDLE waitHandles[]{ stopEvent, subscriptionEvent.get() };
+            while (!stopToken.stop_requested())
+            {
+                auto const waitResult = WaitForMultipleObjects(
+                    ARRAYSIZE(waitHandles),
+                    waitHandles,
+                    FALSE,
+                    INFINITE);
+                if (waitResult == WAIT_OBJECT_0)
+                {
+                    break;
+                }
+                if (waitResult != WAIT_OBJECT_0 + 1)
+                {
+                    SetWorkerError(waitResult == WAIT_FAILED ? GetLastError() : ERROR_GEN_FAILURE);
+                    return;
+                }
+                // Clear the notification before draining. If an event arrives
+                // while EvtNext is running, the service can signal it again;
+                // resetting after the drain would lose that wake-up.
+                if (!ResetEvent(subscriptionEvent.get()))
+                {
+                    SetWorkerError(GetLastError());
+                    return;
+                }
+                while (!stopToken.stop_requested())
+                {
+                    std::array<EVT_HANDLE, EventBatchSize> rawEvents{};
+                    DWORD returned{};
+                    auto const succeeded = EvtNext(
+                        subscription.get(),
+                        static_cast<DWORD>(rawEvents.size()),
+                        rawEvents.data(),
+                        0,
+                        0,
+                        &returned);
+                    auto const error = succeeded ? ERROR_SUCCESS : GetLastError();
+
+                    std::array<unique_evt_handle, EventBatchSize> events;
+                    for (std::size_t index{}; index < rawEvents.size(); ++index)
+                    {
+                        events[index].reset(rawEvents[index]);
+                    }
+
+                    if (!succeeded)
+                    {
+                        if (error == ERROR_NO_MORE_ITEMS || error == ERROR_TIMEOUT)
+                        {
+                            break;
+                        }
+                        SetWorkerError(error);
+                        return;
+                    }
+
+                    for (DWORD index{}; index < returned; ++index)
+                    {
+                        ProcessEvent(events[index].get());
+                    }
+                }
+            }
+        }
+        catch (std::bad_alloc const&)
+        {
+            SetWorkerError(ERROR_OUTOFMEMORY);
+            reportStartup({ false, ERROR_OUTOFMEMORY });
         }
         catch (...)
         {
+            SetWorkerError(ERROR_GEN_FAILURE);
+            reportStartup({ false, ERROR_GEN_FAILURE });
+        }
+    }
+
+    void WindowsEventLiveService::ProcessEvent(EVT_HANDLE const event)
+    {
+        auto rendered = RenderEvent(event);
+        if (rendered.empty()) return;
+
+        std::scoped_lock lock{ m_mutex };
+        if (m_state != LiveState::Running &&
+            m_state != LiveState::Paused &&
+            m_state != LiveState::EventsLost)
+        {
+            return;
+        }
+
+        ++m_totalReceived;
+        auto const level = XmlValue(rendered, L"Level");
+        if (level == L"1") ++m_criticalCount;
+        else if (level == L"2") ++m_errorCount;
+        else if (level == L"3") ++m_warningCount;
+        if (m_events.size() >= m_queueLimit)
+        {
+            m_events.pop_front();
+            ++m_droppedSinceLastBatch;
+            m_state = LiveState::EventsLost;
+        }
+        m_events.emplace_back(std::move(rendered));
+    }
+
+    void WindowsEventLiveService::SetWorkerError(std::uint32_t const errorCode) noexcept
+    {
+        try
+        {
             std::scoped_lock lock{ m_mutex };
-            m_errorCode = ERROR_OUTOFMEMORY;
+            if (m_state == LiveState::Stopping)
+            {
+                return;
+            }
+            m_errorCode = errorCode == 0 ? ERROR_GEN_FAILURE : errorCode;
             m_state = LiveState::Error;
+        }
+        catch (...)
+        {
         }
     }
 
@@ -197,11 +389,14 @@ namespace AstralChronicle::services
         {
             return {};
         }
-        std::vector<std::byte> buffer(bufferBytes);
+        std::vector<wchar_t> buffer(
+            (static_cast<std::size_t>(bufferBytes) + sizeof(wchar_t) - 1) /
+                sizeof(wchar_t) +
+            1);
         if (!EvtRender(nullptr, event, EvtRenderEventXml, bufferBytes, buffer.data(), &bufferBytes, &propertyCount))
         {
             return {};
         }
-        return static_cast<wchar_t const*>(static_cast<void const*>(buffer.data()));
+        return buffer.front() == L'\0' ? std::wstring{} : std::wstring{ buffer.data() };
     }
 }

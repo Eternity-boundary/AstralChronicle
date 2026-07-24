@@ -14,6 +14,7 @@
 #include "Views/Pages/SessionsPage.xaml.h"
 #include "Views/Pages/SettingsPage.xaml.h"
 #include "Views/Pages/TimelinePage.xaml.h"
+#include "ViewModels/PersistedSettings.h"
 
 #include "MainWindow.g.cpp"
 
@@ -164,24 +165,108 @@ namespace winrt::AstralChronicle::implementation
 
     MainWindow::~MainWindow()
     {
-        if (m_greetingTimer)
+        Shutdown();
+    }
+
+    void MainWindow::Shutdown() noexcept
+    {
+        if (m_shuttingDown)
         {
-            m_greetingTimer.Stop();
-        }
-        if (m_backdropAnimationTimer)
-        {
-            m_backdropAnimationTimer.Stop();
+            return;
         }
 
-        if (m_theme && m_themeSubscriptionId != 0)
+        m_shuttingDown = true;
+        m_shutdownRequested->store(true, std::memory_order_relaxed);
+
+        try
         {
-            m_theme->Unsubscribe(m_themeSubscriptionId);
+            if (m_greetingTimer)
+            {
+                m_greetingTimer.Stop();
+                if (m_greetingTimerTickToken.value != 0)
+                {
+                    m_greetingTimer.Tick(m_greetingTimerTickToken);
+                }
+            }
         }
+        catch (...)
+        {
+        }
+        m_greetingTimerTickToken = {};
+        m_greetingTimer = nullptr;
+
+        try
+        {
+            if (m_backdropAnimationTimer)
+            {
+                m_backdropAnimationTimer.Stop();
+                if (m_backdropAnimationTimerTickToken.value != 0)
+                {
+                    m_backdropAnimationTimer.Tick(m_backdropAnimationTimerTickToken);
+                }
+            }
+        }
+        catch (...)
+        {
+        }
+        m_backdropAnimationTimerTickToken = {};
+        m_backdropAnimationTimer = nullptr;
+
+        // Releasing the navigation content first lets pages revoke service
+        // subscriptions while those services are still guaranteed to exist.
+        try
+        {
+            if (m_navigation)
+            {
+                m_navigation->Detach();
+            }
+        }
+        catch (...)
+        {
+        }
+
+        try
+        {
+            if (m_theme && m_themeSubscriptionId != 0)
+            {
+                m_theme->Unsubscribe(m_themeSubscriptionId);
+            }
+        }
+        catch (...)
+        {
+        }
+        m_themeSubscriptionId = 0;
+
+        try
+        {
+            if (m_theme)
+            {
+                m_theme->Detach();
+            }
+        }
+        catch (...)
+        {
+        }
+
+        m_navigation.reset();
+        m_theme.reset();
+        m_strings.reset();
+        m_eventLogCatalog.reset();
+        m_customViewCatalog.reset();
     }
 
     void MainWindow::Initialize(::AstralChronicle::app::AppHost& host)
     {
         InitializeComponent();
+
+        auto const weak = get_weak();
+        m_closedToken = Closed([weak](auto const&, auto const&)
+            {
+                if (auto const self = weak.get())
+                {
+                    self->Shutdown();
+                }
+            });
 
         try
         {
@@ -193,21 +278,27 @@ namespace winrt::AstralChronicle::implementation
         }
         ExtendsContentIntoTitleBar(true);
         SetTitleBar(AppTitleBar());
-        Title(host.Strings().GetString(L"MainWindow.Title"));
-        m_strings = &host.Strings();
-        m_eventLogCatalog = &host.EventLogCatalog();
-        m_customViewCatalog = &host.CustomViews();
+        m_strings = host.Services().GetRequiredService<::AstralChronicle::design::IStringResourceService>();
+        Title(m_strings->GetString(L"MainWindow.Title"));
+        m_eventLogCatalog = host.Services().GetRequiredService<::AstralChronicle::services::IEventLogCatalogService>();
+        m_customViewCatalog = host.Services().GetRequiredService<::AstralChronicle::services::ICustomViewCatalogService>();
+        auto const eventQuery =
+            host.Services().GetRequiredService<::AstralChronicle::services::IEventQueryService>();
+        auto const eventProviders =
+            host.Services().GetRequiredService<::AstralChronicle::services::IEventProviderService>();
+        auto const sessions =
+            host.Services().GetRequiredService<::AstralChronicle::services::ISessionRepository>();
+        auto const savedViews =
+            host.Services().GetRequiredService<::AstralChronicle::services::ISavedViewRepository>();
+        auto const eventLive =
+            host.Services().GetRequiredService<::AstralChronicle::services::IEventLiveService>();
+        auto const remoteEvents =
+            host.Services().GetRequiredService<::AstralChronicle::services::IRemoteEventService>();
         m_customViewQueries.insert_or_assign(
             std::wstring{ SystemAdministrativeViewTag },
             std::wstring{ SystemAdministrativeEventsQuery });
         UpdateShellGreeting();
         m_greetingTimer = RootLayout().DispatcherQueue().CreateTimer();
-<<<<<<< Updated upstream
-        m_greetingTimer.Interval(std::chrono::minutes{ 1 });
-        m_greetingTimer.Tick([this](auto const&, auto const&)
-            {
-                UpdateShellGreeting();
-=======
         m_greetingTimer.Interval(TimeUntilNextShellGreetingBoundary());
         m_greetingTimerTickToken = m_greetingTimer.Tick([weak](auto const&, auto const&)
             {
@@ -216,129 +307,164 @@ namespace winrt::AstralChronicle::implementation
                     self->UpdateShellGreeting();
                     self->m_greetingTimer.Interval(TimeUntilNextShellGreetingBoundary());
                 }
->>>>>>> Stashed changes
             });
         m_greetingTimer.Start();
-        host.Theme().Initialize(RootLayout());
-        m_theme = &host.Theme();
-        m_themeSubscriptionId = m_theme->Subscribe([this](::AstralChronicle::design::ThemeMode)
+        m_theme = host.Services().GetRequiredService<::AstralChronicle::design::IThemeService>();
+        m_theme->Initialize(RootLayout());
+        m_themeSubscriptionId = m_theme->Subscribe([weak](::AstralChronicle::design::ThemeMode)
             {
-                ApplyThemeBackdrop();
+                if (auto const self = weak.get())
+                {
+                    self->ApplyThemeBackdrop();
+                }
             });
         ApplyThemeBackdrop();
 
-        m_navigation = &host.Navigation();
+        m_navigation = host.Services().GetRequiredService<::AstralChronicle::navigation::INavigationService>();
         m_navigation->Attach(ContentFrame());
         m_navigation->Register({
             L"dashboard",
-            [this, &host]()
+            [weak, eventQuery, strings = m_strings]()
             {
+                auto const self = weak.get();
+                if (!self)
+                {
+                    return FrameworkElement{ nullptr };
+                }
                 auto page = make<DashboardPage>();
                 get_self<DashboardPage>(page)->Initialize(
-                    host.EventQuery(),
-                    host.Strings(),
-                    RootLayout().DispatcherQueue(),
-                    host.Navigation(),
-                    [this](std::wstring_view route)
+                    eventQuery,
+                    strings,
+                    self->RootLayout().DispatcherQueue(),
+                    *self->m_navigation,
+                    [weak](std::wstring_view route)
                     {
-                        SelectNavigationItemForRoute(route);
+                        if (auto const window = weak.get())
+                        {
+                            window->SelectNavigationItemForRoute(route);
+                        }
                     });
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
             L"event-logs",
-            [&host]()
+            [eventQuery, strings = m_strings]()
             {
                 auto page = make<EventLogsPage>();
-                get_self<EventLogsPage>(page)->Initialize(host.EventQuery(), host.Strings());
+                get_self<EventLogsPage>(page)->Initialize(eventQuery, strings);
                 return page.as<FrameworkElement>();
             },
-            [&host](::AstralChronicle::navigation::NavigationRequest const& request)
+            [eventQuery, strings = m_strings](
+                ::AstralChronicle::navigation::NavigationRequest const& request)
             {
                 auto page = make<EventLogsPage>();
                 get_self<EventLogsPage>(page)->Initialize(
-                    host.EventQuery(),
-                    host.Strings(),
+                    eventQuery,
+                    strings,
                     request.Channel,
                     request.Query);
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
             L"timeline",
-            [this, &host]()
+            [weak, eventQuery, strings = m_strings]()
             {
+                auto const self = weak.get();
+                if (!self)
+                {
+                    return FrameworkElement{ nullptr };
+                }
                 auto page = make<TimelinePage>();
                 get_self<TimelinePage>(page)->Initialize(
-                    host.EventQuery(),
-                    host.Strings(),
-                    RootLayout().DispatcherQueue(),
-                    host.Navigation(),
-                    [this](std::wstring_view route)
+                    eventQuery,
+                    strings,
+                    self->RootLayout().DispatcherQueue(),
+                    *self->m_navigation,
+                    [weak](std::wstring_view route)
                     {
-                        SelectNavigationItemForRoute(route);
+                        if (auto const window = weak.get())
+                        {
+                            window->SelectNavigationItemForRoute(route);
+                        }
                     });
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
             L"providers",
-            [this, &host]()
+            [weak, eventProviders, strings = m_strings]()
             {
+                auto const self = weak.get();
+                if (!self)
+                {
+                    return FrameworkElement{ nullptr };
+                }
                 auto page = make<ProvidersPage>();
                 get_self<ProvidersPage>(page)->Initialize(
-                    host.EventProviders(),
-                    host.Strings(),
-                    host.Navigation(),
-                    [this](std::wstring_view route)
+                    eventProviders,
+                    strings,
+                    *self->m_navigation,
+                    [weak](std::wstring_view route)
                     {
-                        SelectNavigationItemForRoute(route);
+                        if (auto const window = weak.get())
+                        {
+                            window->SelectNavigationItemForRoute(route);
+                        }
                     });
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
             L"sessions",
-            [this, &host]()
+            [sessions, strings = m_strings]()
             {
                 auto page = make<SessionsPage>();
-                get_self<SessionsPage>(page)->Initialize(host.Sessions(), host.Strings());
+                get_self<SessionsPage>(page)->Initialize(sessions, strings);
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
             L"saved-views",
-            [this, &host]()
+            [weak, savedViews, strings = m_strings]()
             {
+                auto const self = weak.get();
+                if (!self)
+                {
+                    return FrameworkElement{ nullptr };
+                }
                 auto page = make<SavedViewsPage>();
                 get_self<SavedViewsPage>(page)->Initialize(
-                    host.SavedViews(),
-                    host.Strings(),
-                    host.Navigation(),
-                    [this](std::wstring_view route)
+                    savedViews,
+                    strings,
+                    *self->m_navigation,
+                    [weak](std::wstring_view route)
                     {
-                        SelectNavigationItemForRoute(route);
+                        if (auto const window = weak.get())
+                        {
+                            window->SelectNavigationItemForRoute(route);
+                        }
                     });
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
             L"live",
-            [this, &host]()
+            [eventLive, strings = m_strings]()
             {
                 auto page = make<LivePage>();
-                get_self<LivePage>(page)->Initialize(host.EventLive(), host.Strings());
+                get_self<LivePage>(page)->Initialize(eventLive, strings);
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
             L"remote",
-            [this, &host]()
+            [remoteEvents, eventQuery, strings = m_strings]()
             {
                 auto page = make<RemotePage>();
-                get_self<RemotePage>(page)->Initialize(host.RemoteEvents(), host.EventQuery(), host.Strings());
+                get_self<RemotePage>(page)->Initialize(remoteEvents, eventQuery, strings);
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
             L"settings",
-            [&host]
+            [theme = m_theme, strings = m_strings]
             {
                 auto page = make<SettingsPage>();
-                get_self<SettingsPage>(page)->Initialize(host.Theme(), host.Strings());
+                get_self<SettingsPage>(page)->Initialize(theme, strings);
                 return page.as<FrameworkElement>();
             } });
 
@@ -396,24 +522,43 @@ namespace winrt::AstralChronicle::implementation
 
     void MainWindow::AnimateThemeBackdropLayout(double const targetWidth)
     {
+        auto const animationsEnabled =
+            ::AstralChronicle::viewmodels::PersistedSettingsSnapshot::Load()
+                .AnimationsEnabled;
+        if (!animationsEnabled)
+        {
+            if (m_backdropAnimationTimer)
+            {
+                m_backdropAnimationTimer.Stop();
+            }
+            SetThemeBackdropLayout(targetWidth);
+            return;
+        }
+
         if (!m_backdropAnimationTimer)
         {
             m_backdropAnimationTimer = RootLayout().DispatcherQueue().CreateTimer();
             m_backdropAnimationTimer.Interval(std::chrono::milliseconds{ 16 });
-            m_backdropAnimationTimer.Tick([this](auto const&, auto const&)
+            auto const weak = get_weak();
+            m_backdropAnimationTimerTickToken = m_backdropAnimationTimer.Tick([weak](auto const&, auto const&)
             {
+                auto const self = weak.get();
+                if (!self)
+                {
+                    return;
+                }
                 constexpr double durationMilliseconds = 260.0;
                 auto const elapsed = std::chrono::duration<double, std::milli>(
-                    std::chrono::steady_clock::now() - m_backdropAnimationStart).count();
+                    std::chrono::steady_clock::now() - self->m_backdropAnimationStart).count();
                 auto const progress = std::min(1.0, elapsed / durationMilliseconds);
                 auto const easedProgress = progress * (2.0 - progress);
-                SetThemeBackdropLayout(
-                    m_backdropAnimationFromWidth
-                    + (m_backdropAnimationTargetWidth - m_backdropAnimationFromWidth) * easedProgress);
+                self->SetThemeBackdropLayout(
+                    self->m_backdropAnimationFromWidth
+                    + (self->m_backdropAnimationTargetWidth - self->m_backdropAnimationFromWidth) * easedProgress);
                 if (progress >= 1.0)
                 {
-                    m_backdropAnimationTimer.Stop();
-                    SetThemeBackdropLayout(m_backdropAnimationTargetWidth);
+                    self->m_backdropAnimationTimer.Stop();
+                    self->SetThemeBackdropLayout(self->m_backdropAnimationTargetWidth);
                 }
             });
         }
@@ -577,51 +722,80 @@ namespace winrt::AstralChronicle::implementation
     winrt::fire_and_forget MainWindow::LoadCustomViewsAsync()
     {
         auto lifetime = get_strong();
-        auto const dispatcher = RootLayout().DispatcherQueue();
-        std::vector<::AstralChronicle::models::CustomViewTreeNode> tree;
-        bool failed{};
-
         try
         {
+            auto const cancellation = m_shutdownRequested;
+            auto const catalog = m_customViewCatalog;
+            auto const strings = m_strings;
+            if (!catalog || !strings || cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+
+            auto const dispatcher = RootLayout().DispatcherQueue();
+            std::vector<::AstralChronicle::models::CustomViewTreeNode> tree;
+            bool failed{};
+
             co_await winrt::resume_background();
-            tree = m_customViewCatalog->Enumerate();
+            if (cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+
+            try
+            {
+                tree = catalog->Enumerate();
+            }
+            catch (...)
+            {
+                failed = true;
+            }
+
+            if (cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+            co_await wil::resume_foreground(dispatcher);
+            if (cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+
+            RemoveCustomViewLoadingState();
+            if (failed)
+            {
+                m_customViewLoadRequested = false;
+                if (m_customViewRoot)
+                {
+                    NavigationViewItem unavailable;
+                    unavailable.Content(box_value(strings->GetString(L"EventLogs.CustomViewsUnavailable.Text")));
+                    unavailable.IsEnabled(false);
+                    m_customViewRoot.MenuItems().Append(unavailable);
+                }
+                co_return;
+            }
+
+            m_customViewQueries.clear();
+            m_customViewQueries.insert_or_assign(
+                std::wstring{ SystemAdministrativeViewTag },
+                std::wstring{ SystemAdministrativeEventsQuery });
+            m_customViewTree = std::move(tree);
+            m_customViewTreeLoaded = true;
+            if (!m_customViewRoot)
+            {
+                co_return;
+            }
+
+            for (auto const& node : *m_customViewTree)
+            {
+                m_customViewRoot.MenuItems().Append(CreateCustomViewNavigationItem(node));
+            }
+            m_customViewRoot.HasUnrealizedChildren(false);
         }
         catch (...)
         {
-            failed = true;
+            // App shutdown and dispatcher teardown are normal cancellation paths.
         }
-
-        co_await wil::resume_foreground(dispatcher);
-        RemoveCustomViewLoadingState();
-        if (failed)
-        {
-            m_customViewLoadRequested = false;
-            if (m_customViewRoot)
-            {
-                NavigationViewItem unavailable;
-                unavailable.Content(box_value(m_strings->GetString(L"EventLogs.CustomViewsUnavailable.Text")));
-                unavailable.IsEnabled(false);
-                m_customViewRoot.MenuItems().Append(unavailable);
-            }
-            co_return;
-        }
-
-        m_customViewQueries.clear();
-        m_customViewQueries.insert_or_assign(
-            std::wstring{ SystemAdministrativeViewTag },
-            std::wstring{ SystemAdministrativeEventsQuery });
-        m_customViewTree = std::move(tree);
-        m_customViewTreeLoaded = true;
-        if (!m_customViewRoot)
-        {
-            co_return;
-        }
-
-        for (auto const& node : *m_customViewTree)
-        {
-            m_customViewRoot.MenuItems().Append(CreateCustomViewNavigationItem(node));
-        }
-        m_customViewRoot.HasUnrealizedChildren(false);
     }
 
     winrt::Microsoft::UI::Xaml::Controls::NavigationViewItem MainWindow::CreateCustomViewNavigationItem(
@@ -681,85 +855,113 @@ namespace winrt::AstralChronicle::implementation
     winrt::fire_and_forget MainWindow::LoadDynamicChannelsAsync()
     {
         auto lifetime = get_strong();
-        auto const dispatcher = RootLayout().DispatcherQueue();
-        std::optional<::AstralChronicle::services::ChannelPathTreeNode> tree;
-        bool failed{};
-
         try
         {
-            co_await winrt::resume_background();
-
-            auto const channels = m_eventLogCatalog->EnumerateChannels();
-            std::vector<::AstralChronicle::models::EventChannelDescriptor> dynamicChannels;
-            dynamicChannels.reserve(channels.size());
-
-            constexpr std::array<std::wstring_view, 5> WindowsLogPaths{
-                L"Application",
-                L"Security",
-                L"Setup",
-                L"System",
-                L"ForwardedEvents" };
-
-            for (auto const& channel : channels)
+            auto const cancellation = m_shutdownRequested;
+            auto const catalog = m_eventLogCatalog;
+            auto const strings = m_strings;
+            if (!catalog || !strings || cancellation->load(std::memory_order_relaxed))
             {
-                if (std::find(WindowsLogPaths.begin(), WindowsLogPaths.end(), channel.Path) == WindowsLogPaths.end())
-                {
-                    dynamicChannels.emplace_back(channel);
-                }
+                co_return;
             }
 
-            tree.emplace();
-            tree->Children = ::AstralChronicle::services::BuildChannelPathTree(dynamicChannels);
+            auto const dispatcher = RootLayout().DispatcherQueue();
+            std::optional<::AstralChronicle::services::ChannelPathTreeNode> tree;
+            bool failed{};
+
+            co_await winrt::resume_background();
+            if (cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+
+            try
+            {
+                auto const channels = catalog->EnumerateChannels();
+                std::vector<::AstralChronicle::models::EventChannelDescriptor> dynamicChannels;
+                dynamicChannels.reserve(channels.size());
+
+                constexpr std::array<std::wstring_view, 5> WindowsLogPaths{
+                    L"Application",
+                    L"Security",
+                    L"Setup",
+                    L"System",
+                    L"ForwardedEvents" };
+
+                for (auto const& channel : channels)
+                {
+                    if (std::find(WindowsLogPaths.begin(), WindowsLogPaths.end(), channel.Path) == WindowsLogPaths.end())
+                    {
+                        dynamicChannels.emplace_back(channel);
+                    }
+                }
+
+                tree.emplace();
+                tree->Children = ::AstralChronicle::services::BuildChannelPathTree(dynamicChannels);
+            }
+            catch (...)
+            {
+                failed = true;
+            }
+
+            if (cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+            co_await wil::resume_foreground(dispatcher);
+            if (cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+
+            if (failed || !tree)
+            {
+                m_dynamicChannelLoadRequested = false;
+                if (m_dynamicChannelRoot)
+                {
+                    m_dynamicChannelRoot.MenuItems().Clear();
+                    NavigationViewItem unavailable;
+                    unavailable.Content(box_value(strings->GetString(L"EventLogs.DynamicChannelsUnavailable.Text")));
+                    unavailable.IsEnabled(false);
+                    m_dynamicChannelRoot.MenuItems().Append(unavailable);
+                    m_dynamicChannelRoot.HasUnrealizedChildren(false);
+                }
+                co_return;
+            }
+
+            m_dynamicChannelTree = std::move(tree);
+            m_dynamicChannelIndex.clear();
+            m_dynamicChannelGroupIdentifiers.clear();
+            m_populatingDynamicPaths.clear();
+            m_populatedDynamicPaths.clear();
+            for (auto& node : m_dynamicChannelTree->Children)
+            {
+                IndexDynamicChannelNodes(node);
+            }
+
+            m_dynamicChannelTreeLoaded = true;
+            if (!m_dynamicChannelRoot)
+            {
+                co_return;
+            }
+
+            if (m_dynamicChannelTree->Children.empty())
+            {
+                m_dynamicChannelRoot.MenuItems().Clear();
+                NavigationViewItem noChannels;
+                noChannels.Content(box_value(strings->GetString(L"EventLogs.DynamicChannelsNone.Text")));
+                noChannels.IsEnabled(false);
+                m_dynamicChannelRoot.MenuItems().Append(noChannels);
+                m_dynamicChannelRoot.HasUnrealizedChildren(false);
+                co_return;
+            }
+
+            StartDynamicChildrenPopulation(m_dynamicChannelRoot, {});
         }
         catch (...)
         {
-            failed = true;
+            // App shutdown and dispatcher teardown are normal cancellation paths.
         }
-
-        co_await wil::resume_foreground(dispatcher);
-        if (failed || !tree)
-        {
-            m_dynamicChannelLoadRequested = false;
-            if (m_dynamicChannelRoot)
-            {
-                m_dynamicChannelRoot.MenuItems().Clear();
-                NavigationViewItem unavailable;
-                unavailable.Content(box_value(m_strings->GetString(L"EventLogs.DynamicChannelsUnavailable.Text")));
-                unavailable.IsEnabled(false);
-                m_dynamicChannelRoot.MenuItems().Append(unavailable);
-                m_dynamicChannelRoot.HasUnrealizedChildren(false);
-            }
-            co_return;
-        }
-
-        m_dynamicChannelTree = std::move(tree);
-        m_dynamicChannelIndex.clear();
-        m_dynamicChannelGroupIdentifiers.clear();
-        m_populatingDynamicPaths.clear();
-        m_populatedDynamicPaths.clear();
-        for (auto& node : m_dynamicChannelTree->Children)
-        {
-            IndexDynamicChannelNodes(node);
-        }
-
-        m_dynamicChannelTreeLoaded = true;
-        if (!m_dynamicChannelRoot)
-        {
-            co_return;
-        }
-
-        if (m_dynamicChannelTree->Children.empty())
-        {
-            m_dynamicChannelRoot.MenuItems().Clear();
-            NavigationViewItem noChannels;
-            noChannels.Content(box_value(m_strings->GetString(L"EventLogs.DynamicChannelsNone.Text")));
-            noChannels.IsEnabled(false);
-            m_dynamicChannelRoot.MenuItems().Append(noChannels);
-            m_dynamicChannelRoot.HasUnrealizedChildren(false);
-            co_return;
-        }
-
-        StartDynamicChildrenPopulation(m_dynamicChannelRoot, {});
     }
 
     void MainWindow::IndexDynamicChannelNodes(::AstralChronicle::services::ChannelPathTreeNode& node)
@@ -853,54 +1055,74 @@ namespace winrt::AstralChronicle::implementation
         std::wstring parentPath)
     {
         auto lifetime = get_strong();
-        auto const dispatcher = RootLayout().DispatcherQueue();
-        auto const key = parentPath;
-
-        if (m_populatedDynamicPaths.find(key) != m_populatedDynamicPaths.end()
-            || m_populatingDynamicPaths.find(key) != m_populatingDynamicPaths.end())
+        try
         {
-            co_return;
-        }
-
-        std::vector<::AstralChronicle::services::ChannelPathTreeNode> const* children{};
-        if (key.empty())
-        {
-            if (!m_dynamicChannelTree)
+            auto const cancellation = m_shutdownRequested;
+            if (cancellation->load(std::memory_order_relaxed))
             {
                 co_return;
             }
-            children = &m_dynamicChannelTree->Children;
-        }
-        else
-        {
-            auto const node = m_dynamicChannelIndex.find(key);
-            if (node == m_dynamicChannelIndex.end())
+            auto const dispatcher = RootLayout().DispatcherQueue();
+            auto const key = parentPath;
+
+            if (m_populatedDynamicPaths.find(key) != m_populatedDynamicPaths.end()
+                || m_populatingDynamicPaths.find(key) != m_populatingDynamicPaths.end())
             {
                 co_return;
             }
-            children = &node->second->Children;
-        }
 
-        m_populatingDynamicPaths.insert(key);
-        parent.MenuItems().Clear();
-
-        constexpr std::size_t ItemsPerBatch = 32;
-        for (std::size_t index = 0; index < children->size(); ++index)
-        {
-            auto const& node = (*children)[index];
-            auto item = CreateDynamicNavigationItem(node);
-            parent.MenuItems().Append(item);
-
-            if ((index + 1) % ItemsPerBatch == 0 && index + 1 < children->size())
+            std::vector<::AstralChronicle::services::ChannelPathTreeNode> const* children{};
+            if (key.empty())
             {
-                co_await winrt::resume_background();
-                co_await wil::resume_foreground(dispatcher);
+                if (!m_dynamicChannelTree)
+                {
+                    co_return;
+                }
+                children = &m_dynamicChannelTree->Children;
             }
-        }
+            else
+            {
+                auto const node = m_dynamicChannelIndex.find(key);
+                if (node == m_dynamicChannelIndex.end())
+                {
+                    co_return;
+                }
+                children = &node->second->Children;
+            }
 
-        parent.HasUnrealizedChildren(false);
-        m_populatingDynamicPaths.erase(key);
-        m_populatedDynamicPaths.insert(key);
+            m_populatingDynamicPaths.insert(key);
+            parent.MenuItems().Clear();
+
+            constexpr std::size_t ItemsPerBatch = 32;
+            for (std::size_t index = 0; index < children->size(); ++index)
+            {
+                auto const& node = (*children)[index];
+                auto item = CreateDynamicNavigationItem(node);
+                parent.MenuItems().Append(item);
+
+                if ((index + 1) % ItemsPerBatch == 0 && index + 1 < children->size())
+                {
+                    co_await winrt::resume_background();
+                    if (cancellation->load(std::memory_order_relaxed))
+                    {
+                        co_return;
+                    }
+                    co_await wil::resume_foreground(dispatcher);
+                    if (cancellation->load(std::memory_order_relaxed))
+                    {
+                        co_return;
+                    }
+                }
+            }
+
+            parent.HasUnrealizedChildren(false);
+            m_populatingDynamicPaths.erase(key);
+            m_populatedDynamicPaths.insert(key);
+        }
+        catch (...)
+        {
+            // App shutdown and dispatcher teardown are normal cancellation paths.
+        }
     }
 
     void MainWindow::OnNavigationItemExpanding(

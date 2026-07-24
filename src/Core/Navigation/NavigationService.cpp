@@ -16,6 +16,25 @@ namespace AstralChronicle::navigation
         m_frame = frame;
     }
 
+    void NavigationService::Detach() noexcept
+    {
+        // Release the current page while application services are still alive.
+        // Page destructors may unsubscribe from those services.
+        try
+        {
+            if (m_frame)
+            {
+                m_frame.Content(nullptr);
+            }
+        }
+        catch (...)
+        {
+        }
+
+        m_frame = nullptr;
+        m_factories.clear();
+    }
+
     void NavigationService::Register(PageRegistration registration)
     {
         if (registration.Route.empty() ||
@@ -46,18 +65,26 @@ namespace AstralChronicle::navigation
         }
 
         // Factories create a page only when its route is selected, which keeps feature pages lazy.
+        winrt::Microsoft::UI::Xaml::FrameworkElement content{ nullptr };
         if (page->second.CreatePageWithRequest)
         {
-            m_frame.Content(page->second.CreatePageWithRequest(request));
+            content = page->second.CreatePageWithRequest(request);
         }
         else if (page->second.CreatePage)
         {
-            m_frame.Content(page->second.CreatePage());
+            content = page->second.CreatePage();
         }
         else
         {
             return false;
         }
+
+        if (!content)
+        {
+            return false;
+        }
+
+        m_frame.Content(content);
 
         return true;
     }

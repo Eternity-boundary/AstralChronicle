@@ -2,12 +2,18 @@
 #include "pch.h"
 #include "DashboardPage.xaml.h"
 
+#include "DesignSystem/Localization/IStringResourceService.h"
+
 #include "DashboardPage.g.cpp"
 
 #include <cwchar>
 #include <string>
 #include <utility>
 #include <winrt/Microsoft.UI.Dispatching.h>
+#include <winrt/Microsoft.UI.Xaml.Automation.h>
+#include <winrt/Microsoft.UI.Xaml.Controls.h>
+#include <winrt/Microsoft.UI.Xaml.Input.h>
+#include <winrt/Windows.System.h>
 
 namespace winrt::AstralChronicle::implementation
 {
@@ -23,14 +29,17 @@ namespace winrt::AstralChronicle::implementation
     }
 
     void DashboardPage::Initialize(
-        ::AstralChronicle::services::IEventQueryService const& eventQuery,
-        ::AstralChronicle::design::IStringResourceService const& strings,
+        std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
         ::AstralChronicle::navigation::INavigationService& navigation,
         std::function<void(std::wstring_view)> navigationSelectionChanged)
     {
         m_navigation = &navigation;
         m_navigationSelectionChanged = std::move(navigationSelectionChanged);
+        Microsoft::UI::Xaml::Automation::AutomationProperties::SetName(
+            DashboardLoadingIndicator(),
+            strings->GetString(L"Dashboard.Loading.Text"));
         auto dispatcherForViewModel = PageRoot().DispatcherQueue();
         if (!dispatcherForViewModel)
         {
@@ -42,25 +51,25 @@ namespace winrt::AstralChronicle::implementation
             dispatcherForViewModel);
     }
 
-    void DashboardPage::OnErrorCardTapped(
-        winrt::Windows::Foundation::IInspectable const&,
-        Microsoft::UI::Xaml::Input::TappedRoutedEventArgs const&)
+    void DashboardPage::OnNavigationCardTapped(
+        winrt::Windows::Foundation::IInspectable const& sender,
+        Microsoft::UI::Xaml::Input::TappedRoutedEventArgs const& args)
     {
-        NavigateToLevel(2);
+        args.Handled(NavigateFromCard(sender));
     }
 
-    void DashboardPage::OnWarningCardTapped(
-        winrt::Windows::Foundation::IInspectable const&,
-        Microsoft::UI::Xaml::Input::TappedRoutedEventArgs const&)
+    void DashboardPage::OnNavigationCardKeyDown(
+        winrt::Windows::Foundation::IInspectable const& sender,
+        Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& args)
     {
-        NavigateToLevel(3);
-    }
+        auto const key = args.Key();
+        if (key != winrt::Windows::System::VirtualKey::Enter &&
+            key != winrt::Windows::System::VirtualKey::Space)
+        {
+            return;
+        }
 
-    void DashboardPage::OnCriticalCardTapped(
-        winrt::Windows::Foundation::IInspectable const&,
-        Microsoft::UI::Xaml::Input::TappedRoutedEventArgs const&)
-    {
-        NavigateToLevel(1);
+        args.Handled(NavigateFromCard(sender));
     }
 
     void DashboardPage::OnRecentEventClicked(
@@ -76,7 +85,7 @@ namespace winrt::AstralChronicle::implementation
         auto const item = button.DataContext().try_as<winrt::AstralChronicle::EventLogItemViewModel>();
         if (item)
         {
-            NavigateToEvent(item.Channel(), item.RecordId());
+            NavigateToEvent(item.Channel(), item.SortRecordId());
         }
     }
 
@@ -92,21 +101,15 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::navigation::NavigationRequest request;
         request.Route = L"event-logs";
         request.Channel = ::AstralChronicle::models::EventChannelIdentifier{ L"System" };
-        request.Query = L"*[System[(Level=1 or Level=2)]]";
+        request.Query = DashboardViewModel::QueryForTodayCriticalEvents();
         Navigate(request);
     }
 
     void DashboardPage::NavigateToEvent(
         winrt::hstring const& channel,
-        winrt::hstring const& recordId)
+        std::uint64_t const recordId)
     {
-        if (!m_navigation || channel.empty() || recordId.empty())
-        {
-            return;
-        }
-
-        auto const numericRecordId = std::wcstoull(recordId.c_str(), nullptr, 10);
-        if (numericRecordId == 0)
+        if (!m_navigation || channel.empty() || recordId == 0)
         {
             return;
         }
@@ -120,7 +123,7 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::navigation::NavigationRequest request;
         request.Route = L"event-logs";
         request.Channel = ::AstralChronicle::models::EventChannelIdentifier{ std::move(channelPath) };
-        request.Query = L"*[System[EventRecordID=" + std::to_wstring(numericRecordId) + L"]]";
+        request.Query = L"*[System[EventRecordID=" + std::to_wstring(recordId) + L"]]";
         Navigate(request);
     }
 
@@ -139,6 +142,36 @@ namespace winrt::AstralChronicle::implementation
         return true;
     }
 
+    bool DashboardPage::NavigateFromCard(
+        winrt::Windows::Foundation::IInspectable const& sender)
+    {
+        auto const card = sender.try_as<Microsoft::UI::Xaml::Controls::ContentControl>();
+        if (!card)
+        {
+            return false;
+        }
+
+        if (card == DashboardErrorNavigationCard())
+        {
+            NavigateToLevel(2);
+            return true;
+        }
+
+        if (card == DashboardWarningNavigationCard())
+        {
+            NavigateToLevel(3);
+            return true;
+        }
+
+        if (card == DashboardCriticalNavigationCard())
+        {
+            NavigateToLevel(1);
+            return true;
+        }
+
+        return false;
+    }
+
     void DashboardPage::NavigateToLevel(std::uint8_t const level)
     {
         if (!m_navigation)
@@ -149,7 +182,7 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::navigation::NavigationRequest request;
         request.Route = L"event-logs";
         request.Channel = ::AstralChronicle::models::EventChannelIdentifier{ L"System" };
-        request.Query = L"*[System[Level=" + std::to_wstring(level) + L"]]";
+        request.Query = DashboardViewModel::QueryForTodayLevel(level);
         Navigate(request);
     }
 }

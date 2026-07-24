@@ -7,6 +7,67 @@
     xmlns:local="using:AstralChronicle">
 
     <ScrollViewer x:Name="PageRoot" Style="{StaticResource AstralPageScrollViewerStyle}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="DashboardMetricLayoutStates">
+                <VisualState x:Name="DashboardMetricNarrowLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="DashboardMetricColumn0.Width" Value="*" />
+                        <Setter Target="DashboardMetricColumn1.Width" Value="0" />
+                        <Setter Target="DashboardMetricColumn2.Width" Value="0" />
+                        <Setter Target="DashboardMetricColumn3.Width" Value="0" />
+                        <Setter Target="DashboardMetricRow0.Height" Value="Auto" />
+                        <Setter Target="DashboardMetricRow1.Height" Value="Auto" />
+                        <Setter Target="DashboardMetricRow2.Height" Value="Auto" />
+                        <Setter Target="DashboardMetricRow3.Height" Value="Auto" />
+                        <Setter Target="DashboardMetricGrid.ColumnSpacing" Value="0" />
+                        <Setter Target="DashboardErrorNavigationCard.(Grid.Column)" Value="0" />
+                        <Setter Target="DashboardErrorNavigationCard.(Grid.Row)" Value="0" />
+                        <Setter Target="DashboardWarningNavigationCard.(Grid.Column)" Value="0" />
+                        <Setter Target="DashboardWarningNavigationCard.(Grid.Row)" Value="1" />
+                        <Setter Target="DashboardWarningNavigationCard.Margin" Value="0,8,0,0" />
+                        <Setter Target="DashboardCriticalNavigationCard.(Grid.Column)" Value="0" />
+                        <Setter Target="DashboardCriticalNavigationCard.(Grid.Row)" Value="2" />
+                        <Setter Target="DashboardCriticalNavigationCard.Margin" Value="0,8,0,0" />
+                        <Setter Target="DashboardServiceStatusCard.(Grid.Column)" Value="0" />
+                        <Setter Target="DashboardServiceStatusCard.(Grid.Row)" Value="3" />
+                        <Setter Target="DashboardServiceStatusCard.Margin" Value="0,8,0,0" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="DashboardMetricMediumLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="720" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="DashboardMetricColumn0.Width" Value="*" />
+                        <Setter Target="DashboardMetricColumn1.Width" Value="*" />
+                        <Setter Target="DashboardMetricColumn2.Width" Value="0" />
+                        <Setter Target="DashboardMetricColumn3.Width" Value="0" />
+                        <Setter Target="DashboardMetricRow0.Height" Value="Auto" />
+                        <Setter Target="DashboardMetricRow1.Height" Value="Auto" />
+                        <Setter Target="DashboardMetricRow2.Height" Value="0" />
+                        <Setter Target="DashboardMetricRow3.Height" Value="0" />
+                        <Setter Target="DashboardErrorNavigationCard.(Grid.Column)" Value="0" />
+                        <Setter Target="DashboardErrorNavigationCard.(Grid.Row)" Value="0" />
+                        <Setter Target="DashboardWarningNavigationCard.(Grid.Column)" Value="1" />
+                        <Setter Target="DashboardWarningNavigationCard.(Grid.Row)" Value="0" />
+                        <Setter Target="DashboardCriticalNavigationCard.(Grid.Column)" Value="0" />
+                        <Setter Target="DashboardCriticalNavigationCard.(Grid.Row)" Value="1" />
+                        <Setter Target="DashboardCriticalNavigationCard.Margin" Value="0,8,0,0" />
+                        <Setter Target="DashboardServiceStatusCard.(Grid.Column)" Value="1" />
+                        <Setter Target="DashboardServiceStatusCard.(Grid.Row)" Value="1" />
+                        <Setter Target="DashboardServiceStatusCard.Margin" Value="0,8,0,0" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="DashboardMetricWideLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1200" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <StackPanel MaxWidth="{StaticResource AstralPageContentMaxWidth}" Spacing="{StaticResource AstralSectionSpacing}">
             <TextBlock
                 AutomationProperties.AutomationId="DashboardHeading"
@@ -24,6 +85,7 @@
                     Text="{x:Bind ViewModel.Summary, Mode=OneWay}"
                     TextWrapping="Wrap" />
                 <ProgressRing
+                    x:Name="DashboardLoadingIndicator"
                     Grid.Column="1"
                     AutomationProperties.AutomationId="DashboardLoadingIndicator"
                     IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
@@ -41,72 +103,127 @@
                 Severity="{x:Bind ViewModel.StatusSeverity, Mode=OneWay}"
                 Title="{x:Bind ViewModel.StatusText, Mode=OneWay}" />
 
-            <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
+            <Grid
+                x:Name="DashboardMetricGrid"
+                ColumnSpacing="{StaticResource AstralContentSpacing}"
+                RowSpacing="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition x:Name="DashboardMetricColumn0" Width="*" />
+                    <ColumnDefinition x:Name="DashboardMetricColumn1" Width="*" />
+                    <ColumnDefinition x:Name="DashboardMetricColumn2" Width="*" />
+                    <ColumnDefinition x:Name="DashboardMetricColumn3" Width="*" />
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition x:Name="DashboardMetricRow0" Height="Auto" />
+                    <RowDefinition x:Name="DashboardMetricRow1" Height="0" />
+                    <RowDefinition x:Name="DashboardMetricRow2" Height="0" />
+                    <RowDefinition x:Name="DashboardMetricRow3" Height="0" />
+                </Grid.RowDefinitions>
 
-                <Border
+                <ContentControl
+                    x:Name="DashboardErrorNavigationCard"
+                    x:Uid="DashboardErrorNavigationCard"
                     Grid.Column="0"
+                    AutomationProperties.AutomationId="DashboardErrorNavigationCard"
+                    AutomationProperties.ItemStatus="{x:Bind ViewModel.ErrorCount, Mode=OneWay}"
+                    AutomationProperties.LabeledBy="{x:Bind DashboardErrorCardTitle, Mode=OneTime}"
+                    HorizontalContentAlignment="Stretch"
+                    IsTabStop="True"
                     IsTapEnabled="True"
+                    KeyDown="OnNavigationCardKeyDown"
                     MinHeight="128"
-                    Padding="{StaticResource AstralCardPadding}"
-                    Style="{StaticResource AstralCardBorderStyle}"
-                    Tapped="OnErrorCardTapped">
-                    <StackPanel Spacing="{StaticResource AstralContentSpacing}">
-                        <TextBlock
-                            x:Uid="DashboardErrorCardTitle"
-                            AutomationProperties.AutomationId="DashboardErrorCardTitle"
-                            Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
-                        <TextBlock
-                            AutomationProperties.AutomationId="DashboardErrorCount"
-                            Style="{StaticResource AstralPageTitleTextBlockStyle}"
-                            Text="{x:Bind ViewModel.ErrorCount, Mode=OneWay}" />
-                    </StackPanel>
-                </Border>
+                    Padding="0"
+                    Tapped="OnNavigationCardTapped"
+                    UseSystemFocusVisuals="True"
+                    VerticalContentAlignment="Stretch">
+                    <Border
+                        MinHeight="128"
+                        Padding="{StaticResource AstralCardPadding}"
+                        Style="{StaticResource AstralCardBorderStyle}">
+                        <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                            <TextBlock
+                                x:Name="DashboardErrorCardTitle"
+                                x:Uid="DashboardErrorCardTitle"
+                                AutomationProperties.AutomationId="DashboardErrorCardTitle"
+                                Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="DashboardErrorCount"
+                                Style="{StaticResource AstralPageTitleTextBlockStyle}"
+                                Text="{x:Bind ViewModel.ErrorCount, Mode=OneWay}" />
+                        </StackPanel>
+                    </Border>
+                </ContentControl>
 
-                <Border
+                <ContentControl
+                    x:Name="DashboardWarningNavigationCard"
+                    x:Uid="DashboardWarningNavigationCard"
                     Grid.Column="1"
+                    AutomationProperties.AutomationId="DashboardWarningNavigationCard"
+                    AutomationProperties.ItemStatus="{x:Bind ViewModel.WarningCount, Mode=OneWay}"
+                    AutomationProperties.LabeledBy="{x:Bind DashboardWarningCardTitle, Mode=OneTime}"
+                    HorizontalContentAlignment="Stretch"
+                    IsTabStop="True"
                     IsTapEnabled="True"
+                    KeyDown="OnNavigationCardKeyDown"
                     MinHeight="128"
-                    Padding="{StaticResource AstralCardPadding}"
-                    Style="{StaticResource AstralCardBorderStyle}"
-                    Tapped="OnWarningCardTapped">
-                    <StackPanel Spacing="{StaticResource AstralContentSpacing}">
-                        <TextBlock
-                            x:Uid="DashboardWarnCardTitle"
-                            AutomationProperties.AutomationId="DashboardWarnCardTitle"
-                            Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
-                        <TextBlock
-                            AutomationProperties.AutomationId="DashboardWarningCount"
-                            Style="{StaticResource AstralPageTitleTextBlockStyle}"
-                            Text="{x:Bind ViewModel.WarningCount, Mode=OneWay}" />
-                    </StackPanel>
-                </Border>
+                    Padding="0"
+                    Tapped="OnNavigationCardTapped"
+                    UseSystemFocusVisuals="True"
+                    VerticalContentAlignment="Stretch">
+                    <Border
+                        MinHeight="128"
+                        Padding="{StaticResource AstralCardPadding}"
+                        Style="{StaticResource AstralCardBorderStyle}">
+                        <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                            <TextBlock
+                                x:Name="DashboardWarningCardTitle"
+                                x:Uid="DashboardWarnCardTitle"
+                                AutomationProperties.AutomationId="DashboardWarnCardTitle"
+                                Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="DashboardWarningCount"
+                                Style="{StaticResource AstralPageTitleTextBlockStyle}"
+                                Text="{x:Bind ViewModel.WarningCount, Mode=OneWay}" />
+                        </StackPanel>
+                    </Border>
+                </ContentControl>
 
-                <Border
+                <ContentControl
+                    x:Name="DashboardCriticalNavigationCard"
+                    x:Uid="DashboardCriticalNavigationCard"
                     Grid.Column="2"
+                    AutomationProperties.AutomationId="DashboardCriticalNavigationCard"
+                    AutomationProperties.ItemStatus="{x:Bind ViewModel.CriticalCount, Mode=OneWay}"
+                    AutomationProperties.LabeledBy="{x:Bind DashboardCriticalCardTitle, Mode=OneTime}"
+                    HorizontalContentAlignment="Stretch"
+                    IsTabStop="True"
                     IsTapEnabled="True"
+                    KeyDown="OnNavigationCardKeyDown"
                     MinHeight="128"
-                    Padding="{StaticResource AstralCardPadding}"
-                    Style="{StaticResource AstralCardBorderStyle}"
-                    Tapped="OnCriticalCardTapped">
-                    <StackPanel Spacing="{StaticResource AstralContentSpacing}">
-                        <TextBlock
-                            x:Uid="DashboardTodayCardTitle"
-                            AutomationProperties.AutomationId="DashboardTodayCardTitle"
-                            Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
-                        <TextBlock
-                            AutomationProperties.AutomationId="DashboardCriticalCount"
-                            Style="{StaticResource AstralPageTitleTextBlockStyle}"
-                            Text="{x:Bind ViewModel.CriticalCount, Mode=OneWay}" />
-                    </StackPanel>
-                </Border>
+                    Padding="0"
+                    Tapped="OnNavigationCardTapped"
+                    UseSystemFocusVisuals="True"
+                    VerticalContentAlignment="Stretch">
+                    <Border
+                        MinHeight="128"
+                        Padding="{StaticResource AstralCardPadding}"
+                        Style="{StaticResource AstralCardBorderStyle}">
+                        <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                            <TextBlock
+                                x:Name="DashboardCriticalCardTitle"
+                                x:Uid="DashboardTodayCardTitle"
+                                AutomationProperties.AutomationId="DashboardTodayCardTitle"
+                                Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="DashboardCriticalCount"
+                                Style="{StaticResource AstralPageTitleTextBlockStyle}"
+                                Text="{x:Bind ViewModel.CriticalCount, Mode=OneWay}" />
+                        </StackPanel>
+                    </Border>
+                </ContentControl>
 
                 <Border
+                    x:Name="DashboardServiceStatusCard"
                     Grid.Column="3"
                     MinHeight="128"
                     Padding="{StaticResource AstralCardPadding}"
@@ -116,7 +233,11 @@
                             x:Uid="DashboardServiceStatusCardTitle"
                             AutomationProperties.AutomationId="DashboardServiceStatusCardTitle"
                             Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
-                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}">
+                        <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
                             <Ellipse
                                 Width="10"
                                 Height="10"
@@ -125,11 +246,12 @@
                                 IsHitTestVisible="False" />
                             <TextBlock
                                 x:Uid="DashboardServiceStatusMonitoringNotConfigured"
+                                Grid.Column="1"
                                 AutomationProperties.AutomationId="DashboardServiceStatusText"
                                 Style="{StaticResource AstralCaptionTextBlockStyle}"
                                 Text="{x:Bind ViewModel.MonitoringStatus, Mode=OneWay}"
                                 TextWrapping="Wrap" />
-                        </StackPanel>
+                        </Grid>
                         <TextBlock x:Uid="DashboardTodayTotalLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
                         <TextBlock AutomationProperties.AutomationId="DashboardTodayCount" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.TodayCount, Mode=OneWay}" />
                     </StackPanel>
@@ -231,7 +353,6 @@
                                             Grid.Column="5"
                                             AutomationProperties.AutomationId="DashboardOpenEventButton"
                                             Click="OnRecentEventClicked"
-                                            DataContext="{x:Bind}"
                                             Style="{StaticResource DefaultHyperlinkButtonStyle}" />
                                     </Grid>
                                 </DataTemplate>

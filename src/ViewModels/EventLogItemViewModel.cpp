@@ -45,7 +45,8 @@ namespace
 
     [[nodiscard]] winrt::hstring FormatTime(
         std::chrono::system_clock::time_point const timeCreated,
-        winrt::hstring const& fallback)
+        winrt::hstring const& fallback,
+        bool const useUtc)
     {
         if (timeCreated.time_since_epoch().count() == 0)
         {
@@ -67,7 +68,7 @@ namespace
                 winrt::clock::duration{ unixTicks + WindowsEpochOffset100Nanoseconds } };
             winrt::Windows::Globalization::DateTimeFormatting::DateTimeFormatter formatter{
                 L"shortdate shorttime" };
-            return formatter.Format(dateTime);
+            return useUtc ? formatter.Format(dateTime, L"UTC") : formatter.Format(dateTime);
         }
         catch (...)
         {
@@ -84,10 +85,11 @@ namespace winrt::AstralChronicle::implementation
 
     void EventLogItemViewModel::Initialize(
         ::AstralChronicle::models::EventRecordSummary const& summary,
-        ::AstralChronicle::design::IStringResourceService const& strings)
+        ::AstralChronicle::design::IStringResourceService const& strings,
+        ::AstralChronicle::viewmodels::EventItemSettings const& settings)
     {
         auto const emptyValue = strings.GetString(L"EventLogs.EmptyValue.Text");
-        m_timeCreated = FormatTime(summary.TimeCreated, emptyValue);
+        m_timeCreated = FormatTime(summary.TimeCreated, emptyValue, settings.UseUtc);
         m_level = strings.GetString(LevelResourceKey(summary.Level));
         m_provider = ValueOrFallback(summary.Provider, emptyValue);
         m_eventId = summary.EventId == 0 ? emptyValue : winrt::to_hstring(summary.EventId);

@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <stdexcept>
 #include <string>
 #include <utility>
 
@@ -131,16 +132,20 @@ namespace winrt::AstralChronicle::implementation
     }
 
     void SavedViewsViewModel::Initialize(
-        ::AstralChronicle::services::ISavedViewRepository& repository,
-        ::AstralChronicle::design::IStringResourceService const& strings,
+        std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> repository,
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher)
     {
-        m_repository = &repository;
-        m_strings = &strings;
+        m_repository = std::move(repository);
+        m_strings = std::move(strings);
+        if (!m_repository || !m_strings)
+        {
+            throw std::invalid_argument("Saved views require repository and string services.");
+        }
         m_dispatcher = dispatcher;
-        m_heading = strings.GetString(L"SavedViews.Heading");
-        m_summary = strings.GetString(L"SavedViews.Summary");
-        m_customViewWarning = strings.GetString(L"SavedViews.CustomViewWarning.Text");
+        m_heading = m_strings->GetString(L"SavedViews.Heading");
+        m_summary = m_strings->GetString(L"SavedViews.Summary");
+        m_customViewWarning = m_strings->GetString(L"SavedViews.CustomViewWarning.Text");
         NewView();
         Refresh();
     }
@@ -163,19 +168,56 @@ namespace winrt::AstralChronicle::implementation
     winrt::fire_and_forget SavedViewsViewModel::LoadAsync(std::uint64_t const requestVersion)
     {
         auto lifetime = get_strong();
-        co_await winrt::resume_background();
-        auto views = m_repository->Load();
-        co_await wil::resume_foreground(m_dispatcher);
-        if (requestVersion != m_requestVersion)
+        try
         {
-            co_return;
+            auto const repository = m_repository;
+            auto const dispatcher = m_dispatcher;
+            if (!repository || !dispatcher)
+            {
+                co_return;
+            }
+
+            bool failed{};
+            std::vector<::AstralChronicle::models::SavedView> views;
+            co_await winrt::resume_background();
+            try
+            {
+                views = repository->Load();
+            }
+            catch (...)
+            {
+                failed = true;
+            }
+
+            co_await wil::resume_foreground(dispatcher);
+            if (requestVersion != m_requestVersion)
+            {
+                co_return;
+            }
+            if (failed)
+            {
+                m_isLoading = false;
+                SetStatus(
+                    m_strings->GetString(L"SavedViews.SaveFailed.Text"),
+                    {},
+                    Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+                co_return;
+            }
+            ApplyLoaded(std::move(views));
         }
-        ApplyLoaded(std::move(views));
+        catch (...)
+        {
+            // Dispatcher shutdown is a normal cancellation path.
+        }
     }
 
     void SavedViewsViewModel::ApplyLoaded(std::vector<::AstralChronicle::models::SavedView> views)
     {
-        auto const selectedId = m_selectedView ? std::wstring{ m_selectedView.Id().c_str() } : std::wstring{};
+        auto selectedId = m_pendingSelectedId;
+        if (selectedId.empty() && m_selectedView)
+        {
+            selectedId = std::wstring{ m_selectedView.Id().c_str() };
+        }
         std::sort(views.begin(), views.end(), [](auto const& left, auto const& right)
         {
             if (left.IsPinned != right.IsPinned) return left.IsPinned > right.IsPinned;
@@ -202,6 +244,13 @@ namespace winrt::AstralChronicle::implementation
             });
             if (model != m_models.end()) FillEditor(*model);
         }
+        else if (!selectedId.empty())
+        {
+            // The selected item was deleted or disappeared during refresh.
+            // Reset the editor instead of turning stale data into a new view.
+            NewView();
+        }
+        m_pendingSelectedId.clear();
         m_isLoading = false;
         m_summary = FormatResource(m_strings->GetString(L"SavedViews.SummaryCount.Text"), winrt::to_hstring(m_models.size()));
         SetStatus(
@@ -234,7 +283,15 @@ namespace winrt::AstralChronicle::implementation
             {
                 return view.Id == id;
             });
-            if (model != m_models.end()) FillEditor(*model);
+            if (model != m_models.end())
+            {
+                FillEditor(*model);
+            }
+            else
+            {
+                NewView();
+                return;
+            }
         }
         else
         {
@@ -264,6 +321,7 @@ namespace winrt::AstralChronicle::implementation
 
     void SavedViewsViewModel::NewView()
     {
+        m_pendingSelectedId.clear();
         m_selectedView = nullptr;
         m_hasSelection = false;
         m_selectedViewName.clear();
@@ -336,6 +394,7 @@ namespace winrt::AstralChronicle::implementation
             SetStatus(m_strings->GetString(L"SavedViews.SaveFailed.Text"), {}, Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
             return;
         }
+        m_pendingSelectedId = view.Id;
         m_selectedViewName = view.Name;
         SetStatus(m_strings->GetString(L"SavedViews.Saved.Text"), {}, Microsoft::UI::Xaml::Controls::InfoBarSeverity::Success);
         Refresh();
@@ -371,6 +430,7 @@ namespace winrt::AstralChronicle::implementation
         copy.UpdatedAt = copy.CreatedAt;
         if (m_repository->Upsert(copy))
         {
+            m_pendingSelectedId = copy.Id;
             SetStatus(m_strings->GetString(L"SavedViews.Duplicated.Text"), {}, Microsoft::UI::Xaml::Controls::InfoBarSeverity::Success);
             Refresh();
         }
@@ -385,9 +445,20 @@ namespace winrt::AstralChronicle::implementation
             return view.Id == id;
         });
         if (existing == m_models.end()) return;
-        existing->IsPinned = !existing->IsPinned;
-        existing->UpdatedAt = NowText();
-        if (m_repository->Upsert(*existing)) Refresh();
+        auto updated = *existing;
+        updated.IsPinned = !updated.IsPinned;
+        updated.UpdatedAt = NowText();
+        if (m_repository->Upsert(updated))
+        {
+            Refresh();
+        }
+        else
+        {
+            SetStatus(
+                m_strings->GetString(L"SavedViews.SaveFailed.Text"),
+                {},
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+        }
     }
 
     winrt::hstring SavedViewsViewModel::CopyQuery() const { return m_editorQuery; }
@@ -420,14 +491,22 @@ namespace winrt::AstralChronicle::implementation
         std::size_t start{};
         ::AstralChronicle::models::SavedView current;
         bool hasCurrent{};
+        std::size_t importedCount{};
+        std::size_t failedCount{};
         auto commit = [&]
         {
             if (!hasCurrent || current.Name.empty()) return;
             current.Id = NewId() + L"-import";
             current.CreatedAt = NowText();
             current.UpdatedAt = current.CreatedAt;
-            current.IsPinned = false;
-            (void)m_repository->Upsert(current);
+            if (m_repository->Upsert(current))
+            {
+                ++importedCount;
+            }
+            else
+            {
+                ++failedCount;
+            }
             current = {};
             current.Query = L"*";
             current.Channel = L"System";
@@ -459,8 +538,21 @@ namespace winrt::AstralChronicle::implementation
             start = end + 1;
         }
         commit();
-        SetStatus(m_strings->GetString(L"SavedViews.Imported.Text"), {}, Microsoft::UI::Xaml::Controls::InfoBarSeverity::Success);
-        Refresh();
+        if (failedCount != 0 || importedCount == 0)
+        {
+            SetStatus(
+                m_strings->GetString(L"SavedViews.SaveFailed.Text"),
+                {},
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
+        }
+        else
+        {
+            SetStatus(
+                m_strings->GetString(L"SavedViews.Imported.Text"),
+                {},
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Success);
+            Refresh();
+        }
     }
 
     void SavedViewsViewModel::SetStatus(

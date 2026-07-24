@@ -27,13 +27,9 @@
     -->
     <TargetName>$(RootNamespace)</TargetName>
     <DefaultLanguage>zh-TW</DefaultLanguage>
-<<<<<<< Updated upstream
-    <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
-=======
     <!-- Retain every declared language resource package in MSIX bundles. -->
     <AppxFilterOutUnusedLanguagesResourceFileMaps>false</AppxFilterOutUnusedLanguagesResourceFileMaps>
     <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
->>>>>>> Stashed changes
     <AppContainerApplication>false</AppContainerApplication>
     <AppxPackage>true</AppxPackage>
     <ApplicationType>Windows Store</ApplicationType>
@@ -115,7 +111,7 @@
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <PackageCertificateThumbprint>855347251559FA8C05A33D1EE744F5346456E77A</PackageCertificateThumbprint>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
@@ -131,7 +127,7 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <LanguageStandard Condition="'$(VisualStudioVersion)' &gt;= '18.0'">stdcpp23</LanguageStandard>
-      <LanguageStandard Condition="'$(VisualStudioVersion)' &lt; '18.0'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(VisualStudioVersion)' &lt; '18.0'">stdcpp20</LanguageStandard>
       <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -204,6 +200,7 @@
     <ClInclude Include="src\Services\ISavedViewRepository.h" />
     <ClInclude Include="src\Services\ISessionRepository.h" />
     <ClInclude Include="src\Services\ChannelPathGrouping.h" />
+    <ClInclude Include="src\Services\ElevationRestart.h" />
     <ClInclude Include="src\Services\EventQueryBuilder.h" />
     <ClInclude Include="src\Services\UniqueEvtHandle.h" />
     <ClInclude Include="src\Services\WindowsEventLogCatalogService.h" />
@@ -211,6 +208,10 @@
     <ClInclude Include="src\Services\WindowsEventLiveService.h" />
     <ClInclude Include="src\Services\WindowsEventProviderService.h" />
     <ClInclude Include="src\Services\WindowsEventQueryService.h" />
+    <ClInclude Include="src\Services\EvtVariantReader.h" />
+    <ClInclude Include="src\Services\BookmarkPersistence.h" />
+    <ClInclude Include="src\Services\LocalDataFile.h" />
+    <ClInclude Include="src\Services\SessionPersistence.h" />
     <ClInclude Include="src\Services\WindowsRemoteEventService.h" />
     <ClInclude Include="src\Services\WindowsSavedViewRepository.h" />
     <ClInclude Include="src\Services\WindowsSessionRepository.h" />
@@ -225,6 +226,7 @@
     <ClInclude Include="src\ViewModels\DashboardViewModel.h" />
     <ClInclude Include="src\ViewModels\EventLogItemViewModel.h" />
     <ClInclude Include="src\ViewModels\EventLogsViewModel.h" />
+    <ClInclude Include="src\ViewModels\PersistedSettings.h" />
     <ClInclude Include="src\ViewModels\ProviderItemViewModel.h" />
     <ClInclude Include="src\ViewModels\ProvidersViewModel.h" />
     <ClInclude Include="src\ViewModels\LiveViewModel.h" />
@@ -366,6 +368,8 @@
   <ItemGroup>
     <PRIResource Include="Strings\en-US\Resources.resw" />
     <PRIResource Include="Strings\zh-TW\Resources.resw" />
+    <PRIResource Include="Strings\zh-CN\Resources.resw" />
+    <PRIResource Include="Strings\ja-JP\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="src\Views\Shell\MainWindow.idl">

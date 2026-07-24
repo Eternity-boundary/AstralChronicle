@@ -10,6 +10,24 @@
     mc:Ignorable="d">
 
     <Grid x:Name="RootLayout" Background="{ThemeResource AstralTransparentBrush}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ShellLayoutStates">
+                <VisualState x:Name="ShellNarrowLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="GlobalSearchBox.Visibility" Value="Collapsed" />
+                        <Setter Target="ShellSecondaryStatusPanel.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="ShellWideLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="900" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="56" />
@@ -64,21 +82,27 @@
                         VerticalAlignment="Center"
                         AutomationProperties.AutomationId="ShellGreetingText"
                         Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
-                    <TextBlock
-                        x:Uid="ShellSystemStatusLabel"
+                    <StackPanel
+                        x:Name="ShellSecondaryStatusPanel"
                         VerticalAlignment="Center"
-                        Style="{StaticResource AstralCaptionTextBlockStyle}" />
-                    <Ellipse
-                        Width="10"
-                        Height="10"
-                        VerticalAlignment="Center"
-                        Fill="{ThemeResource SystemFillColorCautionBrush}"
-                        IsHitTestVisible="False" />
-                    <TextBlock
-                        x:Uid="ShellSystemStatusMonitoringNotConfigured"
-                        VerticalAlignment="Center"
-                        AutomationProperties.AutomationId="ShellSystemStatusText"
-                        Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                        Orientation="Horizontal"
+                        Spacing="12">
+                        <TextBlock
+                            x:Uid="ShellSystemStatusLabel"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                        <Ellipse
+                            Width="10"
+                            Height="10"
+                            VerticalAlignment="Center"
+                            Fill="{ThemeResource SystemFillColorCautionBrush}"
+                            IsHitTestVisible="False" />
+                        <TextBlock
+                            x:Uid="ShellSystemStatusMonitoringNotConfigured"
+                            VerticalAlignment="Center"
+                            AutomationProperties.AutomationId="ShellSystemStatusText"
+                            Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                    </StackPanel>
                 </StackPanel>
 
                 <AutoSuggestBox
@@ -87,10 +111,14 @@
                     Grid.Column="1"
                     Width="360"
                     VerticalAlignment="Center"
-                    AutomationProperties.AutomationId="GlobalSearchBox">
+                    AutomationProperties.AutomationId="GlobalSearchBox"
+                    IsEnabled="False">
                     <AutoSuggestBox.QueryIcon>
                         <SymbolIcon Symbol="Find" />
                     </AutoSuggestBox.QueryIcon>
+                    <ToolTipService.ToolTip>
+                        <TextBlock x:Uid="ShellSearchUnavailableTooltip" />
+                    </ToolTipService.ToolTip>
                 </AutoSuggestBox>
             </Grid>
         </Border>
@@ -108,7 +136,7 @@
             OpenPaneLength="256"
             PaneClosing="OnNavigationPaneClosing"
             PaneClosed="OnNavigationPaneClosed"
-            PaneDisplayMode="Left"
+            PaneDisplayMode="Auto"
             PaneOpening="OnNavigationPaneOpening"
             PaneOpened="OnNavigationPaneOpened"
             Expanding="OnNavigationItemExpanding"

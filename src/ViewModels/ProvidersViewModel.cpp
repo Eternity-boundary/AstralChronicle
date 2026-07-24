@@ -9,6 +9,7 @@
 #include <wil/cppwinrt_helpers.h>
 
 #include <algorithm>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -68,19 +69,35 @@ namespace winrt::AstralChronicle::implementation
     {
     }
 
+    ProvidersViewModel::~ProvidersViewModel() noexcept
+    {
+        if (m_cancellation)
+        {
+            m_cancellation->store(true, std::memory_order_relaxed);
+        }
+        if (m_detailsCancellation)
+        {
+            m_detailsCancellation->store(true, std::memory_order_relaxed);
+        }
+    }
+
     void ProvidersViewModel::Initialize(
-        ::AstralChronicle::services::IEventProviderService const& providerService,
-        ::AstralChronicle::design::IStringResourceService const& strings,
+        std::shared_ptr<::AstralChronicle::services::IEventProviderService> providerService,
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher)
     {
-        m_providerService = &providerService;
-        m_strings = &strings;
+        m_providerService = std::move(providerService);
+        m_strings = std::move(strings);
+        if (!m_providerService || !m_strings)
+        {
+            throw std::invalid_argument("Providers require provider and string services.");
+        }
         m_dispatcher = dispatcher;
-        m_heading = strings.GetString(L"Providers.Heading");
-        m_summary = strings.GetString(L"Providers.Summary");
-        m_selectionStatus = strings.GetString(L"Providers.SelectProvider.Text");
-        m_statusText = strings.GetString(L"Providers.Loading.Text");
-        m_statusDetails = strings.GetString(L"Providers.LoadingDetails.Text");
+        m_heading = m_strings->GetString(L"Providers.Heading");
+        m_summary = m_strings->GetString(L"Providers.Summary");
+        m_selectionStatus = m_strings->GetString(L"Providers.SelectProvider.Text");
+        m_statusText = m_strings->GetString(L"Providers.Loading.Text");
+        m_statusDetails = m_strings->GetString(L"Providers.LoadingDetails.Text");
         Refresh();
     }
 
@@ -99,6 +116,17 @@ namespace winrt::AstralChronicle::implementation
         {
             m_detailsCancellation->store(true, std::memory_order_relaxed);
         }
+        ++m_detailsVersion;
+        m_detailsCancellation.reset();
+        m_selectedProvider = nullptr;
+        m_hasSelection = false;
+        m_selectedProviderName.clear();
+        m_selectionStatus = m_strings->GetString(L"Providers.SelectProvider.Text");
+        ClearDetails();
+        RaisePropertyChanged(L"SelectedProvider");
+        RaisePropertyChanged(L"SelectedProviderName");
+        RaisePropertyChanged(L"HasSelection");
+        RaisePropertyChanged(L"SelectionStatus");
 
         m_cancellation = ::AstralChronicle::services::MakeQueryCancellation();
         auto const requestVersion = ++m_requestVersion;
@@ -116,15 +144,27 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::services::QueryCancellation cancellation,
         std::wstring searchText)
     {
-        auto lifetime = get_strong();
-        co_await winrt::resume_background();
-        auto const result = m_providerService->QueryProviders(searchText, 512, cancellation);
-        co_await wil::resume_foreground(m_dispatcher);
-        if (requestVersion != m_requestVersion || cancellation != m_cancellation)
+        try
+        {
+            auto const weakThis = get_weak();
+            auto const providerService = m_providerService;
+            auto const dispatcher = m_dispatcher;
+            if (!providerService || !dispatcher) co_return;
+            co_await winrt::resume_background();
+            auto const result = providerService->QueryProviders(searchText, 512, cancellation);
+            co_await wil::resume_foreground(dispatcher);
+            auto const strongThis = weakThis.get();
+            if (!strongThis || requestVersion != strongThis->m_requestVersion || cancellation != strongThis->m_cancellation ||
+                cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+            strongThis->ApplyProviders(result);
+        }
+        catch (...)
         {
             co_return;
         }
-        ApplyProviders(result);
     }
 
     void ProvidersViewModel::ApplyProviders(
@@ -143,6 +183,7 @@ namespace winrt::AstralChronicle::implementation
         m_selectedProvider = nullptr;
         m_hasSelection = false;
         m_selectedProviderName.clear();
+        m_selectionStatus = m_strings->GetString(L"Providers.SelectProvider.Text");
         ClearDetails();
         m_isLoading = false;
         m_statusSeverity = SeverityFor(result.Status);
@@ -180,6 +221,7 @@ namespace winrt::AstralChronicle::implementation
         m_selectedProvider = value;
         m_hasSelection = value != nullptr;
         m_selectedProviderName = value ? value.Name() : winrt::hstring{};
+        m_selectionStatus = value ? winrt::hstring{} : m_strings->GetString(L"Providers.SelectProvider.Text");
         ++m_detailsVersion;
         ClearDetails();
         RaisePropertyChanged(L"SelectedProvider");
@@ -203,15 +245,27 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::services::QueryCancellation cancellation,
         std::wstring providerName)
     {
-        auto lifetime = get_strong();
-        co_await winrt::resume_background();
-        auto const result = m_providerService->QueryDetails(providerName, cancellation);
-        co_await wil::resume_foreground(m_dispatcher);
-        if (requestVersion != m_detailsVersion || cancellation != m_detailsCancellation)
+        try
+        {
+            auto const weakThis = get_weak();
+            auto const providerService = m_providerService;
+            auto const dispatcher = m_dispatcher;
+            if (!providerService || !dispatcher) co_return;
+            co_await winrt::resume_background();
+            auto const result = providerService->QueryDetails(providerName, cancellation);
+            co_await wil::resume_foreground(dispatcher);
+            auto const strongThis = weakThis.get();
+            if (!strongThis || requestVersion != strongThis->m_detailsVersion || cancellation != strongThis->m_detailsCancellation ||
+                cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+            strongThis->ApplyDetails(result);
+        }
+        catch (...)
         {
             co_return;
         }
-        ApplyDetails(result);
     }
 
     void ProvidersViewModel::ApplyDetails(

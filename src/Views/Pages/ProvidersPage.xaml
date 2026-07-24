@@ -9,6 +9,31 @@
         x:Name="PageRoot"
         RowSpacing="{StaticResource AstralContentSpacing}"
         Style="{StaticResource AstralPageGridStyle}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ProvidersLayoutStates">
+                <VisualState x:Name="ProvidersNarrowLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ProvidersMasterColumn.Width" Value="*" />
+                        <Setter Target="ProvidersDetailsColumn.Width" Value="0" />
+                        <Setter Target="ProvidersPrimaryRow.Height" Value="2*" />
+                        <Setter Target="ProvidersSecondaryRow.Height" Value="3*" />
+                        <Setter Target="ContentGrid.RowSpacing" Value="{StaticResource AstralContentSpacing}" />
+                        <Setter Target="ProvidersMasterPane.(Grid.Column)" Value="0" />
+                        <Setter Target="ProvidersMasterPane.(Grid.Row)" Value="0" />
+                        <Setter Target="ProvidersDetailsPane.(Grid.Column)" Value="0" />
+                        <Setter Target="ProvidersDetailsPane.(Grid.Row)" Value="1" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="ProvidersWideLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="900" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -101,12 +126,21 @@
         <Grid
             x:Name="ContentGrid"
             Grid.Row="3"
-            ColumnSpacing="{StaticResource AstralContentSpacing}">
+            ColumnSpacing="{StaticResource AstralContentSpacing}"
+            RowSpacing="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="280" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition x:Name="ProvidersMasterColumn" Width="280" />
+                <ColumnDefinition x:Name="ProvidersDetailsColumn" Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Style="{StaticResource AstralCardBorderStyle}">
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="ProvidersPrimaryRow" Height="*" />
+                <RowDefinition x:Name="ProvidersSecondaryRow" Height="0" />
+            </Grid.RowDefinitions>
+            <Border
+                x:Name="ProvidersMasterPane"
+                Grid.Row="0"
+                Grid.Column="0"
+                Style="{StaticResource AstralCardBorderStyle}">
                 <Grid RowSpacing="{StaticResource AstralContentSpacing}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -137,6 +171,8 @@
                 </Grid>
             </Border>
             <ScrollViewer
+                x:Name="ProvidersDetailsPane"
+                Grid.Row="0"
                 Grid.Column="1"
                 AutomationProperties.AutomationId="ProvidersDetailsScrollViewer"
                 HorizontalScrollBarVisibility="Disabled"
@@ -208,12 +244,14 @@
                                 Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
                             <ListView
                                 AutomationProperties.AutomationId="ProvidersDefinitionsList"
-                                ItemsSource="{x:Bind ViewModel.EventDefinitions, Mode=OneWay}">
+                                ItemsSource="{x:Bind ViewModel.EventDefinitions, Mode=OneWay}"
+                                MaxHeight="320"
+                                ScrollViewer.VerticalScrollBarVisibility="Auto">
                                 <ListView.ItemTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate x:DataType="x:String">
                                         <TextBlock
                                             Style="{StaticResource AstralCaptionTextBlockStyle}"
-                                            Text="{Binding}"
+                                            Text="{x:Bind Mode=OneTime}"
                                             TextWrapping="Wrap" />
                                     </DataTemplate>
                                 </ListView.ItemTemplate>

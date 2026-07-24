@@ -9,6 +9,31 @@
         x:Name="PageRoot"
         RowSpacing="{StaticResource AstralContentSpacing}"
         Style="{StaticResource AstralPageGridStyle}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="SavedViewsLayoutStates">
+                <VisualState x:Name="SavedViewsNarrowLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SavedViewsMasterColumn.Width" Value="*" />
+                        <Setter Target="SavedViewsEditorColumn.Width" Value="0" />
+                        <Setter Target="SavedViewsPrimaryRow.Height" Value="2*" />
+                        <Setter Target="SavedViewsSecondaryRow.Height" Value="3*" />
+                        <Setter Target="SavedViewsContentGrid.RowSpacing" Value="{StaticResource AstralContentSpacing}" />
+                        <Setter Target="SavedViewsMasterPane.(Grid.Column)" Value="0" />
+                        <Setter Target="SavedViewsMasterPane.(Grid.Row)" Value="0" />
+                        <Setter Target="SavedViewsEditorPane.(Grid.Column)" Value="0" />
+                        <Setter Target="SavedViewsEditorPane.(Grid.Row)" Value="1" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="SavedViewsWideLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="900" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -118,12 +143,24 @@
             Severity="{x:Bind ViewModel.StatusSeverity, Mode=OneWay}"
             Title="{x:Bind ViewModel.StatusText, Mode=OneWay}" />
 
-        <Grid Grid.Row="3" ColumnSpacing="{StaticResource AstralContentSpacing}">
+        <Grid
+            x:Name="SavedViewsContentGrid"
+            Grid.Row="3"
+            ColumnSpacing="{StaticResource AstralContentSpacing}"
+            RowSpacing="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="320" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition x:Name="SavedViewsMasterColumn" Width="320" />
+                <ColumnDefinition x:Name="SavedViewsEditorColumn" Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Style="{StaticResource AstralCardBorderStyle}">
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="SavedViewsPrimaryRow" Height="*" />
+                <RowDefinition x:Name="SavedViewsSecondaryRow" Height="0" />
+            </Grid.RowDefinitions>
+            <Border
+                x:Name="SavedViewsMasterPane"
+                Grid.Row="0"
+                Grid.Column="0"
+                Style="{StaticResource AstralCardBorderStyle}">
                 <Grid RowSpacing="{StaticResource AstralContentSpacing}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -170,6 +207,8 @@
             </Border>
 
             <ScrollViewer
+                x:Name="SavedViewsEditorPane"
+                Grid.Row="0"
                 Grid.Column="1"
                 AutomationProperties.AutomationId="SavedViewsEditorScrollViewer"
                 HorizontalScrollBarVisibility="Disabled"
