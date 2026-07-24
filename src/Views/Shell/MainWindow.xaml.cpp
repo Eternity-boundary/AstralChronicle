@@ -75,7 +75,35 @@ namespace winrt::AstralChronicle::implementation
             return value.size() >= prefix.size() && value.compare(0, prefix.size(), prefix) == 0;
         }
 
-        hstring ShellGreetingResourceKeyForCurrentLocalTime()
+        [[nodiscard]] hstring ShellGreetingResourceKeyForHour(std::int32_t const hour24)
+        {
+            // std::tm::tm_hour is always 0-23, irrespective of the user's
+            // 12/24-hour display preference. In particular, 12 AM is 0 and
+            // 12 PM is 12, so do not infer this value from formatted text.
+            if (hour24 < 0 || hour24 >= 24)
+            {
+                return L"ShellGreeting.Morning";
+            }
+
+            if (hour24 >= 5 && hour24 < 12)
+            {
+                return L"ShellGreeting.Morning";
+            }
+
+            if (hour24 >= 12 && hour24 < 18)
+            {
+                return L"ShellGreeting.Afternoon";
+            }
+
+            if (hour24 >= 18 && hour24 < 22)
+            {
+                return L"ShellGreeting.Evening";
+            }
+
+            return L"ShellGreeting.Night";
+        }
+
+        [[nodiscard]] hstring ShellGreetingResourceKeyForCurrentLocalTime()
         {
             auto const now = std::time(nullptr);
             std::tm localTime{};
@@ -84,23 +112,53 @@ namespace winrt::AstralChronicle::implementation
                 return L"ShellGreeting.Morning";
             }
 
-            auto const hour = localTime.tm_hour;
-            if (hour >= 5 && hour < 12)
+            return ShellGreetingResourceKeyForHour(localTime.tm_hour);
+        }
+
+        [[nodiscard]] std::chrono::seconds TimeUntilNextShellGreetingBoundary()
+        {
+            auto const now = std::time(nullptr);
+            std::tm localTime{};
+            if (now == static_cast<std::time_t>(-1) || localtime_s(&localTime, &now) != 0)
             {
-                return L"ShellGreeting.Morning";
+                return std::chrono::minutes{ 1 };
             }
 
-            if (hour < 18)
+            auto nextBoundary = localTime;
+            nextBoundary.tm_min = 0;
+            nextBoundary.tm_sec = 0;
+            nextBoundary.tm_isdst = -1;
+
+            if (localTime.tm_hour < 5)
             {
-                return L"ShellGreeting.Afternoon";
+                nextBoundary.tm_hour = 5;
+            }
+            else if (localTime.tm_hour < 12)
+            {
+                nextBoundary.tm_hour = 12;
+            }
+            else if (localTime.tm_hour < 18)
+            {
+                nextBoundary.tm_hour = 18;
+            }
+            else if (localTime.tm_hour < 22)
+            {
+                nextBoundary.tm_hour = 22;
+            }
+            else
+            {
+                nextBoundary.tm_mday += 1;
+                nextBoundary.tm_hour = 5;
             }
 
-            if (hour < 22)
+            auto const nextTime = std::mktime(&nextBoundary);
+            if (nextTime == static_cast<std::time_t>(-1) || nextTime <= now)
             {
-                return L"ShellGreeting.Evening";
+                return std::chrono::minutes{ 1 };
             }
 
-            return L"ShellGreeting.Night";
+            return std::chrono::seconds{ static_cast<std::chrono::seconds::rep>(
+                std::difftime(nextTime, now)) };
         }
     }
 
@@ -144,10 +202,21 @@ namespace winrt::AstralChronicle::implementation
             std::wstring{ SystemAdministrativeEventsQuery });
         UpdateShellGreeting();
         m_greetingTimer = RootLayout().DispatcherQueue().CreateTimer();
+<<<<<<< Updated upstream
         m_greetingTimer.Interval(std::chrono::minutes{ 1 });
         m_greetingTimer.Tick([this](auto const&, auto const&)
             {
                 UpdateShellGreeting();
+=======
+        m_greetingTimer.Interval(TimeUntilNextShellGreetingBoundary());
+        m_greetingTimerTickToken = m_greetingTimer.Tick([weak](auto const&, auto const&)
+            {
+                if (auto const self = weak.get())
+                {
+                    self->UpdateShellGreeting();
+                    self->m_greetingTimer.Interval(TimeUntilNextShellGreetingBoundary());
+                }
+>>>>>>> Stashed changes
             });
         m_greetingTimer.Start();
         host.Theme().Initialize(RootLayout());

@@ -3,7 +3,7 @@
 
 #include "DesignSystem/Localization/IStringResourceService.h"
 
-#include <winrt/Windows.ApplicationModel.Resources.h>
+#include <winrt/Microsoft.Windows.ApplicationModel.Resources.h>
 
 namespace AstralChronicle::design
 {
@@ -15,6 +15,6 @@ namespace AstralChronicle::design
         [[nodiscard]] winrt::hstring GetString(winrt::hstring const& resourceKey) const override;
 
     private:
-        winrt::Windows::ApplicationModel::Resources::ResourceLoader m_loader{ nullptr };
+        winrt::Microsoft::Windows::ApplicationModel::Resources::ResourceLoader m_loader{ nullptr };
     };
 }

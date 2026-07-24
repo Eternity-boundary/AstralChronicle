@@ -27,7 +27,13 @@
     -->
     <TargetName>$(RootNamespace)</TargetName>
     <DefaultLanguage>zh-TW</DefaultLanguage>
+<<<<<<< Updated upstream
     <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
+=======
+    <!-- Retain every declared language resource package in MSIX bundles. -->
+    <AppxFilterOutUnusedLanguagesResourceFileMaps>false</AppxFilterOutUnusedLanguagesResourceFileMaps>
+    <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
+>>>>>>> Stashed changes
     <AppContainerApplication>false</AppContainerApplication>
     <AppxPackage>true</AppxPackage>
     <ApplicationType>Windows Store</ApplicationType>

@@ -5,7 +5,7 @@
 #include <string>
 
 using namespace winrt;
-using namespace Windows::ApplicationModel::Resources;
+using namespace Microsoft::Windows::ApplicationModel::Resources;
 
 namespace AstralChronicle::design
 {
@@ -13,7 +13,7 @@ namespace AstralChronicle::design
     {
         try
         {
-            m_loader = ResourceLoader::GetForViewIndependentUse();
+            m_loader = ResourceLoader{};
         }
         catch (...)
         {
