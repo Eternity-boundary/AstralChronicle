@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -943,7 +943,7 @@
     <value>英语</value>
   </data>
   <data name="LanguageTraditionalChineseOption.Content" xml:space="preserve">
-    <value>繁体中文</value>
+    <value>正体中文</value>
   </data>
   <data name="LanguageSimplifiedChineseOption.Content" xml:space="preserve">
     <value>简体中文</value>
