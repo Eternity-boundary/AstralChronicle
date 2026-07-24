@@ -113,7 +113,9 @@
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
-    <AppxBundle>Always</AppxBundle>
+    <!-- F5 registers a development layout; a bundle's internal manifest cannot be registered directly. -->
+    <AppxBundle Condition="'$(Configuration)' == 'Debug'">Never</AppxBundle>
+    <AppxBundle Condition="'$(Configuration)' != 'Debug'">Always</AppxBundle>
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
