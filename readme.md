@@ -47,6 +47,20 @@ MSBuild.exe AstralChronicle.slnx /m /p:Configuration=Debug /p:Platform=x64
 - [DesignSystem 與佈景主題規範](docs/design-system.md)
 - [測試說明](tests/README.md)
 
+---
+## AI產生程式碼使用範圍
+- Code Review
+- 注解
+- 部分程式碼
+
+本專案主要由一位貢獻者獨立開發。
+
+為減少錯誤並提高程式碼質量，開發過程中可能會使用人工智慧輔助程式碼審查。
+
+所有變更在合併前已經經過手動驗證和測試。
+
+並且爲了維護程式碼的可讀性，和加快程式開發，使用AI產生了部分注解和程式碼，包含由AI產生程式碼的翻譯單元會在檔案頂部註明
+
 ## 授權
 
 本專案採用 GNU General Public License v3.0（GPL-3.0）授權。
