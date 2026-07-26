@@ -5,6 +5,7 @@
 #include "DesignSystem/Localization/IStringResourceService.h"
 #include "Services/ICustomViewCatalogService.h"
 #include "Services/IEventLogCatalogService.h"
+#include "Services/IEventLiveDataService.h"
 #include "Views/Pages/DashboardPage.xaml.h"
 #include "Views/Pages/EventLogsPage.xaml.h"
 #include "Views/Pages/LivePage.xaml.h"
@@ -292,6 +293,8 @@ namespace winrt::AstralChronicle::implementation
             host.Services().GetRequiredService<::AstralChronicle::services::ISavedViewRepository>();
         auto const eventLive =
             host.Services().GetRequiredService<::AstralChronicle::services::IEventLiveService>();
+        auto const eventLiveData =
+            host.Services().GetRequiredService<::AstralChronicle::services::IEventLiveDataService>();
         auto const remoteEvents =
             host.Services().GetRequiredService<::AstralChronicle::services::IRemoteEventService>();
         m_customViewQueries.insert_or_assign(
@@ -445,10 +448,10 @@ namespace winrt::AstralChronicle::implementation
             } });
         m_navigation->Register({
             L"live",
-            [eventLive, strings = m_strings]()
+            [eventLive, eventLiveData, eventQuery, strings = m_strings]()
             {
                 auto page = make<LivePage>();
-                get_self<LivePage>(page)->Initialize(eventLive, strings);
+                get_self<LivePage>(page)->Initialize(eventLive, eventLiveData, eventQuery, strings);
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({

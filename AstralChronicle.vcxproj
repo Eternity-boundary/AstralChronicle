@@ -196,6 +196,7 @@
     <ClInclude Include="src\Services\IEventLogCatalogService.h" />
     <ClInclude Include="src\Services\ICustomViewCatalogService.h" />
     <ClInclude Include="src\Services\IEventLiveService.h" />
+    <ClInclude Include="src\Services\IEventLiveDataService.h" />
     <ClInclude Include="src\Services\IEventProviderService.h" />
     <ClInclude Include="src\Services\IEventQueryService.h" />
     <ClInclude Include="src\Services\IRemoteEventService.h" />
@@ -208,6 +209,7 @@
     <ClInclude Include="src\Services\WindowsEventLogCatalogService.h" />
     <ClInclude Include="src\Services\WindowsCustomViewCatalogService.h" />
     <ClInclude Include="src\Services\WindowsEventLiveService.h" />
+    <ClInclude Include="src\Services\WindowsEventLiveDataService.h" />
     <ClInclude Include="src\Services\WindowsEventProviderService.h" />
     <ClInclude Include="src\Services\WindowsEventQueryService.h" />
     <ClInclude Include="src\Services\EvtVariantReader.h" />
@@ -225,6 +227,7 @@
     <ClInclude Include="src\Models\SavedView.h" />
     <ClInclude Include="src\Models\DiagnosticSession.h" />
     <ClInclude Include="src\Models\EventRecordSummary.h" />
+    <ClInclude Include="src\Models\LiveEventRecord.h" />
     <ClInclude Include="src\ViewModels\DashboardViewModel.h" />
     <ClInclude Include="src\ViewModels\EventLogItemViewModel.h" />
     <ClInclude Include="src\ViewModels\EventLogsViewModel.h" />
@@ -315,6 +318,7 @@
     <ClCompile Include="src\Services\WindowsSavedViewRepository.cpp" />
     <ClCompile Include="src\Services\WindowsSessionRepository.cpp" />
     <ClCompile Include="src\Services\WindowsEventLiveService.cpp" />
+    <ClCompile Include="src\Services\WindowsEventLiveDataService.cpp" />
     <ClCompile Include="src\Services\WindowsRemoteEventService.cpp" />
     <ClCompile Include="src\ViewModels\DashboardViewModel.cpp" />
     <ClCompile Include="src\ViewModels\EventLogItemViewModel.cpp" />

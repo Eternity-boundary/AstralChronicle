@@ -1,3 +1,5 @@
+import "src\\ViewModels\\EventLogItemViewModel.idl";
+
 namespace AstralChronicle
 {
     [Microsoft.UI.Xaml.Data.Bindable]
@@ -10,6 +12,7 @@ namespace AstralChronicle
         String StatusDetails{ get; };
         String StateText{ get; };
         String Channel{ get; set; };
+        Int32 ChannelIndex{ get; set; };
         String Query{ get; set; };
         String QueueLimit{ get; set; };
         Boolean AutoScroll{ get; set; };
@@ -32,7 +35,35 @@ namespace AstralChronicle
         Boolean CanStart{ get; };
         UInt32 DroppedCount{ get; };
         UInt32 EventCount{ get; };
-        Windows.Foundation.Collections.IObservableVector<String> Events{ get; };
+        Windows.Foundation.Collections.IObservableVector<EventLogItemViewModel> Events{ get; };
+        EventLogItemViewModel SelectedEvent{ get; set; };
+        Boolean HasSelection{ get; };
+        String SelectedProvider{ get; };
+        String SelectedEventId{ get; };
+        String SelectedVersion{ get; };
+        String SelectedLevel{ get; };
+        String SelectedOpcode{ get; };
+        String SelectedKeywords{ get; };
+        String SelectedTimeCreated{ get; };
+        String SelectedTaskCategory{ get; };
+        String SelectedChannel{ get; };
+        String SelectedUser{ get; };
+        String SelectedComputer{ get; };
+        String SelectedRecordId{ get; };
+        String SelectedProcessId{ get; };
+        String SelectedThreadId{ get; };
+        String SelectedActivityId{ get; };
+        String SelectedRelatedActivityId{ get; };
+        String SelectedDescription{ get; };
+        String SelectedMessage{ get; };
+        String SelectedXml{ get; };
+        String SelectedEventData{ get; };
+        String SelectedUserData{ get; };
+        String SelectedProviderMetadata{ get; };
+        String SelectedBinaryData{ get; };
+        String SelectedRelatedEvents{ get; };
+        String DetailsStatusText{ get; };
+        Boolean IsDetailsLoading{ get; };
         Microsoft.UI.Xaml.Controls.InfoBarSeverity StatusSeverity{ get; };
         Boolean HasStatusMessage{ get; };
         void Start();

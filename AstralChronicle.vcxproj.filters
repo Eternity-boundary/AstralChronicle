@@ -180,6 +180,9 @@
     <ClCompile Include="src\Services\WindowsEventLiveService.cpp">
       <Filter>Source Files\Services</Filter>
     </ClCompile>
+    <ClCompile Include="src\Services\WindowsEventLiveDataService.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
     <ClCompile Include="src\Services\WindowsRemoteEventService.cpp">
       <Filter>Source Files\Services</Filter>
     </ClCompile>
@@ -311,6 +314,9 @@
     <ClInclude Include="src\Services\IEventLiveService.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
+    <ClInclude Include="src\Services\IEventLiveDataService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
     <ClInclude Include="src\Services\IEventProviderService.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
@@ -345,6 +351,9 @@
       <Filter>Header Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="src\Services\WindowsEventLiveService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\WindowsEventLiveDataService.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="src\Services\WindowsEventProviderService.h">
@@ -396,6 +405,9 @@
       <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="src\Models\EventRecordSummary.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Models\LiveEventRecord.h">
       <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="src\ViewModels\DashboardViewModel.h">

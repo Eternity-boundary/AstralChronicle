@@ -8,21 +8,42 @@
 #include "LiveViewModel.g.cpp"
 
 #include <wil/cppwinrt_helpers.h>
-#include <winrt/Windows.Storage.h>
-
 #include <algorithm>
-#include <chrono>
+#include <atomic>
 #include <cstddef>
 #include <limits>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace
 {
     constexpr std::uint32_t DefaultQueueLimit = 5'000;
     constexpr std::uint32_t MaximumQueueLimit = 100'000;
     constexpr std::size_t MaximumRecordedEvents = 10'000;
+
+    [[nodiscard]] std::int32_t ChannelIndexFromName(winrt::hstring const& channel) noexcept
+    {
+        if (channel == L"Application") return 1;
+        if (channel == L"Security") return 2;
+        if (channel == L"Setup") return 3;
+        if (channel == L"ForwardedEvents") return 4;
+        return 0;
+    }
+
+    [[nodiscard]] winrt::hstring ChannelNameFromIndex(std::int32_t const index)
+    {
+        switch (index)
+        {
+        case 0: return L"System";
+        case 1: return L"Application";
+        case 2: return L"Security";
+        case 3: return L"Setup";
+        case 4: return L"ForwardedEvents";
+        default: return {};
+        }
+    }
 
     [[nodiscard]] std::uint32_t ParseQueueLimit(winrt::hstring const& value) noexcept
     {
@@ -68,217 +89,18 @@ namespace
         return winrt::hstring{ result };
     }
 
-    void RedactXmlElement(std::wstring& xml, std::wstring_view const elementName)
-    {
-        auto const openingPrefix = L"<" + std::wstring{ elementName };
-        auto const closingTag = L"</" + std::wstring{ elementName } + L">";
-        std::size_t searchFrom{};
-        while ((searchFrom = xml.find(openingPrefix, searchFrom)) != std::wstring::npos)
-        {
-            auto const boundary = searchFrom + openingPrefix.size();
-            if (boundary >= xml.size() ||
-                (xml[boundary] != L'>' && !std::iswspace(xml[boundary])))
-            {
-                searchFrom = boundary;
-                continue;
-            }
-            auto const openingEnd = xml.find(L'>', boundary);
-            if (openingEnd == std::wstring::npos)
-            {
-                return;
-            }
-            if (openingEnd > searchFrom && xml[openingEnd - 1] == L'/')
-            {
-                searchFrom = openingEnd + 1;
-                continue;
-            }
-            auto const closingStart = xml.find(closingTag, openingEnd + 1);
-            if (closingStart == std::wstring::npos)
-            {
-                return;
-            }
-            xml.replace(openingEnd + 1, closingStart - openingEnd - 1, L"[redacted]");
-            searchFrom = openingEnd + 1 + std::wstring_view{ L"[redacted]" }.size() +
-                closingTag.size();
-        }
-    }
-
-    void RedactXmlAttribute(std::wstring& xml, std::wstring_view const attributeName)
-    {
-        std::size_t searchFrom{};
-        while ((searchFrom = xml.find(attributeName, searchFrom)) != std::wstring::npos)
-        {
-            auto const before = searchFrom == 0 ? L' ' : xml[searchFrom - 1];
-            auto cursor = searchFrom + attributeName.size();
-            if ((!std::iswspace(before) && before != L'<') ||
-                (cursor < xml.size() &&
-                    !std::iswspace(xml[cursor]) &&
-                    xml[cursor] != L'='))
-            {
-                searchFrom = cursor;
-                continue;
-            }
-            while (cursor < xml.size() && std::iswspace(xml[cursor])) ++cursor;
-            if (cursor >= xml.size() || xml[cursor] != L'=')
-            {
-                searchFrom = cursor;
-                continue;
-            }
-            ++cursor;
-            while (cursor < xml.size() && std::iswspace(xml[cursor])) ++cursor;
-            if (cursor >= xml.size() || (xml[cursor] != L'"' && xml[cursor] != L'\''))
-            {
-                searchFrom = cursor;
-                continue;
-            }
-            auto const quote = xml[cursor++];
-            auto const valueEnd = xml.find(quote, cursor);
-            if (valueEnd == std::wstring::npos)
-            {
-                return;
-            }
-            xml.replace(cursor, valueEnd - cursor, L"[redacted]");
-            searchFrom = cursor + std::wstring_view{ L"[redacted]" }.size();
-        }
-    }
-
-    [[nodiscard]] std::optional<std::wstring> XmlAttribute(
-        std::wstring_view const tag,
-        std::wstring_view const attributeName)
-    {
-        auto position = tag.find(attributeName);
-        while (position != std::wstring_view::npos)
-        {
-            auto const before = position == 0 ? L' ' : tag[position - 1];
-            auto cursor = position + attributeName.size();
-            if ((std::iswspace(before) || before == L'<') &&
-                (cursor >= tag.size() || std::iswspace(tag[cursor]) || tag[cursor] == L'='))
-            {
-                while (cursor < tag.size() && std::iswspace(tag[cursor])) ++cursor;
-                if (cursor < tag.size() && tag[cursor] == L'=')
-                {
-                    ++cursor;
-                    while (cursor < tag.size() && std::iswspace(tag[cursor])) ++cursor;
-                    if (cursor < tag.size() && (tag[cursor] == L'"' || tag[cursor] == L'\''))
-                    {
-                        auto const quote = tag[cursor++];
-                        auto const end = tag.find(quote, cursor);
-                        if (end != std::wstring_view::npos)
-                        {
-                            return std::wstring{ tag.substr(cursor, end - cursor) };
-                        }
-                    }
-                }
-            }
-            position = tag.find(attributeName, position + attributeName.size());
-        }
-        return std::nullopt;
-    }
-
-    [[nodiscard]] bool IsSensitiveDataName(
-        std::wstring value,
-        bool const redactComputerName,
-        bool const redactUserNames)
-    {
-        std::transform(value.begin(), value.end(), value.begin(), [](wchar_t const character)
-            {
-                return static_cast<wchar_t>(std::towlower(character));
-            });
-        if (redactComputerName &&
-            (value.find(L"computername") != std::wstring::npos ||
-                value.find(L"machinename") != std::wstring::npos ||
-                value.find(L"workstation") != std::wstring::npos))
-        {
-            return true;
-        }
-        return redactUserNames &&
-            (value.find(L"username") != std::wstring::npos ||
-                value.find(L"accountname") != std::wstring::npos ||
-                value.find(L"membername") != std::wstring::npos ||
-                value.find(L"userid") != std::wstring::npos);
-    }
-
-    void RedactNamedEventData(
-        std::wstring& xml,
-        bool const redactComputerName,
-        bool const redactUserNames)
-    {
-        std::size_t searchFrom{};
-        while ((searchFrom = xml.find(L"<Data", searchFrom)) != std::wstring::npos)
-        {
-            auto const boundary = searchFrom + 5;
-            if (boundary >= xml.size() ||
-                (xml[boundary] != L'>' && !std::iswspace(xml[boundary])))
-            {
-                searchFrom = boundary;
-                continue;
-            }
-            auto const openingEnd = xml.find(L'>', boundary);
-            if (openingEnd == std::wstring::npos)
-            {
-                return;
-            }
-            auto const name = XmlAttribute(
-                std::wstring_view{ xml }.substr(searchFrom, openingEnd - searchFrom + 1),
-                L"Name");
-            auto const closingStart = xml.find(L"</Data>", openingEnd + 1);
-            if (closingStart == std::wstring::npos)
-            {
-                return;
-            }
-            if (name && IsSensitiveDataName(*name, redactComputerName, redactUserNames))
-            {
-                xml.replace(openingEnd + 1, closingStart - openingEnd - 1, L"[redacted]");
-                searchFrom = openingEnd + 1 + std::wstring_view{ L"[redacted]" }.size() + 7;
-            }
-            else
-            {
-                searchFrom = closingStart + 7;
-            }
-        }
-    }
-
-    [[nodiscard]] std::wstring RedactLiveEventForExport(
-        std::wstring xml,
-        bool const redactComputerName,
-        bool const redactUserNames)
-    {
-        if (redactComputerName)
-        {
-            for (auto const element : {
-                    L"Computer",
-                    L"ComputerName",
-                    L"MachineName",
-                    L"Workstation",
-                    L"WorkstationName" })
-            {
-                RedactXmlElement(xml, element);
-            }
-        }
-        if (redactUserNames)
-        {
-            RedactXmlAttribute(xml, L"UserID");
-            for (auto const element : {
-                    L"User",
-                    L"UserName",
-                    L"TargetUserName",
-                    L"SubjectUserName",
-                    L"CallerUserName",
-                    L"AccountName",
-                    L"MemberName" })
-            {
-                RedactXmlElement(xml, element);
-            }
-        }
-        RedactNamedEventData(xml, redactComputerName, redactUserNames);
-        return xml;
-    }
 }
 
 namespace winrt::AstralChronicle::implementation
 {
+    struct LiveUpdateDispatchState final
+    {
+        std::atomic_bool Active{ true };
+        std::atomic_bool Pending{};
+    };
+
     LiveViewModel::LiveViewModel()
-        : m_events(winrt::single_threaded_observable_vector<winrt::hstring>())
+        : m_events(winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>())
     {
     }
 
@@ -289,15 +111,19 @@ namespace winrt::AstralChronicle::implementation
 
     void LiveViewModel::Initialize(
         std::shared_ptr<::AstralChronicle::services::IEventLiveService> liveService,
+        std::shared_ptr<::AstralChronicle::services::IEventLiveDataService> liveEventData,
+        std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher)
     {
         Shutdown();
         m_liveService = std::move(liveService);
+        m_liveEventData = std::move(liveEventData);
+        m_eventQuery = std::move(eventQuery);
         m_strings = std::move(strings);
-        if (!m_liveService || !m_strings)
+        if (!m_liveService || !m_liveEventData || !m_strings)
         {
-            throw std::invalid_argument("Live monitoring requires live and string services.");
+            throw std::invalid_argument("Live monitoring requires live, event data, and string services.");
         }
         m_dispatcher = dispatcher;
         auto const settings = ::AstralChronicle::viewmodels::PersistedSettingsSnapshot::Load();
@@ -306,22 +132,51 @@ namespace winrt::AstralChronicle::implementation
         m_groupRepeated = settings.GroupRepeatedEvents;
         m_redactComputerName = settings.EventItems.RedactComputerName;
         m_redactUserNames = settings.EventItems.RedactUserNames;
+        m_eventItemSettings = settings.EventItems;
         m_heading = m_strings->GetString(L"Live.Heading");
         m_summary = m_strings->GetString(L"Live.Summary");
         m_stateText = m_strings->GetString(L"Live.State.Stopped");
         m_statusText = m_strings->GetString(L"Live.Ready.Text");
         m_statusDetails = m_strings->GetString(L"Live.ReadyDetails.Text");
-        m_timer = dispatcher.CreateTimer();
-        m_timer.Interval(std::chrono::milliseconds{ 500 });
+        ClearSelection();
+        m_liveUpdateDispatch = std::make_shared<LiveUpdateDispatchState>();
         auto const weakThis = get_weak();
-        m_timerTickToken = m_timer.Tick([weakThis](auto const&, auto const&)
+        auto const updateDispatch = m_liveUpdateDispatch;
+        m_liveService->SetBatchAvailableCallback([weakThis, dispatcher, updateDispatch]() noexcept
         {
-            if (auto const strongThis = weakThis.get())
+            // Coalesce many Event Log callbacks into one UI-thread batch update.
+            if (!updateDispatch->Active.load(std::memory_order_acquire) ||
+                updateDispatch->Pending.exchange(true, std::memory_order_acq_rel))
             {
-                strongThis->OnTimerTick();
+                return;
+            }
+
+            bool queued{};
+            try
+            {
+                queued = dispatcher && dispatcher.TryEnqueue(
+                    Microsoft::UI::Dispatching::DispatcherQueuePriority::Normal,
+                    [weakThis, updateDispatch]()
+                    {
+                        updateDispatch->Pending.store(false, std::memory_order_release);
+                        if (!updateDispatch->Active.load(std::memory_order_acquire))
+                        {
+                            return;
+                        }
+                        if (auto const strongThis = weakThis.get())
+                        {
+                            strongThis->DrainAvailableEvents();
+                        }
+                    });
+            }
+            catch (...)
+            {
+            }
+            if (!queued)
+            {
+                updateDispatch->Pending.store(false, std::memory_order_release);
             }
         });
-        m_timerTickSubscribed = true;
         RaisePropertyChanged(L"StateText");
         RaisePropertyChanged(L"QueueLimit");
         RaisePropertyChanged(L"GroupRepeated");
@@ -353,8 +208,10 @@ namespace winrt::AstralChronicle::implementation
         if (started)
         {
             m_stateText = m_strings->GetString(L"Live.State.Running");
-            SetStatus(m_strings->GetString(L"Live.Started.Text"), m_strings->GetString(L"Live.StartedDetails.Text"), Microsoft::UI::Xaml::Controls::InfoBarSeverity::Success);
-            m_timer.Start();
+            SetStatus(
+                m_strings->GetString(L"Live.Started.Text"),
+                FormatResource(m_strings->GetString(L"Live.StartedDetails.Text"), { m_channel }),
+                Microsoft::UI::Xaml::Controls::InfoBarSeverity::Success);
         }
         else
         {
@@ -383,6 +240,7 @@ namespace winrt::AstralChronicle::implementation
         m_liveService->Resume();
         m_isPaused = false;
         m_stateText = m_strings->GetString(L"Live.State.Running");
+        DrainAvailableEvents();
         RaisePropertyChanged(L"StateText");
         RaisePropertyChanged(L"IsPaused");
     }
@@ -394,7 +252,6 @@ namespace winrt::AstralChronicle::implementation
         m_isRunning = false;
         m_isPaused = false;
         m_stateText = m_strings->GetString(L"Live.State.Stopped");
-        if (m_timer) m_timer.Stop();
         if (m_strings)
         {
             SetStatus(
@@ -411,7 +268,7 @@ namespace winrt::AstralChronicle::implementation
     void LiveViewModel::Clear()
     {
         if (m_liveService) m_liveService->Clear();
-        m_events = winrt::single_threaded_observable_vector<winrt::hstring>();
+        m_events = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         m_droppedCount = 0;
         m_totalReceived = 0;
         m_criticalCount = 0;
@@ -423,17 +280,26 @@ namespace winrt::AstralChronicle::implementation
         m_allEvents.clear();
         m_recordedEvents.clear();
         m_bookmarkCount = 0;
+        if (m_detailsCancellation)
+        {
+            m_detailsCancellation->store(true, std::memory_order_relaxed);
+        }
+        ++m_detailsRequestVersion;
+        ClearSelection();
         RaisePropertyChanged(L"Events");
         RaiseMetricProperties();
+        RaisePropertyChanged(L"SelectedEvent");
+        RaisePropertyChanged(L"HasSelection");
+        RaiseSelectionProperties();
     }
 
-    void LiveViewModel::OnTimerTick()
+    void LiveViewModel::DrainAvailableEvents()
     {
         if (!m_liveService) return;
         try
         {
-            auto const batch = m_liveService->TakeBatch(m_isPaused ? 0u : 250u);
-            ApplyBatch(batch);
+            auto batch = m_liveService->TakeBatch(m_isPaused ? 0u : 250u);
+            ApplyBatch(std::move(batch));
         }
         catch (...)
         {
@@ -448,23 +314,22 @@ namespace winrt::AstralChronicle::implementation
         }
     }
 
-    void LiveViewModel::ApplyBatch(::AstralChronicle::services::LiveBatch const& batch)
+    void LiveViewModel::ApplyBatch(::AstralChronicle::services::EventLiveBatch batch)
     {
-        m_allEvents.insert(m_allEvents.end(), batch.Events.begin(), batch.Events.end());
-        while (m_allEvents.size() > m_maxVisibleRows) m_allEvents.erase(m_allEvents.begin());
-        RebuildEventView();
-
-        m_droppedCount = batch.DroppedCount;
-        if (m_isRecording)
+        if (m_isRecording && !batch.Events.empty())
         {
             auto const incomingCount = batch.Events.size();
             if (incomingCount >= MaximumRecordedEvents)
             {
-                m_recordedEvents.assign(
-                    batch.Events.end() - static_cast<std::ptrdiff_t>(MaximumRecordedEvents),
-                    batch.Events.end());
+                m_recordedEvents.clear();
+                auto const first = batch.Events.end() -
+                    static_cast<std::ptrdiff_t>(MaximumRecordedEvents);
+                for (auto iterator = first; iterator != batch.Events.end(); ++iterator)
+                {
+                    m_recordedEvents.push_back(iterator->RawXml);
+                }
             }
-            else if (incomingCount != 0)
+            else
             {
                 auto const required = m_recordedEvents.size() + incomingCount;
                 if (required > MaximumRecordedEvents)
@@ -474,9 +339,25 @@ namespace winrt::AstralChronicle::implementation
                         m_recordedEvents.begin(),
                         m_recordedEvents.begin() + static_cast<std::ptrdiff_t>(removeCount));
                 }
-                m_recordedEvents.insert(m_recordedEvents.end(), batch.Events.begin(), batch.Events.end());
+                for (auto const& record : batch.Events)
+                {
+                    m_recordedEvents.push_back(record.RawXml);
+                }
             }
         }
+
+        auto rebuildRequired = m_groupRepeated;
+        for (auto& record : batch.Events)
+        {
+            rebuildRequired = AppendEvent(std::move(record)) || rebuildRequired;
+        }
+        if (rebuildRequired)
+        {
+            RebuildEventView();
+            RaisePropertyChanged(L"Events");
+        }
+
+        m_droppedCount = batch.DroppedCount;
         m_totalReceived = batch.TotalReceived;
         m_criticalCount = batch.CriticalCount;
         m_errorCount = batch.ErrorCount;
@@ -489,7 +370,6 @@ namespace winrt::AstralChronicle::implementation
         {
             m_isRunning = false;
             m_isPaused = false;
-            if (m_timer) m_timer.Stop();
             m_stateText = m_strings->GetString(L"Live.State.Error");
             SetStatus(m_strings->GetString(L"Live.StreamFailed.Text"),
                 m_strings->GetString(L"Live.ErrorDetails.Text"),
@@ -502,7 +382,6 @@ namespace winrt::AstralChronicle::implementation
                 m_strings->GetString(L"Live.EventsLostDetails.Text"),
                 Microsoft::UI::Xaml::Controls::InfoBarSeverity::Warning);
         }
-        RaisePropertyChanged(L"Events");
         RaiseMetricProperties();
         RaisePropertyChanged(L"StateText");
         RaisePropertyChanged(L"IsRunning");
@@ -511,29 +390,81 @@ namespace winrt::AstralChronicle::implementation
 
     void LiveViewModel::RebuildEventView()
     {
-        auto values = winrt::single_threaded_observable_vector<winrt::hstring>();
+        auto values = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
+        std::wstring previousXml;
         for (auto const& event : m_allEvents)
         {
-            auto const levelStart = event.find(L"<Level>");
-            auto const levelEnd = event.find(L"</Level>", levelStart);
-            auto const level = levelStart == std::wstring::npos || levelEnd == std::wstring::npos
-                ? std::wstring{}
-                : event.substr(levelStart + 7, levelEnd - levelStart - 7);
-            if ((level == L"1" && !m_showCritical) ||
-                (level == L"2" && !m_showErrors) ||
-                (level == L"3" && !m_showWarnings) ||
-                (level != L"1" && level != L"2" && level != L"3" && !m_showInformation))
+            if (!MatchesLevelFilter(event.Record.Summary.Level))
             {
                 continue;
             }
-            if (m_groupRepeated && values.Size() > 0 && values.GetAt(values.Size() - 1) == event)
+            if (m_groupRepeated && !previousXml.empty() && previousXml == event.Record.RawXml)
             {
                 continue;
             }
-            values.Append(winrt::hstring{ event });
+            values.Append(event.Item);
+            previousXml = event.Record.RawXml;
         }
-        while (values.Size() > m_maxVisibleRows) values.RemoveAt(0);
         m_events = values;
+
+        if (m_selectedEvent)
+        {
+            auto const selectedStillVisible = std::any_of(m_events.begin(), m_events.end(), [this](auto const& item)
+            {
+                return item == m_selectedEvent;
+            });
+            if (!selectedStillVisible)
+            {
+                SelectedEvent(nullptr);
+            }
+        }
+    }
+
+    bool LiveViewModel::AppendEvent(::AstralChronicle::models::LiveEventRecord record)
+    {
+        auto const level = record.Summary.Level;
+        auto item = winrt::make<winrt::AstralChronicle::implementation::EventLogItemViewModel>();
+        winrt::get_self<winrt::AstralChronicle::implementation::EventLogItemViewModel>(item)->Initialize(
+            record.Summary,
+            *m_strings,
+            m_eventItemSettings);
+        m_allEvents.push_back({ item, std::move(record) });
+
+        auto requiresRebuild = m_groupRepeated;
+        while (m_allEvents.size() > m_maxVisibleRows)
+        {
+            auto const removedItem = m_allEvents.front().Item;
+            m_allEvents.erase(m_allEvents.begin());
+            requiresRebuild = true;
+            if (removedItem == m_selectedEvent)
+            {
+                SelectedEvent(nullptr);
+            }
+        }
+
+        if (!requiresRebuild && MatchesLevelFilter(level))
+        {
+            m_events.Append(item);
+        }
+        return requiresRebuild;
+    }
+
+    bool LiveViewModel::MatchesLevelFilter(std::uint8_t const level) const noexcept
+    {
+        if (level == 1) return m_showCritical;
+        if (level == 2) return m_showErrors;
+        if (level == 3) return m_showWarnings;
+        return m_showInformation;
+    }
+
+    LiveEventEntry const* LiveViewModel::FindEvent(
+        winrt::AstralChronicle::EventLogItemViewModel const& item) const noexcept
+    {
+        auto const iterator = std::find_if(m_allEvents.begin(), m_allEvents.end(), [&item](LiveEventEntry const& event)
+        {
+            return event.Item == item;
+        });
+        return iterator == m_allEvents.end() ? nullptr : &*iterator;
     }
 
     void LiveViewModel::SetStatus(winrt::hstring title, winrt::hstring details, Microsoft::UI::Xaml::Controls::InfoBarSeverity const severity)
@@ -551,7 +482,19 @@ namespace winrt::AstralChronicle::implementation
     winrt::hstring LiveViewModel::StatusDetails() const { return m_statusDetails; }
     winrt::hstring LiveViewModel::StateText() const { return m_stateText; }
     winrt::hstring LiveViewModel::Channel() const { return m_channel; }
-    void LiveViewModel::Channel(winrt::hstring const& value) { m_channel = value; RaisePropertyChanged(L"Channel"); }
+    void LiveViewModel::Channel(winrt::hstring const& value)
+    {
+        if (m_channel == value) return;
+        m_channel = value;
+        RaisePropertyChanged(L"Channel");
+        RaisePropertyChanged(L"ChannelIndex");
+    }
+    std::int32_t LiveViewModel::ChannelIndex() const noexcept { return ChannelIndexFromName(m_channel); }
+    void LiveViewModel::ChannelIndex(std::int32_t const value)
+    {
+        auto const channel = ChannelNameFromIndex(value);
+        if (!channel.empty()) Channel(channel);
+    }
     winrt::hstring LiveViewModel::Query() const { return m_query; }
     void LiveViewModel::Query(winrt::hstring const& value) { m_query = value; RaisePropertyChanged(L"Query"); }
     winrt::hstring LiveViewModel::QueueLimit() const { return m_queueLimit; }
@@ -590,7 +533,259 @@ namespace winrt::AstralChronicle::implementation
     bool LiveViewModel::CanStart() const noexcept { return !m_isRunning; }
     std::uint32_t LiveViewModel::DroppedCount() const noexcept { return m_droppedCount; }
     std::uint32_t LiveViewModel::EventCount() const noexcept { return m_events ? m_events.Size() : 0; }
-    Windows::Foundation::Collections::IObservableVector<winrt::hstring> LiveViewModel::Events() const { return m_events; }
+    Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> LiveViewModel::Events() const { return m_events; }
+
+    winrt::AstralChronicle::EventLogItemViewModel LiveViewModel::SelectedEvent() const
+    {
+        return m_selectedEvent;
+    }
+
+    void LiveViewModel::SelectedEvent(winrt::AstralChronicle::EventLogItemViewModel const& value)
+    {
+        if (m_selectedEvent == value)
+        {
+            return;
+        }
+
+        if (m_detailsCancellation)
+        {
+            m_detailsCancellation->store(true, std::memory_order_relaxed);
+        }
+        ++m_detailsRequestVersion;
+        m_selectedEvent = value;
+        if (!m_selectedEvent)
+        {
+            ClearSelection();
+            RaisePropertyChanged(L"SelectedEvent");
+            RaisePropertyChanged(L"HasSelection");
+            RaiseSelectionProperties();
+            return;
+        }
+
+        auto const event = FindEvent(m_selectedEvent);
+        if (!event)
+        {
+            ClearSelection();
+            RaisePropertyChanged(L"SelectedEvent");
+            RaisePropertyChanged(L"HasSelection");
+            RaiseSelectionProperties();
+            return;
+        }
+
+        m_selectedProvider = m_selectedEvent.Provider();
+        m_selectedEventId = m_selectedEvent.EventId();
+        m_selectedVersion = m_selectedEvent.Version();
+        m_selectedLevel = m_selectedEvent.Level();
+        m_selectedOpcode = m_selectedEvent.Opcode();
+        m_selectedKeywords = m_selectedEvent.Keywords();
+        m_selectedTimeCreated = m_selectedEvent.TimeCreated();
+        m_selectedTaskCategory = m_selectedEvent.TaskCategory();
+        m_selectedChannel = m_selectedEvent.Channel();
+        m_selectedUser = m_selectedEvent.User();
+        m_selectedComputer = m_selectedEvent.Computer();
+        m_selectedRecordId = m_selectedEvent.RecordId();
+        m_selectedProcessId = m_selectedEvent.ProcessId();
+        m_selectedThreadId = m_selectedEvent.ThreadId();
+        m_selectedActivityId = m_selectedEvent.ActivityId();
+        m_selectedRelatedActivityId = m_selectedEvent.RelatedActivityId();
+        m_selectedDescription = m_selectedEvent.ShortDescription();
+        m_selectedMessage = m_selectedDescription;
+        m_selectedXml = winrt::hstring{ event->Record.RawXml };
+
+        auto const empty = m_strings ? m_strings->GetString(L"EventLogs.EmptyValue.Text") : winrt::hstring{};
+        m_selectedEventData = empty;
+        m_selectedUserData = empty;
+        m_selectedProviderMetadata = empty;
+        m_selectedBinaryData = empty;
+        m_selectedRelatedEvents = empty;
+
+        auto const recordId = m_selectedEvent.SortRecordId();
+        auto selectedChannel = std::wstring{ m_selectedEvent.Channel().c_str() };
+        if (selectedChannel.empty() || selectedChannel == std::wstring{ empty.c_str() })
+        {
+            selectedChannel = std::wstring{ m_channel.c_str() };
+        }
+        if (m_liveEventData)
+        {
+            m_isDetailsLoading = true;
+            m_detailsStatusText = m_strings->GetString(L"EventLogs.DetailsLoading.Text");
+            m_detailsCancellation = ::AstralChronicle::services::MakeQueryCancellation();
+            auto const requestVersion = m_detailsRequestVersion;
+            LoadDetailsAsync(
+                requestVersion,
+                std::move(selectedChannel),
+                recordId,
+                event->Record,
+                m_detailsCancellation);
+        }
+        else
+        {
+            m_isDetailsLoading = false;
+            m_detailsStatusText = m_strings
+                ? m_strings->GetString(L"EventLogs.DetailsLoaded.Text")
+                : winrt::hstring{};
+        }
+
+        RaisePropertyChanged(L"SelectedEvent");
+        RaisePropertyChanged(L"HasSelection");
+        RaiseSelectionProperties();
+    }
+
+    bool LiveViewModel::HasSelection() const noexcept { return static_cast<bool>(m_selectedEvent); }
+    winrt::hstring LiveViewModel::SelectedProvider() const { return m_selectedProvider; }
+    winrt::hstring LiveViewModel::SelectedEventId() const { return m_selectedEventId; }
+    winrt::hstring LiveViewModel::SelectedVersion() const { return m_selectedVersion; }
+    winrt::hstring LiveViewModel::SelectedLevel() const { return m_selectedLevel; }
+    winrt::hstring LiveViewModel::SelectedOpcode() const { return m_selectedOpcode; }
+    winrt::hstring LiveViewModel::SelectedKeywords() const { return m_selectedKeywords; }
+    winrt::hstring LiveViewModel::SelectedTimeCreated() const { return m_selectedTimeCreated; }
+    winrt::hstring LiveViewModel::SelectedTaskCategory() const { return m_selectedTaskCategory; }
+    winrt::hstring LiveViewModel::SelectedChannel() const { return m_selectedChannel; }
+    winrt::hstring LiveViewModel::SelectedUser() const { return m_selectedUser; }
+    winrt::hstring LiveViewModel::SelectedComputer() const { return m_selectedComputer; }
+    winrt::hstring LiveViewModel::SelectedRecordId() const { return m_selectedRecordId; }
+    winrt::hstring LiveViewModel::SelectedProcessId() const { return m_selectedProcessId; }
+    winrt::hstring LiveViewModel::SelectedThreadId() const { return m_selectedThreadId; }
+    winrt::hstring LiveViewModel::SelectedActivityId() const { return m_selectedActivityId; }
+    winrt::hstring LiveViewModel::SelectedRelatedActivityId() const { return m_selectedRelatedActivityId; }
+    winrt::hstring LiveViewModel::SelectedDescription() const { return m_selectedDescription; }
+    winrt::hstring LiveViewModel::SelectedMessage() const { return m_selectedMessage; }
+    winrt::hstring LiveViewModel::SelectedXml() const { return m_selectedXml; }
+    winrt::hstring LiveViewModel::SelectedEventData() const { return m_selectedEventData; }
+    winrt::hstring LiveViewModel::SelectedUserData() const { return m_selectedUserData; }
+    winrt::hstring LiveViewModel::SelectedProviderMetadata() const { return m_selectedProviderMetadata; }
+    winrt::hstring LiveViewModel::SelectedBinaryData() const { return m_selectedBinaryData; }
+    winrt::hstring LiveViewModel::SelectedRelatedEvents() const { return m_selectedRelatedEvents; }
+    winrt::hstring LiveViewModel::DetailsStatusText() const { return m_detailsStatusText; }
+    bool LiveViewModel::IsDetailsLoading() const noexcept { return m_isDetailsLoading; }
+
+    winrt::fire_and_forget LiveViewModel::LoadDetailsAsync(
+        std::uint64_t const requestVersion,
+        std::wstring channel,
+        std::uint64_t const recordId,
+        ::AstralChronicle::models::LiveEventRecord record,
+        ::AstralChronicle::services::QueryCancellation cancellation)
+    {
+        try
+        {
+            auto const weakThis = get_weak();
+            auto const eventQuery = m_eventQuery;
+            auto const eventData = m_liveEventData;
+            auto const dispatcher = m_dispatcher;
+            if (!eventData || !dispatcher) co_return;
+            co_await winrt::resume_background();
+            ::AstralChronicle::models::EventDetails details;
+            auto querySucceeded = false;
+            if (eventQuery && recordId != 0 && !channel.empty())
+            {
+                auto result = eventQuery->QueryDetails(channel, recordId, cancellation);
+                if (result.Status == ::AstralChronicle::services::EventQueryStatus::Succeeded)
+                {
+                    details = std::move(result.Details);
+                    querySucceeded = true;
+                }
+            }
+            if (cancellation && cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+            if (!querySucceeded)
+            {
+                details = eventData->CreateFallbackDetails(record);
+            }
+            co_await wil::resume_foreground(dispatcher);
+            auto const strongThis = weakThis.get();
+            if (!strongThis || requestVersion != strongThis->m_detailsRequestVersion ||
+                cancellation != strongThis->m_detailsCancellation ||
+                cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+            strongThis->ApplyDetails(details, querySucceeded);
+        }
+        catch (...)
+        {
+            co_return;
+        }
+    }
+
+    void LiveViewModel::ApplyDetails(
+        ::AstralChronicle::models::EventDetails const& details,
+        bool const querySucceeded)
+    {
+        m_isDetailsLoading = false;
+        if (!m_strings || !m_liveEventData)
+        {
+            return;
+        }
+
+        auto const empty = m_strings->GetString(L"EventLogs.EmptyValue.Text");
+        auto const detailText = m_liveEventData->CreateDetailsText(details);
+        if (!detailText.Message.empty())
+        {
+            m_selectedMessage = winrt::hstring{ detailText.Message };
+        }
+        if (m_selectedXml.empty() && !detailText.RawXml.empty())
+        {
+            m_selectedXml = winrt::hstring{ detailText.RawXml };
+        }
+        if (!detailText.EventData.empty()) m_selectedEventData = winrt::hstring{ detailText.EventData };
+        if (!detailText.UserData.empty()) m_selectedUserData = winrt::hstring{ detailText.UserData };
+        m_selectedProviderMetadata = detailText.ProviderMetadata.empty()
+            ? empty
+            : winrt::hstring{ detailText.ProviderMetadata };
+        if (!detailText.BinaryData.empty()) m_selectedBinaryData = winrt::hstring{ detailText.BinaryData };
+        if (!detailText.RelatedEvents.empty()) m_selectedRelatedEvents = winrt::hstring{ detailText.RelatedEvents };
+
+        if (querySucceeded)
+        {
+            m_detailsStatusText = details.FormattingErrorCode == 0
+                ? m_strings->GetString(L"EventLogs.DetailsLoaded.Text")
+                : FormatResource(
+                    m_strings->GetString(L"EventLogs.MessageFormattingError.Text"),
+                    { winrt::to_hstring(details.FormattingErrorCode) });
+        }
+        else
+        {
+            m_detailsStatusText = m_strings->GetString(L"EventLogs.MessageFormattingFailed.Text");
+        }
+
+        RaiseSelectionProperties();
+    }
+
+    void LiveViewModel::ClearSelection()
+    {
+        m_selectedEvent = nullptr;
+        auto const empty = m_strings ? m_strings->GetString(L"EventLogs.EmptyValue.Text") : winrt::hstring{};
+        auto const selectEvent = m_strings ? m_strings->GetString(L"EventLogs.SelectEvent.Text") : winrt::hstring{};
+        m_selectedProvider = empty;
+        m_selectedEventId = empty;
+        m_selectedVersion = empty;
+        m_selectedLevel = empty;
+        m_selectedOpcode = empty;
+        m_selectedKeywords = empty;
+        m_selectedTimeCreated = empty;
+        m_selectedTaskCategory = empty;
+        m_selectedChannel = empty;
+        m_selectedUser = empty;
+        m_selectedComputer = empty;
+        m_selectedRecordId = empty;
+        m_selectedProcessId = empty;
+        m_selectedThreadId = empty;
+        m_selectedActivityId = empty;
+        m_selectedRelatedActivityId = empty;
+        m_selectedDescription = selectEvent;
+        m_selectedMessage = selectEvent;
+        m_selectedXml = selectEvent;
+        m_selectedEventData = selectEvent;
+        m_selectedUserData = selectEvent;
+        m_selectedProviderMetadata = selectEvent;
+        m_selectedBinaryData = selectEvent;
+        m_selectedRelatedEvents = selectEvent;
+        m_detailsStatusText = selectEvent;
+        m_isDetailsLoading = false;
+    }
+
     Microsoft::UI::Xaml::Controls::InfoBarSeverity LiveViewModel::StatusSeverity() const noexcept { return m_statusSeverity; }
     bool LiveViewModel::HasStatusMessage() const noexcept { return m_hasStatusMessage; }
     void LiveViewModel::ToggleRecording()
@@ -635,36 +830,13 @@ namespace winrt::AstralChronicle::implementation
             auto const weakThis = get_weak();
             auto const dispatcher = m_dispatcher;
             auto const strings = m_strings;
-            if (!dispatcher || !strings) co_return;
+            auto const eventData = m_liveEventData;
+            if (!dispatcher || !strings || !eventData) co_return;
             co_await winrt::resume_background();
-            std::uint32_t errorCode{};
-            winrt::hstring path;
-            try
-            {
-                auto const folder = winrt::Windows::Storage::ApplicationData::Current().LocalFolder();
-                auto const file = co_await folder.CreateFileAsync(
-                    L"Live-recording.txt",
-                    winrt::Windows::Storage::CreationCollisionOption::GenerateUniqueName);
-                std::wstring content;
-                for (auto& event : events)
-                {
-                    content += RedactLiveEventForExport(
-                        std::move(event),
-                        redactComputerName,
-                        redactUserNames);
-                    content += L"\r\n";
-                }
-                co_await winrt::Windows::Storage::FileIO::WriteTextAsync(file, content);
-                path = file.Path();
-            }
-            catch (winrt::hresult_error const& error)
-            {
-                errorCode = static_cast<std::uint32_t>(error.code().value);
-            }
-            catch (...)
-            {
-                errorCode = static_cast<std::uint32_t>(E_FAIL);
-            }
+            auto const exportResult = eventData->ExportRecordedEvents(
+                std::move(events),
+                redactComputerName,
+                redactUserNames);
 
             co_await wil::resume_foreground(dispatcher);
             auto const strongThis = weakThis.get();
@@ -672,18 +844,22 @@ namespace winrt::AstralChronicle::implementation
             {
                 co_return;
             }
-            if (errorCode == 0)
+            if (exportResult.ErrorCode == 0)
             {
                 strongThis->SetStatus(
                     strings->GetString(L"Live.ExportCompleted.Text"),
-                    FormatResource(strings->GetString(L"Live.ExportCompletedDetails.Text"), { path }),
+                    FormatResource(
+                        strings->GetString(L"Live.ExportCompletedDetails.Text"),
+                        { winrt::hstring{ exportResult.Path } }),
                     Microsoft::UI::Xaml::Controls::InfoBarSeverity::Success);
             }
             else
             {
                 strongThis->SetStatus(
                     strings->GetString(L"Live.ExportFailed.Text"),
-                    FormatResource(strings->GetString(L"Live.ErrorDetails.Text"), { winrt::to_hstring(errorCode) }),
+                    FormatResource(
+                        strings->GetString(L"Live.ErrorDetails.Text"),
+                        { winrt::to_hstring(exportResult.ErrorCode) }),
                     Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error);
             }
         }
@@ -696,27 +872,24 @@ namespace winrt::AstralChronicle::implementation
     void LiveViewModel::Shutdown() noexcept
     {
         ++m_lifetimeVersion;
-        try
+        if (m_detailsCancellation)
         {
-            if (m_timer)
-            {
-                m_timer.Stop();
-                if (m_timerTickSubscribed)
-                {
-                    m_timer.Tick(m_timerTickToken);
-                }
-            }
+            m_detailsCancellation->store(true, std::memory_order_relaxed);
         }
-        catch (...)
+        ++m_detailsRequestVersion;
+        if (m_liveUpdateDispatch)
         {
+            m_liveUpdateDispatch->Active.store(false, std::memory_order_release);
         }
-        m_timerTickSubscribed = false;
-        m_timer = nullptr;
         auto const liveService = std::move(m_liveService);
         if (liveService)
         {
+            liveService->SetBatchAvailableCallback({});
             liveService->Stop();
         }
+        m_liveUpdateDispatch.reset();
+        m_eventQuery.reset();
+        m_liveEventData.reset();
         m_isRunning = false;
         m_isPaused = false;
         m_strings.reset();
@@ -739,6 +912,35 @@ namespace winrt::AstralChronicle::implementation
     void LiveViewModel::RaiseStatusProperties()
     {
         RaisePropertyChanged(L"StatusText"); RaisePropertyChanged(L"StatusDetails"); RaisePropertyChanged(L"StatusSeverity"); RaisePropertyChanged(L"HasStatusMessage");
+    }
+    void LiveViewModel::RaiseSelectionProperties()
+    {
+        RaisePropertyChanged(L"SelectedProvider");
+        RaisePropertyChanged(L"SelectedEventId");
+        RaisePropertyChanged(L"SelectedVersion");
+        RaisePropertyChanged(L"SelectedLevel");
+        RaisePropertyChanged(L"SelectedOpcode");
+        RaisePropertyChanged(L"SelectedKeywords");
+        RaisePropertyChanged(L"SelectedTimeCreated");
+        RaisePropertyChanged(L"SelectedTaskCategory");
+        RaisePropertyChanged(L"SelectedChannel");
+        RaisePropertyChanged(L"SelectedUser");
+        RaisePropertyChanged(L"SelectedComputer");
+        RaisePropertyChanged(L"SelectedRecordId");
+        RaisePropertyChanged(L"SelectedProcessId");
+        RaisePropertyChanged(L"SelectedThreadId");
+        RaisePropertyChanged(L"SelectedActivityId");
+        RaisePropertyChanged(L"SelectedRelatedActivityId");
+        RaisePropertyChanged(L"SelectedDescription");
+        RaisePropertyChanged(L"SelectedMessage");
+        RaisePropertyChanged(L"SelectedXml");
+        RaisePropertyChanged(L"SelectedEventData");
+        RaisePropertyChanged(L"SelectedUserData");
+        RaisePropertyChanged(L"SelectedProviderMetadata");
+        RaisePropertyChanged(L"SelectedBinaryData");
+        RaisePropertyChanged(L"SelectedRelatedEvents");
+        RaisePropertyChanged(L"DetailsStatusText");
+        RaisePropertyChanged(L"IsDetailsLoading");
     }
     winrt::event_token LiveViewModel::PropertyChanged(Microsoft::UI::Xaml::Data::PropertyChangedEventHandler const& handler) { return m_propertyChanged.add(handler); }
     void LiveViewModel::PropertyChanged(winrt::event_token const& token) noexcept { m_propertyChanged.remove(token); }

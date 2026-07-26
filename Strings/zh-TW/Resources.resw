@@ -1513,7 +1513,7 @@
     <value>即時</value>
   </data>
   <data name="Live.Summary" xml:space="preserve">
-    <value>使用有界限的背景佇列訂閱新事件，並提供明確的暫停／繼續狀態。</value>
+    <value>透過有界限的背景佇列訂閱新事件</value>
   </data>
   <data name="Live.Ready.Text" xml:space="preserve">
     <value>即時擷取已就緒</value>
@@ -1525,19 +1525,19 @@
     <value>即時擷取已開始</value>
   </data>
   <data name="Live.StartedDetails.Text" xml:space="preserve">
-    <value>事件會透過 EvtSubscribe 收集到有界限的佇列。</value>
+    <value>Windows Event Log 會透過 callback 將 {0} 的新事件送入有界限的佇列。</value>
   </data>
   <data name="Live.Stopped.Text" xml:space="preserve">
     <value>即時擷取已停止</value>
   </data>
   <data name="Live.StoppedDetails.Text" xml:space="preserve">
-    <value>訂閱已結束；準備就緒後可以再次開始擷取。</value>
+    <value>訂閱已結束；準備就緒後可以設定擷取並再次開始。</value>
   </data>
   <data name="Live.StartFailed.Text" xml:space="preserve">
     <value>無法開始即時擷取</value>
   </data>
   <data name="Live.StreamFailed.Text" xml:space="preserve">
-    <value>即時訂閱因錯誤停止</value>
+    <value>即時回呼訂閱因錯誤停止</value>
   </data>
   <data name="Live.ErrorDetails.Text" xml:space="preserve">
     <value>請檢查頻道、XPath 查詢、服務狀態與存取權限。</value>

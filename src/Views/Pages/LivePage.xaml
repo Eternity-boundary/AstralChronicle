@@ -10,119 +10,267 @@
         x:Name="PageRoot"
         RowSpacing="{StaticResource AstralContentSpacing}"
         Style="{StaticResource AstralPageGridStyle}">
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup x:Name="LiveLayoutStates">
-                <VisualState x:Name="LiveNarrowLayout">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="LiveConfigurationColumn.Width" Value="*" />
-                        <Setter Target="LiveEventsColumn.Width" Value="0" />
-                        <Setter Target="LivePrimaryRow.Height" Value="2*" />
-                        <Setter Target="LiveSecondaryRow.Height" Value="3*" />
-                        <Setter Target="LiveContentGrid.RowSpacing" Value="{StaticResource AstralContentSpacing}" />
-                        <Setter Target="LiveConfigurationPane.(Grid.Column)" Value="0" />
-                        <Setter Target="LiveConfigurationPane.(Grid.Row)" Value="0" />
-                        <Setter Target="LiveEventsPane.(Grid.Column)" Value="0" />
-                        <Setter Target="LiveEventsPane.(Grid.Row)" Value="1" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="LiveWideLayout">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="900" />
-                    </VisualState.StateTriggers>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+
         <Grid ColumnSpacing="{StaticResource AstralContentSpacing}">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
             <StackPanel Spacing="{StaticResource AstralContentSpacing}">
                 <TextBlock x:Uid="LiveHeading" AutomationProperties.AutomationId="LiveHeading" Style="{StaticResource AstralPageTitleTextBlockStyle}" />
                 <TextBlock AutomationProperties.AutomationId="LiveSummary" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.Summary, Mode=OneWay}" TextWrapping="Wrap" />
             </StackPanel>
             <CommandBar Grid.Column="1" x:Name="LiveCommandBar" AutomationProperties.AutomationId="LiveCommandBar" DefaultLabelPosition="Right" VerticalAlignment="Center">
-                <AppBarButton x:Uid="LiveStartCommand" AutomationProperties.AutomationId="LiveStartCommand" Click="OnStartClicked" IsEnabled="{x:Bind ViewModel.CanStart, Mode=OneWay}"><AppBarButton.Icon><SymbolIcon Symbol="Play" /></AppBarButton.Icon></AppBarButton>
-                <AppBarButton x:Uid="LivePauseCommand" AutomationProperties.AutomationId="LivePauseCommand" Click="OnPauseClicked" IsEnabled="{x:Bind ViewModel.IsRunning, Mode=OneWay}"><AppBarButton.Icon><SymbolIcon Symbol="Pause" /></AppBarButton.Icon></AppBarButton>
-                <AppBarButton x:Uid="LiveResumeCommand" AutomationProperties.AutomationId="LiveResumeCommand" Click="OnResumeClicked" IsEnabled="{x:Bind ViewModel.IsPaused, Mode=OneWay}"><AppBarButton.Icon><SymbolIcon Symbol="Play" /></AppBarButton.Icon></AppBarButton>
-                <AppBarButton x:Uid="LiveStopCommand" AutomationProperties.AutomationId="LiveStopCommand" Click="OnStopClicked" IsEnabled="{x:Bind ViewModel.IsRunning, Mode=OneWay}"><AppBarButton.Icon><SymbolIcon Symbol="Stop" /></AppBarButton.Icon></AppBarButton>
-                <AppBarButton x:Uid="LiveClearCommand" AutomationProperties.AutomationId="LiveClearCommand" Click="OnClearClicked"><AppBarButton.Icon><SymbolIcon Symbol="Clear" /></AppBarButton.Icon></AppBarButton>
-                <AppBarButton x:Uid="LiveRecordCommand" AutomationProperties.AutomationId="LiveRecordCommand" Click="OnRecordClicked"><AppBarButton.Icon><SymbolIcon Symbol="Save" /></AppBarButton.Icon></AppBarButton>
-                <AppBarButton x:Uid="LiveExportCommand" AutomationProperties.AutomationId="LiveExportCommand" Click="OnExportClicked"><AppBarButton.Icon><SymbolIcon Symbol="Save" /></AppBarButton.Icon></AppBarButton>
-                <AppBarButton x:Uid="LiveBookmarkCommand" AutomationProperties.AutomationId="LiveBookmarkCommand" Click="OnBookmarkClicked"><AppBarButton.Icon><SymbolIcon Symbol="Favorite" /></AppBarButton.Icon></AppBarButton>
+                <AppBarButton x:Uid="LiveStartCommand" AutomationProperties.AutomationId="LiveStartCommand" Click="OnStartClicked" IsEnabled="{x:Bind ViewModel.CanStart, Mode=OneWay}">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Play" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Uid="LivePauseCommand" AutomationProperties.AutomationId="LivePauseCommand" Click="OnPauseClicked" IsEnabled="{x:Bind ViewModel.IsRunning, Mode=OneWay}">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Pause" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Uid="LiveResumeCommand" AutomationProperties.AutomationId="LiveResumeCommand" Click="OnResumeClicked" IsEnabled="{x:Bind ViewModel.IsPaused, Mode=OneWay}">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Play" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Uid="LiveStopCommand" AutomationProperties.AutomationId="LiveStopCommand" Click="OnStopClicked" IsEnabled="{x:Bind ViewModel.IsRunning, Mode=OneWay}">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Stop" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Uid="LiveClearCommand" AutomationProperties.AutomationId="LiveClearCommand" Click="OnClearClicked">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Clear" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Uid="LiveRecordCommand" AutomationProperties.AutomationId="LiveRecordCommand" Click="OnRecordClicked">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Save" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Uid="LiveExportCommand" AutomationProperties.AutomationId="LiveExportCommand" Click="OnExportClicked">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Save" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Uid="LiveBookmarkCommand" AutomationProperties.AutomationId="LiveBookmarkCommand" Click="OnBookmarkClicked">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Favorite" /></AppBarButton.Icon>
+                </AppBarButton>
             </CommandBar>
         </Grid>
+
         <InfoBar x:Uid="LiveStatusInfoBar" Grid.Row="1" AutomationProperties.AutomationId="LiveStatusInfoBar" IsClosable="False" IsOpen="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay}" Message="{x:Bind ViewModel.StatusDetails, Mode=OneWay}" Severity="{x:Bind ViewModel.StatusSeverity, Mode=OneWay}" Title="{x:Bind ViewModel.StatusText, Mode=OneWay}" />
+
         <Grid
             x:Name="LiveContentGrid"
             Grid.Row="2"
             ColumnSpacing="{StaticResource AstralContentSpacing}"
-            RowSpacing="0">
+            RowSpacing="{StaticResource AstralContentSpacing}"
+            SizeChanged="OnContentGridSizeChanged">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="LiveConfigurationColumn" Width="300" />
+                <ColumnDefinition x:Name="LiveConfigurationColumn" Width="280" />
                 <ColumnDefinition x:Name="LiveEventsColumn" Width="*" />
+                <ColumnDefinition x:Name="LiveDetailsColumn" Width="380" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition x:Name="LiveConfigurationRow" Height="0" />
                 <RowDefinition x:Name="LivePrimaryRow" Height="*" />
                 <RowDefinition x:Name="LiveSecondaryRow" Height="0" />
             </Grid.RowDefinitions>
+
             <Border
                 x:Name="LiveConfigurationPane"
-                Grid.Row="0"
+                Grid.Row="1"
                 Grid.Column="0"
+                AutomationProperties.AutomationId="LiveConfigurationPane"
                 Style="{StaticResource AstralCardBorderStyle}">
                 <ScrollViewer
                     AutomationProperties.AutomationId="LiveConfigurationScrollViewer"
                     HorizontalScrollBarVisibility="Disabled"
                     VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="{StaticResource AstralContentSpacing}">
-                    <TextBlock x:Uid="LiveConfigurationTitle" AutomationProperties.AutomationId="LiveConfigurationTitle" Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
-                    <ComboBox x:Uid="LiveChannelBox" AutomationProperties.AutomationId="LiveChannelBox" SelectedValue="{x:Bind ViewModel.Channel, Mode=OneWay}" SelectedValuePath="Tag" SelectionChanged="OnChannelChanged">
-                        <ComboBoxItem x:Uid="EventLogsSystemNavigationItem" Tag="System" />
-                        <ComboBoxItem x:Uid="EventLogsApplicationNavigationItem" Tag="Application" />
-                        <ComboBoxItem x:Uid="EventLogsSecurityNavigationItem" Tag="Security" />
-                        <ComboBoxItem x:Uid="EventLogsSetupNavigationItem" Tag="Setup" />
-                        <ComboBoxItem x:Uid="EventLogsForwardedEventsNavigationItem" Tag="ForwardedEvents" />
-                    </ComboBox>
-                    <TextBox x:Uid="LiveQueryBox" AutomationProperties.AutomationId="LiveQueryBox" AcceptsReturn="True" Text="{x:Bind ViewModel.Query, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
-                    <TextBox x:Uid="LiveQueueLimitBox" AutomationProperties.AutomationId="LiveQueueLimitBox" Text="{x:Bind ViewModel.QueueLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    <CheckBox x:Uid="LiveAutoScrollCheckBox" AutomationProperties.AutomationId="LiveAutoScrollCheckBox" IsChecked="{x:Bind ViewModel.AutoScroll, Mode=TwoWay}" />
-                    <CheckBox x:Uid="LiveGroupRepeatedCheckBox" AutomationProperties.AutomationId="LiveGroupRepeatedCheckBox" IsChecked="{x:Bind ViewModel.GroupRepeated, Mode=TwoWay}" />
-                    <CheckBox x:Uid="LiveCriticalFilterCheckBox" AutomationProperties.AutomationId="LiveCriticalFilterCheckBox" IsChecked="{x:Bind ViewModel.ShowCritical, Mode=TwoWay}" />
-                    <CheckBox x:Uid="LiveErrorFilterCheckBox" AutomationProperties.AutomationId="LiveErrorFilterCheckBox" IsChecked="{x:Bind ViewModel.ShowErrors, Mode=TwoWay}" />
-                    <CheckBox x:Uid="LiveWarningFilterCheckBox" AutomationProperties.AutomationId="LiveWarningFilterCheckBox" IsChecked="{x:Bind ViewModel.ShowWarnings, Mode=TwoWay}" />
-                    <CheckBox x:Uid="LiveInformationFilterCheckBox" AutomationProperties.AutomationId="LiveInformationFilterCheckBox" IsChecked="{x:Bind ViewModel.ShowInformation, Mode=TwoWay}" />
-                    <TextBlock x:Uid="LiveStateLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
-                    <TextBlock AutomationProperties.AutomationId="LiveState" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.StateText, Mode=OneWay}" TextWrapping="Wrap" />
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveEventRateLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveEventRate" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.EventsPerSecond, Mode=OneWay}" /></StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveTotalLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveTotal" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.TotalReceived, Mode=OneWay}" /></StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveCriticalLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveCritical" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.CriticalCount, Mode=OneWay}" /></StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveErrorLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveError" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.ErrorCount, Mode=OneWay}" /></StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveWarningLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveWarning" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.WarningCount, Mode=OneWay}" /></StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveQueueDepthLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveQueueDepth" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.QueueDepth, Mode=OneWay}" /></StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveDurationLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveDuration" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.Duration, Mode=OneWay}" /></StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveDroppedLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveDropped" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.DroppedCount, Mode=OneWay}" /></StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveBookmarkLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveBookmarkCount" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.BookmarkCount, Mode=OneWay}" /></StackPanel>
+                        <TextBlock x:Uid="LiveConfigurationTitle" AutomationProperties.AutomationId="LiveConfigurationTitle" Style="{StaticResource AstralSectionHeaderTextBlockStyle}" />
+                        <ComboBox x:Uid="LiveChannelBox" AutomationProperties.AutomationId="LiveChannelBox" SelectedIndex="{x:Bind ViewModel.ChannelIndex, Mode=TwoWay}">
+                            <ComboBoxItem x:Uid="EventLogsSystemNavigationItem" Tag="System" />
+                            <ComboBoxItem x:Uid="EventLogsApplicationNavigationItem" Tag="Application" />
+                            <ComboBoxItem x:Uid="EventLogsSecurityNavigationItem" Tag="Security" />
+                            <ComboBoxItem x:Uid="EventLogsSetupNavigationItem" Tag="Setup" />
+                            <ComboBoxItem x:Uid="EventLogsForwardedEventsNavigationItem" Tag="ForwardedEvents" />
+                        </ComboBox>
+                        <TextBox x:Uid="LiveQueryBox" AutomationProperties.AutomationId="LiveQueryBox" AcceptsReturn="True" Text="{x:Bind ViewModel.Query, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
+                        <TextBox x:Uid="LiveQueueLimitBox" AutomationProperties.AutomationId="LiveQueueLimitBox" Text="{x:Bind ViewModel.QueueLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <CheckBox x:Uid="LiveAutoScrollCheckBox" AutomationProperties.AutomationId="LiveAutoScrollCheckBox" IsChecked="{x:Bind ViewModel.AutoScroll, Mode=TwoWay}" />
+                        <CheckBox x:Uid="LiveGroupRepeatedCheckBox" AutomationProperties.AutomationId="LiveGroupRepeatedCheckBox" IsChecked="{x:Bind ViewModel.GroupRepeated, Mode=TwoWay}" />
+                        <CheckBox x:Uid="LiveCriticalFilterCheckBox" AutomationProperties.AutomationId="LiveCriticalFilterCheckBox" IsChecked="{x:Bind ViewModel.ShowCritical, Mode=TwoWay}" />
+                        <CheckBox x:Uid="LiveErrorFilterCheckBox" AutomationProperties.AutomationId="LiveErrorFilterCheckBox" IsChecked="{x:Bind ViewModel.ShowErrors, Mode=TwoWay}" />
+                        <CheckBox x:Uid="LiveWarningFilterCheckBox" AutomationProperties.AutomationId="LiveWarningFilterCheckBox" IsChecked="{x:Bind ViewModel.ShowWarnings, Mode=TwoWay}" />
+                        <CheckBox x:Uid="LiveInformationFilterCheckBox" AutomationProperties.AutomationId="LiveInformationFilterCheckBox" IsChecked="{x:Bind ViewModel.ShowInformation, Mode=TwoWay}" />
+                        <TextBlock x:Uid="LiveStateLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                        <TextBlock AutomationProperties.AutomationId="LiveState" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.StateText, Mode=OneWay}" TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveEventRateLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveEventRate" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.EventsPerSecond, Mode=OneWay}" /></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveTotalLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveTotal" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.TotalReceived, Mode=OneWay}" /></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveCriticalLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveCritical" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.CriticalCount, Mode=OneWay}" /></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveErrorLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveError" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.ErrorCount, Mode=OneWay}" /></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveWarningLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveWarning" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.WarningCount, Mode=OneWay}" /></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveQueueDepthLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveQueueDepth" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.QueueDepth, Mode=OneWay}" /></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveDurationLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveDuration" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.Duration, Mode=OneWay}" /></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveDroppedLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveDropped" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.DroppedCount, Mode=OneWay}" /></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource AstralContentSpacing}"><TextBlock x:Uid="LiveBookmarkLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" /><TextBlock AutomationProperties.AutomationId="LiveBookmarkCount" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.BookmarkCount, Mode=OneWay}" /></StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
-            <Border
+
+            <Grid
                 x:Name="LiveEventsPane"
-                Grid.Row="0"
+                Grid.Row="1"
                 Grid.Column="1"
-                Style="{StaticResource AstralCardBorderStyle}">
-                <ListView AutomationProperties.AutomationId="LiveEventList" ItemsSource="{x:Bind ViewModel.Events, Mode=OneWay}" SelectionMode="None">
+                RowSpacing="{StaticResource AstralContentSpacing}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ScrollViewer
+                    Grid.Row="0"
+                    HorizontalContentAlignment="Stretch"
+                    HorizontalScrollBarVisibility="Hidden"
+                    HorizontalScrollMode="Enabled"
+                    IsTabStop="False"
+                    VerticalScrollBarVisibility="Hidden"
+                    VerticalScrollMode="Disabled">
+                    <Grid ColumnSpacing="{StaticResource AstralContentSpacing}" MinHeight="32" MinWidth="1040">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="96" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="84" />
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Uid="EventLogsLevelHeader" Grid.Column="0" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                        <TextBlock x:Uid="EventLogsTimeHeader" Grid.Column="1" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                        <TextBlock x:Uid="EventLogsProviderHeader" Grid.Column="2" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                        <TextBlock x:Uid="EventLogsIdHeader" Grid.Column="3" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                        <TextBlock x:Uid="EventLogsChannelHeader" Grid.Column="4" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                        <TextBlock x:Uid="EventLogsComputerHeader" Grid.Column="5" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                        <TextBlock x:Uid="EventLogsDescriptionHeader" Grid.Column="6" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                    </Grid>
+                </ScrollViewer>
+                <ListView
+                    x:Name="LiveEventList"
+                    Grid.Row="1"
+                    AutomationProperties.AutomationId="LiveEventList"
+                    ItemsSource="{x:Bind ViewModel.Events, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.SelectedEvent, Mode=OneWay}"
+                    SelectionChanged="OnSelectionChanged"
+                    SelectionMode="Single"
+                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                    ShowsScrollingPlaceholders="True">
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="x:String">
-                            <TextBlock Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind Mode=OneTime}" TextWrapping="Wrap" />
+                        <DataTemplate x:DataType="local:EventLogItemViewModel">
+                            <Grid
+                                AutomationProperties.Name="{x:Bind ShortDescription, Mode=OneWay}"
+                                ColumnSpacing="{StaticResource AstralContentSpacing}"
+                                MinHeight="40"
+                                MinWidth="1040">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="96" />
+                                    <ColumnDefinition Width="150" />
+                                    <ColumnDefinition Width="160" />
+                                    <ColumnDefinition Width="84" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="150" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind Level, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Grid.Column="1" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind TimeCreated, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Grid.Column="2" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind Provider, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Grid.Column="3" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind EventId, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Grid.Column="4" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind Channel, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Grid.Column="5" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind Computer, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Grid.Column="6" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ShortDescription, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
+                            </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
+            </Grid>
+
+            <Border
+                x:Name="LiveDetailsPane"
+                Grid.Row="1"
+                Grid.Column="2"
+                AutomationProperties.AutomationId="LiveDetailsPane"
+                Style="{StaticResource AstralCardBorderStyle}">
+                <TabView
+                    CanReorderTabs="False"
+                    IsAddTabButtonVisible="False"
+                    TabWidthMode="Equal"
+                    VerticalAlignment="Stretch">
+                    <TabViewItem x:Uid="EventLogsDetailsTab" IsClosable="False">
+                        <Grid RowSpacing="{StaticResource AstralContentSpacing}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock x:Uid="EventLogsSelectedEventTitle" Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
+                            <TextBlock Grid.Row="1" AutomationProperties.AutomationId="LiveDetailsStatus" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.DetailsStatusText, Mode=OneWay}" TextWrapping="Wrap" />
+                            <ScrollViewer Grid.Row="2">
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedMessage" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedMessage, Mode=OneWay}" TextWrapping="Wrap" />
+                            </ScrollViewer>
+                        </Grid>
+                    </TabViewItem>
+                    <TabViewItem x:Uid="EventLogsSummaryTab" IsClosable="False">
+                        <ScrollViewer>
+                            <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                                <TextBlock x:Uid="EventLogsProviderLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedProvider" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedProvider, Mode=OneWay}" TextWrapping="Wrap" />
+                                <TextBlock x:Uid="EventLogsEventIdLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedEventId" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedEventId, Mode=OneWay}" />
+                                <TextBlock x:Uid="EventLogsVersionLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedVersion" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedVersion, Mode=OneWay}" />
+                                <TextBlock x:Uid="EventLogsLevelLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedLevel" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedLevel, Mode=OneWay}" />
+                                <TextBlock x:Uid="EventLogsOpcodeLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedOpcode" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedOpcode, Mode=OneWay}" />
+                                <TextBlock x:Uid="EventLogsKeywordsLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedKeywords" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedKeywords, Mode=OneWay}" TextWrapping="Wrap" />
+                                <TextBlock x:Uid="EventLogsTimeLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedTime" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedTimeCreated, Mode=OneWay}" />
+                                <TextBlock x:Uid="EventLogsTaskCategoryLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedTask" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedTaskCategory, Mode=OneWay}" TextWrapping="Wrap" />
+                                <TextBlock x:Uid="EventLogsChannelDetailLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedChannel" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedChannel, Mode=OneWay}" TextWrapping="Wrap" />
+                                <TextBlock x:Uid="EventLogsUserLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedUser" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedUser, Mode=OneWay}" TextWrapping="Wrap" />
+                                <TextBlock x:Uid="EventLogsComputerLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedComputer" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedComputer, Mode=OneWay}" TextWrapping="Wrap" />
+                                <TextBlock x:Uid="EventLogsRecordIdLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedRecordId" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedRecordId, Mode=OneWay}" />
+                                <TextBlock x:Uid="EventLogsProcessIdLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedProcessId" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedProcessId, Mode=OneWay}" />
+                                <TextBlock x:Uid="EventLogsThreadIdLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedThreadId" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedThreadId, Mode=OneWay}" />
+                                <TextBlock x:Uid="EventLogsActivityIdLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedActivityId" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedActivityId, Mode=OneWay}" TextWrapping="Wrap" />
+                                <TextBlock x:Uid="EventLogsRelatedActivityIdLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedRelatedActivityId" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedRelatedActivityId, Mode=OneWay}" TextWrapping="Wrap" />
+                                <TextBlock x:Uid="EventLogsDescriptionLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedDescription" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedDescription, Mode=OneWay}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabViewItem>
+                    <TabViewItem x:Uid="EventLogsEventDataTab" IsClosable="False">
+                        <ScrollViewer>
+                            <StackPanel Spacing="{StaticResource AstralContentSpacing}">
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedEventData" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedEventData, Mode=OneWay}" TextWrapping="Wrap" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedUserData" Style="{StaticResource AstralBodyTextBlockStyle}" Text="{x:Bind ViewModel.SelectedUserData, Mode=OneWay}" TextWrapping="Wrap" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedProviderMetadata" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.SelectedProviderMetadata, Mode=OneWay}" TextWrapping="Wrap" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedBinaryData" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.SelectedBinaryData, Mode=OneWay}" TextWrapping="Wrap" />
+                                <TextBlock AutomationProperties.AutomationId="LiveSelectedRelatedEvents" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.SelectedRelatedEvents, Mode=OneWay}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabViewItem>
+                    <TabViewItem x:Uid="EventLogsXmlTab" IsClosable="False">
+                        <ScrollViewer>
+                            <TextBlock AutomationProperties.AutomationId="LiveSelectedXml" FontFamily="Consolas" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.SelectedXml, Mode=OneWay}" TextWrapping="Wrap" />
+                        </ScrollViewer>
+                    </TabViewItem>
+                </TabView>
             </Border>
         </Grid>
     </Grid>

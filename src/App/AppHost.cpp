@@ -8,6 +8,7 @@
 #include "Services/WindowsEventLogCatalogService.h"
 #include "Services/WindowsCustomViewCatalogService.h"
 #include "Services/WindowsEventLiveService.h"
+#include "Services/WindowsEventLiveDataService.h"
 #include "Services/WindowsEventProviderService.h"
 #include "Services/WindowsEventQueryService.h"
 #include "Services/WindowsRemoteEventService.h"
@@ -28,8 +29,10 @@ namespace AstralChronicle::app
             std::make_shared<services::WindowsEventLogCatalogService>());
         m_services.AddSingleton<services::ICustomViewCatalogService>(
             std::make_shared<services::WindowsCustomViewCatalogService>());
+        auto const liveEventData = std::make_shared<services::WindowsEventLiveDataService>();
+        m_services.AddSingleton<services::IEventLiveDataService>(liveEventData);
         m_services.AddSingleton<services::IEventLiveService>(
-            std::make_shared<services::WindowsEventLiveService>());
+            std::make_shared<services::WindowsEventLiveService>(liveEventData));
         m_services.AddSingleton<services::IEventProviderService>(
             std::make_shared<services::WindowsEventProviderService>());
         m_services.AddSingleton<services::IEventQueryService>(

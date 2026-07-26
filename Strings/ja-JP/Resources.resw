@@ -1513,7 +1513,7 @@
     <value>ライブ</value>
   </data>
   <data name="Live.Summary" xml:space="preserve">
-    <value>上限付きのバックグラウンド キューで今後のイベントをサブスクライブし、明示的に一時停止または再開します。</value>
+    <value>上限付きのバックグラウンド キューで今後のイベントをサブスクライブ。</value>
   </data>
   <data name="Live.Ready.Text" xml:space="preserve">
     <value>ライブ キャプチャの準備ができました</value>
@@ -1525,7 +1525,7 @@
     <value>ライブ キャプチャを開始しました</value>
   </data>
   <data name="Live.StartedDetails.Text" xml:space="preserve">
-    <value>イベントは EvtSubscribe を通じて上限付きキューに収集されます。</value>
+    <value>Windows Event Log はコールバック経由で {0} の新しいイベントを上限付きキューに配信します。</value>
   </data>
   <data name="Live.Stopped.Text" xml:space="preserve">
     <value>ライブ キャプチャを停止しました</value>
@@ -1537,7 +1537,7 @@
     <value>ライブ キャプチャを開始できませんでした</value>
   </data>
   <data name="Live.StreamFailed.Text" xml:space="preserve">
-    <value>ライブ サブスクリプションがエラーで停止しました</value>
+    <value>ライブ コールバック サブスクリプションがエラーで停止しました</value>
   </data>
   <data name="Live.ErrorDetails.Text" xml:space="preserve">
     <value>チャネル、XPath クエリ、サービスの状態、アクセス権を確認してください。</value>

@@ -1513,7 +1513,7 @@
     <value>实时</value>
   </data>
   <data name="Live.Summary" xml:space="preserve">
-    <value>通过有界后台队列订阅后续事件，并可明确暂停或恢复。</value>
+    <value>通过有界后台队列订阅后续事件</value>
   </data>
   <data name="Live.Ready.Text" xml:space="preserve">
     <value>实时采集已就绪</value>
@@ -1525,7 +1525,7 @@
     <value>实时采集已启动</value>
   </data>
   <data name="Live.StartedDetails.Text" xml:space="preserve">
-    <value>事件会通过 EvtSubscribe 收集到有界队列中。</value>
+    <value>Windows Event Log 会通过回调将 {0} 的新事件送入有界队列。</value>
   </data>
   <data name="Live.Stopped.Text" xml:space="preserve">
     <value>实时采集已停止</value>
@@ -1537,7 +1537,7 @@
     <value>无法启动实时采集</value>
   </data>
   <data name="Live.StreamFailed.Text" xml:space="preserve">
-    <value>实时订阅因错误而停止</value>
+    <value>实时回调订阅因错误而停止</value>
   </data>
   <data name="Live.ErrorDetails.Text" xml:space="preserve">
     <value>请检查通道、XPath 查询、服务状态和访问权限。</value>
