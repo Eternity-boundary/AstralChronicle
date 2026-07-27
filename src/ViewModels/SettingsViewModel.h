@@ -2,6 +2,9 @@
 #pragma once
 
 #include "SettingsViewModel.g.h"
+#include "Services/IApplicationPreferencesService.h"
+
+#include <memory>
 
 namespace winrt::AstralChronicle::implementation
 {
@@ -10,6 +13,7 @@ namespace winrt::AstralChronicle::implementation
         SettingsViewModel() = default;
 
         void Initialize(
+            std::shared_ptr<::AstralChronicle::services::IApplicationPreferencesService> preferences,
             std::int32_t selectedThemeIndex,
             winrt::hstring const& heading,
             winrt::hstring const& description,
@@ -58,9 +62,8 @@ namespace winrt::AstralChronicle::implementation
     private:
         void RaisePropertyChanged(winrt::hstring const& propertyName);
         void LoadPersistedSettings();
-        void SaveBoolSetting(winrt::hstring const& key, bool value) const;
-        void SaveTextSetting(winrt::hstring const& key, winrt::hstring const& value) const;
 
+        std::shared_ptr<::AstralChronicle::services::IApplicationPreferencesService> m_preferences;
         winrt::hstring m_heading;
         winrt::hstring m_description;
         winrt::hstring m_themeHint;

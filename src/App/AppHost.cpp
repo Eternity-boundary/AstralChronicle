@@ -5,6 +5,8 @@
 #include "Core/Navigation/NavigationService.h"
 #include "DesignSystem/Localization/StringResourceService.h"
 #include "DesignSystem/Theme/ThemeService.h"
+#include "Services/WindowsApplicationPreferencesService.h"
+#include "Services/WindowsEventBookmarkStore.h"
 #include "Services/WindowsEventLogCatalogService.h"
 #include "Services/WindowsCustomViewCatalogService.h"
 #include "Services/WindowsEventLiveService.h"
@@ -14,6 +16,7 @@
 #include "Services/WindowsRemoteEventService.h"
 #include "Services/WindowsSavedViewRepository.h"
 #include "Services/WindowsSessionRepository.h"
+#include "Services/WindowsTextExportService.h"
 
 #include <memory>
 
@@ -25,6 +28,10 @@ namespace AstralChronicle::app
             std::make_shared<design::StringResourceService>());
         m_services.AddSingleton<design::IThemeService>(
             std::make_shared<design::ThemeService>());
+        m_services.AddSingleton<services::IApplicationPreferencesService>(
+            std::make_shared<services::WindowsApplicationPreferencesService>());
+        m_services.AddSingleton<services::IEventBookmarkStore>(
+            std::make_shared<services::WindowsEventBookmarkStore>());
         m_services.AddSingleton<services::IEventLogCatalogService>(
             std::make_shared<services::WindowsEventLogCatalogService>());
         m_services.AddSingleton<services::ICustomViewCatalogService>(
@@ -43,6 +50,8 @@ namespace AstralChronicle::app
             std::make_shared<services::WindowsSavedViewRepository>());
         m_services.AddSingleton<services::ISessionRepository>(
             std::make_shared<services::WindowsSessionRepository>());
+        m_services.AddSingleton<services::ITextExportService>(
+            std::make_shared<services::WindowsTextExportService>());
         m_services.AddSingleton<navigation::INavigationService>(
             std::make_shared<navigation::NavigationService>());
     }

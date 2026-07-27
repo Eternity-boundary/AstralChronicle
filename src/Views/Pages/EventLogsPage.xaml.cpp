@@ -65,6 +65,8 @@ namespace winrt::AstralChronicle::implementation
 
     void EventLogsPage::Initialize(
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+        std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
+        std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel,
         std::optional<std::wstring> const& query)
@@ -104,6 +106,8 @@ namespace winrt::AstralChronicle::implementation
         m_narrowDetailsPaneVisible = settings.DetailsPaneOpen;
         winrt::get_self<EventLogsViewModel>(m_viewModel)->Initialize(
             std::move(eventQuery),
+            std::move(bookmarkStore),
+            std::move(textExporter),
             std::move(strings),
             PageRoot().DispatcherQueue(),
             channel,

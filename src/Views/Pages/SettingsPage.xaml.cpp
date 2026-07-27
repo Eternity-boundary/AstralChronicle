@@ -86,11 +86,12 @@ namespace winrt::AstralChronicle::implementation
 
     void SettingsPage::Initialize(
         std::shared_ptr<::AstralChronicle::design::IThemeService> theme,
-        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings)
+        std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
+        std::shared_ptr<::AstralChronicle::services::IApplicationPreferencesService> preferences)
     {
-        if (!theme || !strings)
+        if (!theme || !strings || !preferences)
         {
-            throw std::invalid_argument("Settings require theme and string services.");
+            throw std::invalid_argument("Settings require theme, string, and preferences services.");
         }
         if (m_theme && m_themeSubscriptionId != 0)
         {
@@ -100,6 +101,7 @@ namespace winrt::AstralChronicle::implementation
         m_theme = std::move(theme);
         m_isInitializing = true;
         winrt::get_self<SettingsViewModel>(m_viewModel)->Initialize(
+            std::move(preferences),
             static_cast<std::int32_t>(m_theme->CurrentMode()),
             strings->GetString(L"Settings.Heading"),
             strings->GetString(L"Settings.Description"),

@@ -285,6 +285,12 @@ namespace winrt::AstralChronicle::implementation
         m_customViewCatalog = host.Services().GetRequiredService<::AstralChronicle::services::ICustomViewCatalogService>();
         auto const eventQuery =
             host.Services().GetRequiredService<::AstralChronicle::services::IEventQueryService>();
+        auto const bookmarkStore =
+            host.Services().GetRequiredService<::AstralChronicle::services::IEventBookmarkStore>();
+        auto const textExporter =
+            host.Services().GetRequiredService<::AstralChronicle::services::ITextExportService>();
+        auto const preferences =
+            host.Services().GetRequiredService<::AstralChronicle::services::IApplicationPreferencesService>();
         auto const eventProviders =
             host.Services().GetRequiredService<::AstralChronicle::services::IEventProviderService>();
         auto const sessions =
@@ -351,18 +357,24 @@ namespace winrt::AstralChronicle::implementation
             } });
         m_navigation->Register({
             L"event-logs",
-            [eventQuery, strings = m_strings]()
+            [eventQuery, bookmarkStore, textExporter, strings = m_strings]()
             {
                 auto page = make<EventLogsPage>();
-                get_self<EventLogsPage>(page)->Initialize(eventQuery, strings);
+                get_self<EventLogsPage>(page)->Initialize(
+                    eventQuery,
+                    bookmarkStore,
+                    textExporter,
+                    strings);
                 return page.as<FrameworkElement>();
             },
-            [eventQuery, strings = m_strings](
+            [eventQuery, bookmarkStore, textExporter, strings = m_strings](
                 ::AstralChronicle::navigation::NavigationRequest const& request)
             {
                 auto page = make<EventLogsPage>();
                 get_self<EventLogsPage>(page)->Initialize(
                     eventQuery,
+                    bookmarkStore,
+                    textExporter,
                     strings,
                     request.Channel,
                     request.Query);
@@ -464,10 +476,10 @@ namespace winrt::AstralChronicle::implementation
             } });
         m_navigation->Register({
             L"settings",
-            [theme = m_theme, strings = m_strings]
+            [theme = m_theme, preferences, strings = m_strings]
             {
                 auto page = make<SettingsPage>();
-                get_self<SettingsPage>(page)->Initialize(theme, strings);
+                get_self<SettingsPage>(page)->Initialize(theme, strings, preferences);
                 return page.as<FrameworkElement>();
             } });
 

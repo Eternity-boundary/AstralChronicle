@@ -5,6 +5,8 @@
 #include "DesignSystem/Localization/IStringResourceService.h"
 #include "Core/Navigation/INavigationService.h"
 #include "DesignSystem/Theme/IThemeService.h"
+#include "Services/IApplicationPreferencesService.h"
+#include "Services/IEventBookmarkStore.h"
 #include "Services/IEventLogCatalogService.h"
 #include "Services/ICustomViewCatalogService.h"
 #include "Services/IEventLiveService.h"
@@ -13,6 +15,7 @@
 #include "Services/IRemoteEventService.h"
 #include "Services/ISavedViewRepository.h"
 #include "Services/ISessionRepository.h"
+#include "Services/ITextExportService.h"
 
 namespace AstralChronicle::app
 {
