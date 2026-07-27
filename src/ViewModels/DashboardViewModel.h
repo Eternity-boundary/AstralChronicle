@@ -3,12 +3,14 @@
 
 #include "DashboardViewModel.g.h"
 #include "EventLogItemViewModel.h"
+#include "Services/IEventLiveService.h"
 #include "Services/IEventQueryService.h"
 
 #include <winrt/Microsoft.UI.Dispatching.h>
 
 #include <memory>
 #include <string>
+#include <functional>
 
 namespace AstralChronicle::services
 {
@@ -28,8 +30,10 @@ namespace winrt::AstralChronicle::implementation
 
         void Initialize(
             std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+            std::shared_ptr<::AstralChronicle::services::IEventLiveService> liveService,
             std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
-            Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher);
+            Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
+            std::function<void(bool)> basicFunctionsAvailabilityChanged);
         [[nodiscard]] static std::wstring QueryForTodayLevel(std::uint8_t level);
         [[nodiscard]] static std::wstring QueryForTodayCriticalEvents();
 
@@ -41,6 +45,9 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::hstring CriticalCount() const;
         [[nodiscard]] winrt::hstring TodayCount() const;
         [[nodiscard]] winrt::hstring MonitoringStatus() const;
+        [[nodiscard]] Microsoft::UI::Xaml::Visibility MonitoringRunningVisibility() const noexcept;
+        [[nodiscard]] Microsoft::UI::Xaml::Visibility MonitoringErrorVisibility() const noexcept;
+        [[nodiscard]] Microsoft::UI::Xaml::Visibility MonitoringAttentionVisibility() const noexcept;
         [[nodiscard]] winrt::hstring TimelineSummary() const;
         [[nodiscard]] winrt::hstring StatusText() const;
         [[nodiscard]] winrt::hstring StatusDetails() const;
@@ -60,6 +67,7 @@ namespace winrt::AstralChronicle::implementation
         void ApplyResults(
             ::AstralChronicle::services::EventLevelCountsResult const& counts,
             ::AstralChronicle::services::EventQueryResult const& criticalEvents);
+        void UpdateMonitoringStatus();
         void RaiseDataProperties();
         void RaisePropertyChanged(winrt::hstring const& propertyName);
 
@@ -75,13 +83,21 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_statusText;
         winrt::hstring m_statusDetails;
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> m_eventQuery;
+        std::shared_ptr<::AstralChronicle::services::IEventLiveService> m_liveService;
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> m_strings;
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         ::AstralChronicle::services::QueryCancellation m_cancellation;
         ::AstralChronicle::viewmodels::EventItemSettings m_eventItemSettings;
+        std::function<void(bool)> m_basicFunctionsAvailabilityChanged;
         std::uint64_t m_requestVersion{};
         bool m_hasStatusMessage{};
         bool m_isLoading{};
+        Microsoft::UI::Xaml::Visibility m_monitoringRunningVisibility{
+            Microsoft::UI::Xaml::Visibility::Collapsed };
+        Microsoft::UI::Xaml::Visibility m_monitoringErrorVisibility{
+            Microsoft::UI::Xaml::Visibility::Collapsed };
+        Microsoft::UI::Xaml::Visibility m_monitoringAttentionVisibility{
+            Microsoft::UI::Xaml::Visibility::Visible };
         Microsoft::UI::Xaml::Controls::InfoBarSeverity m_statusSeverity{
             Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational };
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> m_recentCriticalEvents{ nullptr };

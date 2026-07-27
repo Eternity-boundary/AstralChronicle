@@ -238,14 +238,22 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Ellipse
+                            <Grid
                                 Width="10"
                                 Height="10"
                                 VerticalAlignment="Center"
-                                Fill="{ThemeResource SystemFillColorCautionBrush}"
-                                IsHitTestVisible="False" />
+                                IsHitTestVisible="False">
+                                <Ellipse
+                                    Fill="{ThemeResource SystemFillColorSuccessBrush}"
+                                    Visibility="{x:Bind ViewModel.MonitoringRunningVisibility, Mode=OneWay}" />
+                                <Ellipse
+                                    Fill="{ThemeResource SystemFillColorCriticalBrush}"
+                                    Visibility="{x:Bind ViewModel.MonitoringErrorVisibility, Mode=OneWay}" />
+                                <Ellipse
+                                    Fill="{ThemeResource SystemFillColorCautionBrush}"
+                                    Visibility="{x:Bind ViewModel.MonitoringAttentionVisibility, Mode=OneWay}" />
+                            </Grid>
                             <TextBlock
-                                x:Uid="DashboardServiceStatusMonitoringNotConfigured"
                                 Grid.Column="1"
                                 AutomationProperties.AutomationId="DashboardServiceStatusText"
                                 Style="{StaticResource AstralCaptionTextBlockStyle}"

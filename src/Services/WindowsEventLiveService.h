@@ -30,6 +30,7 @@ namespace AstralChronicle::services
         void Resume() noexcept override;
         void Stop() noexcept override;
         void Clear() noexcept override;
+        [[nodiscard]] EventLiveStatus Status() const noexcept override;
         [[nodiscard]] EventLiveBatch TakeBatch(std::uint32_t maximumEvents) override;
 
     private:

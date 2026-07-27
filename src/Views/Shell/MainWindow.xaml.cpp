@@ -226,6 +226,11 @@ namespace winrt::AstralChronicle::implementation
         {
         }
 
+        // Keep local monitoring alive until the user explicitly stops it, but
+        // release the cached page during app shutdown so its ViewModel can
+        // stop the subscription while app services still exist.
+        m_livePage = nullptr;
+
         try
         {
             if (m_theme && m_themeSubscriptionId != 0)
@@ -281,6 +286,7 @@ namespace winrt::AstralChronicle::implementation
         SetTitleBar(AppTitleBar());
         m_strings = host.Services().GetRequiredService<::AstralChronicle::design::IStringResourceService>();
         Title(m_strings->GetString(L"MainWindow.Title"));
+        UpdateShellSystemStatus(true);
         m_eventLogCatalog = host.Services().GetRequiredService<::AstralChronicle::services::IEventLogCatalogService>();
         m_customViewCatalog = host.Services().GetRequiredService<::AstralChronicle::services::ICustomViewCatalogService>();
         auto const eventQuery =
@@ -333,7 +339,7 @@ namespace winrt::AstralChronicle::implementation
         m_navigation->Attach(ContentFrame());
         m_navigation->Register({
             L"dashboard",
-            [weak, eventQuery, strings = m_strings]()
+            [weak, eventQuery, eventLive, strings = m_strings]()
             {
                 auto const self = weak.get();
                 if (!self)
@@ -343,6 +349,7 @@ namespace winrt::AstralChronicle::implementation
                 auto page = make<DashboardPage>();
                 get_self<DashboardPage>(page)->Initialize(
                     eventQuery,
+                    eventLive,
                     strings,
                     self->RootLayout().DispatcherQueue(),
                     *self->m_navigation,
@@ -351,6 +358,13 @@ namespace winrt::AstralChronicle::implementation
                         if (auto const window = weak.get())
                         {
                             window->SelectNavigationItemForRoute(route);
+                        }
+                    },
+                    [weak](bool const basicFunctionsAvailable)
+                    {
+                        if (auto const window = weak.get())
+                        {
+                            window->UpdateShellSystemStatus(basicFunctionsAvailable);
                         }
                     });
                 return page.as<FrameworkElement>();
@@ -460,11 +474,21 @@ namespace winrt::AstralChronicle::implementation
             } });
         m_navigation->Register({
             L"live",
-            [eventLive, eventLiveData, eventQuery, strings = m_strings]()
+            [weak, eventLive, eventLiveData, eventQuery, strings = m_strings]()
             {
+                auto const self = weak.get();
+                if (!self)
+                {
+                    return FrameworkElement{ nullptr };
+                }
+                if (self->m_livePage)
+                {
+                    return self->m_livePage;
+                }
                 auto page = make<LivePage>();
                 get_self<LivePage>(page)->Initialize(eventLive, eventLiveData, eventQuery, strings);
-                return page.as<FrameworkElement>();
+                self->m_livePage = page.as<FrameworkElement>();
+                return self->m_livePage;
             } });
         m_navigation->Register({
             L"remote",
@@ -486,6 +510,23 @@ namespace winrt::AstralChronicle::implementation
         RootNavigationView().SelectedItem(RootNavigationView().MenuItems().GetAt(0));
         RootNavigationView().IsPaneOpen(true);
         UpdateThemeBackdropLayout();
+    }
+
+    void MainWindow::UpdateShellSystemStatus(bool const basicFunctionsAvailable)
+    {
+        if (!m_strings)
+        {
+            return;
+        }
+
+        ShellSystemStatusSuccessIndicator().Visibility(
+            basicFunctionsAvailable ? Visibility::Visible : Visibility::Collapsed);
+        ShellSystemStatusErrorIndicator().Visibility(
+            basicFunctionsAvailable ? Visibility::Collapsed : Visibility::Visible);
+        ShellSystemStatusText().Text(m_strings->GetString(
+            basicFunctionsAvailable
+                ? L"ShellSystemStatusOperational.Text"
+                : L"ShellSystemStatusUnavailable.Text"));
     }
 
     void MainWindow::ApplyThemeBackdrop()

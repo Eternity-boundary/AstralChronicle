@@ -131,9 +131,4 @@ namespace winrt::AstralChronicle::implementation
         Microsoft::UI::Xaml::Controls::Grid::SetColumn(LiveDetailsPane(), 0);
         Microsoft::UI::Xaml::Controls::Grid::SetColumnSpan(LiveDetailsPane(), 3);
     }
-
-    void LivePage::OnUnloaded(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&)
-    {
-        winrt::get_self<LiveViewModel>(m_viewModel)->Shutdown();
-    }
 }

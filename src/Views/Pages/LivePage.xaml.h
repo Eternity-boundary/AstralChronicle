@@ -34,7 +34,6 @@ namespace winrt::AstralChronicle::implementation
         void OnContentGridSizeChanged(
             winrt::Windows::Foundation::IInspectable const&,
             Microsoft::UI::Xaml::SizeChangedEventArgs const&);
-        void OnUnloaded(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
     private:
         void UpdateResponsiveLayout(double width);
         winrt::AstralChronicle::LiveViewModel m_viewModel{ nullptr };

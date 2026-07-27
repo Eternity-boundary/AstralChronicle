@@ -194,6 +194,25 @@ namespace AstralChronicle::services
         }
     }
 
+    EventLiveStatus WindowsEventLiveService::Status() const noexcept
+    {
+        std::scoped_lock lock{ m_mutex };
+        EventLiveStatus status;
+        status.State = m_state;
+        status.ErrorCode = m_errorCode;
+        status.DroppedCount = m_droppedSinceLastBatch;
+        status.QueueDepth = static_cast<std::uint32_t>(m_events.size());
+        status.TotalReceived = m_totalReceived;
+        status.CriticalCount = m_criticalCount;
+        status.ErrorCount = m_errorCount;
+        status.WarningCount = m_warningCount;
+        status.Duration = m_startedAt.time_since_epoch().count() == 0
+            ? std::chrono::milliseconds{}
+            : std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now() - m_startedAt);
+        return status;
+    }
+
     EventLiveBatch WindowsEventLiveService::TakeBatch(std::uint32_t const maximumEvents)
     {
         EventLiveBatch result;

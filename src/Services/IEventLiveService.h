@@ -56,6 +56,19 @@ namespace AstralChronicle::services
         std::vector<models::LiveEventRecord> Events;
     };
 
+    struct EventLiveStatus final
+    {
+        LiveState State{ LiveState::Stopped };
+        std::uint32_t ErrorCode{};
+        std::uint32_t DroppedCount{};
+        std::uint32_t QueueDepth{};
+        std::uint64_t TotalReceived{};
+        std::uint32_t CriticalCount{};
+        std::uint32_t ErrorCount{};
+        std::uint32_t WarningCount{};
+        std::chrono::milliseconds Duration{};
+    };
+
     struct IEventLiveService
     {
         virtual ~IEventLiveService() = default;
@@ -66,6 +79,7 @@ namespace AstralChronicle::services
         virtual void Resume() noexcept = 0;
         virtual void Stop() noexcept = 0;
         virtual void Clear() noexcept = 0;
+        [[nodiscard]] virtual EventLiveStatus Status() const noexcept = 0;
         [[nodiscard]] virtual EventLiveBatch TakeBatch(std::uint32_t maximumEvents) = 0;
     };
 }

@@ -12,6 +12,7 @@
 namespace AstralChronicle::services
 {
     struct IEventQueryService;
+    struct IEventLiveService;
 }
 
 namespace AstralChronicle::design
@@ -28,10 +29,12 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::AstralChronicle::DashboardViewModel ViewModel() const;
         void Initialize(
             std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+            std::shared_ptr<::AstralChronicle::services::IEventLiveService> liveService,
             std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
             ::AstralChronicle::navigation::INavigationService& navigation,
-            std::function<void(std::wstring_view)> navigationSelectionChanged);
+            std::function<void(std::wstring_view)> navigationSelectionChanged,
+            std::function<void(bool)> basicFunctionsAvailabilityChanged);
         void OnNavigationCardTapped(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::Input::TappedRoutedEventArgs const& args);

@@ -156,8 +156,11 @@
   <data name="ShellSystemStatusLabel.Text" xml:space="preserve">
     <value>System status:</value>
   </data>
-  <data name="ShellSystemStatusMonitoringNotConfigured.Text" xml:space="preserve">
-    <value>Monitoring not configured</value>
+  <data name="ShellSystemStatusOperational.Text" xml:space="preserve">
+    <value>Core features available</value>
+  </data>
+  <data name="ShellSystemStatusUnavailable.Text" xml:space="preserve">
+    <value>Core features unavailable</value>
   </data>
   <data name="ShellSearchBox.PlaceholderText" xml:space="preserve">
     <value>Search</value>
@@ -293,6 +296,21 @@
   </data>
   <data name="Dashboard.Monitoring.NotConfigured.Text" xml:space="preserve">
     <value>Not configured</value>
+  </data>
+  <data name="Dashboard.Monitoring.Running.Text" xml:space="preserve">
+    <value>Live monitoring is running.</value>
+  </data>
+  <data name="Dashboard.Monitoring.Paused.Text" xml:space="preserve">
+    <value>Live monitoring is paused.</value>
+  </data>
+  <data name="Dashboard.Monitoring.Stopped.Text" xml:space="preserve">
+    <value>Live monitoring is stopped.</value>
+  </data>
+  <data name="Dashboard.Monitoring.Error.Text" xml:space="preserve">
+    <value>Live monitoring encountered an error.</value>
+  </data>
+  <data name="Dashboard.Monitoring.EventsLost.Text" xml:space="preserve">
+    <value>Live monitoring is running, but some events were lost.</value>
   </data>
   <data name="Dashboard.QueryUnavailable.Text" xml:space="preserve">
     <value>Event statistics are unavailable.</value>

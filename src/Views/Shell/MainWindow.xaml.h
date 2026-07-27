@@ -10,6 +10,7 @@
 
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Microsoft.UI.Dispatching.h>
+#include <winrt/Microsoft.UI.Xaml.h>
 
 #include <atomic>
 #include <chrono>
@@ -79,6 +80,7 @@ namespace winrt::AstralChronicle::implementation
         void Shutdown() noexcept;
         void SelectNavigationItemForRoute(std::wstring_view route);
         void UpdateShellGreeting();
+        void UpdateShellSystemStatus(bool basicFunctionsAvailable);
         void ApplyThemeBackdrop();
         void UpdateThemeBackdropLayout();
         void SetThemeBackdropLayout(double paneWidth);
@@ -108,6 +110,7 @@ namespace winrt::AstralChronicle::implementation
         std::shared_ptr<::AstralChronicle::design::IThemeService> m_theme;
         std::shared_ptr<::AstralChronicle::services::IEventLogCatalogService> m_eventLogCatalog;
         std::shared_ptr<::AstralChronicle::services::ICustomViewCatalogService> m_customViewCatalog;
+        winrt::Microsoft::UI::Xaml::FrameworkElement m_livePage{ nullptr };
         winrt::Microsoft::UI::Dispatching::DispatcherQueueTimer m_greetingTimer{ nullptr };
         winrt::Microsoft::UI::Dispatching::DispatcherQueueTimer m_backdropAnimationTimer{ nullptr };
         winrt::event_token m_closedToken{};

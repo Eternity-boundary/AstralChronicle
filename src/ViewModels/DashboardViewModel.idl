@@ -14,6 +14,9 @@ namespace AstralChronicle
         String CriticalCount{ get; };
         String TodayCount{ get; };
         String MonitoringStatus{ get; };
+        Microsoft.UI.Xaml.Visibility MonitoringRunningVisibility{ get; };
+        Microsoft.UI.Xaml.Visibility MonitoringErrorVisibility{ get; };
+        Microsoft.UI.Xaml.Visibility MonitoringAttentionVisibility{ get; };
         String TimelineSummary{ get; };
         String StatusText{ get; };
         String StatusDetails{ get; };

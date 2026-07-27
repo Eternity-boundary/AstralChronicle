@@ -156,8 +156,11 @@
   <data name="ShellSystemStatusLabel.Text" xml:space="preserve">
     <value>系统状态：</value>
   </data>
-  <data name="ShellSystemStatusMonitoringNotConfigured.Text" xml:space="preserve">
-    <value>尚未配置监控</value>
+  <data name="ShellSystemStatusOperational.Text" xml:space="preserve">
+    <value>基础功能正常</value>
+  </data>
+  <data name="ShellSystemStatusUnavailable.Text" xml:space="preserve">
+    <value>基础功能无法使用</value>
   </data>
   <data name="ShellSearchBox.PlaceholderText" xml:space="preserve">
     <value>搜索</value>
@@ -293,6 +296,21 @@
   </data>
   <data name="Dashboard.Monitoring.NotConfigured.Text" xml:space="preserve">
     <value>尚未设置</value>
+  </data>
+  <data name="Dashboard.Monitoring.Running.Text" xml:space="preserve">
+    <value>实时监听正在运行。</value>
+  </data>
+  <data name="Dashboard.Monitoring.Paused.Text" xml:space="preserve">
+    <value>实时监听已暂停。</value>
+  </data>
+  <data name="Dashboard.Monitoring.Stopped.Text" xml:space="preserve">
+    <value>实时监听已停止。</value>
+  </data>
+  <data name="Dashboard.Monitoring.Error.Text" xml:space="preserve">
+    <value>实时监听发生错误。</value>
+  </data>
+  <data name="Dashboard.Monitoring.EventsLost.Text" xml:space="preserve">
+    <value>实时监听仍在运行，但部分事件已丢失。</value>
   </data>
   <data name="Dashboard.QueryUnavailable.Text" xml:space="preserve">
     <value>事件统计当前无法使用。</value>

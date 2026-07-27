@@ -30,10 +30,12 @@ namespace winrt::AstralChronicle::implementation
 
     void DashboardPage::Initialize(
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+        std::shared_ptr<::AstralChronicle::services::IEventLiveService> liveService,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
         ::AstralChronicle::navigation::INavigationService& navigation,
-        std::function<void(std::wstring_view)> navigationSelectionChanged)
+        std::function<void(std::wstring_view)> navigationSelectionChanged,
+        std::function<void(bool)> basicFunctionsAvailabilityChanged)
     {
         m_navigation = &navigation;
         m_navigationSelectionChanged = std::move(navigationSelectionChanged);
@@ -47,8 +49,10 @@ namespace winrt::AstralChronicle::implementation
         }
         winrt::get_self<DashboardViewModel>(m_viewModel)->Initialize(
             eventQuery,
+            liveService,
             strings,
-            dispatcherForViewModel);
+            dispatcherForViewModel,
+            std::move(basicFunctionsAvailabilityChanged));
     }
 
     void DashboardPage::OnNavigationCardTapped(

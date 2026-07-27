@@ -117,16 +117,20 @@ namespace winrt::AstralChronicle::implementation
 
     void DashboardViewModel::Initialize(
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+        std::shared_ptr<::AstralChronicle::services::IEventLiveService> liveService,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
-        Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher)
+        Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
+        std::function<void(bool)> basicFunctionsAvailabilityChanged)
     {
         m_eventQuery = std::move(eventQuery);
+        m_liveService = std::move(liveService);
         m_strings = std::move(strings);
-        if (!m_eventQuery || !m_strings)
+        if (!m_eventQuery || !m_liveService || !m_strings)
         {
-            throw std::invalid_argument("Dashboard requires query and string services.");
+            throw std::invalid_argument("Dashboard requires query, live, and string services.");
         }
         m_dispatcher = dispatcher;
+        m_basicFunctionsAvailabilityChanged = std::move(basicFunctionsAvailabilityChanged);
         m_eventItemSettings = ::AstralChronicle::viewmodels::PersistedSettingsSnapshot::Load().EventItems;
         m_heading = m_strings->GetString(L"Dashboard.Heading");
         m_summary = m_strings->GetString(L"Dashboard.Summary.Initial");
@@ -146,7 +150,7 @@ namespace winrt::AstralChronicle::implementation
         m_warningCount = metricLoading;
         m_criticalCount = metricLoading;
         m_todayCount = metricLoading;
-        m_monitoringStatus = m_strings->GetString(L"Dashboard.Monitoring.NotConfigured.Text");
+        UpdateMonitoringStatus();
         m_timelineSummary = m_strings->GetString(L"Dashboard.CrashTimelineLoading.Text");
         m_statusText = m_strings->GetString(L"Dashboard.Loading.Text");
         m_statusDetails = m_strings->GetString(L"Dashboard.LoadingDetails.Text");
@@ -246,12 +250,14 @@ namespace winrt::AstralChronicle::implementation
         ::AstralChronicle::services::EventLevelCountsResult const& counts,
         ::AstralChronicle::services::EventQueryResult const& criticalEvents)
     {
-        m_monitoringStatus = m_strings->GetString(L"Dashboard.Monitoring.NotConfigured.Text");
         m_isLoading = false;
         m_statusDetails.clear();
 
         auto const countsAvailable = counts.Status == ::AstralChronicle::services::EventQueryStatus::Succeeded ||
             counts.Status == ::AstralChronicle::services::EventQueryStatus::NoEvents;
+        auto const criticalEventsAvailable =
+            criticalEvents.Status == ::AstralChronicle::services::EventQueryStatus::Succeeded ||
+            criticalEvents.Status == ::AstralChronicle::services::EventQueryStatus::NoEvents;
         if (countsAvailable)
         {
             m_errorCount = winrt::to_hstring(counts.Counts.Error);
@@ -274,6 +280,18 @@ namespace winrt::AstralChronicle::implementation
             m_statusDetails = FormatResource(
                 m_strings->GetString(L"Dashboard.ErrorDetails.Text"),
                 { winrt::to_hstring(counts.ErrorCode) });
+        }
+
+        if (m_basicFunctionsAvailabilityChanged)
+        {
+            try
+            {
+                m_basicFunctionsAvailabilityChanged(countsAvailable && criticalEventsAvailable);
+            }
+            catch (...)
+            {
+                // A status display failure must not prevent the dashboard from loading.
+            }
         }
 
         auto const eventVector = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
@@ -343,6 +361,9 @@ namespace winrt::AstralChronicle::implementation
     winrt::hstring DashboardViewModel::CriticalCount() const { return m_criticalCount; }
     winrt::hstring DashboardViewModel::TodayCount() const { return m_todayCount; }
     winrt::hstring DashboardViewModel::MonitoringStatus() const { return m_monitoringStatus; }
+    Microsoft::UI::Xaml::Visibility DashboardViewModel::MonitoringRunningVisibility() const noexcept { return m_monitoringRunningVisibility; }
+    Microsoft::UI::Xaml::Visibility DashboardViewModel::MonitoringErrorVisibility() const noexcept { return m_monitoringErrorVisibility; }
+    Microsoft::UI::Xaml::Visibility DashboardViewModel::MonitoringAttentionVisibility() const noexcept { return m_monitoringAttentionVisibility; }
     winrt::hstring DashboardViewModel::TimelineSummary() const { return m_timelineSummary; }
     winrt::hstring DashboardViewModel::StatusText() const { return m_statusText; }
     winrt::hstring DashboardViewModel::StatusDetails() const { return m_statusDetails; }
@@ -366,6 +387,9 @@ namespace winrt::AstralChronicle::implementation
         RaisePropertyChanged(L"CriticalCount");
         RaisePropertyChanged(L"TodayCount");
         RaisePropertyChanged(L"MonitoringStatus");
+        RaisePropertyChanged(L"MonitoringRunningVisibility");
+        RaisePropertyChanged(L"MonitoringErrorVisibility");
+        RaisePropertyChanged(L"MonitoringAttentionVisibility");
         RaisePropertyChanged(L"TimelineSummary");
         RaisePropertyChanged(L"StatusText");
         RaisePropertyChanged(L"StatusDetails");
@@ -373,6 +397,40 @@ namespace winrt::AstralChronicle::implementation
         RaisePropertyChanged(L"HasStatusMessage");
         RaisePropertyChanged(L"IsLoading");
         RaisePropertyChanged(L"RecentCriticalEvents");
+    }
+
+    void DashboardViewModel::UpdateMonitoringStatus()
+    {
+        auto const status = m_liveService->Status();
+        using LiveState = ::AstralChronicle::services::LiveState;
+        m_monitoringRunningVisibility = status.State == LiveState::Running
+            ? Microsoft::UI::Xaml::Visibility::Visible
+            : Microsoft::UI::Xaml::Visibility::Collapsed;
+        m_monitoringErrorVisibility = status.State == LiveState::Error
+            ? Microsoft::UI::Xaml::Visibility::Visible
+            : Microsoft::UI::Xaml::Visibility::Collapsed;
+        m_monitoringAttentionVisibility = status.State != LiveState::Running && status.State != LiveState::Error
+            ? Microsoft::UI::Xaml::Visibility::Visible
+            : Microsoft::UI::Xaml::Visibility::Collapsed;
+
+        switch (status.State)
+        {
+        case LiveState::Running:
+            m_monitoringStatus = m_strings->GetString(L"Dashboard.Monitoring.Running.Text");
+            break;
+        case LiveState::Paused:
+            m_monitoringStatus = m_strings->GetString(L"Dashboard.Monitoring.Paused.Text");
+            break;
+        case LiveState::EventsLost:
+            m_monitoringStatus = m_strings->GetString(L"Dashboard.Monitoring.EventsLost.Text");
+            break;
+        case LiveState::Error:
+            m_monitoringStatus = m_strings->GetString(L"Dashboard.Monitoring.Error.Text");
+            break;
+        default:
+            m_monitoringStatus = m_strings->GetString(L"Dashboard.Monitoring.Stopped.Text");
+            break;
+        }
     }
 
     winrt::event_token DashboardViewModel::PropertyChanged(Microsoft::UI::Xaml::Data::PropertyChangedEventHandler const& handler)
