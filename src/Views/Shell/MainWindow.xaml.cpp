@@ -5,6 +5,7 @@
 #include "DesignSystem/Localization/IStringResourceService.h"
 #include "Services/ICustomViewCatalogService.h"
 #include "Services/IEventLogCatalogService.h"
+#include "Services/IEventLiveDataService.h"
 #include "Views/Pages/DashboardPage.xaml.h"
 #include "Views/Pages/EventLogsPage.xaml.h"
 #include "Views/Pages/LivePage.xaml.h"
@@ -225,6 +226,11 @@ namespace winrt::AstralChronicle::implementation
         {
         }
 
+        // Keep local monitoring alive until the user explicitly stops it, but
+        // release the cached page during app shutdown so its ViewModel can
+        // stop the subscription while app services still exist.
+        m_livePage = nullptr;
+
         try
         {
             if (m_theme && m_themeSubscriptionId != 0)
@@ -280,10 +286,17 @@ namespace winrt::AstralChronicle::implementation
         SetTitleBar(AppTitleBar());
         m_strings = host.Services().GetRequiredService<::AstralChronicle::design::IStringResourceService>();
         Title(m_strings->GetString(L"MainWindow.Title"));
+        UpdateShellSystemStatus(true);
         m_eventLogCatalog = host.Services().GetRequiredService<::AstralChronicle::services::IEventLogCatalogService>();
         m_customViewCatalog = host.Services().GetRequiredService<::AstralChronicle::services::ICustomViewCatalogService>();
         auto const eventQuery =
             host.Services().GetRequiredService<::AstralChronicle::services::IEventQueryService>();
+        auto const bookmarkStore =
+            host.Services().GetRequiredService<::AstralChronicle::services::IEventBookmarkStore>();
+        auto const textExporter =
+            host.Services().GetRequiredService<::AstralChronicle::services::ITextExportService>();
+        auto const preferences =
+            host.Services().GetRequiredService<::AstralChronicle::services::IApplicationPreferencesService>();
         auto const eventProviders =
             host.Services().GetRequiredService<::AstralChronicle::services::IEventProviderService>();
         auto const sessions =
@@ -292,6 +305,8 @@ namespace winrt::AstralChronicle::implementation
             host.Services().GetRequiredService<::AstralChronicle::services::ISavedViewRepository>();
         auto const eventLive =
             host.Services().GetRequiredService<::AstralChronicle::services::IEventLiveService>();
+        auto const eventLiveData =
+            host.Services().GetRequiredService<::AstralChronicle::services::IEventLiveDataService>();
         auto const remoteEvents =
             host.Services().GetRequiredService<::AstralChronicle::services::IRemoteEventService>();
         m_customViewQueries.insert_or_assign(
@@ -324,7 +339,7 @@ namespace winrt::AstralChronicle::implementation
         m_navigation->Attach(ContentFrame());
         m_navigation->Register({
             L"dashboard",
-            [weak, eventQuery, strings = m_strings]()
+            [weak, eventQuery, eventLive, strings = m_strings]()
             {
                 auto const self = weak.get();
                 if (!self)
@@ -334,6 +349,7 @@ namespace winrt::AstralChronicle::implementation
                 auto page = make<DashboardPage>();
                 get_self<DashboardPage>(page)->Initialize(
                     eventQuery,
+                    eventLive,
                     strings,
                     self->RootLayout().DispatcherQueue(),
                     *self->m_navigation,
@@ -343,23 +359,36 @@ namespace winrt::AstralChronicle::implementation
                         {
                             window->SelectNavigationItemForRoute(route);
                         }
+                    },
+                    [weak](bool const basicFunctionsAvailable)
+                    {
+                        if (auto const window = weak.get())
+                        {
+                            window->UpdateShellSystemStatus(basicFunctionsAvailable);
+                        }
                     });
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
             L"event-logs",
-            [eventQuery, strings = m_strings]()
+            [eventQuery, bookmarkStore, textExporter, strings = m_strings]()
             {
                 auto page = make<EventLogsPage>();
-                get_self<EventLogsPage>(page)->Initialize(eventQuery, strings);
+                get_self<EventLogsPage>(page)->Initialize(
+                    eventQuery,
+                    bookmarkStore,
+                    textExporter,
+                    strings);
                 return page.as<FrameworkElement>();
             },
-            [eventQuery, strings = m_strings](
+            [eventQuery, bookmarkStore, textExporter, strings = m_strings](
                 ::AstralChronicle::navigation::NavigationRequest const& request)
             {
                 auto page = make<EventLogsPage>();
                 get_self<EventLogsPage>(page)->Initialize(
                     eventQuery,
+                    bookmarkStore,
+                    textExporter,
                     strings,
                     request.Channel,
                     request.Query);
@@ -445,11 +474,21 @@ namespace winrt::AstralChronicle::implementation
             } });
         m_navigation->Register({
             L"live",
-            [eventLive, strings = m_strings]()
+            [weak, eventLive, eventLiveData, eventQuery, strings = m_strings]()
             {
+                auto const self = weak.get();
+                if (!self)
+                {
+                    return FrameworkElement{ nullptr };
+                }
+                if (self->m_livePage)
+                {
+                    return self->m_livePage;
+                }
                 auto page = make<LivePage>();
-                get_self<LivePage>(page)->Initialize(eventLive, strings);
-                return page.as<FrameworkElement>();
+                get_self<LivePage>(page)->Initialize(eventLive, eventLiveData, eventQuery, strings);
+                self->m_livePage = page.as<FrameworkElement>();
+                return self->m_livePage;
             } });
         m_navigation->Register({
             L"remote",
@@ -461,16 +500,33 @@ namespace winrt::AstralChronicle::implementation
             } });
         m_navigation->Register({
             L"settings",
-            [theme = m_theme, strings = m_strings]
+            [theme = m_theme, preferences, strings = m_strings]
             {
                 auto page = make<SettingsPage>();
-                get_self<SettingsPage>(page)->Initialize(theme, strings);
+                get_self<SettingsPage>(page)->Initialize(theme, strings, preferences);
                 return page.as<FrameworkElement>();
             } });
 
         RootNavigationView().SelectedItem(RootNavigationView().MenuItems().GetAt(0));
         RootNavigationView().IsPaneOpen(true);
         UpdateThemeBackdropLayout();
+    }
+
+    void MainWindow::UpdateShellSystemStatus(bool const basicFunctionsAvailable)
+    {
+        if (!m_strings)
+        {
+            return;
+        }
+
+        ShellSystemStatusSuccessIndicator().Visibility(
+            basicFunctionsAvailable ? Visibility::Visible : Visibility::Collapsed);
+        ShellSystemStatusErrorIndicator().Visibility(
+            basicFunctionsAvailable ? Visibility::Collapsed : Visibility::Visible);
+        ShellSystemStatusText().Text(m_strings->GetString(
+            basicFunctionsAvailable
+                ? L"ShellSystemStatusOperational.Text"
+                : L"ShellSystemStatusUnavailable.Text"));
     }
 
     void MainWindow::ApplyThemeBackdrop()

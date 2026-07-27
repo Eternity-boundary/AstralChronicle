@@ -4,15 +4,11 @@
 
 #include "DesignSystem/Localization/IStringResourceService.h"
 #include "EventLogItemViewModel.h"
-#include "Services/BookmarkPersistence.h"
 #include "Services/EventQueryBuilder.h"
 
 #include "EventLogsViewModel.g.cpp"
 
 #include <wil/cppwinrt_helpers.h>
-
-#include <winrt/Microsoft.Windows.Storage.Pickers.h>
-#include <winrt/Windows.Storage.h>
 
 #include <string>
 #include <vector>
@@ -23,14 +19,9 @@
 #include <string_view>
 #include <sstream>
 #include <stdexcept>
-#include <filesystem>
-#include <fstream>
 
 namespace
 {
-    constexpr std::size_t MaximumBookmarkCount = 100'000u;
-    constexpr std::size_t MaximumBookmarkKeyCharacters = 256u * 1024u;
-
     [[nodiscard]] winrt::hstring FormatResource(
         winrt::hstring format,
         std::vector<winrt::hstring> const& values)
@@ -171,157 +162,6 @@ namespace
             HexEncode(value.Channel());
     }
 
-    [[nodiscard]] bool IsDecimal(
-        std::wstring_view const value,
-        bool const allowLeadingMinus = false) noexcept
-    {
-        if (value.empty())
-        {
-            return false;
-        }
-        auto index = std::size_t{};
-        if (allowLeadingMinus && value.front() == L'-')
-        {
-            if (value.size() == 1)
-            {
-                return false;
-            }
-            index = 1;
-        }
-        for (; index < value.size(); ++index)
-        {
-            if (value[index] < L'0' || value[index] > L'9')
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    [[nodiscard]] bool IsHexEncoded(std::wstring_view const value) noexcept
-    {
-        if (value.size() % 4 != 0)
-        {
-            return false;
-        }
-        return std::all_of(value.begin(), value.end(), [](wchar_t const character)
-            {
-                return (character >= L'0' && character <= L'9') ||
-                    (character >= L'A' && character <= L'F') ||
-                    (character >= L'a' && character <= L'f');
-            });
-    }
-
-    [[nodiscard]] bool IsValidBookmarkKey(std::wstring_view const value) noexcept
-    {
-        if (value.empty() || value.size() > MaximumBookmarkKeyCharacters ||
-            value.find_first_of(L";\r\n\0", 0, 4) != std::wstring_view::npos)
-        {
-            return false;
-        }
-
-        if (!value.starts_with(L"v2|"))
-        {
-            auto const separator = value.rfind(L'|');
-            return separator != std::wstring_view::npos &&
-                separator != 0 &&
-                IsDecimal(value.substr(separator + 1));
-        }
-
-        std::array<std::wstring_view, 6> fields;
-        std::size_t start{};
-        for (std::size_t index{}; index < fields.size(); ++index)
-        {
-            auto const separator = value.find(L'|', start);
-            if (index + 1 == fields.size())
-            {
-                if (separator != std::wstring_view::npos)
-                {
-                    return false;
-                }
-                fields[index] = value.substr(start);
-            }
-            else
-            {
-                if (separator == std::wstring_view::npos)
-                {
-                    return false;
-                }
-                fields[index] = value.substr(start, separator - start);
-                start = separator + 1;
-            }
-        }
-        return fields[0] == L"v2" &&
-            IsDecimal(fields[1]) &&
-            IsDecimal(fields[2], true) &&
-            IsHexEncoded(fields[3]) &&
-            IsHexEncoded(fields[4]) &&
-            IsHexEncoded(fields[5]);
-    }
-
-    [[nodiscard]] bool ParseBookmarks(
-        std::wstring_view const text,
-        std::unordered_set<std::wstring>& result) noexcept
-    {
-        result.clear();
-        if (text.size() >
-            ::AstralChronicle::services::details::MaximumEventLogBookmarksFileBytes)
-        {
-            return false;
-        }
-        if (text.empty())
-        {
-            return true;
-        }
-
-        try
-        {
-            std::size_t start{};
-            while (start < text.size())
-            {
-                auto const separator = text.find(L';', start);
-                auto const token = text.substr(
-                    start,
-                    separator == std::wstring_view::npos
-                        ? std::wstring_view::npos
-                        : separator - start);
-                if (!IsValidBookmarkKey(token) || result.size() >= MaximumBookmarkCount)
-                {
-                    result.clear();
-                    return false;
-                }
-                result.emplace(token);
-                if (separator == std::wstring_view::npos)
-                {
-                    return true;
-                }
-                start = separator + 1;
-            }
-        }
-        catch (...)
-        {
-            result.clear();
-            return false;
-        }
-        result.clear();
-        return false;
-    }
-
-    [[nodiscard]] std::wstring SerializeBookmarks(
-        std::unordered_set<std::wstring> const& bookmarks)
-    {
-        std::wstring text;
-        for (auto const& bookmark : bookmarks)
-        {
-            if (!text.empty())
-            {
-                text += L';';
-            }
-            text += bookmark;
-        }
-        return text;
-    }
-
     [[nodiscard]] std::wstring FormatProperties(
         std::vector<::AstralChronicle::models::EventProperty> const& properties)
     {
@@ -397,16 +237,20 @@ namespace winrt::AstralChronicle::implementation
 
     void EventLogsViewModel::Initialize(
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+        std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
+        std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
         std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel,
         std::optional<std::wstring> const& query)
     {
         m_eventQuery = std::move(eventQuery);
+        m_bookmarkStore = std::move(bookmarkStore);
+        m_textExporter = std::move(textExporter);
         m_strings = std::move(strings);
-        if (!m_eventQuery || !m_strings)
+        if (!m_eventQuery || !m_bookmarkStore || !m_textExporter || !m_strings)
         {
-            throw std::invalid_argument("Event logs require query and string services.");
+            throw std::invalid_argument("Event logs require query, bookmark, export, and string services.");
         }
         m_dispatcher = dispatcher;
         auto const settings = ::AstralChronicle::viewmodels::PersistedSettingsSnapshot::Load();
@@ -448,7 +292,7 @@ namespace winrt::AstralChronicle::implementation
         m_filterAfterToday = false;
         m_filterAfterHours.clear();
         m_hasStructuredFilter = false;
-        LoadBookmarks();
+        m_bookmarkedKeys = m_bookmarkStore->Load();
         m_filterSummary = m_strings->GetString(L"EventLogs.FilterNone.Text");
         ClearSelection();
         RaisePropertyChanged(L"Heading");
@@ -706,7 +550,7 @@ namespace winrt::AstralChronicle::implementation
                 }
             }
         }
-        PersistBookmarks();
+        m_bookmarkStore->Save(m_bookmarkedKeys);
     }
 
     void EventLogsViewModel::ExportSelectedEvents(Microsoft::UI::WindowId const& windowId)
@@ -739,49 +583,18 @@ namespace winrt::AstralChronicle::implementation
             auto const weakThis = get_weak();
             auto dispatcher = m_dispatcher;
             auto strings = m_strings;
-            if (!dispatcher || !strings) co_return;
+            auto textExporter = m_textExporter;
+            if (!dispatcher || !strings || !textExporter) co_return;
 
             winrt::hstring path;
             std::uint32_t errorCode{};
-            bool wasCancelled{};
             try
             {
-            Microsoft::Windows::Storage::Pickers::FileSavePicker picker{ windowId };
-            picker.SuggestedStartLocation(
-                Microsoft::Windows::Storage::Pickers::PickerLocationId::DocumentsLibrary);
-            picker.SuggestedFileName(strings->GetString(L"EventLogs.ExportSuggestedFileName.Text"));
-            picker.DefaultFileExtension(L".txt");
-
-            auto const fileTypes = winrt::single_threaded_vector<winrt::hstring>();
-            fileTypes.Append(L".txt");
-            picker.FileTypeChoices().Insert(
-                strings->GetString(L"EventLogs.ExportTextFiles.Text"),
-                fileTypes);
-
-            auto const result = co_await picker.PickSaveFileAsync();
-            if (!result)
-            {
-                wasCancelled = true;
-            }
-            else
-            {
-                path = result.Path();
-                co_await winrt::resume_background();
-                auto const content = winrt::to_string(winrt::hstring{ text });
-                std::ofstream output{
-                    std::filesystem::path{ path.c_str() },
-                    std::ios::binary | std::ios::trunc };
-                if (!output)
-                {
-                    throw winrt::hresult_error{ E_FAIL };
-                }
-
-                output.write(content.data(), static_cast<std::streamsize>(content.size()));
-                if (!output)
-                {
-                    throw winrt::hresult_error{ E_FAIL };
-                }
-            }
+                path = co_await textExporter->ExportTextAsync(
+                    windowId,
+                    { winrt::hstring{ text },
+                      strings->GetString(L"EventLogs.ExportSuggestedFileName.Text"),
+                      strings->GetString(L"EventLogs.ExportTextFiles.Text") });
             }
             catch (winrt::hresult_error const& error)
             {
@@ -799,7 +612,7 @@ namespace winrt::AstralChronicle::implementation
                 co_return;
             }
 
-            if (wasCancelled)
+            if (path.empty() && errorCode == 0)
             {
                 strongThis->m_hasStatusMessage = false;
                 strongThis->m_statusText.clear();
@@ -1240,7 +1053,7 @@ namespace winrt::AstralChronicle::implementation
             }
             itemVector.Append(item);
         }
-        if (bookmarksMigrated) PersistBookmarks();
+        if (bookmarksMigrated) m_bookmarkStore->Save(m_bookmarkedKeys);
 
         m_allEvents = itemVector;
         ApplyFilter();
@@ -1530,124 +1343,6 @@ namespace winrt::AstralChronicle::implementation
         RaisePropertyChanged(L"FilterAfterHours");
         RaisePropertyChanged(L"HasStructuredFilter");
         RaisePropertyChanged(L"HasFilter");
-    }
-
-    void EventLogsViewModel::LoadBookmarks()
-    {
-        m_bookmarkedKeys.clear();
-        if (!::AstralChronicle::services::details::EventLogBookmarkPersistenceEnabled())
-        {
-            (void)::AstralChronicle::services::details::ClearPersistedEventLogBookmarks();
-            return;
-        }
-
-        ::AstralChronicle::services::details::LocalDataTransactionLock const transaction{
-            ::AstralChronicle::services::details::EventLogBookmarksStorageFileName,
-        };
-        if (!transaction)
-        {
-            return;
-        }
-
-        auto const file = ::AstralChronicle::services::details::ReadLocalUtf8Text(
-            ::AstralChronicle::services::details::EventLogBookmarksStorageFileName,
-            ::AstralChronicle::services::details::MaximumEventLogBookmarksFileBytes);
-        if (file.Status == ::AstralChronicle::services::details::LocalTextReadStatus::Succeeded)
-        {
-            std::unordered_set<std::wstring> parsed;
-            if (ParseBookmarks(file.Text, parsed))
-            {
-                m_bookmarkedKeys = std::move(parsed);
-                try
-                {
-                    auto const values = winrt::Windows::Storage::ApplicationData::Current()
-                        .LocalSettings()
-                        .Values();
-                    auto const legacyKey = winrt::hstring{
-                        ::AstralChronicle::services::details::
-                            EventLogBookmarksLegacyStorageKey,
-                    };
-                    if (values.HasKey(legacyKey))
-                    {
-                        values.Remove(legacyKey);
-                    }
-                }
-                catch (...)
-                {
-                }
-                return;
-            }
-        }
-
-        try
-        {
-            auto const values = winrt::Windows::Storage::ApplicationData::Current()
-                .LocalSettings()
-                .Values();
-            auto const legacyKey = winrt::hstring{
-                ::AstralChronicle::services::details::EventLogBookmarksLegacyStorageKey,
-            };
-            if (!values.HasKey(legacyKey))
-            {
-                return;
-            }
-
-            auto const stored = winrt::unbox_value<winrt::hstring>(
-                values.Lookup(legacyKey));
-            std::unordered_set<std::wstring> parsed;
-            if (!ParseBookmarks(
-                    std::wstring_view{ stored.c_str(), stored.size() },
-                    parsed))
-            {
-                return;
-            }
-
-            m_bookmarkedKeys = std::move(parsed);
-            auto const text = SerializeBookmarks(m_bookmarkedKeys);
-            if (::AstralChronicle::services::details::WriteLocalUtf8TextAtomically(
-                    ::AstralChronicle::services::details::
-                        EventLogBookmarksStorageFileName,
-                    text,
-                    ::AstralChronicle::services::details::
-                        MaximumEventLogBookmarksFileBytes))
-            {
-                values.Remove(legacyKey);
-            }
-        }
-        catch (...)
-        {
-            m_bookmarkedKeys.clear();
-        }
-    }
-
-    void EventLogsViewModel::PersistBookmarks() const
-    {
-        if (!::AstralChronicle::services::details::EventLogBookmarkPersistenceEnabled())
-        {
-            (void)::AstralChronicle::services::details::ClearPersistedEventLogBookmarks();
-            return;
-        }
-        try
-        {
-            ::AstralChronicle::services::details::LocalDataTransactionLock const transaction{
-                ::AstralChronicle::services::details::
-                    EventLogBookmarksStorageFileName,
-            };
-            if (!transaction)
-            {
-                return;
-            }
-            auto const text = SerializeBookmarks(m_bookmarkedKeys);
-            (void)::AstralChronicle::services::details::WriteLocalUtf8TextAtomically(
-                ::AstralChronicle::services::details::
-                    EventLogBookmarksStorageFileName,
-                text,
-                ::AstralChronicle::services::details::
-                    MaximumEventLogBookmarksFileBytes);
-        }
-        catch (...)
-        {
-        }
     }
 
     winrt::event_token EventLogsViewModel::PropertyChanged(

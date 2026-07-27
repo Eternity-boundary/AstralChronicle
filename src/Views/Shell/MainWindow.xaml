@@ -91,14 +91,22 @@
                             x:Uid="ShellSystemStatusLabel"
                             VerticalAlignment="Center"
                             Style="{StaticResource AstralCaptionTextBlockStyle}" />
-                        <Ellipse
+                        <Grid
                             Width="10"
                             Height="10"
                             VerticalAlignment="Center"
-                            Fill="{ThemeResource SystemFillColorCautionBrush}"
-                            IsHitTestVisible="False" />
+                            IsHitTestVisible="False">
+                            <Ellipse
+                                x:Name="ShellSystemStatusSuccessIndicator"
+                                Fill="{ThemeResource SystemFillColorSuccessBrush}" />
+                            <Ellipse
+                                x:Name="ShellSystemStatusErrorIndicator"
+                                Fill="{ThemeResource SystemFillColorCriticalBrush}"
+                                Visibility="Collapsed" />
+                        </Grid>
                         <TextBlock
-                            x:Uid="ShellSystemStatusMonitoringNotConfigured"
+                            x:Name="ShellSystemStatusText"
+                            x:Uid="ShellSystemStatusOperational"
                             VerticalAlignment="Center"
                             AutomationProperties.AutomationId="ShellSystemStatusText"
                             Style="{StaticResource AstralCaptionTextBlockStyle}" />

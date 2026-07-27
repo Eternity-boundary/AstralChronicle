@@ -156,8 +156,11 @@
   <data name="ShellSystemStatusLabel.Text" xml:space="preserve">
     <value>系統狀態：</value>
   </data>
-  <data name="ShellSystemStatusMonitoringNotConfigured.Text" xml:space="preserve">
-    <value>尚未設定監控</value>
+  <data name="ShellSystemStatusOperational.Text" xml:space="preserve">
+    <value>基礎功能正常</value>
+  </data>
+  <data name="ShellSystemStatusUnavailable.Text" xml:space="preserve">
+    <value>基礎功能無法使用</value>
   </data>
   <data name="ShellSearchBox.PlaceholderText" xml:space="preserve">
     <value>搜尋</value>
@@ -293,6 +296,21 @@
   </data>
   <data name="Dashboard.Monitoring.NotConfigured.Text" xml:space="preserve">
     <value>尚未設定</value>
+  </data>
+  <data name="Dashboard.Monitoring.Running.Text" xml:space="preserve">
+    <value>即時監聽進行中。</value>
+  </data>
+  <data name="Dashboard.Monitoring.Paused.Text" xml:space="preserve">
+    <value>即時監聽已暫停。</value>
+  </data>
+  <data name="Dashboard.Monitoring.Stopped.Text" xml:space="preserve">
+    <value>即時監聽已停止。</value>
+  </data>
+  <data name="Dashboard.Monitoring.Error.Text" xml:space="preserve">
+    <value>即時監聽發生錯誤。</value>
+  </data>
+  <data name="Dashboard.Monitoring.EventsLost.Text" xml:space="preserve">
+    <value>即時監聽仍在進行，但部分事件遺失。</value>
   </data>
   <data name="Dashboard.QueryUnavailable.Text" xml:space="preserve">
     <value>事件統計目前無法使用。</value>
@@ -554,12 +572,6 @@
   </data>
   <data name="EventLogsStatusInfoBar.Message" xml:space="preserve">
     <value>事件記錄狀態。</value>
-  </data>
-  <data name="EventLogsChannelPaneTitle.Text" xml:space="preserve">
-    <value>目前記錄</value>
-  </data>
-  <data name="EventLogsChannelPaneDescription.Text" xml:space="preserve">
-    <value>從事件記錄導覽選取頻道，以檢視其中的最新事件。</value>
   </data>
   <data name="EventLogsLevelHeader.Text" xml:space="preserve">
     <value>層級</value>
@@ -1513,7 +1525,7 @@
     <value>即時</value>
   </data>
   <data name="Live.Summary" xml:space="preserve">
-    <value>使用有界限的背景佇列訂閱新事件，並提供明確的暫停／繼續狀態。</value>
+    <value>透過有界限的背景佇列訂閱新事件</value>
   </data>
   <data name="Live.Ready.Text" xml:space="preserve">
     <value>即時擷取已就緒</value>
@@ -1525,19 +1537,19 @@
     <value>即時擷取已開始</value>
   </data>
   <data name="Live.StartedDetails.Text" xml:space="preserve">
-    <value>事件會透過 EvtSubscribe 收集到有界限的佇列。</value>
+    <value>Windows Event Log 會將 {0} 的新事件送入有界限的佇列。</value>
   </data>
   <data name="Live.Stopped.Text" xml:space="preserve">
     <value>即時擷取已停止</value>
   </data>
   <data name="Live.StoppedDetails.Text" xml:space="preserve">
-    <value>訂閱已結束；準備就緒後可以再次開始擷取。</value>
+    <value>訂閱已結束；準備就緒後可以設定擷取並再次開始。</value>
   </data>
   <data name="Live.StartFailed.Text" xml:space="preserve">
     <value>無法開始即時擷取</value>
   </data>
   <data name="Live.StreamFailed.Text" xml:space="preserve">
-    <value>即時訂閱因錯誤停止</value>
+    <value>即時回呼訂閱因錯誤停止</value>
   </data>
   <data name="Live.ErrorDetails.Text" xml:space="preserve">
     <value>請檢查頻道、XPath 查詢、服務狀態與存取權限。</value>

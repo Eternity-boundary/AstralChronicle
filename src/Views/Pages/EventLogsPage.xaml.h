@@ -19,7 +19,9 @@ namespace AstralChronicle::design
 
 namespace AstralChronicle::services
 {
+    struct IEventBookmarkStore;
     struct IEventQueryService;
+    struct ITextExportService;
 }
 
 namespace winrt::AstralChronicle::implementation
@@ -32,6 +34,8 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::AstralChronicle::EventLogsViewModel ViewModel() const;
         void Initialize(
             std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+            std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
+            std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
             std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel = std::nullopt,
             std::optional<std::wstring> const& query = std::nullopt);

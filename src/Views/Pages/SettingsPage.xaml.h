@@ -17,7 +17,8 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::AstralChronicle::SettingsViewModel ViewModel() const;
         void Initialize(
             std::shared_ptr<::AstralChronicle::design::IThemeService> theme,
-            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings);
+            std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
+            std::shared_ptr<::AstralChronicle::services::IApplicationPreferencesService> preferences);
         void OnThemeSelectionChanged(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);

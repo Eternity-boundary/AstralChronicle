@@ -4,7 +4,7 @@
 
 #include <winevt.h>
 
-#include <array>
+#include <algorithm>
 #include <cstddef>
 #include <new>
 #include <string_view>
@@ -16,16 +16,19 @@ namespace AstralChronicle::services
 {
     namespace
     {
-        constexpr DWORD EventBatchSize = 32;
-
-        [[nodiscard]] std::wstring XmlValue(std::wstring const& xml, std::wstring_view tag)
+        [[nodiscard]] bool IsStructuredQuery(std::wstring_view query)
         {
-            auto const open = xml.find(L"<" + std::wstring{ tag } + L">");
-            if (open == std::wstring::npos) return {};
-            auto const start = open + tag.size() + 2;
-            auto const end = xml.find(L"</" + std::wstring{ tag } + L">", start);
-            return end == std::wstring::npos ? std::wstring{} : xml.substr(start, end - start);
+            auto const start = query.find_first_not_of(L" \t\r\n");
+            return start != std::wstring_view::npos &&
+                query.compare(start, 10, L"<QueryList") == 0;
         }
+
+    }
+
+    WindowsEventLiveService::WindowsEventLiveService(
+        std::shared_ptr<IEventLiveDataService> eventData)
+        : m_eventData(std::move(eventData))
+    {
     }
 
     WindowsEventLiveService::~WindowsEventLiveService()
@@ -38,6 +41,11 @@ namespace AstralChronicle::services
         std::wstring_view query,
         std::uint32_t const queueLimit)
     {
+        if (!m_eventData)
+        {
+            SetWorkerError(ERROR_INVALID_HANDLE);
+            return false;
+        }
         std::scoped_lock workerLock{ m_workerMutex };
         StopWorkerLocked();
 
@@ -70,11 +78,15 @@ namespace AstralChronicle::services
         auto const stopEvent = m_stopEvent.get();
         try
         {
+            auto context = std::make_shared<SubscriptionCallbackContext>();
+            context->Service = this;
+            context->StopEvent = stopEvent;
             m_worker = std::jthread(
                 [this,
                  stopEvent,
                  channel = std::move(channelText),
                  query = std::move(queryText),
+                 context = std::move(context),
                  startup = std::move(startup)](std::stop_token const stopToken) mutable
                 {
                     RunWorker(
@@ -82,6 +94,7 @@ namespace AstralChronicle::services
                         stopEvent,
                         std::move(channel),
                         std::move(query),
+                        std::move(context),
                         std::move(startup));
                 });
         }
@@ -114,6 +127,12 @@ namespace AstralChronicle::services
             SetWorkerError(result.ErrorCode == 0 ? ERROR_GEN_FAILURE : result.ErrorCode);
         }
         return result.Success;
+    }
+
+    void WindowsEventLiveService::SetBatchAvailableCallback(std::function<void()> callback)
+    {
+        std::scoped_lock lock{ m_mutex };
+        m_batchAvailableCallback = std::move(callback);
     }
 
     void WindowsEventLiveService::Pause() noexcept
@@ -175,35 +194,62 @@ namespace AstralChronicle::services
         }
     }
 
-    LiveBatch WindowsEventLiveService::TakeBatch(std::uint32_t const maximumEvents)
+    EventLiveStatus WindowsEventLiveService::Status() const noexcept
     {
         std::scoped_lock lock{ m_mutex };
-        LiveBatch result;
-        result.State = m_state;
-        result.ErrorCode = m_errorCode;
-        result.DroppedCount = m_droppedSinceLastBatch;
-        result.QueueDepth = static_cast<std::uint32_t>(m_events.size());
-        result.TotalReceived = m_totalReceived;
-        result.CriticalCount = m_criticalCount;
-        result.ErrorCount = m_errorCount;
-        result.WarningCount = m_warningCount;
-        result.Duration = m_startedAt.time_since_epoch().count() == 0
+        EventLiveStatus status;
+        status.State = m_state;
+        status.ErrorCode = m_errorCode;
+        status.DroppedCount = m_droppedSinceLastBatch;
+        status.QueueDepth = static_cast<std::uint32_t>(m_events.size());
+        status.TotalReceived = m_totalReceived;
+        status.CriticalCount = m_criticalCount;
+        status.ErrorCount = m_errorCount;
+        status.WarningCount = m_warningCount;
+        status.Duration = m_startedAt.time_since_epoch().count() == 0
             ? std::chrono::milliseconds{}
             : std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now() - m_startedAt);
+        return status;
+    }
 
-        m_droppedSinceLastBatch = 0;
-        if (m_state == LiveState::EventsLost)
+    EventLiveBatch WindowsEventLiveService::TakeBatch(std::uint32_t const maximumEvents)
+    {
+        EventLiveBatch result;
+        bool notify{};
         {
-            m_state = m_pauseRequested ? LiveState::Paused : LiveState::Running;
-        }
+            std::scoped_lock lock{ m_mutex };
+            result.State = m_state;
+            result.ErrorCode = m_errorCode;
+            result.DroppedCount = m_droppedSinceLastBatch;
+            result.QueueDepth = static_cast<std::uint32_t>(m_events.size());
+            result.TotalReceived = m_totalReceived;
+            result.CriticalCount = m_criticalCount;
+            result.ErrorCount = m_errorCount;
+            result.WarningCount = m_warningCount;
+            result.Duration = m_startedAt.time_since_epoch().count() == 0
+                ? std::chrono::milliseconds{}
+                : std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::steady_clock::now() - m_startedAt);
 
-        while (!m_events.empty() && result.Events.size() < maximumEvents)
-        {
-            result.Events.emplace_back(std::move(m_events.front()));
-            m_events.pop_front();
+            m_droppedSinceLastBatch = 0;
+            if (m_state == LiveState::EventsLost)
+            {
+                m_state = m_pauseRequested ? LiveState::Paused : LiveState::Running;
+            }
+
+            while (!m_events.empty() && result.Events.size() < maximumEvents)
+            {
+                result.Events.emplace_back(std::move(m_events.front()));
+                m_events.pop_front();
+            }
+            result.QueueDepth = static_cast<std::uint32_t>(m_events.size());
+            notify = maximumEvents != 0 && !m_events.empty();
         }
-        result.QueueDepth = static_cast<std::uint32_t>(m_events.size());
+        if (notify)
+        {
+            NotifyBatchAvailable();
+        }
         return result;
     }
 
@@ -212,6 +258,7 @@ namespace AstralChronicle::services
         HANDLE const stopEvent,
         std::wstring channel,
         std::wstring query,
+        std::shared_ptr<SubscriptionCallbackContext> context,
         std::promise<WorkerStartResult> startup)
     {
         bool startupReported{};
@@ -228,100 +275,65 @@ namespace AstralChronicle::services
             }
         };
 
+        auto failStartup = [this, &reportStartup](DWORD const errorCode) noexcept
+        {
+            auto const actualError = errorCode == ERROR_SUCCESS
+                ? ERROR_GEN_FAILURE
+                : errorCode;
+            SetWorkerError(actualError);
+            reportStartup({ false, actualError });
+        };
+
+        unique_evt_handle subscription;
         try
         {
-            wil::unique_handle subscriptionEvent;
-            subscriptionEvent.reset(CreateEventW(nullptr, TRUE, FALSE, nullptr));
-            if (!subscriptionEvent)
-            {
-                auto const error = GetLastError();
-                SetWorkerError(error);
-                reportStartup({ false, error });
-                return;
-            }
-
-            unique_evt_handle subscription{ EvtSubscribe(
-                nullptr,
-                subscriptionEvent.get(),
-                channel.c_str(),
-                query.c_str(),
-                nullptr,
-                nullptr,
-                nullptr,
-                EvtSubscribeToFutureEvents) };
-            if (!subscription)
-            {
-                auto const error = GetLastError();
-                SetWorkerError(error);
-                reportStartup({ false, error });
-                return;
-            }
-
+            // EvtSubscribe may deliver immediately, so make the queue eligible
+            // before giving the service a callback context.
             {
                 std::scoped_lock lock{ m_mutex };
                 m_state = m_pauseRequested ? LiveState::Paused : LiveState::Running;
             }
-            reportStartup({ true, ERROR_SUCCESS });
 
-            HANDLE waitHandles[]{ stopEvent, subscriptionEvent.get() };
-            while (!stopToken.stop_requested())
+            auto const structuredQuery = IsStructuredQuery(query);
+            subscription.reset(EvtSubscribe(
+                nullptr,
+                nullptr,
+                structuredQuery ? nullptr : channel.c_str(),
+                query.c_str(),
+                nullptr,
+                context.get(),
+                SubscriptionCallback,
+                EvtSubscribeToFutureEvents | EvtSubscribeStrict));
+            if (!subscription)
             {
-                auto const waitResult = WaitForMultipleObjects(
-                    ARRAYSIZE(waitHandles),
-                    waitHandles,
-                    FALSE,
-                    INFINITE);
-                if (waitResult == WAIT_OBJECT_0)
-                {
-                    break;
-                }
-                if (waitResult != WAIT_OBJECT_0 + 1)
-                {
-                    SetWorkerError(waitResult == WAIT_FAILED ? GetLastError() : ERROR_GEN_FAILURE);
-                    return;
-                }
-                // Clear the notification before draining. If an event arrives
-                // while EvtNext is running, the service can signal it again;
-                // resetting after the drain would lose that wake-up.
-                if (!ResetEvent(subscriptionEvent.get()))
-                {
-                    SetWorkerError(GetLastError());
-                    return;
-                }
-                while (!stopToken.stop_requested())
-                {
-                    std::array<EVT_HANDLE, EventBatchSize> rawEvents{};
-                    DWORD returned{};
-                    auto const succeeded = EvtNext(
-                        subscription.get(),
-                        static_cast<DWORD>(rawEvents.size()),
-                        rawEvents.data(),
-                        0,
-                        0,
-                        &returned);
-                    auto const error = succeeded ? ERROR_SUCCESS : GetLastError();
+                auto const errorCode = GetLastError();
+                StopSubscription(subscription, context);
+                failStartup(errorCode);
+                return;
+            }
 
-                    std::array<unique_evt_handle, EventBatchSize> events;
-                    for (std::size_t index{}; index < rawEvents.size(); ++index)
-                    {
-                        events[index].reset(rawEvents[index]);
-                    }
-
-                    if (!succeeded)
-                    {
-                        if (error == ERROR_NO_MORE_ITEMS || error == ERROR_TIMEOUT)
-                        {
-                            break;
-                        }
-                        SetWorkerError(error);
-                        return;
-                    }
-
-                    for (DWORD index{}; index < returned; ++index)
-                    {
-                        ProcessEvent(events[index].get());
-                    }
+            DWORD callbackError{};
+            {
+                std::scoped_lock lock{ m_mutex };
+                if (m_state == LiveState::Error)
+                {
+                    callbackError = m_errorCode == ERROR_SUCCESS
+                        ? ERROR_GEN_FAILURE
+                        : m_errorCode;
                 }
+            }
+            if (callbackError != ERROR_SUCCESS)
+            {
+                StopSubscription(subscription, context);
+                reportStartup({ false, callbackError });
+                return;
+            }
+
+            reportStartup({ true, ERROR_SUCCESS });
+            auto const waitResult = WaitForSingleObject(stopEvent, INFINITE);
+            if (waitResult != WAIT_OBJECT_0 && !stopToken.stop_requested())
+            {
+                SetWorkerError(waitResult == WAIT_FAILED ? GetLastError() : ERROR_GEN_FAILURE);
             }
         }
         catch (std::bad_alloc const&)
@@ -334,37 +346,154 @@ namespace AstralChronicle::services
             SetWorkerError(ERROR_GEN_FAILURE);
             reportStartup({ false, ERROR_GEN_FAILURE });
         }
+        StopSubscription(subscription, context);
     }
 
-    void WindowsEventLiveService::ProcessEvent(EVT_HANDLE const event)
+    DWORD WINAPI WindowsEventLiveService::SubscriptionCallback(
+        EVT_SUBSCRIBE_NOTIFY_ACTION const action,
+        PVOID const userContext,
+        EVT_HANDLE const event) noexcept
     {
-        auto rendered = RenderEvent(event);
-        if (rendered.empty()) return;
+        auto const context = static_cast<SubscriptionCallbackContext*>(userContext);
+        if (!context) return ERROR_INVALID_PARAMETER;
 
-        std::scoped_lock lock{ m_mutex };
-        if (m_state != LiveState::Running &&
-            m_state != LiveState::Paused &&
-            m_state != LiveState::EventsLost)
+        WindowsEventLiveService* service{};
+        HANDLE stopEvent{};
         {
+            std::scoped_lock lock{ context->Mutex };
+            if (context->Stopping || !context->Service)
+            {
+                return ERROR_SUCCESS;
+            }
+            ++context->ActiveCallbacks;
+            service = context->Service;
+            stopEvent = context->StopEvent;
+        }
+
+        auto releaseCallback = [context]() noexcept
+        {
+            std::scoped_lock lock{ context->Mutex };
+            --context->ActiveCallbacks;
+            if (context->ActiveCallbacks == 0)
+            {
+                context->CallbacksDrained.notify_all();
+            }
+        };
+
+        try
+        {
+            switch (action)
+            {
+            case EvtSubscribeActionDeliver:
+            {
+                // The Event Log service owns this handle and closes it when this
+                // callback returns. Render the XML before handing work to the queue.
+                DWORD errorCode{};
+                auto rendered = service->RenderEvent(event, errorCode);
+                if (rendered.empty())
+                {
+                    service->SetWorkerError(errorCode == ERROR_SUCCESS
+                        ? ERROR_EVT_INVALID_EVENT_DATA
+                        : errorCode);
+                    if (stopEvent) SetEvent(stopEvent);
+                    break;
+                }
+                auto record = service->m_eventData->CreateRecord(std::move(rendered));
+                (void)service->EnqueueRenderedEvent(std::move(record));
+                break;
+            }
+
+            case EvtSubscribeActionError:
+                service->SetWorkerError(
+                    static_cast<DWORD>(reinterpret_cast<ULONG_PTR>(event)));
+                if (stopEvent) SetEvent(stopEvent);
+                break;
+
+            default:
+                service->SetWorkerError(ERROR_INVALID_PARAMETER);
+                if (stopEvent) SetEvent(stopEvent);
+                break;
+            }
+        }
+        catch (std::bad_alloc const&)
+        {
+            service->SetWorkerError(ERROR_OUTOFMEMORY);
+            if (stopEvent) SetEvent(stopEvent);
+        }
+        catch (...)
+        {
+            service->SetWorkerError(ERROR_GEN_FAILURE);
+            if (stopEvent) SetEvent(stopEvent);
+        }
+
+        releaseCallback();
+        return ERROR_SUCCESS;
+    }
+
+    void WindowsEventLiveService::StopSubscription(
+        unique_evt_handle& subscription,
+        std::shared_ptr<SubscriptionCallbackContext> const& context) noexcept
+    {
+        if (!context)
+        {
+            subscription.reset();
             return;
         }
 
-        ++m_totalReceived;
-        auto const level = XmlValue(rendered, L"Level");
-        if (level == L"1") ++m_criticalCount;
-        else if (level == L"2") ++m_errorCount;
-        else if (level == L"3") ++m_warningCount;
-        if (m_events.size() >= m_queueLimit)
         {
-            m_events.pop_front();
-            ++m_droppedSinceLastBatch;
-            m_state = LiveState::EventsLost;
+            std::scoped_lock lock{ context->Mutex };
+            context->Stopping = true;
         }
-        m_events.emplace_back(std::move(rendered));
+        // Closing the subscription cancels delivery. Do not hold the context
+        // mutex here because EvtClose may wait for an in-flight callback.
+        subscription.reset();
+
+        std::unique_lock lock{ context->Mutex };
+        context->CallbacksDrained.wait(lock, [context]
+        {
+            return context->ActiveCallbacks == 0;
+        });
+        context->Service = nullptr;
+        context->StopEvent = nullptr;
+    }
+
+    bool WindowsEventLiveService::EnqueueRenderedEvent(models::LiveEventRecord event)
+    {
+        bool queued{};
+        bool notify{};
+        {
+            std::scoped_lock lock{ m_mutex };
+            if (m_state != LiveState::Running &&
+                m_state != LiveState::Paused &&
+                m_state != LiveState::EventsLost)
+            {
+                return false;
+            }
+
+            ++m_totalReceived;
+            if (event.Summary.Level == 1) ++m_criticalCount;
+            else if (event.Summary.Level == 2) ++m_errorCount;
+            else if (event.Summary.Level == 3) ++m_warningCount;
+            if (m_events.size() >= m_queueLimit)
+            {
+                m_events.pop_front();
+                ++m_droppedSinceLastBatch;
+                m_state = LiveState::EventsLost;
+            }
+            notify = m_events.empty();
+            m_events.emplace_back(std::move(event));
+            queued = true;
+        }
+        if (notify)
+        {
+            NotifyBatchAvailable();
+        }
+        return queued;
     }
 
     void WindowsEventLiveService::SetWorkerError(std::uint32_t const errorCode) noexcept
     {
+        bool notify{};
         try
         {
             std::scoped_lock lock{ m_mutex };
@@ -374,18 +503,50 @@ namespace AstralChronicle::services
             }
             m_errorCode = errorCode == 0 ? ERROR_GEN_FAILURE : errorCode;
             m_state = LiveState::Error;
+            notify = true;
+        }
+        catch (...)
+        {
+        }
+        if (notify)
+        {
+            NotifyBatchAvailable();
+        }
+    }
+
+    void WindowsEventLiveService::NotifyBatchAvailable() noexcept
+    {
+        try
+        {
+            std::function<void()> callback;
+            {
+                std::scoped_lock lock{ m_mutex };
+                callback = m_batchAvailableCallback;
+            }
+            if (callback)
+            {
+                callback();
+            }
         }
         catch (...)
         {
         }
     }
 
-    std::wstring WindowsEventLiveService::RenderEvent(EVT_HANDLE const event) const
+    std::wstring WindowsEventLiveService::RenderEvent(
+        EVT_HANDLE const event,
+        DWORD& errorCode) const
     {
+        errorCode = ERROR_SUCCESS;
         DWORD bufferBytes{};
         DWORD propertyCount{};
-        if (EvtRender(nullptr, event, EvtRenderEventXml, 0, nullptr, &bufferBytes, &propertyCount) ||
-            GetLastError() != ERROR_INSUFFICIENT_BUFFER || bufferBytes == 0)
+        if (EvtRender(nullptr, event, EvtRenderEventXml, 0, nullptr, &bufferBytes, &propertyCount))
+        {
+            errorCode = ERROR_EVT_INVALID_EVENT_DATA;
+            return {};
+        }
+        errorCode = GetLastError();
+        if (errorCode != ERROR_INSUFFICIENT_BUFFER || bufferBytes == 0)
         {
             return {};
         }
@@ -395,8 +556,10 @@ namespace AstralChronicle::services
             1);
         if (!EvtRender(nullptr, event, EvtRenderEventXml, bufferBytes, buffer.data(), &bufferBytes, &propertyCount))
         {
+            errorCode = GetLastError();
             return {};
         }
+        errorCode = ERROR_SUCCESS;
         return buffer.front() == L'\0' ? std::wstring{} : std::wstring{ buffer.data() };
     }
 }

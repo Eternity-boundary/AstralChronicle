@@ -387,7 +387,6 @@
             ColumnSpacing="{StaticResource AstralContentSpacing}"
             SizeChanged="OnContentGridSizeChanged">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="220" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="360" />
             </Grid.ColumnDefinitions>
@@ -396,32 +395,9 @@
                 <RowDefinition Height="0" />
             </Grid.RowDefinitions>
 
-            <Border
-                x:Name="ChannelPane"
-                Grid.Column="0"
-                Grid.Row="0"
-                AutomationProperties.AutomationId="EventLogsChannelPane"
-                Style="{StaticResource AstralCardBorderStyle}"
-                VerticalAlignment="Top">
-                <StackPanel Spacing="{StaticResource AstralContentSpacing}">
-                    <TextBlock
-                        x:Uid="EventLogsChannelPaneTitle"
-                        Style="{StaticResource AstralPageSubtitleTextBlockStyle}" />
-                    <TextBlock
-                        x:Uid="EventLogsChannelPaneDescription"
-                        Style="{StaticResource AstralCaptionTextBlockStyle}"
-                        TextWrapping="Wrap" />
-                    <TextBlock
-                        AutomationProperties.AutomationId="EventLogsCurrentChannel"
-                        Style="{StaticResource AstralBodyTextBlockStyle}"
-                        Text="{x:Bind ViewModel.ChannelPath, Mode=OneWay}"
-                        TextWrapping="Wrap" />
-                </StackPanel>
-            </Border>
-
             <Grid
                 x:Name="EventListPane"
-                Grid.Column="1"
+                Grid.Column="0"
                 Grid.Row="0"
                 RowSpacing="{StaticResource AstralContentSpacing}">
                 <Grid.RowDefinitions>
@@ -475,6 +451,7 @@
                     SelectedItem="{x:Bind ViewModel.SelectedEvent, Mode=OneWay}"
                     SelectionMode="Extended"
                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                    ScrollViewer.HorizontalScrollMode="Enabled"
                     ShowsScrollingPlaceholders="True">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="local:EventLogItemViewModel">
@@ -560,7 +537,7 @@
 
             <Border
                 x:Name="DetailsPane"
-                Grid.Column="2"
+                Grid.Column="1"
                 Grid.Row="0"
                 AutomationProperties.AutomationId="EventLogsDetailsPane"
                 Style="{StaticResource AstralCardBorderStyle}">

@@ -156,8 +156,11 @@
   <data name="ShellSystemStatusLabel.Text" xml:space="preserve">
     <value>系统状态：</value>
   </data>
-  <data name="ShellSystemStatusMonitoringNotConfigured.Text" xml:space="preserve">
-    <value>尚未配置监控</value>
+  <data name="ShellSystemStatusOperational.Text" xml:space="preserve">
+    <value>基础功能正常</value>
+  </data>
+  <data name="ShellSystemStatusUnavailable.Text" xml:space="preserve">
+    <value>基础功能无法使用</value>
   </data>
   <data name="ShellSearchBox.PlaceholderText" xml:space="preserve">
     <value>搜索</value>
@@ -293,6 +296,21 @@
   </data>
   <data name="Dashboard.Monitoring.NotConfigured.Text" xml:space="preserve">
     <value>尚未设置</value>
+  </data>
+  <data name="Dashboard.Monitoring.Running.Text" xml:space="preserve">
+    <value>实时监听正在运行。</value>
+  </data>
+  <data name="Dashboard.Monitoring.Paused.Text" xml:space="preserve">
+    <value>实时监听已暂停。</value>
+  </data>
+  <data name="Dashboard.Monitoring.Stopped.Text" xml:space="preserve">
+    <value>实时监听已停止。</value>
+  </data>
+  <data name="Dashboard.Monitoring.Error.Text" xml:space="preserve">
+    <value>实时监听发生错误。</value>
+  </data>
+  <data name="Dashboard.Monitoring.EventsLost.Text" xml:space="preserve">
+    <value>实时监听仍在运行，但部分事件已丢失。</value>
   </data>
   <data name="Dashboard.QueryUnavailable.Text" xml:space="preserve">
     <value>事件统计当前无法使用。</value>
@@ -554,12 +572,6 @@
   </data>
   <data name="EventLogsStatusInfoBar.Message" xml:space="preserve">
     <value>事件日志状态。</value>
-  </data>
-  <data name="EventLogsChannelPaneTitle.Text" xml:space="preserve">
-    <value>当前记录</value>
-  </data>
-  <data name="EventLogsChannelPaneDescription.Text" xml:space="preserve">
-    <value>从“事件日志”导航中选择一个通道，以查看其最新事件。</value>
   </data>
   <data name="EventLogsLevelHeader.Text" xml:space="preserve">
     <value>级别</value>
@@ -1513,7 +1525,7 @@
     <value>实时</value>
   </data>
   <data name="Live.Summary" xml:space="preserve">
-    <value>通过有界后台队列订阅后续事件，并可明确暂停或恢复。</value>
+    <value>通过有界后台队列订阅后续事件</value>
   </data>
   <data name="Live.Ready.Text" xml:space="preserve">
     <value>实时采集已就绪</value>
@@ -1525,7 +1537,7 @@
     <value>实时采集已启动</value>
   </data>
   <data name="Live.StartedDetails.Text" xml:space="preserve">
-    <value>事件会通过 EvtSubscribe 收集到有界队列中。</value>
+    <value>Windows Event Log 会将 {0} 的新事件送入有界队列。</value>
   </data>
   <data name="Live.Stopped.Text" xml:space="preserve">
     <value>实时采集已停止</value>
@@ -1537,7 +1549,7 @@
     <value>无法启动实时采集</value>
   </data>
   <data name="Live.StreamFailed.Text" xml:space="preserve">
-    <value>实时订阅因错误而停止</value>
+    <value>实时回调订阅因错误而停止</value>
   </data>
   <data name="Live.ErrorDetails.Text" xml:space="preserve">
     <value>请检查通道、XPath 查询、服务状态和访问权限。</value>

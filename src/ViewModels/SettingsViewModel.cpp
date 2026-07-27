@@ -1,13 +1,8 @@
 ﻿// Created by EternityBoundary on Jul 20,2026
 #include "pch.h"
 #include "SettingsViewModel.h"
-#include "PersistedSettings.h"
-#include "Services/BookmarkPersistence.h"
-#include "Services/SessionPersistence.h"
 
 #include "SettingsViewModel.g.cpp"
-
-#include <winrt/Windows.Storage.h>
 
 #include <cstdint>
 #include <optional>
@@ -49,11 +44,17 @@ namespace
 namespace winrt::AstralChronicle::implementation
 {
     void SettingsViewModel::Initialize(
+        std::shared_ptr<::AstralChronicle::services::IApplicationPreferencesService> preferences,
         std::int32_t selectedThemeIndex,
         winrt::hstring const& heading,
         winrt::hstring const& description,
         winrt::hstring const& themeHint)
     {
+        m_preferences = std::move(preferences);
+        if (!m_preferences)
+        {
+            throw std::invalid_argument("Settings require a preferences service.");
+        }
         m_heading = heading;
         m_description = description;
         m_themeHint = themeHint;
@@ -115,7 +116,7 @@ namespace winrt::AstralChronicle::implementation
     {
         if (m_defaultSortDescending == value) return;
         m_defaultSortDescending = value;
-        SaveBoolSetting(L"EventDisplay.DefaultSortDescending", value);
+        m_preferences->WriteBool(L"EventDisplay.DefaultSortDescending", value);
         RaisePropertyChanged(L"DefaultSortDescending");
     }
 
@@ -124,7 +125,7 @@ namespace winrt::AstralChronicle::implementation
     {
         if (m_useUtc == value) return;
         m_useUtc = value;
-        SaveBoolSetting(L"EventDisplay.UseUtc", value);
+        m_preferences->WriteBool(L"EventDisplay.UseUtc", value);
         RaisePropertyChanged(L"UseUtc");
     }
 
@@ -133,7 +134,7 @@ namespace winrt::AstralChronicle::implementation
     {
         if (m_groupRepeatedEvents == value) return;
         m_groupRepeatedEvents = value;
-        SaveBoolSetting(L"EventDisplay.GroupRepeatedEvents", value);
+        m_preferences->WriteBool(L"EventDisplay.GroupRepeatedEvents", value);
         RaisePropertyChanged(L"GroupRepeatedEvents");
     }
 
@@ -142,7 +143,7 @@ namespace winrt::AstralChronicle::implementation
     {
         if (m_detailsPaneOpen == value) return;
         m_detailsPaneOpen = value;
-        SaveBoolSetting(L"EventDisplay.DetailsPaneOpen", value);
+        m_preferences->WriteBool(L"EventDisplay.DetailsPaneOpen", value);
         RaisePropertyChanged(L"DetailsPaneOpen");
     }
 
@@ -151,7 +152,7 @@ namespace winrt::AstralChronicle::implementation
     {
         if (m_animationsEnabled == value) return;
         m_animationsEnabled = value;
-        SaveBoolSetting(L"Appearance.AnimationsEnabled", value);
+        m_preferences->WriteBool(L"Appearance.AnimationsEnabled", value);
         RaisePropertyChanged(L"AnimationsEnabled");
     }
 
@@ -163,7 +164,7 @@ namespace winrt::AstralChronicle::implementation
         if (auto const normalized = NormalizePositiveInteger(value, 64, 100'000))
         {
             m_liveQueueLimit = *normalized;
-            SaveTextSetting(L"Monitoring.LiveQueueLimit", m_liveQueueLimit);
+            m_preferences->WriteText(L"Monitoring.LiveQueueLimit", m_liveQueueLimit);
         }
         RaisePropertyChanged(L"LiveQueueLimit");
     }
@@ -176,7 +177,7 @@ namespace winrt::AstralChronicle::implementation
         if (auto const normalized = NormalizePositiveInteger(value, 1, 4'096))
         {
             m_queryBatchSize = *normalized;
-            SaveTextSetting(L"Performance.QueryBatchSize", m_queryBatchSize);
+            m_preferences->WriteText(L"Performance.QueryBatchSize", m_queryBatchSize);
         }
         RaisePropertyChanged(L"QueryBatchSize");
     }
@@ -189,7 +190,7 @@ namespace winrt::AstralChronicle::implementation
         if (auto const normalized = NormalizePositiveInteger(value, 64, 100'000))
         {
             m_maxVisibleLiveRows = *normalized;
-            SaveTextSetting(L"Performance.MaxVisibleLiveRows", m_maxVisibleLiveRows);
+            m_preferences->WriteText(L"Performance.MaxVisibleLiveRows", m_maxVisibleLiveRows);
         }
         RaisePropertyChanged(L"MaxVisibleLiveRows");
     }
@@ -199,10 +200,10 @@ namespace winrt::AstralChronicle::implementation
     {
         if (m_persistSessions == value) return;
         m_persistSessions = value;
-        SaveBoolSetting(L"Storage.PersistSessions", value);
+        m_preferences->WriteBool(L"Storage.PersistSessions", value);
         if (!value)
         {
-            (void)::AstralChronicle::services::details::ClearPersistedDiagnosticSessions();
+            m_preferences->ClearPersistedSessions();
         }
         RaisePropertyChanged(L"PersistSessions");
     }
@@ -212,10 +213,10 @@ namespace winrt::AstralChronicle::implementation
     {
         if (m_persistBookmarks == value) return;
         m_persistBookmarks = value;
-        SaveBoolSetting(L"Storage.PersistBookmarks", value);
+        m_preferences->WriteBool(L"Storage.PersistBookmarks", value);
         if (!value)
         {
-            (void)::AstralChronicle::services::details::ClearPersistedEventLogBookmarks();
+            m_preferences->ClearPersistedBookmarks();
         }
         RaisePropertyChanged(L"PersistBookmarks");
     }
@@ -225,7 +226,7 @@ namespace winrt::AstralChronicle::implementation
     {
         if (m_cacheProviderMetadata == value) return;
         m_cacheProviderMetadata = value;
-        SaveBoolSetting(L"Storage.CacheProviderMetadata", value);
+        m_preferences->WriteBool(L"Storage.CacheProviderMetadata", value);
         RaisePropertyChanged(L"CacheProviderMetadata");
     }
 
@@ -234,7 +235,7 @@ namespace winrt::AstralChronicle::implementation
     {
         if (m_redactComputerName == value) return;
         m_redactComputerName = value;
-        SaveBoolSetting(L"Privacy.RedactComputerName", value);
+        m_preferences->WriteBool(L"Privacy.RedactComputerName", value);
         RaisePropertyChanged(L"RedactComputerName");
     }
 
@@ -243,7 +244,7 @@ namespace winrt::AstralChronicle::implementation
     {
         if (m_redactUserNames == value) return;
         m_redactUserNames = value;
-        SaveBoolSetting(L"Privacy.RedactUserNames", value);
+        m_preferences->WriteBool(L"Privacy.RedactUserNames", value);
         RaisePropertyChanged(L"RedactUserNames");
     }
 
@@ -252,7 +253,7 @@ namespace winrt::AstralChronicle::implementation
     {
         if (m_rawXPathMode == value) return;
         m_rawXPathMode = value;
-        SaveBoolSetting(L"Advanced.RawXPathMode", value);
+        m_preferences->WriteBool(L"Advanced.RawXPathMode", value);
         RaisePropertyChanged(L"RawXPathMode");
     }
 
@@ -261,43 +262,36 @@ namespace winrt::AstralChronicle::implementation
     {
         if (m_debugLogging == value) return;
         m_debugLogging = value;
-        SaveBoolSetting(L"Advanced.DebugLogging", value);
+        m_preferences->WriteBool(L"Advanced.DebugLogging", value);
         RaisePropertyChanged(L"DebugLogging");
     }
 
     void SettingsViewModel::LoadPersistedSettings()
     {
-        ::AstralChronicle::viewmodels::PersistedSettingsReader const reader;
-        m_defaultSortDescending = reader.ReadBool(L"EventDisplay.DefaultSortDescending", m_defaultSortDescending);
-        m_useUtc = reader.ReadBool(L"EventDisplay.UseUtc", m_useUtc);
-        m_groupRepeatedEvents = reader.ReadBool(L"EventDisplay.GroupRepeatedEvents", m_groupRepeatedEvents);
-        m_detailsPaneOpen = reader.ReadBool(L"EventDisplay.DetailsPaneOpen", m_detailsPaneOpen);
-        m_animationsEnabled = reader.ReadBool(L"Appearance.AnimationsEnabled", m_animationsEnabled);
-        m_liveQueueLimit = winrt::to_hstring(reader.ReadUInt32(
+        m_defaultSortDescending = m_preferences->ReadBool(
+            L"EventDisplay.DefaultSortDescending", m_defaultSortDescending);
+        m_useUtc = m_preferences->ReadBool(L"EventDisplay.UseUtc", m_useUtc);
+        m_groupRepeatedEvents = m_preferences->ReadBool(
+            L"EventDisplay.GroupRepeatedEvents", m_groupRepeatedEvents);
+        m_detailsPaneOpen = m_preferences->ReadBool(
+            L"EventDisplay.DetailsPaneOpen", m_detailsPaneOpen);
+        m_animationsEnabled = m_preferences->ReadBool(
+            L"Appearance.AnimationsEnabled", m_animationsEnabled);
+        m_liveQueueLimit = winrt::to_hstring(m_preferences->ReadUInt32(
             L"Monitoring.LiveQueueLimit", 5'000, 64, 100'000));
-        m_queryBatchSize = winrt::to_hstring(reader.ReadUInt32(
+        m_queryBatchSize = winrt::to_hstring(m_preferences->ReadUInt32(
             L"Performance.QueryBatchSize", 64, 1, 4'096));
-        m_maxVisibleLiveRows = winrt::to_hstring(reader.ReadUInt32(
+        m_maxVisibleLiveRows = winrt::to_hstring(m_preferences->ReadUInt32(
             L"Performance.MaxVisibleLiveRows", 2'000, 64, 100'000));
-        m_persistSessions = reader.ReadBool(L"Storage.PersistSessions", m_persistSessions);
-        m_persistBookmarks = reader.ReadBool(L"Storage.PersistBookmarks", m_persistBookmarks);
-        m_cacheProviderMetadata = reader.ReadBool(L"Storage.CacheProviderMetadata", m_cacheProviderMetadata);
-        m_redactComputerName = reader.ReadBool(L"Privacy.RedactComputerName", m_redactComputerName);
-        m_redactUserNames = reader.ReadBool(L"Privacy.RedactUserNames", m_redactUserNames);
-        m_rawXPathMode = reader.ReadBool(L"Advanced.RawXPathMode", m_rawXPathMode);
-        m_debugLogging = reader.ReadBool(L"Advanced.DebugLogging", m_debugLogging);
-    }
-
-    void SettingsViewModel::SaveBoolSetting(winrt::hstring const& key, bool value) const
-    {
-        try { Windows::Storage::ApplicationData::Current().LocalSettings().Values().Insert(key, winrt::box_value(value)); }
-        catch (...) { }
-    }
-
-    void SettingsViewModel::SaveTextSetting(winrt::hstring const& key, winrt::hstring const& value) const
-    {
-        try { Windows::Storage::ApplicationData::Current().LocalSettings().Values().Insert(key, winrt::box_value(value)); }
-        catch (...) { }
+        m_persistSessions = m_preferences->ReadBool(L"Storage.PersistSessions", m_persistSessions);
+        m_persistBookmarks = m_preferences->ReadBool(L"Storage.PersistBookmarks", m_persistBookmarks);
+        m_cacheProviderMetadata = m_preferences->ReadBool(
+            L"Storage.CacheProviderMetadata", m_cacheProviderMetadata);
+        m_redactComputerName = m_preferences->ReadBool(
+            L"Privacy.RedactComputerName", m_redactComputerName);
+        m_redactUserNames = m_preferences->ReadBool(L"Privacy.RedactUserNames", m_redactUserNames);
+        m_rawXPathMode = m_preferences->ReadBool(L"Advanced.RawXPathMode", m_rawXPathMode);
+        m_debugLogging = m_preferences->ReadBool(L"Advanced.DebugLogging", m_debugLogging);
     }
 
     winrt::event_token SettingsViewModel::PropertyChanged(

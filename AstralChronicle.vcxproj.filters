@@ -174,10 +174,19 @@
     <ClCompile Include="src\Services\WindowsEventLogCatalogService.cpp">
       <Filter>Source Files\Services</Filter>
     </ClCompile>
+    <ClCompile Include="src\Services\WindowsApplicationPreferencesService.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\WindowsEventBookmarkStore.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
     <ClCompile Include="src\Services\WindowsCustomViewCatalogService.cpp">
       <Filter>Source Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="src\Services\WindowsEventLiveService.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\WindowsEventLiveDataService.cpp">
       <Filter>Source Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="src\Services\WindowsRemoteEventService.cpp">
@@ -193,6 +202,9 @@
       <Filter>Source Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="src\Services\WindowsSessionRepository.cpp">
+      <Filter>Source Files\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Services\WindowsTextExportService.cpp">
       <Filter>Source Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="src\ViewModels\DashboardViewModel.cpp">
@@ -305,10 +317,19 @@
     <ClInclude Include="src\Services\IEventLogCatalogService.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
+    <ClInclude Include="src\Services\IApplicationPreferencesService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\IEventBookmarkStore.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
     <ClInclude Include="src\Services\ICustomViewCatalogService.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="src\Services\IEventLiveService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\IEventLiveDataService.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="src\Services\IEventProviderService.h">
@@ -326,6 +347,9 @@
     <ClInclude Include="src\Services\ISessionRepository.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
+    <ClInclude Include="src\Services\ITextExportService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
     <ClInclude Include="src\Services\ChannelPathGrouping.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
@@ -341,10 +365,19 @@
     <ClInclude Include="src\Services\WindowsEventLogCatalogService.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
+    <ClInclude Include="src\Services\WindowsApplicationPreferencesService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\WindowsEventBookmarkStore.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
     <ClInclude Include="src\Services\WindowsCustomViewCatalogService.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="src\Services\WindowsEventLiveService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Services\WindowsEventLiveDataService.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="src\Services\WindowsEventProviderService.h">
@@ -374,6 +407,9 @@
     <ClInclude Include="src\Services\WindowsSessionRepository.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
+    <ClInclude Include="src\Services\WindowsTextExportService.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
     <ClInclude Include="src\Models\EventChannelDescriptor.h">
       <Filter>Header Files\Models</Filter>
     </ClInclude>
@@ -396,6 +432,9 @@
       <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="src\Models\EventRecordSummary.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Models\LiveEventRecord.h">
       <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="src\ViewModels\DashboardViewModel.h">

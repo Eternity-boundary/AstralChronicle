@@ -65,6 +65,8 @@ namespace winrt::AstralChronicle::implementation
 
     void EventLogsPage::Initialize(
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+        std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
+        std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel,
         std::optional<std::wstring> const& query)
@@ -104,6 +106,8 @@ namespace winrt::AstralChronicle::implementation
         m_narrowDetailsPaneVisible = settings.DetailsPaneOpen;
         winrt::get_self<EventLogsViewModel>(m_viewModel)->Initialize(
             std::move(eventQuery),
+            std::move(bookmarkStore),
+            std::move(textExporter),
             std::move(strings),
             PageRoot().DispatcherQueue(),
             channel,
@@ -279,7 +283,7 @@ namespace winrt::AstralChronicle::implementation
     {
         auto const columns = ContentGrid().ColumnDefinitions();
         auto const rows = ContentGrid().RowDefinitions();
-        if (columns.Size() < 3 || rows.Size() < 2)
+        if (columns.Size() < 2 || rows.Size() < 2)
         {
             return;
         }
@@ -294,24 +298,21 @@ namespace winrt::AstralChronicle::implementation
             3.0,
             Microsoft::UI::Xaml::GridUnitType::Star);
         auto const zero = Microsoft::UI::Xaml::GridLengthHelper::FromPixels(0.0);
-        auto const channel = Microsoft::UI::Xaml::GridLengthHelper::FromPixels(220.0);
         auto const wideDetails = Microsoft::UI::Xaml::GridLengthHelper::FromPixels(400.0);
         auto const mediumDetails = Microsoft::UI::Xaml::GridLengthHelper::FromPixels(360.0);
 
         if (width >= 1200.0)
         {
-            columns.GetAt(0).Width(channel);
-            columns.GetAt(1).Width(star);
-            columns.GetAt(2).Width(m_detailsPaneVisible ? wideDetails : zero);
+            columns.GetAt(0).Width(star);
+            columns.GetAt(1).Width(m_detailsPaneVisible ? wideDetails : zero);
             rows.GetAt(0).Height(star);
             rows.GetAt(1).Height(zero);
-            ChannelPane().Visibility(Microsoft::UI::Xaml::Visibility::Visible);
             EventListPane().Visibility(Microsoft::UI::Xaml::Visibility::Visible);
             DetailsPane().Visibility(m_detailsPaneVisible
                 ? Microsoft::UI::Xaml::Visibility::Visible
                 : Microsoft::UI::Xaml::Visibility::Collapsed);
             Microsoft::UI::Xaml::Controls::Grid::SetRow(DetailsPane(), 0);
-            Microsoft::UI::Xaml::Controls::Grid::SetColumn(DetailsPane(), 2);
+            Microsoft::UI::Xaml::Controls::Grid::SetColumn(DetailsPane(), 1);
             ToggleDetailsCommand().IsChecked(
                 winrt::box_value(m_detailsPaneVisible).as<winrt::Windows::Foundation::IReference<bool>>());
             return;
@@ -319,36 +320,32 @@ namespace winrt::AstralChronicle::implementation
 
         if (width >= 800.0)
         {
-            columns.GetAt(0).Width(zero);
-            columns.GetAt(1).Width(star);
-            columns.GetAt(2).Width(m_detailsPaneVisible ? mediumDetails : zero);
+            columns.GetAt(0).Width(star);
+            columns.GetAt(1).Width(m_detailsPaneVisible ? mediumDetails : zero);
             rows.GetAt(0).Height(star);
             rows.GetAt(1).Height(zero);
-            ChannelPane().Visibility(Microsoft::UI::Xaml::Visibility::Collapsed);
             EventListPane().Visibility(Microsoft::UI::Xaml::Visibility::Visible);
             DetailsPane().Visibility(m_detailsPaneVisible
                 ? Microsoft::UI::Xaml::Visibility::Visible
                 : Microsoft::UI::Xaml::Visibility::Collapsed);
             Microsoft::UI::Xaml::Controls::Grid::SetRow(DetailsPane(), 0);
-            Microsoft::UI::Xaml::Controls::Grid::SetColumn(DetailsPane(), 2);
+            Microsoft::UI::Xaml::Controls::Grid::SetColumn(DetailsPane(), 1);
             ToggleDetailsCommand().IsChecked(
                 winrt::box_value(m_detailsPaneVisible).as<winrt::Windows::Foundation::IReference<bool>>());
             return;
         }
 
         auto const detailsVisible = m_narrowDetailsPaneVisible;
-        columns.GetAt(0).Width(zero);
-        columns.GetAt(1).Width(star);
-        columns.GetAt(2).Width(zero);
+        columns.GetAt(0).Width(star);
+        columns.GetAt(1).Width(zero);
         rows.GetAt(0).Height(detailsVisible ? threeStar : star);
         rows.GetAt(1).Height(detailsVisible ? twoStar : zero);
-        ChannelPane().Visibility(Microsoft::UI::Xaml::Visibility::Collapsed);
         EventListPane().Visibility(Microsoft::UI::Xaml::Visibility::Visible);
         DetailsPane().Visibility(detailsVisible
             ? Microsoft::UI::Xaml::Visibility::Visible
             : Microsoft::UI::Xaml::Visibility::Collapsed);
         Microsoft::UI::Xaml::Controls::Grid::SetRow(DetailsPane(), 1);
-        Microsoft::UI::Xaml::Controls::Grid::SetColumn(DetailsPane(), 1);
+        Microsoft::UI::Xaml::Controls::Grid::SetColumn(DetailsPane(), 0);
         ToggleDetailsCommand().IsChecked(
             winrt::box_value(detailsVisible).as<winrt::Windows::Foundation::IReference<bool>>());
     }

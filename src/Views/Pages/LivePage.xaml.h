@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace AstralChronicle::services { struct IEventLiveService; }
+namespace AstralChronicle::services { struct IEventLiveService; struct IEventLiveDataService; struct IEventQueryService; }
 namespace AstralChronicle::design { struct IStringResourceService; }
 
 namespace winrt::AstralChronicle::implementation
@@ -17,6 +17,8 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::AstralChronicle::LiveViewModel ViewModel() const;
         void Initialize(
             std::shared_ptr<::AstralChronicle::services::IEventLiveService> liveService,
+            std::shared_ptr<::AstralChronicle::services::IEventLiveDataService> liveEventData,
+            std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
             std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings);
         void OnStartClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
         void OnPauseClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
@@ -26,9 +28,14 @@ namespace winrt::AstralChronicle::implementation
         void OnRecordClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
         void OnExportClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
         void OnBookmarkClicked(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
-        void OnChannelChanged(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const&);
-        void OnUnloaded(winrt::Windows::Foundation::IInspectable const&, Microsoft::UI::Xaml::RoutedEventArgs const&);
+        void OnSelectionChanged(
+            winrt::Windows::Foundation::IInspectable const&,
+            Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const&);
+        void OnContentGridSizeChanged(
+            winrt::Windows::Foundation::IInspectable const&,
+            Microsoft::UI::Xaml::SizeChangedEventArgs const&);
     private:
+        void UpdateResponsiveLayout(double width);
         winrt::AstralChronicle::LiveViewModel m_viewModel{ nullptr };
     };
 }

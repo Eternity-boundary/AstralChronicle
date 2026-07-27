@@ -156,8 +156,11 @@
   <data name="ShellSystemStatusLabel.Text" xml:space="preserve">
     <value>システムの状態:</value>
   </data>
-  <data name="ShellSystemStatusMonitoringNotConfigured.Text" xml:space="preserve">
-    <value>監視が設定されていません</value>
+  <data name="ShellSystemStatusOperational.Text" xml:space="preserve">
+    <value>基本機能は正常です</value>
+  </data>
+  <data name="ShellSystemStatusUnavailable.Text" xml:space="preserve">
+    <value>基本機能を利用できません</value>
   </data>
   <data name="ShellSearchBox.PlaceholderText" xml:space="preserve">
     <value>検索</value>
@@ -293,6 +296,21 @@
   </data>
   <data name="Dashboard.Monitoring.NotConfigured.Text" xml:space="preserve">
     <value>未設定</value>
+  </data>
+  <data name="Dashboard.Monitoring.Running.Text" xml:space="preserve">
+    <value>ライブ監視を実行中です。</value>
+  </data>
+  <data name="Dashboard.Monitoring.Paused.Text" xml:space="preserve">
+    <value>ライブ監視は一時停止中です。</value>
+  </data>
+  <data name="Dashboard.Monitoring.Stopped.Text" xml:space="preserve">
+    <value>ライブ監視は停止しています。</value>
+  </data>
+  <data name="Dashboard.Monitoring.Error.Text" xml:space="preserve">
+    <value>ライブ監視でエラーが発生しました。</value>
+  </data>
+  <data name="Dashboard.Monitoring.EventsLost.Text" xml:space="preserve">
+    <value>ライブ監視は継続中ですが、一部のイベントが失われました。</value>
   </data>
   <data name="Dashboard.QueryUnavailable.Text" xml:space="preserve">
     <value>イベントの統計情報は利用できません。</value>
@@ -554,12 +572,6 @@
   </data>
   <data name="EventLogsStatusInfoBar.Message" xml:space="preserve">
     <value>イベント ログの状態。</value>
-  </data>
-  <data name="EventLogsChannelPaneTitle.Text" xml:space="preserve">
-    <value>現在のログ</value>
-  </data>
-  <data name="EventLogsChannelPaneDescription.Text" xml:space="preserve">
-    <value>イベント ログ ナビゲーションからチャネルを選択し、最新のイベントを確認します。</value>
   </data>
   <data name="EventLogsLevelHeader.Text" xml:space="preserve">
     <value>レベル</value>
@@ -1513,7 +1525,7 @@
     <value>ライブ</value>
   </data>
   <data name="Live.Summary" xml:space="preserve">
-    <value>上限付きのバックグラウンド キューで今後のイベントをサブスクライブし、明示的に一時停止または再開します。</value>
+    <value>上限付きのバックグラウンド キューで今後のイベントをサブスクライブ。</value>
   </data>
   <data name="Live.Ready.Text" xml:space="preserve">
     <value>ライブ キャプチャの準備ができました</value>
@@ -1525,7 +1537,7 @@
     <value>ライブ キャプチャを開始しました</value>
   </data>
   <data name="Live.StartedDetails.Text" xml:space="preserve">
-    <value>イベントは EvtSubscribe を通じて上限付きキューに収集されます。</value>
+    <value>Windows Event Log は{0} の新しいイベントを上限付きキューに配信します。</value>
   </data>
   <data name="Live.Stopped.Text" xml:space="preserve">
     <value>ライブ キャプチャを停止しました</value>
@@ -1537,7 +1549,7 @@
     <value>ライブ キャプチャを開始できませんでした</value>
   </data>
   <data name="Live.StreamFailed.Text" xml:space="preserve">
-    <value>ライブ サブスクリプションがエラーで停止しました</value>
+    <value>ライブ コールバック サブスクリプションがエラーで停止しました</value>
   </data>
   <data name="Live.ErrorDetails.Text" xml:space="preserve">
     <value>チャネル、XPath クエリ、サービスの状態、アクセス権を確認してください。</value>

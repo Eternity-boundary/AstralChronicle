@@ -193,21 +193,28 @@
     <ClInclude Include="src\DesignSystem\Localization\StringResourceService.h" />
     <ClInclude Include="src\DesignSystem\Theme\IThemeService.h" />
     <ClInclude Include="src\DesignSystem\Theme\ThemeService.h" />
+    <ClInclude Include="src\Services\IApplicationPreferencesService.h" />
+    <ClInclude Include="src\Services\IEventBookmarkStore.h" />
     <ClInclude Include="src\Services\IEventLogCatalogService.h" />
     <ClInclude Include="src\Services\ICustomViewCatalogService.h" />
     <ClInclude Include="src\Services\IEventLiveService.h" />
+    <ClInclude Include="src\Services\IEventLiveDataService.h" />
     <ClInclude Include="src\Services\IEventProviderService.h" />
     <ClInclude Include="src\Services\IEventQueryService.h" />
     <ClInclude Include="src\Services\IRemoteEventService.h" />
     <ClInclude Include="src\Services\ISavedViewRepository.h" />
     <ClInclude Include="src\Services\ISessionRepository.h" />
+    <ClInclude Include="src\Services\ITextExportService.h" />
     <ClInclude Include="src\Services\ChannelPathGrouping.h" />
     <ClInclude Include="src\Services\ElevationRestart.h" />
     <ClInclude Include="src\Services\EventQueryBuilder.h" />
     <ClInclude Include="src\Services\UniqueEvtHandle.h" />
     <ClInclude Include="src\Services\WindowsEventLogCatalogService.h" />
+    <ClInclude Include="src\Services\WindowsApplicationPreferencesService.h" />
+    <ClInclude Include="src\Services\WindowsEventBookmarkStore.h" />
     <ClInclude Include="src\Services\WindowsCustomViewCatalogService.h" />
     <ClInclude Include="src\Services\WindowsEventLiveService.h" />
+    <ClInclude Include="src\Services\WindowsEventLiveDataService.h" />
     <ClInclude Include="src\Services\WindowsEventProviderService.h" />
     <ClInclude Include="src\Services\WindowsEventQueryService.h" />
     <ClInclude Include="src\Services\EvtVariantReader.h" />
@@ -217,6 +224,7 @@
     <ClInclude Include="src\Services\WindowsRemoteEventService.h" />
     <ClInclude Include="src\Services\WindowsSavedViewRepository.h" />
     <ClInclude Include="src\Services\WindowsSessionRepository.h" />
+    <ClInclude Include="src\Services\WindowsTextExportService.h" />
     <ClInclude Include="src\Models\EventChannelDescriptor.h" />
     <ClInclude Include="src\Models\CustomViewTreeNode.h" />
     <ClInclude Include="src\Models\EventDetails.h" />
@@ -225,6 +233,7 @@
     <ClInclude Include="src\Models\SavedView.h" />
     <ClInclude Include="src\Models\DiagnosticSession.h" />
     <ClInclude Include="src\Models\EventRecordSummary.h" />
+    <ClInclude Include="src\Models\LiveEventRecord.h" />
     <ClInclude Include="src\ViewModels\DashboardViewModel.h" />
     <ClInclude Include="src\ViewModels\EventLogItemViewModel.h" />
     <ClInclude Include="src\ViewModels\EventLogsViewModel.h" />
@@ -309,12 +318,16 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Services\WindowsEventLogCatalogService.cpp" />
+    <ClCompile Include="src\Services\WindowsApplicationPreferencesService.cpp" />
+    <ClCompile Include="src\Services\WindowsEventBookmarkStore.cpp" />
     <ClCompile Include="src\Services\WindowsCustomViewCatalogService.cpp" />
     <ClCompile Include="src\Services\WindowsEventProviderService.cpp" />
     <ClCompile Include="src\Services\WindowsEventQueryService.cpp" />
     <ClCompile Include="src\Services\WindowsSavedViewRepository.cpp" />
     <ClCompile Include="src\Services\WindowsSessionRepository.cpp" />
+    <ClCompile Include="src\Services\WindowsTextExportService.cpp" />
     <ClCompile Include="src\Services\WindowsEventLiveService.cpp" />
+    <ClCompile Include="src\Services\WindowsEventLiveDataService.cpp" />
     <ClCompile Include="src\Services\WindowsRemoteEventService.cpp" />
     <ClCompile Include="src\ViewModels\DashboardViewModel.cpp" />
     <ClCompile Include="src\ViewModels\EventLogItemViewModel.cpp" />
