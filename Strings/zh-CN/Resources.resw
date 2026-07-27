@@ -555,12 +555,6 @@
   <data name="EventLogsStatusInfoBar.Message" xml:space="preserve">
     <value>事件日志状态。</value>
   </data>
-  <data name="EventLogsChannelPaneTitle.Text" xml:space="preserve">
-    <value>当前记录</value>
-  </data>
-  <data name="EventLogsChannelPaneDescription.Text" xml:space="preserve">
-    <value>从“事件日志”导航中选择一个通道，以查看其最新事件。</value>
-  </data>
   <data name="EventLogsLevelHeader.Text" xml:space="preserve">
     <value>级别</value>
   </data>
@@ -1525,7 +1519,7 @@
     <value>实时采集已启动</value>
   </data>
   <data name="Live.StartedDetails.Text" xml:space="preserve">
-    <value>Windows Event Log 会通过回调将 {0} 的新事件送入有界队列。</value>
+    <value>Windows Event Log 会将 {0} 的新事件送入有界队列。</value>
   </data>
   <data name="Live.Stopped.Text" xml:space="preserve">
     <value>实时采集已停止</value>

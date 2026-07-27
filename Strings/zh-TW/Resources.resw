@@ -555,12 +555,6 @@
   <data name="EventLogsStatusInfoBar.Message" xml:space="preserve">
     <value>事件記錄狀態。</value>
   </data>
-  <data name="EventLogsChannelPaneTitle.Text" xml:space="preserve">
-    <value>目前記錄</value>
-  </data>
-  <data name="EventLogsChannelPaneDescription.Text" xml:space="preserve">
-    <value>從事件記錄導覽選取頻道，以檢視其中的最新事件。</value>
-  </data>
   <data name="EventLogsLevelHeader.Text" xml:space="preserve">
     <value>層級</value>
   </data>
@@ -1525,7 +1519,7 @@
     <value>即時擷取已開始</value>
   </data>
   <data name="Live.StartedDetails.Text" xml:space="preserve">
-    <value>Windows Event Log 會透過 callback 將 {0} 的新事件送入有界限的佇列。</value>
+    <value>Windows Event Log 會將 {0} 的新事件送入有界限的佇列。</value>
   </data>
   <data name="Live.Stopped.Text" xml:space="preserve">
     <value>即時擷取已停止</value>

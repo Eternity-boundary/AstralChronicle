@@ -555,12 +555,6 @@
   <data name="EventLogsStatusInfoBar.Message" xml:space="preserve">
     <value>イベント ログの状態。</value>
   </data>
-  <data name="EventLogsChannelPaneTitle.Text" xml:space="preserve">
-    <value>現在のログ</value>
-  </data>
-  <data name="EventLogsChannelPaneDescription.Text" xml:space="preserve">
-    <value>イベント ログ ナビゲーションからチャネルを選択し、最新のイベントを確認します。</value>
-  </data>
   <data name="EventLogsLevelHeader.Text" xml:space="preserve">
     <value>レベル</value>
   </data>
@@ -1525,7 +1519,7 @@
     <value>ライブ キャプチャを開始しました</value>
   </data>
   <data name="Live.StartedDetails.Text" xml:space="preserve">
-    <value>Windows Event Log はコールバック経由で {0} の新しいイベントを上限付きキューに配信します。</value>
+    <value>Windows Event Log は{0} の新しいイベントを上限付きキューに配信します。</value>
   </data>
   <data name="Live.Stopped.Text" xml:space="preserve">
     <value>ライブ キャプチャを停止しました</value>

@@ -555,12 +555,6 @@
   <data name="EventLogsStatusInfoBar.Message" xml:space="preserve">
     <value>Event log status.</value>
   </data>
-  <data name="EventLogsChannelPaneTitle.Text" xml:space="preserve">
-    <value>Current log</value>
-  </data>
-  <data name="EventLogsChannelPaneDescription.Text" xml:space="preserve">
-    <value>Select a channel from Event Logs navigation to inspect its latest events.</value>
-  </data>
   <data name="EventLogsLevelHeader.Text" xml:space="preserve">
     <value>Level</value>
   </data>
@@ -1525,7 +1519,7 @@
     <value>Live capture started</value>
   </data>
   <data name="Live.StartedDetails.Text" xml:space="preserve">
-    <value>Windows Event Log delivers new events from {0} through a callback into a bounded queue.</value>
+    <value>Windows Event Log delivers new events from {0} into a bounded queue.</value>
   </data>
   <data name="Live.Stopped.Text" xml:space="preserve">
     <value>Live capture stopped</value>
