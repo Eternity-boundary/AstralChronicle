@@ -11,6 +11,8 @@
 
 #include <wil/cppwinrt_helpers.h>
 
+#include <atomic>
+#include <chrono>
 #include <string>
 #include <vector>
 #include <utility>
@@ -182,6 +184,19 @@ namespace
         }
         return result;
     }
+
+    [[nodiscard]] std::wstring NewSavedViewId()
+    {
+        static std::atomic_uint64_t sequence{};
+        auto const timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+        return L"view-" + std::to_wstring(timestamp) + L"-" + std::to_wstring(++sequence);
+    }
+
+    [[nodiscard]] std::wstring NowText()
+    {
+        return std::to_wstring(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
+    }
 }
 
 namespace winrt::AstralChronicle::implementation
@@ -207,6 +222,7 @@ namespace winrt::AstralChronicle::implementation
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
         std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
         std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
+        std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> savedViews,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
         std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel,
@@ -216,10 +232,11 @@ namespace winrt::AstralChronicle::implementation
         m_eventQuery = std::move(eventQuery);
         m_bookmarkStore = std::move(bookmarkStore);
         m_textExporter = std::move(textExporter);
+        m_savedViews = std::move(savedViews);
         m_strings = std::move(strings);
-        if (!m_eventQuery || !m_bookmarkStore || !m_textExporter || !m_strings)
+        if (!m_eventQuery || !m_bookmarkStore || !m_textExporter || !m_savedViews || !m_strings)
         {
-            throw std::invalid_argument("Event logs require query, bookmark, export, and string services.");
+            throw std::invalid_argument("Event logs require query, bookmark, export, saved view, and string services.");
         }
         m_dispatcher = dispatcher;
         auto const settings = ::AstralChronicle::viewmodels::PersistedSettingsSnapshot::Load();
@@ -233,7 +250,7 @@ namespace winrt::AstralChronicle::implementation
             ? channel->Path
             : std::wstring{ defaultChannel.c_str(), defaultChannel.size() };
         m_isSavedLog = false;
-        m_isStructuredQuery = channel && channel->Path.empty() && query && IsStructuredEventQuery(*query);
+        m_isStructuredQuery = query && IsStructuredEventQuery(*query) && (!channel || channel->Path.empty());
         m_globalSearchText = searchText && !searchText->empty() ? *searchText : std::wstring{};
         m_isGlobalSearch = m_isStructuredQuery && !m_globalSearchText.empty();
         if (m_isGlobalSearch)
@@ -664,6 +681,42 @@ namespace winrt::AstralChronicle::implementation
             co_return;
         }
     }
+
+    bool EventLogsViewModel::SaveCurrentView(bool const detailsPaneOpen)
+    {
+        if (!m_savedViews || m_isSavedLog)
+        {
+            return false;
+        }
+
+        ::AstralChronicle::models::SavedView view;
+        view.Id = NewSavedViewId();
+        view.Name = m_channelPath.empty()
+            ? std::wstring{ m_heading.c_str() }
+            : m_channelPath;
+        view.Description = std::wstring{ m_filterSummary.c_str() };
+        view.Query = m_query.empty() ? L"*" : m_query;
+        view.Channel = m_isStructuredQuery ? L"" : m_channelPath;
+        view.Type = ::AstralChronicle::models::SavedViewType::User;
+        view.Sort = std::wstring{ m_sortKey.c_str() };
+        view.Details = detailsPaneOpen;
+        view.Timeline = false;
+        view.CreatedAt = NowText();
+        view.UpdatedAt = view.CreatedAt;
+
+        if (m_savedViews->Upsert(view))
+        {
+            return true;
+        }
+
+        m_statusText = m_strings->GetString(L"SavedViews.SaveFailed.Text");
+        m_statusDetails.clear();
+        m_statusSeverity = Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error;
+        m_hasStatusMessage = true;
+        RaiseStatusProperties();
+        return false;
+    }
+
     winrt::hstring EventLogsViewModel::SortKey() const { return m_sortKey; }
     bool EventLogsViewModel::SortAscending() const noexcept { return m_sortAscending; }
     Microsoft::UI::Xaml::Controls::InfoBarSeverity EventLogsViewModel::StatusSeverity() const noexcept { return m_statusSeverity; }

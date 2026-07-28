@@ -5,8 +5,10 @@
 #include "EventLogItemViewModel.h"
 #include "Models/EventChannelDescriptor.h"
 #include "Models/EventFilter.h"
+#include "Models/SavedView.h"
 #include "Services/IEventBookmarkStore.h"
 #include "Services/IEventQueryService.h"
+#include "Services/ISavedViewRepository.h"
 #include "Services/ITextExportService.h"
 
 #include <winrt/Microsoft.UI.h>
@@ -35,6 +37,7 @@ namespace winrt::AstralChronicle::implementation
             std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
             std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
             std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
+            std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> savedViews,
             std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
             std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel = std::nullopt,
@@ -90,6 +93,7 @@ namespace winrt::AstralChronicle::implementation
         void ToggleBookmarks();
         void ToggleBookmark(winrt::AstralChronicle::EventLogItemViewModel const& value);
         void ExportSelectedEvents(winrt::Microsoft::UI::WindowId const& windowId);
+        [[nodiscard]] bool SaveCurrentView(bool detailsPaneOpen);
         [[nodiscard]] winrt::hstring SortKey() const;
         [[nodiscard]] bool SortAscending() const noexcept;
         [[nodiscard]] Microsoft::UI::Xaml::Controls::InfoBarSeverity StatusSeverity() const noexcept;
@@ -182,6 +186,7 @@ namespace winrt::AstralChronicle::implementation
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> m_eventQuery;
         std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> m_bookmarkStore;
         std::shared_ptr<::AstralChronicle::services::ITextExportService> m_textExporter;
+        std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> m_savedViews;
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> m_strings;
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         std::wstring m_channelPath;

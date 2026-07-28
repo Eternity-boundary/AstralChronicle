@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "EventLogsPage.xaml.h"
 
+#include "Core/Navigation/INavigationService.h"
 #include "DesignSystem/Localization/IStringResourceService.h"
 #include "Services/ElevationRestart.h"
 #include "ViewModels/PersistedSettings.h"
@@ -68,12 +69,17 @@ namespace winrt::AstralChronicle::implementation
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
         std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
         std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
+        std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> savedViews,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
+        ::AstralChronicle::navigation::INavigationService& navigation,
+        std::function<void(std::wstring_view)> navigationSelectionChanged,
         std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel,
         std::optional<std::wstring> const& query,
         std::optional<std::wstring> const& searchText)
     {
         m_strings = strings;
+        m_navigation = &navigation;
+        m_navigationSelectionChanged = std::move(navigationSelectionChanged);
         Microsoft::UI::Xaml::Automation::AutomationProperties::SetName(
             EventSearchBox(),
             strings->GetString(L"EventLogsSearchBox.PlaceholderText"));
@@ -114,6 +120,7 @@ namespace winrt::AstralChronicle::implementation
             std::move(eventQuery),
             std::move(bookmarkStore),
             std::move(textExporter),
+            std::move(savedViews),
             std::move(strings),
             PageRoot().DispatcherQueue(),
             channel,
@@ -288,6 +295,34 @@ namespace winrt::AstralChronicle::implementation
     {
         auto const windowId = PageRoot().XamlRoot().ContentIslandEnvironment().AppWindowId();
         winrt::get_self<EventLogsViewModel>(m_viewModel)->ExportSelectedEvents(windowId);
+    }
+
+    void EventLogsPage::OnSaveViewClicked(
+        winrt::Windows::Foundation::IInspectable const&,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        auto const detailsVisible = ContentGrid().ActualWidth() < 800.0
+            ? m_narrowDetailsPaneVisible
+            : m_detailsPaneVisible;
+        if (winrt::get_self<EventLogsViewModel>(m_viewModel)->SaveCurrentView(detailsVisible))
+        {
+            NavigateTo(L"saved-views");
+        }
+    }
+
+    void EventLogsPage::OnLiveUpdatesClicked(
+        winrt::Windows::Foundation::IInspectable const&,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        NavigateTo(L"live");
+    }
+
+    void EventLogsPage::NavigateTo(std::wstring_view const route)
+    {
+        if (m_navigation && m_navigation->Navigate(route) && m_navigationSelectionChanged)
+        {
+            m_navigationSelectionChanged(route);
+        }
     }
 
     void EventLogsPage::OnOpenSavedLogClicked(

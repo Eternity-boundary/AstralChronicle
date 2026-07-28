@@ -389,25 +389,53 @@ namespace winrt::AstralChronicle::implementation
             } });
         m_navigation->Register({
             L"event-logs",
-            [eventQuery, bookmarkStore, textExporter, strings = m_strings]()
+            [weak, eventQuery, bookmarkStore, textExporter, savedViews, strings = m_strings]()
             {
+                auto const self = weak.get();
+                if (!self)
+                {
+                    return FrameworkElement{ nullptr };
+                }
                 auto page = make<EventLogsPage>();
                 get_self<EventLogsPage>(page)->Initialize(
                     eventQuery,
                     bookmarkStore,
                     textExporter,
-                    strings);
+                    savedViews,
+                    strings,
+                    *self->m_navigation,
+                    [weak](std::wstring_view route)
+                    {
+                        if (auto const window = weak.get())
+                        {
+                            window->SelectNavigationItemForRoute(route);
+                        }
+                    });
                 return page.as<FrameworkElement>();
             },
-            [eventQuery, bookmarkStore, textExporter, strings = m_strings](
+            [weak, eventQuery, bookmarkStore, textExporter, savedViews, strings = m_strings](
                 ::AstralChronicle::navigation::NavigationRequest const& request)
             {
+                auto const self = weak.get();
+                if (!self)
+                {
+                    return FrameworkElement{ nullptr };
+                }
                 auto page = make<EventLogsPage>();
                 get_self<EventLogsPage>(page)->Initialize(
                     eventQuery,
                     bookmarkStore,
                     textExporter,
+                    savedViews,
                     strings,
+                    *self->m_navigation,
+                    [weak](std::wstring_view route)
+                    {
+                        if (auto const window = weak.get())
+                        {
+                            window->SelectNavigationItemForRoute(route);
+                        }
+                    },
                     request.Channel,
                     request.Query,
                     request.SearchText);

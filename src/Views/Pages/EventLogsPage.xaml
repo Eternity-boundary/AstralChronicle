@@ -340,7 +340,10 @@
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <AppBarSeparator />
-                    <AppBarButton x:Uid="EventLogsSaveViewCommand" IsEnabled="False">
+                    <AppBarButton
+                        x:Uid="EventLogsSaveViewCommand"
+                        AutomationProperties.AutomationId="EventLogsSaveViewCommand"
+                        Click="OnSaveViewClicked">
                         <AppBarButton.Icon>
                             <SymbolIcon Symbol="Save" />
                         </AppBarButton.Icon>
@@ -363,7 +366,10 @@
                             <SymbolIcon Symbol="Setting" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton x:Uid="EventLogsLiveUpdatesCommand" IsEnabled="False">
+                    <AppBarButton
+                        x:Uid="EventLogsLiveUpdatesCommand"
+                        AutomationProperties.AutomationId="EventLogsLiveUpdatesCommand"
+                        Click="OnLiveUpdatesClicked">
                         <AppBarButton.Icon>
                             <SymbolIcon Symbol="Play" />
                         </AppBarButton.Icon>
