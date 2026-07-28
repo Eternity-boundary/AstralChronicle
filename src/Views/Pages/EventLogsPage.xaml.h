@@ -5,6 +5,7 @@
 #include "Models/EventChannelDescriptor.h"
 #include "ViewModels/EventLogsViewModel.h"
 
+#include <functional>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <winrt/Microsoft.UI.Xaml.Input.h>
 
@@ -21,7 +22,13 @@ namespace AstralChronicle::services
 {
     struct IEventBookmarkStore;
     struct IEventQueryService;
+    struct ISavedViewRepository;
     struct ITextExportService;
+}
+
+namespace AstralChronicle::navigation
+{
+    struct INavigationService;
 }
 
 namespace winrt::AstralChronicle::implementation
@@ -36,10 +43,17 @@ namespace winrt::AstralChronicle::implementation
             std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
             std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
             std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
+            std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> savedViews,
             std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
+            ::AstralChronicle::navigation::INavigationService& navigation,
+            std::function<void(std::wstring_view)> navigationSelectionChanged,
             std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel = std::nullopt,
-            std::optional<std::wstring> const& query = std::nullopt);
+            std::optional<std::wstring> const& query = std::nullopt,
+            std::optional<std::wstring> const& searchText = std::nullopt);
         void OnRefreshClicked(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::RoutedEventArgs const& args);
+        void OnCloseActiveContextClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);
         void OnRestartAsAdministratorClicked(
@@ -66,7 +80,19 @@ namespace winrt::AstralChronicle::implementation
         void OnBookmarkClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);
+        void OnBookmarkItemClicked(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::RoutedEventArgs const& args);
         void OnExportClicked(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::RoutedEventArgs const& args);
+        void OnSaveViewClicked(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::RoutedEventArgs const& args);
+        void OnLiveUpdatesClicked(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::RoutedEventArgs const& args);
+        void OnOpenSavedLogClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);
         void OnToggleDetailsClicked(
@@ -91,7 +117,10 @@ namespace winrt::AstralChronicle::implementation
     private:
         void UpdateResponsiveLayout(double width);
         void UpdateAccessDeniedAction();
+        void UpdateCloseContextAction();
         void UpdateSortAutomation();
+        void NavigateTo(std::wstring_view route);
+        winrt::fire_and_forget OpenSavedLogAsync();
 
         winrt::AstralChronicle::EventLogsViewModel m_viewModel{ nullptr };
         winrt::event_token m_viewModelPropertyChangedToken{};
@@ -100,6 +129,9 @@ namespace winrt::AstralChronicle::implementation
         Microsoft::UI::Xaml::Controls::ScrollViewer::ViewChanged_revoker m_eventListViewChangedRevoker{};
         bool m_detailsPaneVisible{ true };
         bool m_narrowDetailsPaneVisible{};
+        bool m_isPickingSavedLog{};
+        ::AstralChronicle::navigation::INavigationService* m_navigation{};
+        std::function<void(std::wstring_view)> m_navigationSelectionChanged;
     };
 }
 

@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "EventLogsPage.xaml.h"
 
+#include "Core/Navigation/INavigationService.h"
 #include "DesignSystem/Localization/IStringResourceService.h"
 #include "Services/ElevationRestart.h"
 #include "ViewModels/PersistedSettings.h"
@@ -68,11 +69,17 @@ namespace winrt::AstralChronicle::implementation
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
         std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
         std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
+        std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> savedViews,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
+        ::AstralChronicle::navigation::INavigationService& navigation,
+        std::function<void(std::wstring_view)> navigationSelectionChanged,
         std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel,
-        std::optional<std::wstring> const& query)
+        std::optional<std::wstring> const& query,
+        std::optional<std::wstring> const& searchText)
     {
         m_strings = strings;
+        m_navigation = &navigation;
+        m_navigationSelectionChanged = std::move(navigationSelectionChanged);
         Microsoft::UI::Xaml::Automation::AutomationProperties::SetName(
             EventSearchBox(),
             strings->GetString(L"EventLogsSearchBox.PlaceholderText"));
@@ -94,6 +101,10 @@ namespace winrt::AstralChronicle::implementation
                 {
                     self->UpdateAccessDeniedAction();
                 }
+                else if (args.PropertyName() == L"CanCloseActiveContext")
+                {
+                    self->UpdateCloseContextAction();
+                }
                 else if (args.PropertyName() == L"SortKey" || args.PropertyName() == L"SortAscending")
                 {
                     self->UpdateSortAutomation();
@@ -109,10 +120,13 @@ namespace winrt::AstralChronicle::implementation
             std::move(eventQuery),
             std::move(bookmarkStore),
             std::move(textExporter),
+            std::move(savedViews),
             std::move(strings),
             PageRoot().DispatcherQueue(),
             channel,
-            query);
+            query,
+            searchText);
+        UpdateCloseContextAction();
         UpdateSortAutomation();
         UpdateResponsiveLayout(ContentGrid().ActualWidth());
     }
@@ -125,11 +139,26 @@ namespace winrt::AstralChronicle::implementation
                 : Microsoft::UI::Xaml::Visibility::Collapsed);
     }
 
+    void EventLogsPage::UpdateCloseContextAction()
+    {
+        CloseContextCommand().Visibility(
+            winrt::get_self<EventLogsViewModel>(m_viewModel)->CanCloseActiveContext()
+                ? Microsoft::UI::Xaml::Visibility::Visible
+                : Microsoft::UI::Xaml::Visibility::Collapsed);
+    }
+
     void EventLogsPage::OnRefreshClicked(
         winrt::Windows::Foundation::IInspectable const&,
         Microsoft::UI::Xaml::RoutedEventArgs const&)
     {
         winrt::get_self<EventLogsViewModel>(m_viewModel)->Refresh();
+    }
+
+    void EventLogsPage::OnCloseActiveContextClicked(
+        winrt::Windows::Foundation::IInspectable const&,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        winrt::get_self<EventLogsViewModel>(m_viewModel)->CloseActiveContext();
     }
 
     void EventLogsPage::OnRestartAsAdministratorClicked(
@@ -249,12 +278,87 @@ namespace winrt::AstralChronicle::implementation
         winrt::get_self<EventLogsViewModel>(m_viewModel)->ToggleBookmarks();
     }
 
+    void EventLogsPage::OnBookmarkItemClicked(
+        winrt::Windows::Foundation::IInspectable const& sender,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        auto const element = sender.try_as<Microsoft::UI::Xaml::FrameworkElement>();
+        auto const item = element
+            ? element.DataContext().try_as<winrt::AstralChronicle::EventLogItemViewModel>()
+            : nullptr;
+        winrt::get_self<EventLogsViewModel>(m_viewModel)->ToggleBookmark(item);
+    }
+
     void EventLogsPage::OnExportClicked(
         winrt::Windows::Foundation::IInspectable const&,
         Microsoft::UI::Xaml::RoutedEventArgs const&)
     {
         auto const windowId = PageRoot().XamlRoot().ContentIslandEnvironment().AppWindowId();
         winrt::get_self<EventLogsViewModel>(m_viewModel)->ExportSelectedEvents(windowId);
+    }
+
+    void EventLogsPage::OnSaveViewClicked(
+        winrt::Windows::Foundation::IInspectable const&,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        auto const detailsVisible = ContentGrid().ActualWidth() < 800.0
+            ? m_narrowDetailsPaneVisible
+            : m_detailsPaneVisible;
+        if (winrt::get_self<EventLogsViewModel>(m_viewModel)->SaveCurrentView(detailsVisible))
+        {
+            NavigateTo(L"saved-views");
+        }
+    }
+
+    void EventLogsPage::OnLiveUpdatesClicked(
+        winrt::Windows::Foundation::IInspectable const&,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        NavigateTo(L"live");
+    }
+
+    void EventLogsPage::NavigateTo(std::wstring_view const route)
+    {
+        if (m_navigation && m_navigation->Navigate(route) && m_navigationSelectionChanged)
+        {
+            m_navigationSelectionChanged(route);
+        }
+    }
+
+    void EventLogsPage::OnOpenSavedLogClicked(
+        winrt::Windows::Foundation::IInspectable const&,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        if (m_isPickingSavedLog)
+        {
+            return;
+        }
+
+        m_isPickingSavedLog = true;
+        OpenSavedLogAsync();
+    }
+
+    winrt::fire_and_forget EventLogsPage::OpenSavedLogAsync()
+    {
+        auto lifetime = get_strong();
+        try
+        {
+            auto const windowId = PageRoot().XamlRoot().ContentIslandEnvironment().AppWindowId();
+            winrt::Microsoft::Windows::Storage::Pickers::FileOpenPicker picker{ windowId };
+            picker.FileTypeFilter().Append(L".evtx");
+            auto const result = co_await picker.PickSingleFileAsync();
+            if (result)
+            {
+                winrt::get_self<EventLogsViewModel>(m_viewModel)->OpenSavedLog(
+                    std::wstring{ result.Path().c_str() });
+            }
+        }
+        catch (...)
+        {
+            // The picker can fail before showing if its hosting window is closing.
+        }
+
+        m_isPickingSavedLog = false;
     }
 
     void EventLogsPage::OnToggleDetailsClicked(

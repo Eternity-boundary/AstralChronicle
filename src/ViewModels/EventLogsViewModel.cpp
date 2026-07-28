@@ -4,12 +4,15 @@
 
 #include "DesignSystem/Localization/IStringResourceService.h"
 #include "EventLogItemViewModel.h"
+#include "Services/EventBookmarkIdentity.h"
 #include "Services/EventQueryBuilder.h"
 
 #include "EventLogsViewModel.g.cpp"
 
 #include <wil/cppwinrt_helpers.h>
 
+#include <atomic>
+#include <chrono>
 #include <string>
 #include <vector>
 #include <utility>
@@ -129,39 +132,6 @@ namespace
         }
     }
 
-    [[nodiscard]] std::wstring HexEncode(winrt::hstring const& value)
-    {
-        constexpr wchar_t Digits[] = L"0123456789ABCDEF";
-        std::wstring result;
-        result.reserve(value.size() * 4);
-        for (auto const character : value)
-        {
-            auto const codeUnit = static_cast<std::uint16_t>(character);
-            result.push_back(Digits[(codeUnit >> 12) & 0x0f]);
-            result.push_back(Digits[(codeUnit >> 8) & 0x0f]);
-            result.push_back(Digits[(codeUnit >> 4) & 0x0f]);
-            result.push_back(Digits[codeUnit & 0x0f]);
-        }
-        return result;
-    }
-
-    [[nodiscard]] std::wstring LegacyBookmarkKey(
-        winrt::AstralChronicle::EventLogItemViewModel const& value)
-    {
-        return std::wstring{ value.Channel().c_str() } + L"|" +
-            std::wstring{ value.RecordId().c_str() };
-    }
-
-    [[nodiscard]] std::wstring BookmarkKey(
-        winrt::AstralChronicle::EventLogItemViewModel const& value)
-    {
-        return L"v2|" + std::to_wstring(value.SortRecordId()) + L"|" +
-            std::to_wstring(value.SortTimestamp()) + L"|" +
-            HexEncode(value.Provider()) + L"|" +
-            HexEncode(value.EventId()) + L"|" +
-            HexEncode(value.Channel());
-    }
-
     [[nodiscard]] std::wstring FormatProperties(
         std::vector<::AstralChronicle::models::EventProperty> const& properties)
     {
@@ -214,6 +184,19 @@ namespace
         }
         return result;
     }
+
+    [[nodiscard]] std::wstring NewSavedViewId()
+    {
+        static std::atomic_uint64_t sequence{};
+        auto const timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+        return L"view-" + std::to_wstring(timestamp) + L"-" + std::to_wstring(++sequence);
+    }
+
+    [[nodiscard]] std::wstring NowText()
+    {
+        return std::to_wstring(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
+    }
 }
 
 namespace winrt::AstralChronicle::implementation
@@ -239,41 +222,66 @@ namespace winrt::AstralChronicle::implementation
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
         std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
         std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
+        std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> savedViews,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
         std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel,
-        std::optional<std::wstring> const& query)
+        std::optional<std::wstring> const& query,
+        std::optional<std::wstring> const& searchText)
     {
         m_eventQuery = std::move(eventQuery);
         m_bookmarkStore = std::move(bookmarkStore);
         m_textExporter = std::move(textExporter);
+        m_savedViews = std::move(savedViews);
         m_strings = std::move(strings);
-        if (!m_eventQuery || !m_bookmarkStore || !m_textExporter || !m_strings)
+        if (!m_eventQuery || !m_bookmarkStore || !m_textExporter || !m_savedViews || !m_strings)
         {
-            throw std::invalid_argument("Event logs require query, bookmark, export, and string services.");
+            throw std::invalid_argument("Event logs require query, bookmark, export, saved view, and string services.");
         }
         m_dispatcher = dispatcher;
         auto const settings = ::AstralChronicle::viewmodels::PersistedSettingsSnapshot::Load();
         m_eventItemSettings = settings.EventItems;
         m_queryBatchSize = settings.QueryBatchSize;
+        m_pageSize = m_queryBatchSize;
         m_rawXPathEnabled = settings.RawXPathMode;
         m_sortAscending = !settings.DefaultSortDescending;
-        m_heading = m_strings->GetString(L"EventLogs.Heading");
         auto const defaultChannel = m_strings->GetString(L"EventLogs.ChannelDefault.Text");
-        m_isStructuredQuery = channel && channel->Path.empty() && query && IsStructuredEventQuery(*query);
-        if (m_isStructuredQuery)
+        auto const defaultChannelPath = channel && !channel->Path.empty()
+            ? channel->Path
+            : std::wstring{ defaultChannel.c_str(), defaultChannel.size() };
+        m_isSavedLog = false;
+        m_isStructuredQuery = query && IsStructuredEventQuery(*query) && (!channel || channel->Path.empty());
+        m_globalSearchText = searchText && !searchText->empty() ? *searchText : std::wstring{};
+        m_isGlobalSearch = m_isStructuredQuery && !m_globalSearchText.empty();
+        if (m_isGlobalSearch)
         {
+            // A global search may need to inspect many non-matching records. Keep each
+            // background turn small, even if the normal event-page batch size is larger.
+            m_pageSize = std::clamp(m_queryBatchSize, 64u, 128u);
+            m_heading = m_strings->GetString(L"EventLogs.GlobalSearchHeading.Text");
+            auto const allChannels = m_strings->GetString(L"EventLogs.GlobalSearchChannel.Text");
+            m_channelPath = std::wstring{ allChannels.c_str(), allChannels.size() };
+        }
+        else if (m_isStructuredQuery)
+        {
+            m_heading = m_strings->GetString(L"EventLogs.Heading");
             auto const customViewChannel = m_strings->GetString(L"EventLogs.CustomViewChannel.Text");
             m_channelPath = std::wstring{ customViewChannel.c_str(), customViewChannel.size() };
         }
         else
         {
-            m_channelPath = channel && !channel->Path.empty()
-                ? channel->Path
-                : std::wstring{ defaultChannel.c_str(), defaultChannel.size() };
+            m_heading = m_strings->GetString(L"EventLogs.Heading");
+            m_channelPath = defaultChannelPath;
         }
         m_baseQuery = query && !query->empty() ? *query : L"*";
         m_query = m_baseQuery;
+        m_closeTargetContext.Heading = std::wstring{
+            m_strings->GetString(L"EventLogs.Heading").c_str() };
+        m_closeTargetContext.ChannelPath = m_isGlobalSearch ? defaultChannelPath : m_channelPath;
+        m_closeTargetContext.BaseQuery = m_isGlobalSearch ? L"*" : m_baseQuery;
+        m_closeTargetContext.IsStructuredQuery = !m_isGlobalSearch && m_isStructuredQuery;
+        m_closeTargetContext.PageSize = m_isGlobalSearch ? m_queryBatchSize : m_pageSize;
+        m_canCloseActiveContext = false;
         m_initialRecordId = ExtractRecordId(query);
         m_statusText = m_strings->GetString(L"EventLogs.Loading.Text");
         m_statusDetails = m_strings->GetString(L"EventLogs.LoadingDetails.Text");
@@ -292,12 +300,18 @@ namespace winrt::AstralChronicle::implementation
         m_filterAfterToday = false;
         m_filterAfterHours.clear();
         m_hasStructuredFilter = false;
+        m_showBookmarkedOnly = false;
         m_bookmarkedKeys = m_bookmarkStore->Load();
-        m_filterSummary = m_strings->GetString(L"EventLogs.FilterNone.Text");
+        m_filterSummary = m_isGlobalSearch
+            ? FormatResource(
+                m_strings->GetString(L"EventLogs.GlobalSearchSummary.Text"),
+                { winrt::to_hstring(0), winrt::to_hstring(0), winrt::hstring{ m_globalSearchText } })
+            : m_strings->GetString(L"EventLogs.FilterNone.Text");
         ClearSelection();
         RaisePropertyChanged(L"Heading");
         RaisePropertyChanged(L"ChannelPath");
         RaisePropertyChanged(L"RawXPathEnabled");
+        RaisePropertyChanged(L"BookmarkCount");
         Refresh();
     }
 
@@ -448,7 +462,25 @@ namespace winrt::AstralChronicle::implementation
     winrt::hstring EventLogsViewModel::FilterSummary() const { return m_filterSummary; }
     bool EventLogsViewModel::HasFilter() const noexcept
     {
-        return !m_searchText.empty() || m_hasStructuredFilter;
+        return !m_searchText.empty() || m_hasStructuredFilter || m_showBookmarkedOnly;
+    }
+    bool EventLogsViewModel::ShowBookmarkedOnly() const noexcept
+    {
+        return m_showBookmarkedOnly;
+    }
+    void EventLogsViewModel::ShowBookmarkedOnly(bool const value)
+    {
+        if (m_showBookmarkedOnly == value)
+        {
+            return;
+        }
+        m_showBookmarkedOnly = value;
+        ApplyFilter();
+        RaisePropertyChanged(L"ShowBookmarkedOnly");
+    }
+    std::uint32_t EventLogsViewModel::BookmarkCount() const noexcept
+    {
+        return static_cast<std::uint32_t>(m_bookmarkedKeys.size());
     }
     bool EventLogsViewModel::HasSelection() const noexcept
     {
@@ -536,21 +568,25 @@ namespace winrt::AstralChronicle::implementation
             });
         for (auto const& value : values)
         {
-            if (value)
-            {
-                value.IsBookmarked(shouldBookmark);
-                if (shouldBookmark)
-                {
-                    m_bookmarkedKeys.insert(BookmarkKey(value));
-                }
-                else
-                {
-                    m_bookmarkedKeys.erase(BookmarkKey(value));
-                    m_bookmarkedKeys.erase(LegacyBookmarkKey(value));
-                }
-            }
+            SetBookmarkState(value, shouldBookmark);
         }
         m_bookmarkStore->Save(m_bookmarkedKeys);
+        ApplyFilter();
+        RaisePropertyChanged(L"BookmarkCount");
+    }
+
+    void EventLogsViewModel::ToggleBookmark(
+        winrt::AstralChronicle::EventLogItemViewModel const& value)
+    {
+        if (!value)
+        {
+            return;
+        }
+
+        SetBookmarkState(value, !value.IsBookmarked());
+        m_bookmarkStore->Save(m_bookmarkedKeys);
+        ApplyFilter();
+        RaisePropertyChanged(L"BookmarkCount");
     }
 
     void EventLogsViewModel::ExportSelectedEvents(Microsoft::UI::WindowId const& windowId)
@@ -645,6 +681,42 @@ namespace winrt::AstralChronicle::implementation
             co_return;
         }
     }
+
+    bool EventLogsViewModel::SaveCurrentView(bool const detailsPaneOpen)
+    {
+        if (!m_savedViews || m_isSavedLog)
+        {
+            return false;
+        }
+
+        ::AstralChronicle::models::SavedView view;
+        view.Id = NewSavedViewId();
+        view.Name = m_channelPath.empty()
+            ? std::wstring{ m_heading.c_str() }
+            : m_channelPath;
+        view.Description = std::wstring{ m_filterSummary.c_str() };
+        view.Query = m_query.empty() ? L"*" : m_query;
+        view.Channel = m_isStructuredQuery ? L"" : m_channelPath;
+        view.Type = ::AstralChronicle::models::SavedViewType::User;
+        view.Sort = std::wstring{ m_sortKey.c_str() };
+        view.Details = detailsPaneOpen;
+        view.Timeline = false;
+        view.CreatedAt = NowText();
+        view.UpdatedAt = view.CreatedAt;
+
+        if (m_savedViews->Upsert(view))
+        {
+            return true;
+        }
+
+        m_statusText = m_strings->GetString(L"SavedViews.SaveFailed.Text");
+        m_statusDetails.clear();
+        m_statusSeverity = Microsoft::UI::Xaml::Controls::InfoBarSeverity::Error;
+        m_hasStatusMessage = true;
+        RaiseStatusProperties();
+        return false;
+    }
+
     winrt::hstring EventLogsViewModel::SortKey() const { return m_sortKey; }
     bool EventLogsViewModel::SortAscending() const noexcept { return m_sortAscending; }
     Microsoft::UI::Xaml::Controls::InfoBarSeverity EventLogsViewModel::StatusSeverity() const noexcept { return m_statusSeverity; }
@@ -707,15 +779,18 @@ namespace winrt::AstralChronicle::implementation
             m_detailsCancellation = ::AstralChronicle::services::MakeQueryCancellation();
             auto const recordId = std::wcstoull(m_selectedRecordId.c_str(), nullptr, 10);
             auto const requestVersion = ++m_detailsRequestVersion;
-            auto selectedChannel = std::wstring{ m_selectedEvent.Channel().c_str() };
-            if (selectedChannel.empty() || selectedChannel == m_strings->GetString(L"EventLogs.EmptyValue.Text"))
+            auto sourcePath = m_isSavedLog
+                ? m_channelPath
+                : std::wstring{ m_selectedEvent.Channel().c_str() };
+            if (sourcePath.empty() || sourcePath == m_strings->GetString(L"EventLogs.EmptyValue.Text"))
             {
-                selectedChannel = m_channelPath;
+                sourcePath = m_channelPath;
             }
             LoadDetailsAsync(
                 requestVersion,
-                std::move(selectedChannel),
+                std::move(sourcePath),
                 recordId,
+                m_isSavedLog,
                 m_detailsCancellation);
         }
         else
@@ -796,6 +871,92 @@ namespace winrt::AstralChronicle::implementation
     winrt::hstring EventLogsViewModel::SelectedRelatedEvents() const { return m_selectedRelatedEvents; }
     winrt::hstring EventLogsViewModel::DetailsStatusText() const { return m_detailsStatusText; }
     bool EventLogsViewModel::IsDetailsLoading() const noexcept { return m_isDetailsLoading; }
+    bool EventLogsViewModel::CanCloseActiveContext() const noexcept { return m_canCloseActiveContext; }
+
+    void EventLogsViewModel::OpenSavedLog(std::wstring filePath)
+    {
+        if (filePath.empty() || !m_strings)
+        {
+            return;
+        }
+
+        m_isSavedLog = true;
+        m_isStructuredQuery = false;
+        m_isGlobalSearch = false;
+        m_canCloseActiveContext = false;
+        m_globalSearchText.clear();
+        m_initialRecordId.reset();
+        m_heading = m_strings->GetString(L"EventLogs.SavedLogHeading.Text");
+        m_channelPath = std::move(filePath);
+        m_baseQuery = L"*";
+        m_query = m_baseQuery;
+
+        m_searchText.clear();
+        m_filterProvider.clear();
+        m_filterEventId.clear();
+        m_filterLevel = L"Any";
+        m_filterTask.clear();
+        m_filterOpcode.clear();
+        m_filterKeyword.clear();
+        m_filterProcessId.clear();
+        m_filterThreadId.clear();
+        m_filterUser.clear();
+        m_filterComputer.clear();
+        m_rawXPath.clear();
+        m_filterAfterToday = false;
+        m_filterAfterHours.clear();
+        m_hasStructuredFilter = false;
+        m_showBookmarkedOnly = false;
+
+        RaisePropertyChanged(L"Heading");
+        RaisePropertyChanged(L"ChannelPath");
+        RaisePropertyChanged(L"CanCloseActiveContext");
+        RaiseFilterProperties();
+        Refresh();
+    }
+
+    void EventLogsViewModel::CloseActiveContext()
+    {
+        if ((!m_isSavedLog && !m_isGlobalSearch) || !m_strings)
+        {
+            return;
+        }
+
+        m_isSavedLog = false;
+        m_isStructuredQuery = m_closeTargetContext.IsStructuredQuery;
+        m_isGlobalSearch = false;
+        m_canCloseActiveContext = false;
+        m_globalSearchText.clear();
+        m_initialRecordId.reset();
+        m_heading = winrt::hstring{ m_closeTargetContext.Heading };
+        m_channelPath = m_closeTargetContext.ChannelPath;
+        m_baseQuery = m_closeTargetContext.BaseQuery;
+        m_query = m_baseQuery;
+        m_pageSize = m_closeTargetContext.PageSize;
+
+        m_searchText.clear();
+        m_filterProvider.clear();
+        m_filterEventId.clear();
+        m_filterLevel = L"Any";
+        m_filterTask.clear();
+        m_filterOpcode.clear();
+        m_filterKeyword.clear();
+        m_filterProcessId.clear();
+        m_filterThreadId.clear();
+        m_filterUser.clear();
+        m_filterComputer.clear();
+        m_rawXPath.clear();
+        m_filterAfterToday = false;
+        m_filterAfterHours.clear();
+        m_hasStructuredFilter = false;
+        m_showBookmarkedOnly = false;
+
+        RaisePropertyChanged(L"Heading");
+        RaisePropertyChanged(L"ChannelPath");
+        RaisePropertyChanged(L"CanCloseActiveContext");
+        RaiseFilterProperties();
+        Refresh();
+    }
 
     void EventLogsViewModel::Refresh()
     {
@@ -823,14 +984,25 @@ namespace winrt::AstralChronicle::implementation
         m_hasStatusMessage = true;
         m_isAccessDenied = false;
         m_statusSeverity = Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational;
-        m_statusText = m_strings->GetString(L"EventLogs.Loading.Text");
-        m_statusDetails = m_strings->GetString(L"EventLogs.LoadingDetails.Text");
+        m_statusText = m_isGlobalSearch
+            ? m_strings->GetString(L"EventLogs.GlobalSearchLoading.Text")
+            : m_strings->GetString(L"EventLogs.Loading.Text");
+        m_statusDetails = m_isGlobalSearch
+            ? FormatResource(
+                m_strings->GetString(L"EventLogs.GlobalSearchLoadingDetails.Text"),
+                { winrt::to_hstring(0) })
+            : m_strings->GetString(L"EventLogs.LoadingDetails.Text");
         m_events = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
         m_allEvents = m_events;
         m_loadedRecordCount = 0;
+        m_globalSearchTargetResultCount = m_pageSize;
         m_hasMoreEvents = true;
         m_loadedEventKeys.clear();
-        m_filterSummary = m_strings->GetString(L"EventLogs.FilterNone.Text");
+        m_filterSummary = m_isGlobalSearch
+            ? FormatResource(
+                m_strings->GetString(L"EventLogs.GlobalSearchSummary.Text"),
+                { winrt::to_hstring(0), winrt::to_hstring(0), winrt::hstring{ m_globalSearchText } })
+            : m_strings->GetString(L"EventLogs.FilterNone.Text");
         ClearSelection();
         RaiseStatusProperties();
         RaisePropertyChanged(L"Events");
@@ -842,7 +1014,7 @@ namespace winrt::AstralChronicle::implementation
         RaisePropertyChanged(L"SelectedXml");
         RaisePropertyChanged(L"DetailsStatusText");
         RaisePropertyChanged(L"IsDetailsLoading");
-        LoadAsync(requestVersion, channel, m_query, 0, m_queryBatchSize, false, cancellation);
+        LoadAsync(requestVersion, channel, m_query, 0, m_pageSize, false, m_isSavedLog, cancellation);
     }
 
     void EventLogsViewModel::LoadMore()
@@ -856,14 +1028,18 @@ namespace winrt::AstralChronicle::implementation
         m_cancellation = ::AstralChronicle::services::MakeQueryCancellation();
         auto const channel = m_isStructuredQuery ? std::wstring{} : m_channelPath;
         auto const cancellation = m_cancellation;
+        m_globalSearchTargetResultCount = m_isGlobalSearch && m_allEvents
+            ? m_allEvents.Size() + m_pageSize
+            : m_pageSize;
         RaiseStatusProperties();
         LoadAsync(
             m_requestVersion,
             channel,
             m_query,
             m_loadedRecordCount,
-            m_queryBatchSize,
+            m_pageSize,
             true,
+            m_isSavedLog,
             cancellation);
     }
 
@@ -884,6 +1060,7 @@ namespace winrt::AstralChronicle::implementation
         m_filterAfterToday = false;
         m_filterAfterHours.clear();
         m_hasStructuredFilter = false;
+        m_showBookmarkedOnly = false;
         m_query = m_baseQuery;
         RaiseFilterProperties();
         Refresh();
@@ -996,6 +1173,7 @@ namespace winrt::AstralChronicle::implementation
         std::uint64_t const requestVersion,
         std::wstring channel,
         std::uint64_t const recordId,
+        bool const savedLogFile,
         ::AstralChronicle::services::QueryCancellation cancellation)
     {
         try
@@ -1005,7 +1183,9 @@ namespace winrt::AstralChronicle::implementation
             auto const dispatcher = m_dispatcher;
             if (!eventQuery || !dispatcher) co_return;
             co_await winrt::resume_background();
-            auto const result = eventQuery->QueryDetails(channel, recordId, cancellation);
+            auto const result = savedLogFile
+                ? eventQuery->QuerySavedLogDetails(channel, recordId, cancellation)
+                : eventQuery->QueryDetails(channel, recordId, cancellation);
             co_await wil::resume_foreground(dispatcher);
             auto const strongThis = weakThis.get();
             if (!strongThis || requestVersion != strongThis->m_detailsRequestVersion || cancellation != strongThis->m_detailsCancellation ||
@@ -1028,6 +1208,7 @@ namespace winrt::AstralChronicle::implementation
         std::uint32_t const skippedRecords,
         std::uint32_t const maximumRecords,
         bool const append,
+        bool const savedLogFile,
         ::AstralChronicle::services::QueryCancellation cancellation)
     {
         try
@@ -1037,13 +1218,21 @@ namespace winrt::AstralChronicle::implementation
             auto const dispatcher = m_dispatcher;
             if (!eventQuery || !dispatcher) co_return;
             co_await winrt::resume_background();
-            auto const result = eventQuery->QueryPageWithQueryOffset(
-                channel,
-                query,
-                skippedRecords,
-                maximumRecords,
-                true,
-                cancellation);
+            auto const result = savedLogFile
+                ? eventQuery->QuerySavedLogPageWithQueryOffset(
+                    channel,
+                    query,
+                    skippedRecords,
+                    maximumRecords,
+                    true,
+                    cancellation)
+                : eventQuery->QueryPageWithQueryOffset(
+                    channel,
+                    query,
+                    skippedRecords,
+                    maximumRecords,
+                    true,
+                    cancellation);
             co_await wil::resume_foreground(dispatcher);
             auto const strongThis = weakThis.get();
             if (!strongThis || requestVersion != strongThis->m_requestVersion || cancellation != strongThis->m_cancellation ||
@@ -1066,6 +1255,7 @@ namespace winrt::AstralChronicle::implementation
         auto const itemVector = append && m_allEvents
             ? m_allEvents
             : winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
+        auto const globalNeedle = Lowercase(m_globalSearchText);
         bool bookmarksMigrated{};
         for (auto const& event : result.Events)
         {
@@ -1074,8 +1264,10 @@ namespace winrt::AstralChronicle::implementation
                 event,
                 *m_strings,
                 m_eventItemSettings);
-            auto const bookmarkKey = BookmarkKey(item);
-            auto const legacyBookmarkKey = LegacyBookmarkKey(item);
+            auto const bookmarkKey = ::AstralChronicle::services::details::EventBookmarkKey(
+                item.SortRecordId(), item.SortTimestamp(), item.Provider(), item.EventId(), item.Channel());
+            auto const legacyBookmarkKey = ::AstralChronicle::services::details::LegacyEventBookmarkKey(
+                item.Channel(), item.RecordId());
             auto const hasCurrentBookmark = m_bookmarkedKeys.contains(bookmarkKey);
             auto const hasLegacyBookmark = event.RecordId != 0 && m_bookmarkedKeys.contains(legacyBookmarkKey);
             if (hasCurrentBookmark || hasLegacyBookmark)
@@ -1088,7 +1280,11 @@ namespace winrt::AstralChronicle::implementation
                     bookmarksMigrated = true;
                 }
             }
-            if (!m_loadedEventKeys.insert(BookmarkKey(item)).second)
+            if (m_isGlobalSearch && !Contains(item, globalNeedle))
+            {
+                continue;
+            }
+            if (!m_loadedEventKeys.insert(bookmarkKey).second)
             {
                 continue;
             }
@@ -1099,8 +1295,27 @@ namespace winrt::AstralChronicle::implementation
         m_allEvents = itemVector;
         m_loadedRecordCount += static_cast<std::uint32_t>(result.Events.size());
         m_hasMoreEvents = result.Status == ::AstralChronicle::services::EventQueryStatus::Succeeded &&
-            result.Events.size() == m_queryBatchSize;
+            result.Events.size() == m_pageSize;
         ApplyFilter();
+
+        if (m_isGlobalSearch && m_hasMoreEvents && m_allEvents.Size() < m_globalSearchTargetResultCount)
+        {
+            m_statusText = m_strings->GetString(L"EventLogs.GlobalSearchLoading.Text");
+            m_statusDetails = FormatResource(
+                m_strings->GetString(L"EventLogs.GlobalSearchLoadingDetails.Text"),
+                { winrt::to_hstring(m_loadedRecordCount) });
+            RaiseStatusProperties();
+            LoadAsync(
+                m_requestVersion,
+                std::wstring{},
+                m_query,
+                m_loadedRecordCount,
+                m_pageSize,
+                true,
+                false,
+                m_cancellation);
+            return;
+        }
 
         if (m_initialRecordId)
         {
@@ -1117,6 +1332,7 @@ namespace winrt::AstralChronicle::implementation
         }
 
         m_isLoading = false;
+        m_canCloseActiveContext = m_isSavedLog || m_isGlobalSearch;
         m_statusSeverity = SeverityFor(result.Status);
         m_statusDetails.clear();
 
@@ -1126,12 +1342,31 @@ namespace winrt::AstralChronicle::implementation
         {
         case Status::Succeeded:
             m_hasStatusMessage = false;
-            m_statusText = FormatResource(
-                m_strings->GetString(L"EventLogs.Loaded.Text"),
-                { winrt::to_hstring(m_allEvents.Size()) });
+            m_statusText = m_isGlobalSearch
+                ? FormatResource(
+                    m_strings->GetString(L"EventLogs.GlobalSearchLoaded.Text"),
+                    { winrt::to_hstring(m_allEvents.Size()) })
+                : FormatResource(
+                    m_strings->GetString(L"EventLogs.Loaded.Text"),
+                    { winrt::to_hstring(m_allEvents.Size()) });
             break;
         case Status::NoEvents:
-            if (append)
+            if (m_isGlobalSearch)
+            {
+                if (m_allEvents.Size() == 0)
+                {
+                    m_hasStatusMessage = true;
+                    m_statusText = m_strings->GetString(L"EventLogs.GlobalSearchNoEvents.Text");
+                }
+                else
+                {
+                    m_hasStatusMessage = false;
+                    m_statusText = FormatResource(
+                        m_strings->GetString(L"EventLogs.GlobalSearchLoaded.Text"),
+                        { winrt::to_hstring(m_allEvents.Size()) });
+                }
+            }
+            else if (append)
             {
                 m_hasStatusMessage = false;
                 m_statusText = FormatResource(
@@ -1176,6 +1411,7 @@ namespace winrt::AstralChronicle::implementation
 
         RaiseStatusProperties();
         RaiseSelectionProperties();
+        RaisePropertyChanged(L"CanCloseActiveContext");
     }
 
     void EventLogsViewModel::ApplyFilter()
@@ -1186,10 +1422,13 @@ namespace winrt::AstralChronicle::implementation
         }
 
         auto const needle = Lowercase(std::wstring{ m_searchText.c_str() });
+        auto const globalNeedle = Lowercase(m_globalSearchText);
         std::vector<winrt::AstralChronicle::EventLogItemViewModel> filteredItems;
         for (auto const& item : m_allEvents)
         {
-            if (needle.empty() || Contains(item, needle))
+            if ((globalNeedle.empty() || Contains(item, globalNeedle)) &&
+                (needle.empty() || Contains(item, needle)) &&
+                (!m_showBookmarkedOnly || item.IsBookmarked()))
             {
                 filteredItems.emplace_back(item);
             }
@@ -1272,7 +1511,19 @@ namespace winrt::AstralChronicle::implementation
             m_events = filtered;
             RaisePropertyChanged(L"Events");
         }
-        if (needle.empty() && !m_hasStructuredFilter)
+        if (m_showBookmarkedOnly)
+        {
+            m_filterSummary = FormatResource(
+                m_strings->GetString(L"EventLogs.FilterSummary.BookmarksOnly.Text"),
+                { winrt::to_hstring(m_events.Size()), winrt::to_hstring(m_allEvents.Size()) });
+        }
+        else if (m_isGlobalSearch)
+        {
+            m_filterSummary = FormatResource(
+                m_strings->GetString(L"EventLogs.GlobalSearchSummary.Text"),
+                { winrt::to_hstring(m_events.Size()), winrt::to_hstring(m_loadedRecordCount), winrt::hstring{ m_globalSearchText } });
+        }
+        else if (needle.empty() && !m_hasStructuredFilter)
         {
             m_filterSummary = m_strings->GetString(L"EventLogs.FilterNone.Text");
         }
@@ -1378,6 +1629,29 @@ namespace winrt::AstralChronicle::implementation
         m_selectedRelatedEvents = m_detailsStatusText;
     }
 
+    void EventLogsViewModel::SetBookmarkState(
+        winrt::AstralChronicle::EventLogItemViewModel const& value,
+        bool const isBookmarked)
+    {
+        if (!value)
+        {
+            return;
+        }
+
+        value.IsBookmarked(isBookmarked);
+        auto const bookmarkKey = ::AstralChronicle::services::details::EventBookmarkKey(
+            value.SortRecordId(), value.SortTimestamp(), value.Provider(), value.EventId(), value.Channel());
+        if (isBookmarked)
+        {
+            m_bookmarkedKeys.insert(bookmarkKey);
+            return;
+        }
+
+        m_bookmarkedKeys.erase(bookmarkKey);
+        m_bookmarkedKeys.erase(::AstralChronicle::services::details::LegacyEventBookmarkKey(
+            value.Channel(), value.RecordId()));
+    }
+
     void EventLogsViewModel::RaiseStatusProperties()
     {
         RaisePropertyChanged(L"StatusText");
@@ -1436,6 +1710,7 @@ namespace winrt::AstralChronicle::implementation
         RaisePropertyChanged(L"FilterAfterToday");
         RaisePropertyChanged(L"FilterAfterHours");
         RaisePropertyChanged(L"HasStructuredFilter");
+        RaisePropertyChanged(L"ShowBookmarkedOnly");
         RaisePropertyChanged(L"HasFilter");
     }
 

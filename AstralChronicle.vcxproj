@@ -195,6 +195,7 @@
     <ClInclude Include="src\DesignSystem\Theme\ThemeService.h" />
     <ClInclude Include="src\Services\IApplicationPreferencesService.h" />
     <ClInclude Include="src\Services\IEventBookmarkStore.h" />
+    <ClInclude Include="src\Services\EventBookmarkIdentity.h" />
     <ClInclude Include="src\Services\IEventLogCatalogService.h" />
     <ClInclude Include="src\Services\ICustomViewCatalogService.h" />
     <ClInclude Include="src\Services\IEventLiveService.h" />

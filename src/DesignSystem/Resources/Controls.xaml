@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <!--  Created by EternityBoundary on Jul 20,2026  -->
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:primitives="using:Microsoft.UI.Xaml.Controls.Primitives">
     <Style
         x:Key="AstralPageTitleTextBlockStyle"
         BasedOn="{StaticResource TitleTextBlockStyle}"
@@ -54,5 +54,77 @@
 
     <Style x:Key="AstralNavigationViewStyle" TargetType="NavigationView">
         <Setter Property="Background" Value="{ThemeResource AstralTransparentBrush}" />
+    </Style>
+
+    <Style
+        x:Key="AstralSeverityEventListItemStyle"
+        BasedOn="{StaticResource DefaultListViewItemStyle}"
+        TargetType="ListViewItem">
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Top" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FocusVisualMargin" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListViewItem">
+                    <primitives:ListViewItemPresenter
+                        x:Name="Root"
+                        Control.IsTemplateFocusTarget="True"
+                        ContentTransitions="{TemplateBinding ContentTransitions}"
+                        FocusVisualMargin="{TemplateBinding FocusVisualMargin}"
+                        FocusVisualPrimaryBrush="{TemplateBinding FocusVisualPrimaryBrush}"
+                        FocusVisualPrimaryThickness="{TemplateBinding FocusVisualPrimaryThickness}"
+                        FocusVisualSecondaryBrush="{TemplateBinding FocusVisualSecondaryBrush}"
+                        FocusVisualSecondaryThickness="{TemplateBinding FocusVisualSecondaryThickness}"
+                        SelectionCheckMarkVisualEnabled="{ThemeResource ListViewItemSelectionCheckMarkVisualEnabled}"
+                        CheckBrush="{ThemeResource ListViewItemCheckBrush}"
+                        CheckBoxBrush="{ThemeResource ListViewItemCheckBoxBrush}"
+                        DragBackground="{ThemeResource ListViewItemDragBackground}"
+                        DragForeground="{ThemeResource ListViewItemDragForeground}"
+                        FocusBorderBrush="{ThemeResource ListViewItemFocusBorderBrush}"
+                        FocusSecondaryBorderBrush="{ThemeResource ListViewItemFocusSecondaryBorderBrush}"
+                        PlaceholderBackground="{ThemeResource ListViewItemPlaceholderBackground}"
+                        PointerOverBackground="{ThemeResource ListViewItemBackgroundPointerOver}"
+                        PointerOverForeground="{ThemeResource ListViewItemForegroundPointerOver}"
+                        SelectedBackground="{ThemeResource ListViewItemBackgroundSelected}"
+                        SelectedForeground="{ThemeResource ListViewItemForegroundSelected}"
+                        SelectedPointerOverBackground="{ThemeResource ListViewItemBackgroundSelectedPointerOver}"
+                        PressedBackground="{ThemeResource ListViewItemBackgroundPressed}"
+                        SelectedPressedBackground="{ThemeResource ListViewItemBackgroundSelectedPressed}"
+                        DisabledOpacity="{ThemeResource ListViewItemDisabledThemeOpacity}"
+                        DragOpacity="{ThemeResource ListViewItemDragThemeOpacity}"
+                        ReorderHintOffset="{ThemeResource ListViewItemReorderHintThemeOffset}"
+                        HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                        ContentMargin="16,0,0,0"
+                        CheckMode="Overlay"
+                        SelectionIndicatorMode="Overlay"
+                        CornerRadius="0"
+                        CheckPressedBrush="{ThemeResource ListViewItemCheckPressedBrush}"
+                        CheckDisabledBrush="{ThemeResource ListViewItemCheckDisabledBrush}"
+                        CheckBoxPointerOverBrush="{ThemeResource ListViewItemCheckBoxPointerOverBrush}"
+                        CheckBoxPressedBrush="{ThemeResource ListViewItemCheckBoxPressedBrush}"
+                        CheckBoxDisabledBrush="{ThemeResource ListViewItemCheckBoxDisabledBrush}"
+                        CheckBoxSelectedBrush="{ThemeResource ListViewItemCheckBoxSelectedBrush}"
+                        CheckBoxSelectedPointerOverBrush="{ThemeResource ListViewItemCheckBoxSelectedPointerOverBrush}"
+                        CheckBoxSelectedPressedBrush="{ThemeResource ListViewItemCheckBoxSelectedPressedBrush}"
+                        CheckBoxSelectedDisabledBrush="{ThemeResource ListViewItemCheckBoxSelectedDisabledBrush}"
+                        CheckBoxBorderBrush="{ThemeResource ListViewItemCheckBoxBorderBrush}"
+                        CheckBoxPointerOverBorderBrush="{ThemeResource ListViewItemCheckBoxPointerOverBorderBrush}"
+                        CheckBoxPressedBorderBrush="{ThemeResource ListViewItemCheckBoxPressedBorderBrush}"
+                        CheckBoxDisabledBorderBrush="{ThemeResource ListViewItemCheckBoxDisabledBorderBrush}"
+                        CheckBoxCornerRadius="{ThemeResource ListViewItemCheckBoxCornerRadius}"
+                        SelectionIndicatorCornerRadius="0"
+                        SelectionIndicatorVisualEnabled="{ThemeResource ListViewItemSelectionIndicatorVisualEnabled}"
+                        SelectionIndicatorBrush="{Binding SeverityIndicatorBrush, Mode=OneWay}"
+                        SelectionIndicatorPointerOverBrush="{Binding SeverityIndicatorBrush, Mode=OneWay}"
+                        SelectionIndicatorPressedBrush="{Binding SeverityIndicatorBrush, Mode=OneWay}"
+                        SelectionIndicatorDisabledBrush="{ThemeResource ListViewItemSelectionIndicatorDisabledBrush}"
+                        SelectedDisabledBackground="{ThemeResource ListViewItemBackgroundSelectedDisabled}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 </ResourceDictionary>

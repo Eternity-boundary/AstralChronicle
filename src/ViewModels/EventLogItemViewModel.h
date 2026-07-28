@@ -40,6 +40,8 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::hstring RelatedActivityId() const;
         [[nodiscard]] bool IsBookmarked() const noexcept;
         void IsBookmarked(bool value);
+        [[nodiscard]] winrt::hstring BookmarkGlyph() const;
+        [[nodiscard]] Microsoft::UI::Xaml::Media::Brush SeverityIndicatorBrush() const;
         [[nodiscard]] std::int64_t SortTimestamp() const noexcept;
         [[nodiscard]] std::uint64_t SortRecordId() const noexcept;
 
@@ -65,6 +67,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_activityId;
         winrt::hstring m_relatedActivityId;
         bool m_isBookmarked{};
+        std::uint8_t m_levelValue{};
         std::int64_t m_sortTimestamp{};
         std::uint64_t m_sortRecordId{};
         winrt::event<Microsoft::UI::Xaml::Data::PropertyChangedEventHandler> m_propertyChanged;

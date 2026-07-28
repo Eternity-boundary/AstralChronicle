@@ -4,6 +4,7 @@
 #include "App/AppHost.h"
 #include "DesignSystem/Localization/IStringResourceService.h"
 #include "Services/ICustomViewCatalogService.h"
+#include "Services/EventQueryBuilder.h"
 #include "Services/IEventLogCatalogService.h"
 #include "Services/IEventLiveDataService.h"
 #include "Views/Pages/DashboardPage.xaml.h"
@@ -75,6 +76,23 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] bool HasPrefix(std::wstring_view value, std::wstring_view prefix)
         {
             return value.size() >= prefix.size() && value.compare(0, prefix.size(), prefix) == 0;
+        }
+
+        [[nodiscard]] std::wstring TrimWhitespace(std::wstring value)
+        {
+            auto const first = std::find_if_not(value.begin(), value.end(), [](wchar_t const character)
+                {
+                    return std::iswspace(character) != 0;
+                });
+            auto const last = std::find_if_not(value.rbegin(), value.rend(), [](wchar_t const character)
+                {
+                    return std::iswspace(character) != 0;
+                }).base();
+            if (first >= last)
+            {
+                return {};
+            }
+            return { first, last };
         }
 
         [[nodiscard]] hstring ShellGreetingResourceKeyForHour(std::int32_t const hour24)
@@ -371,32 +389,61 @@ namespace winrt::AstralChronicle::implementation
             } });
         m_navigation->Register({
             L"event-logs",
-            [eventQuery, bookmarkStore, textExporter, strings = m_strings]()
+            [weak, eventQuery, bookmarkStore, textExporter, savedViews, strings = m_strings]()
             {
+                auto const self = weak.get();
+                if (!self)
+                {
+                    return FrameworkElement{ nullptr };
+                }
                 auto page = make<EventLogsPage>();
                 get_self<EventLogsPage>(page)->Initialize(
                     eventQuery,
                     bookmarkStore,
                     textExporter,
-                    strings);
+                    savedViews,
+                    strings,
+                    *self->m_navigation,
+                    [weak](std::wstring_view route)
+                    {
+                        if (auto const window = weak.get())
+                        {
+                            window->SelectNavigationItemForRoute(route);
+                        }
+                    });
                 return page.as<FrameworkElement>();
             },
-            [eventQuery, bookmarkStore, textExporter, strings = m_strings](
+            [weak, eventQuery, bookmarkStore, textExporter, savedViews, strings = m_strings](
                 ::AstralChronicle::navigation::NavigationRequest const& request)
             {
+                auto const self = weak.get();
+                if (!self)
+                {
+                    return FrameworkElement{ nullptr };
+                }
                 auto page = make<EventLogsPage>();
                 get_self<EventLogsPage>(page)->Initialize(
                     eventQuery,
                     bookmarkStore,
                     textExporter,
+                    savedViews,
                     strings,
+                    *self->m_navigation,
+                    [weak](std::wstring_view route)
+                    {
+                        if (auto const window = weak.get())
+                        {
+                            window->SelectNavigationItemForRoute(route);
+                        }
+                    },
                     request.Channel,
-                    request.Query);
+                    request.Query,
+                    request.SearchText);
                 return page.as<FrameworkElement>();
             } });
         m_navigation->Register({
             L"timeline",
-            [weak, eventQuery, strings = m_strings]()
+            [weak, eventQuery, bookmarkStore, strings = m_strings]()
             {
                 auto const self = weak.get();
                 if (!self)
@@ -406,6 +453,7 @@ namespace winrt::AstralChronicle::implementation
                 auto page = make<TimelinePage>();
                 get_self<TimelinePage>(page)->Initialize(
                     eventQuery,
+                    bookmarkStore,
                     strings,
                     self->RootLayout().DispatcherQueue(),
                     *self->m_navigation,
@@ -527,6 +575,89 @@ namespace winrt::AstralChronicle::implementation
             basicFunctionsAvailable
                 ? L"ShellSystemStatusOperational.Text"
                 : L"ShellSystemStatusUnavailable.Text"));
+    }
+
+    void MainWindow::OnGlobalSearchToggleClicked(
+        Windows::Foundation::IInspectable const&,
+        RoutedEventArgs const&)
+    {
+        GlobalSearchToggleButton().Visibility(Visibility::Collapsed);
+        GlobalSearchBox().Visibility(Visibility::Visible);
+        GlobalSearchBox().Focus(FocusState::Programmatic);
+    }
+
+    void MainWindow::OnGlobalSearchQuerySubmitted(
+        Microsoft::UI::Xaml::Controls::AutoSuggestBox const&,
+        Microsoft::UI::Xaml::Controls::AutoSuggestBoxQuerySubmittedEventArgs const& args)
+    {
+        auto queryText = TrimWhitespace(ToWString(args.QueryText()));
+        GlobalSearchBox().Text(hstring{});
+        CollapseGlobalSearchIfUnused();
+        if (!queryText.empty())
+        {
+            SearchAllEventsAsync(std::move(queryText));
+        }
+    }
+
+    void MainWindow::OnGlobalSearchBoxLostFocus(
+        Windows::Foundation::IInspectable const&,
+        RoutedEventArgs const&)
+    {
+        // A query is submitted explicitly with Enter. Text left in an unfocused box is
+        // an abandoned draft, so restore the compact title-bar affordance.
+        GlobalSearchBox().Text(hstring{});
+        CollapseGlobalSearchIfUnused();
+    }
+
+    void MainWindow::CollapseGlobalSearchIfUnused()
+    {
+        if (GlobalSearchBox().Text().empty())
+        {
+            GlobalSearchBox().Visibility(Visibility::Collapsed);
+            GlobalSearchToggleButton().Visibility(Visibility::Visible);
+        }
+    }
+
+    winrt::fire_and_forget MainWindow::SearchAllEventsAsync(std::wstring searchText)
+    {
+        auto lifetime = get_strong();
+        try
+        {
+            auto const requestVersion = ++m_globalSearchRequestVersion;
+            auto const cancellation = m_shutdownRequested;
+            auto const catalog = m_eventLogCatalog;
+            auto const dispatcher = RootLayout().DispatcherQueue();
+            if (!catalog || !dispatcher || cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+
+            co_await winrt::resume_background();
+            if (cancellation->load(std::memory_order_relaxed))
+            {
+                co_return;
+            }
+            auto const query = ::AstralChronicle::services::BuildAvailableChannelsQueryList(
+                catalog->EnumerateChannels());
+            co_await wil::resume_foreground(dispatcher);
+            if (cancellation->load(std::memory_order_relaxed) ||
+                requestVersion != m_globalSearchRequestVersion ||
+                !query || !m_navigation)
+            {
+                co_return;
+            }
+
+            ::AstralChronicle::navigation::NavigationRequest request;
+            request.Route = L"event-logs";
+            request.Channel = ::AstralChronicle::models::EventChannelIdentifier{};
+            request.Query = *query;
+            request.SearchText = std::move(searchText);
+            [[maybe_unused]] auto const navigated = m_navigation->Navigate(request);
+        }
+        catch (...)
+        {
+            // Channel cataloguing can fail during shutdown or when the Event Log service is unavailable.
+        }
     }
 
     void MainWindow::ApplyThemeBackdrop()

@@ -88,9 +88,9 @@
                             CheckBoxCornerRadius="{ThemeResource ListViewItemCheckBoxCornerRadius}"
                             SelectionIndicatorCornerRadius="0"
                             SelectionIndicatorVisualEnabled="{ThemeResource ListViewItemSelectionIndicatorVisualEnabled}"
-                            SelectionIndicatorBrush="{ThemeResource ListViewItemSelectionIndicatorBrush}"
-                            SelectionIndicatorPointerOverBrush="{ThemeResource ListViewItemSelectionIndicatorPointerOverBrush}"
-                            SelectionIndicatorPressedBrush="{ThemeResource ListViewItemSelectionIndicatorPressedBrush}"
+                            SelectionIndicatorBrush="{Binding SeverityIndicatorBrush, Mode=OneWay}"
+                            SelectionIndicatorPointerOverBrush="{Binding SeverityIndicatorBrush, Mode=OneWay}"
+                            SelectionIndicatorPressedBrush="{Binding SeverityIndicatorBrush, Mode=OneWay}"
                             SelectionIndicatorDisabledBrush="{ThemeResource ListViewItemSelectionIndicatorDisabledBrush}"
                             SelectedDisabledBackground="{ThemeResource ListViewItemBackgroundSelectedDisabled}" />
                     </ControlTemplate>
@@ -156,6 +156,16 @@
                 Background="{ThemeResource AstralTransparentBrush}"
                 DefaultLabelPosition="Right"
                 VerticalAlignment="Center">
+                <AppBarButton
+                    x:Name="CloseContextCommand"
+                    x:Uid="EventLogsCloseContextCommand"
+                    AutomationProperties.AutomationId="EventLogsCloseContextCommand"
+                    Click="OnCloseActiveContextClicked"
+                    Visibility="Collapsed">
+                    <AppBarButton.Icon>
+                        <SymbolIcon Symbol="Clear" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
                 <AppBarButton
                     x:Uid="EventLogsRefreshCommand"
                     AutomationProperties.AutomationId="EventLogsRefreshCommand"
@@ -274,6 +284,14 @@
                     </AppBarButton.Icon>
                 </AppBarButton>
                 <AppBarToggleButton
+                    x:Uid="EventLogsBookmarksOnlyCommand"
+                    AutomationProperties.AutomationId="EventLogsBookmarksOnlyCommand"
+                    IsChecked="{x:Bind ViewModel.ShowBookmarkedOnly, Mode=TwoWay}">
+                    <AppBarToggleButton.Icon>
+                        <SymbolIcon Symbol="Favorite" />
+                    </AppBarToggleButton.Icon>
+                </AppBarToggleButton>
+                <AppBarToggleButton
                     x:Name="ToggleDetailsCommand"
                     x:Uid="EventLogsToggleDetailsCommand"
                     AutomationProperties.AutomationId="EventLogsToggleDetailsCommand"
@@ -322,12 +340,18 @@
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <AppBarSeparator />
-                    <AppBarButton x:Uid="EventLogsSaveViewCommand" IsEnabled="False">
+                    <AppBarButton
+                        x:Uid="EventLogsSaveViewCommand"
+                        AutomationProperties.AutomationId="EventLogsSaveViewCommand"
+                        Click="OnSaveViewClicked">
                         <AppBarButton.Icon>
                             <SymbolIcon Symbol="Save" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton x:Uid="EventLogsOpenSavedLogCommand" IsEnabled="False">
+                    <AppBarButton
+                        x:Uid="EventLogsOpenSavedLogCommand"
+                        AutomationProperties.AutomationId="EventLogsOpenSavedLogCommand"
+                        Click="OnOpenSavedLogClicked">
                         <AppBarButton.Icon>
                             <SymbolIcon Symbol="OpenFile" />
                         </AppBarButton.Icon>
@@ -342,7 +366,10 @@
                             <SymbolIcon Symbol="Setting" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton x:Uid="EventLogsLiveUpdatesCommand" IsEnabled="False">
+                    <AppBarButton
+                        x:Uid="EventLogsLiveUpdatesCommand"
+                        AutomationProperties.AutomationId="EventLogsLiveUpdatesCommand"
+                        Click="OnLiveUpdatesClicked">
                         <AppBarButton.Icon>
                             <SymbolIcon Symbol="Play" />
                         </AppBarButton.Icon>
@@ -375,11 +402,32 @@
             </InfoBar.ActionButton>
         </InfoBar>
 
-        <TextBlock
-            Grid.Row="2"
-            AutomationProperties.AutomationId="EventLogsFilterSummary"
-            Style="{StaticResource AstralCaptionTextBlockStyle}"
-            Text="{x:Bind ViewModel.FilterSummary, Mode=OneWay}" />
+        <Grid Grid.Row="2" ColumnSpacing="{StaticResource AstralContentSpacing}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                AutomationProperties.AutomationId="EventLogsFilterSummary"
+                Style="{StaticResource AstralCaptionTextBlockStyle}"
+                Text="{x:Bind ViewModel.FilterSummary, Mode=OneWay}" />
+            <StackPanel
+                Grid.Column="1"
+                Orientation="Horizontal"
+                Spacing="4"
+                VerticalAlignment="Center">
+                <SymbolIcon Symbol="Favorite" />
+                <TextBlock
+                    x:Uid="EventLogsBookmarkCountLabel"
+                    Style="{StaticResource AstralCaptionTextBlockStyle}"
+                    VerticalAlignment="Center" />
+                <TextBlock
+                    AutomationProperties.AutomationId="EventLogsBookmarkCount"
+                    Style="{StaticResource AstralCaptionTextBlockStyle}"
+                    Text="{x:Bind ViewModel.BookmarkCount, Mode=OneWay}"
+                    VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
 
         <Grid
             x:Name="ContentGrid"
@@ -416,8 +464,9 @@
                     <Grid
                         ColumnSpacing="{StaticResource AstralContentSpacing}"
                         MinHeight="32"
-                        MinWidth="1440">
+                        MinWidth="1472">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="32" />
                             <ColumnDefinition Width="96" />
                             <ColumnDefinition Width="150" />
                             <ColumnDefinition Width="160" />
@@ -428,15 +477,16 @@
                             <ColumnDefinition Width="150" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="EventLevelHeaderButton" x:Uid="EventLogsLevelHeaderButton" AutomationProperties.AutomationId="EventLogsLevelHeaderButton" Tag="Level" Click="OnSortClicked" Grid.Column="0" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                        <Button x:Name="EventTimeHeaderButton" x:Uid="EventLogsTimeHeaderButton" AutomationProperties.AutomationId="EventLogsTimeHeaderButton" Tag="Time" Click="OnSortClicked" Grid.Column="1" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                        <Button x:Name="EventProviderHeaderButton" x:Uid="EventLogsProviderHeaderButton" AutomationProperties.AutomationId="EventLogsProviderHeaderButton" Tag="Provider" Click="OnSortClicked" Grid.Column="2" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                        <Button x:Name="EventIdHeaderButton" x:Uid="EventLogsIdHeaderButton" AutomationProperties.AutomationId="EventLogsIdHeaderButton" Tag="EventId" Click="OnSortClicked" Grid.Column="3" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                        <Button x:Name="EventTaskHeaderButton" x:Uid="EventLogsTaskHeaderButton" AutomationProperties.AutomationId="EventLogsTaskHeaderButton" Tag="Task" Click="OnSortClicked" Grid.Column="4" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                        <Button x:Name="EventChannelHeaderButton" x:Uid="EventLogsChannelHeaderButton" AutomationProperties.AutomationId="EventLogsChannelHeaderButton" Tag="Channel" Click="OnSortClicked" Grid.Column="5" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                        <Button x:Name="EventUserHeaderButton" x:Uid="EventLogsUserHeaderButton" AutomationProperties.AutomationId="EventLogsUserHeaderButton" Tag="User" Click="OnSortClicked" Grid.Column="6" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                        <Button x:Name="EventComputerHeaderButton" x:Uid="EventLogsComputerHeaderButton" AutomationProperties.AutomationId="EventLogsComputerHeaderButton" Tag="Computer" Click="OnSortClicked" Grid.Column="7" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
-                        <Button x:Name="EventDescriptionHeaderButton" x:Uid="EventLogsDescriptionHeaderButton" AutomationProperties.AutomationId="EventLogsDescriptionHeaderButton" Tag="Description" Click="OnSortClicked" Grid.Column="8" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <SymbolIcon x:Uid="EventLogsBookmarkHeader" Grid.Column="0" Symbol="Favorite" HorizontalAlignment="Center" />
+                        <Button x:Name="EventLevelHeaderButton" x:Uid="EventLogsLevelHeaderButton" AutomationProperties.AutomationId="EventLogsLevelHeaderButton" Tag="Level" Click="OnSortClicked" Grid.Column="1" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventTimeHeaderButton" x:Uid="EventLogsTimeHeaderButton" AutomationProperties.AutomationId="EventLogsTimeHeaderButton" Tag="Time" Click="OnSortClicked" Grid.Column="2" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventProviderHeaderButton" x:Uid="EventLogsProviderHeaderButton" AutomationProperties.AutomationId="EventLogsProviderHeaderButton" Tag="Provider" Click="OnSortClicked" Grid.Column="3" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventIdHeaderButton" x:Uid="EventLogsIdHeaderButton" AutomationProperties.AutomationId="EventLogsIdHeaderButton" Tag="EventId" Click="OnSortClicked" Grid.Column="4" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventTaskHeaderButton" x:Uid="EventLogsTaskHeaderButton" AutomationProperties.AutomationId="EventLogsTaskHeaderButton" Tag="Task" Click="OnSortClicked" Grid.Column="5" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventChannelHeaderButton" x:Uid="EventLogsChannelHeaderButton" AutomationProperties.AutomationId="EventLogsChannelHeaderButton" Tag="Channel" Click="OnSortClicked" Grid.Column="6" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventUserHeaderButton" x:Uid="EventLogsUserHeaderButton" AutomationProperties.AutomationId="EventLogsUserHeaderButton" Tag="User" Click="OnSortClicked" Grid.Column="7" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventComputerHeaderButton" x:Uid="EventLogsComputerHeaderButton" AutomationProperties.AutomationId="EventLogsComputerHeaderButton" Tag="Computer" Click="OnSortClicked" Grid.Column="8" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
+                        <Button x:Name="EventDescriptionHeaderButton" x:Uid="EventLogsDescriptionHeaderButton" AutomationProperties.AutomationId="EventLogsDescriptionHeaderButton" Tag="Description" Click="OnSortClicked" Grid.Column="9" Style="{StaticResource EventLogsColumnHeaderButtonStyle}" />
                     </Grid>
                 </ScrollViewer>
                 <ListView
@@ -459,7 +509,7 @@
                                 ColumnSpacing="{StaticResource AstralContentSpacing}"
                                 ContextRequested="OnEventItemContextRequested"
                                 MinHeight="40"
-                                MinWidth="1440">
+                                MinWidth="1472">
                                 <Grid.ContextFlyout>
                                     <MenuFlyout>
                                         <MenuFlyoutItem
@@ -474,6 +524,7 @@
                                     </MenuFlyout>
                                 </Grid.ContextFlyout>
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="32" />
                                     <ColumnDefinition Width="96" />
                                     <ColumnDefinition Width="150" />
                                     <ColumnDefinition Width="160" />
@@ -484,48 +535,58 @@
                                     <ColumnDefinition Width="150" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock
+                                <Button
+                                    x:Uid="EventLogsBookmarkItemButton"
                                     Grid.Column="0"
+                                    AutomationProperties.AutomationId="EventLogsBookmarkItemButton"
+                                    Click="OnBookmarkItemClicked"
+                                    Padding="0">
+                                    <FontIcon
+                                        FontFamily="Segoe MDL2 Assets"
+                                        Glyph="{x:Bind BookmarkGlyph, Mode=OneWay}" />
+                                </Button>
+                                <TextBlock
+                                    Grid.Column="1"
                                     Style="{StaticResource AstralBodyTextBlockStyle}"
                                     Text="{x:Bind Level, Mode=OneWay}"
                                     TextTrimming="CharacterEllipsis" />
                                 <TextBlock
-                                    Grid.Column="1"
+                                    Grid.Column="2"
                                     Style="{StaticResource AstralCaptionTextBlockStyle}"
                                     Text="{x:Bind TimeCreated, Mode=OneWay}"
                                     TextTrimming="CharacterEllipsis" />
                                 <TextBlock
-                                    Grid.Column="2"
+                                    Grid.Column="3"
                                     Style="{StaticResource AstralBodyTextBlockStyle}"
                                     Text="{x:Bind Provider, Mode=OneWay}"
                                     TextTrimming="CharacterEllipsis" />
                                 <TextBlock
-                                    Grid.Column="3"
+                                    Grid.Column="4"
                                     Style="{StaticResource AstralBodyTextBlockStyle}"
                                     Text="{x:Bind EventId, Mode=OneWay}"
                                     TextTrimming="CharacterEllipsis" />
                                 <TextBlock
-                                    Grid.Column="4"
+                                    Grid.Column="5"
                                     Style="{StaticResource AstralCaptionTextBlockStyle}"
                                     Text="{x:Bind TaskCategory, Mode=OneWay}"
                                     TextTrimming="CharacterEllipsis" />
                                 <TextBlock
-                                    Grid.Column="5"
+                                    Grid.Column="6"
                                     Style="{StaticResource AstralCaptionTextBlockStyle}"
                                     Text="{x:Bind Channel, Mode=OneWay}"
                                     TextTrimming="CharacterEllipsis" />
                                 <TextBlock
-                                    Grid.Column="6"
+                                    Grid.Column="7"
                                     Style="{StaticResource AstralCaptionTextBlockStyle}"
                                     Text="{x:Bind User, Mode=OneWay}"
                                     TextTrimming="CharacterEllipsis" />
                                 <TextBlock
-                                    Grid.Column="7"
+                                    Grid.Column="8"
                                     Style="{StaticResource AstralCaptionTextBlockStyle}"
                                     Text="{x:Bind Computer, Mode=OneWay}"
                                     TextTrimming="CharacterEllipsis" />
                                 <TextBlock
-                                    Grid.Column="8"
+                                    Grid.Column="9"
                                     Style="{StaticResource AstralCaptionTextBlockStyle}"
                                     Text="{x:Bind ShortDescription, Mode=OneWay}"
                                     TextTrimming="CharacterEllipsis" />

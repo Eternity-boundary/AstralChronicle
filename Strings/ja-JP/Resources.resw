@@ -163,16 +163,19 @@
     <value>基本機能を利用できません</value>
   </data>
   <data name="ShellSearchBox.PlaceholderText" xml:space="preserve">
-    <value>検索</value>
+    <value>すべてのイベント ログを検索</value>
   </data>
   <data name="ShellSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>全体検索</value>
+    <value>すべてのイベント ログを検索</value>
   </data>
   <data name="ShellSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.HelpText" xml:space="preserve">
-    <value>全体検索はまだ利用できません。</value>
+    <value>語句を送信すると、まだ開いていないログを含む、利用可能なすべてのイベント ログの概要を検索します。</value>
   </data>
-  <data name="ShellSearchUnavailableTooltip.Text" xml:space="preserve">
-    <value>全体検索はまだ利用できません。</value>
+  <data name="ShellSearchToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>すべてのイベント ログを検索</value>
+  </data>
+  <data name="ShellSearchToggleTooltip.Text" xml:space="preserve">
+    <value>すべてのイベント ログを検索</value>
   </data>
   <data name="DashboardNavigationItem.Content" xml:space="preserve">
     <value>ダッシュボード</value>
@@ -465,8 +468,35 @@
   <data name="EventLogs.Heading" xml:space="preserve">
     <value>イベント ログ</value>
   </data>
+  <data name="EventLogsCloseContextCommand.Label" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="EventLogs.SavedLogHeading.Text" xml:space="preserve">
+    <value>保存済みイベント ログ</value>
+  </data>
   <data name="EventLogs.ChannelDefault.Text" xml:space="preserve">
     <value>システム</value>
+  </data>
+  <data name="EventLogs.GlobalSearchHeading.Text" xml:space="preserve">
+    <value>検索結果</value>
+  </data>
+  <data name="EventLogs.GlobalSearchChannel.Text" xml:space="preserve">
+    <value>利用可能なすべてのイベント ログ</value>
+  </data>
+  <data name="EventLogs.GlobalSearchLoading.Text" xml:space="preserve">
+    <value>すべてのイベント ログを検索しています…</value>
+  </data>
+  <data name="EventLogs.GlobalSearchLoadingDetails.Text" xml:space="preserve">
+    <value>現在 {0} 件のイベント レコードを走査しています。一致した概要はバッチで表示されます。</value>
+  </data>
+  <data name="EventLogs.GlobalSearchLoaded.Text" xml:space="preserve">
+    <value>一致したイベントを {0} 件読み込みました。</value>
+  </data>
+  <data name="EventLogs.GlobalSearchNoEvents.Text" xml:space="preserve">
+    <value>利用可能なログに一致するイベントは見つかりませんでした。</value>
+  </data>
+  <data name="EventLogs.GlobalSearchSummary.Text" xml:space="preserve">
+    <value>「{2}」: {1} 件のレコードを走査し、一致したイベントを {0} 件表示しています。</value>
   </data>
   <data name="EventLogs.EmptyValue.Text" xml:space="preserve">
     <value>—</value>
@@ -619,13 +649,28 @@
     <value>選択したイベントをコピー</value>
   </data>
   <data name="EventLogsBookmarkMenuItem.Text" xml:space="preserve">
-    <value>選択したイベントをブックマーク</value>
+    <value>選択したイベントのブックマークを切り替え</value>
+  </data>
+  <data name="EventLogsBookmarkHeader.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>ブックマーク</value>
+  </data>
+  <data name="EventLogsBookmarkItemButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>イベントのブックマークを切り替え</value>
+  </data>
+  <data name="EventLogsBookmarksOnlyCommand.Label" xml:space="preserve">
+    <value>ブックマークのみ</value>
+  </data>
+  <data name="EventLogsBookmarkCountLabel.Text" xml:space="preserve">
+    <value>ブックマーク</value>
+  </data>
+  <data name="EventLogs.FilterSummary.BookmarksOnly.Text" xml:space="preserve">
+    <value>読み込まれたイベント {1} 件のうち、ブックマーク済み {0} 件を表示しています。</value>
   </data>
   <data name="EventLogsExportMenuItem.Text" xml:space="preserve">
     <value>選択したイベントをエクスポート</value>
   </data>
   <data name="EventLogsBookmarkCommand.Label" xml:space="preserve">
-    <value>ブックマーク</value>
+    <value>ブックマークを切り替え</value>
   </data>
   <data name="EventLogsExportCommand.Label" xml:space="preserve">
     <value>エクスポート</value>
@@ -1996,7 +2041,10 @@
     <value>イベント ログで開く</value>
   </data>
   <data name="TimelineBookmarkButton.Content" xml:space="preserve">
-    <value>選択項目をブックマーク</value>
+    <value>選択項目のブックマークを切り替え</value>
+  </data>
+  <data name="TimelineBookmarkCountLabel.Text" xml:space="preserve">
+    <value>ブックマーク</value>
   </data>
   <data name="TimelineExportButton.Content" xml:space="preserve">
     <value>タイムラインをエクスポート</value>

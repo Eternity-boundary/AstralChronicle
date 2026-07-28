@@ -10,9 +10,11 @@
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
+#include <cwctype>
 #include <limits>
 #include <ratio>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #pragma comment(lib, "wevtapi.lib")
@@ -260,15 +262,24 @@ namespace
                 break;
             }
 
-            auto const nameStart = section.find(L"Name=\"", cursor);
+            auto const nameStart = section.find(L"Name=", cursor);
             std::wstring name;
             if (nameStart != std::wstring::npos && nameStart < tagEnd)
             {
-                auto const nameValueStart = nameStart + 6;
-                auto const nameEnd = section.find(L'\"', nameValueStart);
-                if (nameEnd != std::wstring::npos && nameEnd < tagEnd)
+                auto nameValueStart = nameStart + 5;
+                while (nameValueStart < tagEnd && std::iswspace(section[nameValueStart]))
                 {
-                    name = section.substr(nameValueStart, nameEnd - nameValueStart);
+                    ++nameValueStart;
+                }
+                if (nameValueStart < tagEnd &&
+                    (section[nameValueStart] == L'\"' || section[nameValueStart] == L'\''))
+                {
+                    auto const quote = section[nameValueStart++];
+                    auto const nameEnd = section.find(quote, nameValueStart);
+                    if (nameEnd != std::wstring::npos && nameEnd < tagEnd)
+                    {
+                        name = section.substr(nameValueStart, nameEnd - nameValueStart);
+                    }
                 }
             }
             if (name.empty())
@@ -283,6 +294,81 @@ namespace
             properties.push_back({ std::wstring{ sectionName }, section });
         }
         return properties;
+    }
+
+    void ReplaceAll(
+        std::wstring& value,
+        std::wstring_view const search,
+        std::wstring_view const replacement)
+    {
+        std::size_t position{};
+        while ((position = value.find(search, position)) != std::wstring::npos)
+        {
+            value.replace(position, search.size(), replacement);
+            position += replacement.size();
+        }
+    }
+
+    [[nodiscard]] std::wstring DecodeXmlText(std::wstring value)
+    {
+        ReplaceAll(value, L"&quot;", L"\"");
+        ReplaceAll(value, L"&apos;", L"'");
+        ReplaceAll(value, L"&lt;", L"<");
+        ReplaceAll(value, L"&gt;", L">");
+        ReplaceAll(value, L"&amp;", L"&");
+        return value;
+    }
+
+    [[nodiscard]] std::wstring TrimWhitespace(std::wstring value)
+    {
+        auto const first = std::find_if_not(value.begin(), value.end(), [](wchar_t const character)
+        {
+            return std::iswspace(character) != 0;
+        });
+        auto const last = std::find_if_not(value.rbegin(), value.rend(), [](wchar_t const character)
+        {
+            return std::iswspace(character) != 0;
+        }).base();
+        return first < last ? std::wstring{ first, last } : std::wstring{};
+    }
+
+    [[nodiscard]] std::wstring EventDataPreview(std::wstring const& xml)
+    {
+        constexpr auto maximumFields = std::size_t{ 2 };
+        constexpr auto maximumLength = std::size_t{ 240 };
+
+        std::wstring preview;
+        std::size_t fieldCount{};
+        for (auto const& property : ExtractEventData(xml, L"EventData"))
+        {
+            auto value = TrimWhitespace(DecodeXmlText(property.Value));
+            if (value.empty() || (property.Name == L"EventData" && value.front() == L'<'))
+            {
+                continue;
+            }
+
+            if (!preview.empty())
+            {
+                preview += L" · ";
+            }
+            if (property.Name != L"Data" && property.Name != L"EventData")
+            {
+                preview += DecodeXmlText(property.Name);
+                preview += L": ";
+            }
+            preview += value;
+            if (++fieldCount == maximumFields)
+            {
+                break;
+            }
+        }
+
+        if (preview.size() > maximumLength)
+        {
+            preview.resize(maximumLength - 1);
+            preview += L"…";
+        }
+        return preview;
     }
 
     [[nodiscard]] std::wstring GetPublisherStringProperty(
@@ -552,11 +638,49 @@ namespace AstralChronicle::services
         bool reverseDirection,
         QueryCancellation const& cancellation) const
     {
+        return QueryPageWithQueryOffsetCore(
+            channel,
+            queryText,
+            skippedRecords,
+            maximumRecords,
+            reverseDirection,
+            false,
+            cancellation);
+    }
+
+    EventQueryResult WindowsEventQueryService::QuerySavedLogPageWithQueryOffset(
+        std::wstring_view filePath,
+        std::wstring_view queryText,
+        std::uint32_t skippedRecords,
+        std::uint32_t maximumRecords,
+        bool reverseDirection,
+        QueryCancellation const& cancellation) const
+    {
+        return QueryPageWithQueryOffsetCore(
+            filePath,
+            queryText,
+            skippedRecords,
+            maximumRecords,
+            reverseDirection,
+            true,
+            cancellation);
+    }
+
+    EventQueryResult WindowsEventQueryService::QueryPageWithQueryOffsetCore(
+        std::wstring_view channel,
+        std::wstring_view queryText,
+        std::uint32_t skippedRecords,
+        std::uint32_t maximumRecords,
+        bool reverseDirection,
+        bool const savedLogFile,
+        QueryCancellation const& cancellation) const
+    {
         EventQueryResult result;
         auto const queryStart = queryText.find_first_not_of(L" \t\r\n");
         auto const isStructuredQuery = queryStart != std::wstring_view::npos &&
             queryText.compare(queryStart, 10, L"<QueryList") == 0;
-        if (queryText.empty() || maximumRecords == 0 || (channel.empty() && !isStructuredQuery))
+        if (queryText.empty() || maximumRecords == 0 ||
+            (channel.empty() && (savedLogFile || !isStructuredQuery)))
         {
             result.Status = EventQueryStatus::InvalidChannel;
             result.ErrorCode = ERROR_INVALID_NAME;
@@ -568,6 +692,13 @@ namespace AstralChronicle::services
         {
             queryFlags = EvtQueryReverseDirection;
         }
+        // A global QueryList can legitimately include a channel that becomes unavailable
+        // between catalog enumeration and execution. Keep readable channels searchable
+        // instead of failing the entire multi-channel request.
+        if (isStructuredQuery)
+        {
+            queryFlags |= EvtQueryTolerateQueryErrors;
+        }
 
         std::wstring const query{ queryText };
         unique_evt_handle queryHandle;
@@ -577,7 +708,7 @@ namespace AstralChronicle::services
         }
         else
         {
-            queryFlags |= EvtQueryChannelPath;
+            queryFlags |= savedLogFile ? EvtQueryFilePath : EvtQueryChannelPath;
             std::wstring const channelPath{ channel };
             queryHandle.reset(EvtQuery(nullptr, channelPath.c_str(), query.c_str(), queryFlags));
         }
@@ -600,6 +731,39 @@ namespace AstralChronicle::services
         std::vector<EVT_HANDLE> events(batchSize);
         std::vector<unique_evt_handle> ownedEvents(batchSize);
         result.Events.reserve(maximumRecords);
+
+        // Saved .evtx files are immutable for the duration of this query. EvtSeek lets the
+        // eventing service reposition its result cursor directly, so later virtualized pages
+        // do not require a client-side EvtNext call for every record from earlier pages.
+        if (savedLogFile && skippedRecords != 0)
+        {
+            if (cancellation && cancellation->load(std::memory_order_relaxed))
+            {
+                EvtCancel(queryHandle.get());
+                result.Status = EventQueryStatus::Cancelled;
+                result.ErrorCode = ERROR_CANCELLED;
+                return result;
+            }
+
+            if (!EvtSeek(
+                    queryHandle.get(),
+                    static_cast<LONGLONG>(skippedRecords),
+                    nullptr,
+                    0,
+                    EvtSeekRelativeToFirst | EvtSeekStrict))
+            {
+                auto const error = GetLastError();
+                if (error == ERROR_NOT_FOUND)
+                {
+                    result.Status = EventQueryStatus::NoEvents;
+                    return result;
+                }
+                result.ErrorCode = error;
+                result.Status = MapQueryError(error);
+                return result;
+            }
+            skippedRecords = 0;
+        }
 
         while (skippedRecords != 0)
         {
@@ -718,6 +882,13 @@ namespace AstralChronicle::services
                         ? ERROR_EVT_INVALID_EVENT_DATA
                         : renderError;
                     return result;
+                }
+                DWORD previewError{};
+                if (auto const xml = RenderXml(ownedEvents[index].get(), previewError))
+                {
+                    // Event payload values are available without loading a provider message DLL.
+                    // Keep this preview best-effort so a malformed payload cannot block the list.
+                    summary->ShortDescription = EventDataPreview(*xml);
                 }
                 result.Events.emplace_back(std::move(*summary));
             }
@@ -847,6 +1018,23 @@ namespace AstralChronicle::services
         std::uint64_t const recordId,
         QueryCancellation const& cancellation) const
     {
+        return QueryDetailsCore(channel, recordId, false, cancellation);
+    }
+
+    EventDetailsResult WindowsEventQueryService::QuerySavedLogDetails(
+        std::wstring_view filePath,
+        std::uint64_t const recordId,
+        QueryCancellation const& cancellation) const
+    {
+        return QueryDetailsCore(filePath, recordId, true, cancellation);
+    }
+
+    EventDetailsResult WindowsEventQueryService::QueryDetailsCore(
+        std::wstring_view channel,
+        std::uint64_t const recordId,
+        bool const savedLogFile,
+        QueryCancellation const& cancellation) const
+    {
         EventDetailsResult result;
         if (channel.empty() || recordId == 0)
         {
@@ -856,7 +1044,8 @@ namespace AstralChronicle::services
         }
 
         std::wstring const queryText = L"*[System[EventRecordID=" + std::to_wstring(recordId) + L"]]";
-        unique_evt_handle query{ EvtQuery(nullptr, std::wstring{ channel }.c_str(), queryText.c_str(), EvtQueryChannelPath) };
+        auto const queryFlags = savedLogFile ? EvtQueryFilePath : EvtQueryChannelPath;
+        unique_evt_handle query{ EvtQuery(nullptr, std::wstring{ channel }.c_str(), queryText.c_str(), queryFlags) };
         if (!query)
         {
             result.ErrorCode = GetLastError();

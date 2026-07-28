@@ -17,7 +17,6 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="GlobalSearchBox.Visibility" Value="Collapsed" />
                         <Setter Target="ShellSecondaryStatusPanel.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
@@ -113,21 +112,32 @@
                     </StackPanel>
                 </StackPanel>
 
-                <AutoSuggestBox
-                    x:Name="GlobalSearchBox"
-                    x:Uid="ShellSearchBox"
-                    Grid.Column="1"
-                    Width="360"
-                    VerticalAlignment="Center"
-                    AutomationProperties.AutomationId="GlobalSearchBox"
-                    IsEnabled="False">
-                    <AutoSuggestBox.QueryIcon>
-                        <SymbolIcon Symbol="Find" />
-                    </AutoSuggestBox.QueryIcon>
-                    <ToolTipService.ToolTip>
-                        <TextBlock x:Uid="ShellSearchUnavailableTooltip" />
-                    </ToolTipService.ToolTip>
-                </AutoSuggestBox>
+                <Grid Grid.Column="1" VerticalAlignment="Center">
+                    <Button
+                        x:Name="GlobalSearchToggleButton"
+                        x:Uid="ShellSearchToggle"
+                        AutomationProperties.AutomationId="GlobalSearchToggleButton"
+                        Click="OnGlobalSearchToggleClicked">
+                        <Button.Content>
+                            <SymbolIcon Symbol="Find" />
+                        </Button.Content>
+                        <ToolTipService.ToolTip>
+                            <TextBlock x:Uid="ShellSearchToggleTooltip" />
+                        </ToolTipService.ToolTip>
+                    </Button>
+                    <AutoSuggestBox
+                        x:Name="GlobalSearchBox"
+                        x:Uid="ShellSearchBox"
+                        Width="360"
+                        AutomationProperties.AutomationId="GlobalSearchBox"
+                        LostFocus="OnGlobalSearchBoxLostFocus"
+                        QuerySubmitted="OnGlobalSearchQuerySubmitted"
+                        Visibility="Collapsed">
+                        <AutoSuggestBox.QueryIcon>
+                            <SymbolIcon Symbol="Find" />
+                        </AutoSuggestBox.QueryIcon>
+                    </AutoSuggestBox>
+                </Grid>
             </Grid>
         </Border>
 

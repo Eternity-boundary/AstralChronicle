@@ -154,6 +154,7 @@
                     Grid.Row="1"
                     AutomationProperties.AutomationId="LiveEventList"
                     ItemsSource="{x:Bind ViewModel.Events, Mode=OneWay}"
+                    ItemContainerStyle="{StaticResource AstralSeverityEventListItemStyle}"
                     SelectedItem="{x:Bind ViewModel.SelectedEvent, Mode=OneWay}"
                     SelectionChanged="OnSelectionChanged"
                     SelectionMode="Single"

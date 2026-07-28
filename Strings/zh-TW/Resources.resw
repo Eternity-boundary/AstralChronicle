@@ -163,16 +163,19 @@
     <value>基礎功能無法使用</value>
   </data>
   <data name="ShellSearchBox.PlaceholderText" xml:space="preserve">
-    <value>搜尋</value>
+    <value>搜尋所有事件記錄</value>
   </data>
   <data name="ShellSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>全域搜尋</value>
+    <value>搜尋所有事件記錄</value>
   </data>
   <data name="ShellSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.HelpText" xml:space="preserve">
-    <value>全域搜尋功能尚未開放。</value>
+    <value>送出關鍵字後，會搜尋所有可存取的事件記錄摘要，包含尚未開啟的記錄。</value>
   </data>
-  <data name="ShellSearchUnavailableTooltip.Text" xml:space="preserve">
-    <value>全域搜尋功能尚未開放。</value>
+  <data name="ShellSearchToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>搜尋所有事件記錄</value>
+  </data>
+  <data name="ShellSearchToggleTooltip.Text" xml:space="preserve">
+    <value>搜尋所有事件記錄</value>
   </data>
   <data name="DashboardNavigationItem.Content" xml:space="preserve">
     <value>儀表板</value>
@@ -465,8 +468,35 @@
   <data name="EventLogs.Heading" xml:space="preserve">
     <value>事件記錄</value>
   </data>
+  <data name="EventLogsCloseContextCommand.Label" xml:space="preserve">
+    <value>關閉</value>
+  </data>
+  <data name="EventLogs.SavedLogHeading.Text" xml:space="preserve">
+    <value>已儲存的事件記錄</value>
+  </data>
   <data name="EventLogs.ChannelDefault.Text" xml:space="preserve">
     <value>System</value>
+  </data>
+  <data name="EventLogs.GlobalSearchHeading.Text" xml:space="preserve">
+    <value>搜尋結果</value>
+  </data>
+  <data name="EventLogs.GlobalSearchChannel.Text" xml:space="preserve">
+    <value>所有可存取的事件記錄</value>
+  </data>
+  <data name="EventLogs.GlobalSearchLoading.Text" xml:space="preserve">
+    <value>正在搜尋所有事件記錄…</value>
+  </data>
+  <data name="EventLogs.GlobalSearchLoadingDetails.Text" xml:space="preserve">
+    <value>目前已掃描 {0} 筆事件記錄，符合的摘要會分批顯示。</value>
+  </data>
+  <data name="EventLogs.GlobalSearchLoaded.Text" xml:space="preserve">
+    <value>已載入 {0} 筆符合的事件。</value>
+  </data>
+  <data name="EventLogs.GlobalSearchNoEvents.Text" xml:space="preserve">
+    <value>在可存取的記錄中找不到符合的事件。</value>
+  </data>
+  <data name="EventLogs.GlobalSearchSummary.Text" xml:space="preserve">
+    <value>「{2}」：顯示 {0} 筆符合的事件；已掃描 {1} 筆記錄。</value>
   </data>
   <data name="EventLogs.EmptyValue.Text" xml:space="preserve">
     <value>—</value>
@@ -619,13 +649,28 @@
     <value>複製選取的事件</value>
   </data>
   <data name="EventLogsBookmarkMenuItem.Text" xml:space="preserve">
-    <value>為選取的事件加書籤</value>
+    <value>切換選取事件的書籤</value>
+  </data>
+  <data name="EventLogsBookmarkHeader.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>書籤</value>
+  </data>
+  <data name="EventLogsBookmarkItemButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>切換事件書籤</value>
+  </data>
+  <data name="EventLogsBookmarksOnlyCommand.Label" xml:space="preserve">
+    <value>只顯示書籤</value>
+  </data>
+  <data name="EventLogsBookmarkCountLabel.Text" xml:space="preserve">
+    <value>書籤</value>
+  </data>
+  <data name="EventLogs.FilterSummary.BookmarksOnly.Text" xml:space="preserve">
+    <value>正在顯示 {1} 個已載入事件中的 {0} 個書籤事件。</value>
   </data>
   <data name="EventLogsExportMenuItem.Text" xml:space="preserve">
     <value>匯出選取的事件</value>
   </data>
   <data name="EventLogsBookmarkCommand.Label" xml:space="preserve">
-    <value>加入書籤</value>
+    <value>切換書籤</value>
   </data>
   <data name="EventLogsExportCommand.Label" xml:space="preserve">
     <value>匯出</value>
@@ -1996,7 +2041,10 @@
     <value>在事件記錄中開啟</value>
   </data>
   <data name="TimelineBookmarkButton.Content" xml:space="preserve">
-    <value>為選取項目加書籤</value>
+    <value>切換選取項目的書籤</value>
+  </data>
+  <data name="TimelineBookmarkCountLabel.Text" xml:space="preserve">
+    <value>書籤</value>
   </data>
   <data name="TimelineExportButton.Content" xml:space="preserve">
     <value>匯出時間軸</value>

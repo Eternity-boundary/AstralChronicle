@@ -11,6 +11,7 @@
 
 namespace AstralChronicle::services
 {
+    struct IEventBookmarkStore;
     struct IEventQueryService;
 }
 
@@ -29,6 +30,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::AstralChronicle::TimelineViewModel ViewModel() const;
         void Initialize(
             std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+            std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
             std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
             ::AstralChronicle::navigation::INavigationService& navigation,

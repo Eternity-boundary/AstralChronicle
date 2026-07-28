@@ -5,8 +5,10 @@
 #include "EventLogItemViewModel.h"
 #include "Models/EventChannelDescriptor.h"
 #include "Models/EventFilter.h"
+#include "Models/SavedView.h"
 #include "Services/IEventBookmarkStore.h"
 #include "Services/IEventQueryService.h"
+#include "Services/ISavedViewRepository.h"
 #include "Services/ITextExportService.h"
 
 #include <winrt/Microsoft.UI.h>
@@ -35,10 +37,12 @@ namespace winrt::AstralChronicle::implementation
             std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
             std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
             std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
+            std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> savedViews,
             std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
             std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel = std::nullopt,
-            std::optional<std::wstring> const& query = std::nullopt);
+            std::optional<std::wstring> const& query = std::nullopt,
+            std::optional<std::wstring> const& searchText = std::nullopt);
 
         [[nodiscard]] winrt::hstring Heading() const;
         [[nodiscard]] winrt::hstring ChannelPath() const;
@@ -79,12 +83,17 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] bool HasStructuredFilter() const noexcept;
         [[nodiscard]] winrt::hstring FilterSummary() const;
         [[nodiscard]] bool HasFilter() const noexcept;
+        [[nodiscard]] bool ShowBookmarkedOnly() const noexcept;
+        void ShowBookmarkedOnly(bool value);
+        [[nodiscard]] std::uint32_t BookmarkCount() const noexcept;
         [[nodiscard]] bool HasSelection() const noexcept;
         [[nodiscard]] std::uint32_t SelectedCount() const noexcept;
         [[nodiscard]] winrt::hstring CopySelectedEventText() const;
         [[nodiscard]] winrt::hstring CopySelectedEventsText() const;
         void ToggleBookmarks();
+        void ToggleBookmark(winrt::AstralChronicle::EventLogItemViewModel const& value);
         void ExportSelectedEvents(winrt::Microsoft::UI::WindowId const& windowId);
+        [[nodiscard]] bool SaveCurrentView(bool detailsPaneOpen);
         [[nodiscard]] winrt::hstring SortKey() const;
         [[nodiscard]] bool SortAscending() const noexcept;
         [[nodiscard]] Microsoft::UI::Xaml::Controls::InfoBarSeverity StatusSeverity() const noexcept;
@@ -120,6 +129,9 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::hstring SelectedRelatedEvents() const;
         [[nodiscard]] winrt::hstring DetailsStatusText() const;
         [[nodiscard]] bool IsDetailsLoading() const noexcept;
+        [[nodiscard]] bool CanCloseActiveContext() const noexcept;
+        void OpenSavedLog(std::wstring filePath);
+        void CloseActiveContext();
         void Refresh();
         void LoadMore();
         void ClearFilter();
@@ -138,11 +150,13 @@ namespace winrt::AstralChronicle::implementation
             std::uint32_t skippedRecords,
             std::uint32_t maximumRecords,
             bool append,
+            bool savedLogFile,
             ::AstralChronicle::services::QueryCancellation cancellation);
         winrt::fire_and_forget LoadDetailsAsync(
             std::uint64_t requestVersion,
             std::wstring channel,
             std::uint64_t recordId,
+            bool savedLogFile,
             ::AstralChronicle::services::QueryCancellation cancellation);
         winrt::fire_and_forget ExportSelectedEventsAsync(
             std::wstring text,
@@ -151,24 +165,42 @@ namespace winrt::AstralChronicle::implementation
         void ApplyResult(::AstralChronicle::services::EventQueryResult const& result, bool append);
         void ApplyDetails(::AstralChronicle::services::EventDetailsResult const& result);
         void ApplyFilter();
+        void SetBookmarkState(
+            winrt::AstralChronicle::EventLogItemViewModel const& value,
+            bool isBookmarked);
         void ClearSelection();
         void RaisePropertyChanged(winrt::hstring const& propertyName);
         void RaiseStatusProperties();
         void RaiseSelectionProperties();
         void RaiseFilterProperties();
+
+        struct CloseTargetContext final
+        {
+            std::wstring Heading;
+            std::wstring ChannelPath;
+            std::wstring BaseQuery{ L"*" };
+            bool IsStructuredQuery{};
+            std::uint32_t PageSize{ 256 };
+        };
+
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> m_eventQuery;
         std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> m_bookmarkStore;
         std::shared_ptr<::AstralChronicle::services::ITextExportService> m_textExporter;
+        std::shared_ptr<::AstralChronicle::services::ISavedViewRepository> m_savedViews;
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> m_strings;
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         std::wstring m_channelPath;
         bool m_isStructuredQuery{};
+        bool m_isSavedLog{};
+        CloseTargetContext m_closeTargetContext;
         std::wstring m_baseQuery{ L"*" };
         std::wstring m_query{ L"*" };
         std::optional<std::uint64_t> m_initialRecordId;
         std::uint64_t m_requestVersion{};
         std::uint64_t m_detailsRequestVersion{};
         std::uint32_t m_loadedRecordCount{};
+        std::uint32_t m_pageSize{ 256 };
+        std::uint32_t m_globalSearchTargetResultCount{};
         ::AstralChronicle::services::QueryCancellation m_cancellation;
         ::AstralChronicle::services::QueryCancellation m_detailsCancellation;
         ::AstralChronicle::viewmodels::EventItemSettings m_eventItemSettings;
@@ -177,6 +209,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_statusText;
         winrt::hstring m_statusDetails;
         winrt::hstring m_searchText;
+        std::wstring m_globalSearchText;
         winrt::hstring m_filterProvider;
         winrt::hstring m_filterEventId;
         winrt::hstring m_filterLevel{ L"Any" };
@@ -226,9 +259,12 @@ namespace winrt::AstralChronicle::implementation
         bool m_isLoading{};
         bool m_hasMoreEvents{ true };
         bool m_isDetailsLoading{};
+        bool m_isGlobalSearch{};
+        bool m_canCloseActiveContext{};
         bool m_filterAfterToday{};
         bool m_hasStructuredFilter{};
         bool m_rawXPathEnabled{};
+        bool m_showBookmarkedOnly{};
         std::unordered_set<std::wstring> m_bookmarkedKeys;
         std::unordered_set<std::wstring> m_loadedEventKeys;
         Microsoft::UI::Xaml::Controls::InfoBarSeverity m_statusSeverity{

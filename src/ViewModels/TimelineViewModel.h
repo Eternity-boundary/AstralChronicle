@@ -3,6 +3,7 @@
 
 #include "TimelineViewModel.g.h"
 #include "EventLogItemViewModel.h"
+#include "Services/IEventBookmarkStore.h"
 #include "Services/IEventQueryService.h"
 
 #include <winrt/Microsoft.UI.Dispatching.h>
@@ -26,6 +27,7 @@ namespace winrt::AstralChronicle::implementation
 
         void Initialize(
             std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+            std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
             std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher);
 
@@ -78,10 +80,14 @@ namespace winrt::AstralChronicle::implementation
             std::uint32_t errorCode,
             bool partialFailure);
         void ApplySearchFilter();
+        void SetBookmarkState(
+            winrt::AstralChronicle::EventLogItemViewModel const& value,
+            bool isBookmarked);
         void RaisePropertyChanged(winrt::hstring const& propertyName);
         void RaiseStatusProperties();
 
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> m_eventQuery;
+        std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> m_bookmarkStore;
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> m_strings;
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         std::uint64_t m_requestVersion{};
@@ -102,6 +108,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::AstralChronicle::EventLogItemViewModel m_selectedEvent{ nullptr };
         winrt::hstring m_selectedEventDetails;
         std::uint32_t m_bookmarkCount{};
+        std::unordered_set<std::wstring> m_bookmarkedKeys;
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> m_events{ nullptr };
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::AstralChronicle::EventLogItemViewModel> m_allEvents{ nullptr };
         bool m_hasStatusMessage{ true };

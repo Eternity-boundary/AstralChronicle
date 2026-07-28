@@ -15,6 +15,10 @@
             <SolidColorBrush x:Key="AstralAccentTextBrush" Color="{ThemeResource AccentTextFillColorPrimary}" />
             <SolidColorBrush x:Key="AstralOnAccentTextBrush" Color="{ThemeResource TextOnAccentFillColorPrimary}" />
             <SolidColorBrush x:Key="AstralFocusBrush" Color="{ThemeResource FocusStrokeColorOuter}" />
+            <StaticResource x:Key="AstralEventSeverityCriticalBrush" ResourceKey="SystemFillColorCriticalBrush" />
+            <StaticResource x:Key="AstralEventSeverityWarningBrush" ResourceKey="SystemFillColorCautionBrush" />
+            <StaticResource x:Key="AstralEventSeverityInformationalBrush" ResourceKey="SystemFillColorAttentionBrush" />
+            <StaticResource x:Key="AstralEventSeverityVerboseBrush" ResourceKey="SystemFillColorNeutralBrush" />
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Dark">
@@ -30,6 +34,10 @@
             <SolidColorBrush x:Key="AstralAccentTextBrush" Color="{ThemeResource AccentTextFillColorPrimary}" />
             <SolidColorBrush x:Key="AstralOnAccentTextBrush" Color="{ThemeResource TextOnAccentFillColorPrimary}" />
             <SolidColorBrush x:Key="AstralFocusBrush" Color="{ThemeResource FocusStrokeColorOuter}" />
+            <StaticResource x:Key="AstralEventSeverityCriticalBrush" ResourceKey="SystemFillColorCriticalBrush" />
+            <StaticResource x:Key="AstralEventSeverityWarningBrush" ResourceKey="SystemFillColorCautionBrush" />
+            <StaticResource x:Key="AstralEventSeverityInformationalBrush" ResourceKey="SystemFillColorAttentionBrush" />
+            <StaticResource x:Key="AstralEventSeverityVerboseBrush" ResourceKey="SystemFillColorNeutralBrush" />
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="HighContrast">
@@ -45,6 +53,10 @@
             <SolidColorBrush x:Key="AstralAccentTextBrush" Color="{ThemeResource SystemColorHighlightTextColor}" />
             <SolidColorBrush x:Key="AstralOnAccentTextBrush" Color="{ThemeResource SystemColorHighlightTextColor}" />
             <SolidColorBrush x:Key="AstralFocusBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="AstralEventSeverityCriticalBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="AstralEventSeverityWarningBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="AstralEventSeverityInformationalBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="AstralEventSeverityVerboseBrush" Color="{ThemeResource SystemColorHighlightColor}" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>

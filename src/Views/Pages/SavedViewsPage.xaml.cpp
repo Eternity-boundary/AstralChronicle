@@ -60,7 +60,10 @@ namespace winrt::AstralChronicle::implementation
         if (!m_navigation || !viewModel->HasSelection()) return;
         ::AstralChronicle::navigation::NavigationRequest request;
         request.Route = L"event-logs";
-        request.Channel = ::AstralChronicle::models::EventChannelIdentifier{ std::wstring{ viewModel->EditorChannel().c_str() } };
+        if (auto const channel = viewModel->EditorChannel(); !channel.empty())
+        {
+            request.Channel = ::AstralChronicle::models::EventChannelIdentifier{ std::wstring{ channel.c_str() } };
+        }
         request.Query = std::wstring{ viewModel->EditorQuery().c_str() };
         if (m_navigation->Navigate(request) && m_navigationSelectionChanged)
         {
