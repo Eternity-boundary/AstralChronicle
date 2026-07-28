@@ -10,9 +10,11 @@
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
+#include <cwctype>
 #include <limits>
 #include <ratio>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #pragma comment(lib, "wevtapi.lib")
@@ -260,15 +262,24 @@ namespace
                 break;
             }
 
-            auto const nameStart = section.find(L"Name=\"", cursor);
+            auto const nameStart = section.find(L"Name=", cursor);
             std::wstring name;
             if (nameStart != std::wstring::npos && nameStart < tagEnd)
             {
-                auto const nameValueStart = nameStart + 6;
-                auto const nameEnd = section.find(L'\"', nameValueStart);
-                if (nameEnd != std::wstring::npos && nameEnd < tagEnd)
+                auto nameValueStart = nameStart + 5;
+                while (nameValueStart < tagEnd && std::iswspace(section[nameValueStart]))
                 {
-                    name = section.substr(nameValueStart, nameEnd - nameValueStart);
+                    ++nameValueStart;
+                }
+                if (nameValueStart < tagEnd &&
+                    (section[nameValueStart] == L'\"' || section[nameValueStart] == L'\''))
+                {
+                    auto const quote = section[nameValueStart++];
+                    auto const nameEnd = section.find(quote, nameValueStart);
+                    if (nameEnd != std::wstring::npos && nameEnd < tagEnd)
+                    {
+                        name = section.substr(nameValueStart, nameEnd - nameValueStart);
+                    }
                 }
             }
             if (name.empty())
@@ -283,6 +294,81 @@ namespace
             properties.push_back({ std::wstring{ sectionName }, section });
         }
         return properties;
+    }
+
+    void ReplaceAll(
+        std::wstring& value,
+        std::wstring_view const search,
+        std::wstring_view const replacement)
+    {
+        std::size_t position{};
+        while ((position = value.find(search, position)) != std::wstring::npos)
+        {
+            value.replace(position, search.size(), replacement);
+            position += replacement.size();
+        }
+    }
+
+    [[nodiscard]] std::wstring DecodeXmlText(std::wstring value)
+    {
+        ReplaceAll(value, L"&quot;", L"\"");
+        ReplaceAll(value, L"&apos;", L"'");
+        ReplaceAll(value, L"&lt;", L"<");
+        ReplaceAll(value, L"&gt;", L">");
+        ReplaceAll(value, L"&amp;", L"&");
+        return value;
+    }
+
+    [[nodiscard]] std::wstring TrimWhitespace(std::wstring value)
+    {
+        auto const first = std::find_if_not(value.begin(), value.end(), [](wchar_t const character)
+        {
+            return std::iswspace(character) != 0;
+        });
+        auto const last = std::find_if_not(value.rbegin(), value.rend(), [](wchar_t const character)
+        {
+            return std::iswspace(character) != 0;
+        }).base();
+        return first < last ? std::wstring{ first, last } : std::wstring{};
+    }
+
+    [[nodiscard]] std::wstring EventDataPreview(std::wstring const& xml)
+    {
+        constexpr auto maximumFields = std::size_t{ 2 };
+        constexpr auto maximumLength = std::size_t{ 240 };
+
+        std::wstring preview;
+        std::size_t fieldCount{};
+        for (auto const& property : ExtractEventData(xml, L"EventData"))
+        {
+            auto value = TrimWhitespace(DecodeXmlText(property.Value));
+            if (value.empty() || (property.Name == L"EventData" && value.front() == L'<'))
+            {
+                continue;
+            }
+
+            if (!preview.empty())
+            {
+                preview += L" · ";
+            }
+            if (property.Name != L"Data" && property.Name != L"EventData")
+            {
+                preview += DecodeXmlText(property.Name);
+                preview += L": ";
+            }
+            preview += value;
+            if (++fieldCount == maximumFields)
+            {
+                break;
+            }
+        }
+
+        if (preview.size() > maximumLength)
+        {
+            preview.resize(maximumLength - 1);
+            preview += L"…";
+        }
+        return preview;
     }
 
     [[nodiscard]] std::wstring GetPublisherStringProperty(
@@ -796,6 +882,13 @@ namespace AstralChronicle::services
                         ? ERROR_EVT_INVALID_EVENT_DATA
                         : renderError;
                     return result;
+                }
+                DWORD previewError{};
+                if (auto const xml = RenderXml(ownedEvents[index].get(), previewError))
+                {
+                    // Event payload values are available without loading a provider message DLL.
+                    // Keep this preview best-effort so a malformed payload cannot block the list.
+                    summary->ShortDescription = EventDataPreview(*xml);
                 }
                 result.Events.emplace_back(std::move(*summary));
             }
