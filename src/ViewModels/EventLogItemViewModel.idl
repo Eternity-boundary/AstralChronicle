@@ -23,6 +23,7 @@ namespace AstralChronicle
         String RelatedActivityId{ get; };
         Boolean IsBookmarked{ get; set; };
         String BookmarkGlyph{ get; };
+        Microsoft.UI.Xaml.Media.Brush SeverityIndicatorBrush{ get; };
         Int64 SortTimestamp{ get; };
         UInt64 SortRecordId{ get; };
     }

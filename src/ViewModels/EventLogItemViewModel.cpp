@@ -46,6 +46,24 @@ namespace
         }
     }
 
+    [[nodiscard]] winrt::hstring SeverityIndicatorBrushResourceKey(std::uint8_t const level)
+    {
+        switch (level)
+        {
+        case 1:
+        case 2:
+            return L"AstralEventSeverityCriticalBrush";
+        case 3:
+            return L"AstralEventSeverityWarningBrush";
+        case 0:
+        case 4:
+            return L"AstralEventSeverityInformationalBrush";
+        case 5:
+        default:
+            return L"AstralEventSeverityVerboseBrush";
+        }
+    }
+
     [[nodiscard]] winrt::hstring FormatTime(
         std::chrono::system_clock::time_point const timeCreated,
         winrt::hstring const& fallback,
@@ -93,6 +111,7 @@ namespace winrt::AstralChronicle::implementation
     {
         auto const emptyValue = strings.GetString(L"EventLogs.EmptyValue.Text");
         m_timeCreated = FormatTime(summary.TimeCreated, emptyValue, settings.UseUtc);
+        m_levelValue = summary.Level;
         m_level = strings.GetString(LevelResourceKey(summary.Level));
         m_provider = ValueOrFallback(summary.Provider, emptyValue);
         m_eventId = summary.EventId == 0 ? emptyValue : winrt::to_hstring(summary.EventId);
@@ -138,6 +157,12 @@ namespace winrt::AstralChronicle::implementation
     winrt::hstring EventLogItemViewModel::BookmarkGlyph() const
     {
         return m_isBookmarked ? L"\uE735" : L"\uE734";
+    }
+    Microsoft::UI::Xaml::Media::Brush EventLogItemViewModel::SeverityIndicatorBrush() const
+    {
+        auto const resources = Microsoft::UI::Xaml::Application::Current().Resources();
+        return resources.Lookup(winrt::box_value(SeverityIndicatorBrushResourceKey(m_levelValue)))
+            .as<Microsoft::UI::Xaml::Media::Brush>();
     }
     void EventLogItemViewModel::IsBookmarked(bool const value)
     {

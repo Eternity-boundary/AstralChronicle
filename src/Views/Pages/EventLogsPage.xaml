@@ -88,9 +88,9 @@
                             CheckBoxCornerRadius="{ThemeResource ListViewItemCheckBoxCornerRadius}"
                             SelectionIndicatorCornerRadius="0"
                             SelectionIndicatorVisualEnabled="{ThemeResource ListViewItemSelectionIndicatorVisualEnabled}"
-                            SelectionIndicatorBrush="{ThemeResource ListViewItemSelectionIndicatorBrush}"
-                            SelectionIndicatorPointerOverBrush="{ThemeResource ListViewItemSelectionIndicatorPointerOverBrush}"
-                            SelectionIndicatorPressedBrush="{ThemeResource ListViewItemSelectionIndicatorPressedBrush}"
+                            SelectionIndicatorBrush="{Binding SeverityIndicatorBrush, Mode=OneWay}"
+                            SelectionIndicatorPointerOverBrush="{Binding SeverityIndicatorBrush, Mode=OneWay}"
+                            SelectionIndicatorPressedBrush="{Binding SeverityIndicatorBrush, Mode=OneWay}"
                             SelectionIndicatorDisabledBrush="{ThemeResource ListViewItemSelectionIndicatorDisabledBrush}"
                             SelectedDisabledBackground="{ThemeResource ListViewItemBackgroundSelectedDisabled}" />
                     </ControlTemplate>

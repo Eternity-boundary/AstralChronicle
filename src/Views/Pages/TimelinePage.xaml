@@ -282,6 +282,7 @@
             Grid.Row="4"
             AutomationProperties.AutomationId="TimelineEventList"
             ItemsSource="{x:Bind ViewModel.Events, Mode=OneWay}"
+            ItemContainerStyle="{StaticResource AstralSeverityEventListItemStyle}"
             SelectionChanged="OnTimelineSelectionChanged"
             SelectionMode="Single"
             ShowsScrollingPlaceholders="True">
