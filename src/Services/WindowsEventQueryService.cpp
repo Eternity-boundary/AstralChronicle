@@ -552,11 +552,49 @@ namespace AstralChronicle::services
         bool reverseDirection,
         QueryCancellation const& cancellation) const
     {
+        return QueryPageWithQueryOffsetCore(
+            channel,
+            queryText,
+            skippedRecords,
+            maximumRecords,
+            reverseDirection,
+            false,
+            cancellation);
+    }
+
+    EventQueryResult WindowsEventQueryService::QuerySavedLogPageWithQueryOffset(
+        std::wstring_view filePath,
+        std::wstring_view queryText,
+        std::uint32_t skippedRecords,
+        std::uint32_t maximumRecords,
+        bool reverseDirection,
+        QueryCancellation const& cancellation) const
+    {
+        return QueryPageWithQueryOffsetCore(
+            filePath,
+            queryText,
+            skippedRecords,
+            maximumRecords,
+            reverseDirection,
+            true,
+            cancellation);
+    }
+
+    EventQueryResult WindowsEventQueryService::QueryPageWithQueryOffsetCore(
+        std::wstring_view channel,
+        std::wstring_view queryText,
+        std::uint32_t skippedRecords,
+        std::uint32_t maximumRecords,
+        bool reverseDirection,
+        bool const savedLogFile,
+        QueryCancellation const& cancellation) const
+    {
         EventQueryResult result;
         auto const queryStart = queryText.find_first_not_of(L" \t\r\n");
         auto const isStructuredQuery = queryStart != std::wstring_view::npos &&
             queryText.compare(queryStart, 10, L"<QueryList") == 0;
-        if (queryText.empty() || maximumRecords == 0 || (channel.empty() && !isStructuredQuery))
+        if (queryText.empty() || maximumRecords == 0 ||
+            (channel.empty() && (savedLogFile || !isStructuredQuery)))
         {
             result.Status = EventQueryStatus::InvalidChannel;
             result.ErrorCode = ERROR_INVALID_NAME;
@@ -584,7 +622,7 @@ namespace AstralChronicle::services
         }
         else
         {
-            queryFlags |= EvtQueryChannelPath;
+            queryFlags |= savedLogFile ? EvtQueryFilePath : EvtQueryChannelPath;
             std::wstring const channelPath{ channel };
             queryHandle.reset(EvtQuery(nullptr, channelPath.c_str(), query.c_str(), queryFlags));
         }
@@ -607,6 +645,39 @@ namespace AstralChronicle::services
         std::vector<EVT_HANDLE> events(batchSize);
         std::vector<unique_evt_handle> ownedEvents(batchSize);
         result.Events.reserve(maximumRecords);
+
+        // Saved .evtx files are immutable for the duration of this query. EvtSeek lets the
+        // eventing service reposition its result cursor directly, so later virtualized pages
+        // do not require a client-side EvtNext call for every record from earlier pages.
+        if (savedLogFile && skippedRecords != 0)
+        {
+            if (cancellation && cancellation->load(std::memory_order_relaxed))
+            {
+                EvtCancel(queryHandle.get());
+                result.Status = EventQueryStatus::Cancelled;
+                result.ErrorCode = ERROR_CANCELLED;
+                return result;
+            }
+
+            if (!EvtSeek(
+                    queryHandle.get(),
+                    static_cast<LONGLONG>(skippedRecords),
+                    nullptr,
+                    0,
+                    EvtSeekRelativeToFirst | EvtSeekStrict))
+            {
+                auto const error = GetLastError();
+                if (error == ERROR_NOT_FOUND)
+                {
+                    result.Status = EventQueryStatus::NoEvents;
+                    return result;
+                }
+                result.ErrorCode = error;
+                result.Status = MapQueryError(error);
+                return result;
+            }
+            skippedRecords = 0;
+        }
 
         while (skippedRecords != 0)
         {
@@ -854,6 +925,23 @@ namespace AstralChronicle::services
         std::uint64_t const recordId,
         QueryCancellation const& cancellation) const
     {
+        return QueryDetailsCore(channel, recordId, false, cancellation);
+    }
+
+    EventDetailsResult WindowsEventQueryService::QuerySavedLogDetails(
+        std::wstring_view filePath,
+        std::uint64_t const recordId,
+        QueryCancellation const& cancellation) const
+    {
+        return QueryDetailsCore(filePath, recordId, true, cancellation);
+    }
+
+    EventDetailsResult WindowsEventQueryService::QueryDetailsCore(
+        std::wstring_view channel,
+        std::uint64_t const recordId,
+        bool const savedLogFile,
+        QueryCancellation const& cancellation) const
+    {
         EventDetailsResult result;
         if (channel.empty() || recordId == 0)
         {
@@ -863,7 +951,8 @@ namespace AstralChronicle::services
         }
 
         std::wstring const queryText = L"*[System[EventRecordID=" + std::to_wstring(recordId) + L"]]";
-        unique_evt_handle query{ EvtQuery(nullptr, std::wstring{ channel }.c_str(), queryText.c_str(), EvtQueryChannelPath) };
+        auto const queryFlags = savedLogFile ? EvtQueryFilePath : EvtQueryChannelPath;
+        unique_evt_handle query{ EvtQuery(nullptr, std::wstring{ channel }.c_str(), queryText.c_str(), queryFlags) };
         if (!query)
         {
             result.ErrorCode = GetLastError();

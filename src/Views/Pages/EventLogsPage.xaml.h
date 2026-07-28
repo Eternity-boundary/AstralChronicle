@@ -43,6 +43,9 @@ namespace winrt::AstralChronicle::implementation
         void OnRefreshClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);
+        void OnCloseActiveContextClicked(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::RoutedEventArgs const& args);
         void OnRestartAsAdministratorClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);
@@ -70,6 +73,9 @@ namespace winrt::AstralChronicle::implementation
         void OnExportClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);
+        void OnOpenSavedLogClicked(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::RoutedEventArgs const& args);
         void OnToggleDetailsClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);
@@ -92,7 +98,9 @@ namespace winrt::AstralChronicle::implementation
     private:
         void UpdateResponsiveLayout(double width);
         void UpdateAccessDeniedAction();
+        void UpdateCloseContextAction();
         void UpdateSortAutomation();
+        winrt::fire_and_forget OpenSavedLogAsync();
 
         winrt::AstralChronicle::EventLogsViewModel m_viewModel{ nullptr };
         winrt::event_token m_viewModelPropertyChangedToken{};
@@ -101,6 +109,7 @@ namespace winrt::AstralChronicle::implementation
         Microsoft::UI::Xaml::Controls::ScrollViewer::ViewChanged_revoker m_eventListViewChangedRevoker{};
         bool m_detailsPaneVisible{ true };
         bool m_narrowDetailsPaneVisible{};
+        bool m_isPickingSavedLog{};
     };
 }
 

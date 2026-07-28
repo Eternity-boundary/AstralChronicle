@@ -84,6 +84,21 @@ namespace AstralChronicle::services
             bool reverseDirection,
             QueryCancellation const& cancellation) const = 0;
 
+        // Saved logs need EvtQueryFilePath rather than EvtQueryChannelPath.  Keep this
+        // separate from the channel API so callers cannot accidentally query an arbitrary
+        // path as a live channel, while implementations that do not support saved logs can
+        // retain their existing behavior.
+        [[nodiscard]] virtual EventQueryResult QuerySavedLogPageWithQueryOffset(
+            std::wstring_view,
+            std::wstring_view,
+            std::uint32_t,
+            std::uint32_t,
+            bool,
+            QueryCancellation const&) const
+        {
+            return {};
+        }
+
         [[nodiscard]] virtual EventLevelCountsResult QueryLevelCounts(
             std::wstring_view channel,
             std::wstring_view query,
@@ -93,6 +108,14 @@ namespace AstralChronicle::services
             std::wstring_view channel,
             std::uint64_t recordId,
             QueryCancellation const& cancellation) const = 0;
+
+        [[nodiscard]] virtual EventDetailsResult QuerySavedLogDetails(
+            std::wstring_view,
+            std::uint64_t,
+            QueryCancellation const&) const
+        {
+            return {};
+        }
 
         [[nodiscard]] virtual std::vector<models::EventRecordSummary> QueryRecent(
             std::wstring_view channel,

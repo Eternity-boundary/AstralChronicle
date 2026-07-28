@@ -157,6 +157,16 @@
                 DefaultLabelPosition="Right"
                 VerticalAlignment="Center">
                 <AppBarButton
+                    x:Name="CloseContextCommand"
+                    x:Uid="EventLogsCloseContextCommand"
+                    AutomationProperties.AutomationId="EventLogsCloseContextCommand"
+                    Click="OnCloseActiveContextClicked"
+                    Visibility="Collapsed">
+                    <AppBarButton.Icon>
+                        <SymbolIcon Symbol="Clear" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
                     x:Uid="EventLogsRefreshCommand"
                     AutomationProperties.AutomationId="EventLogsRefreshCommand"
                     Click="OnRefreshClicked">
@@ -327,7 +337,10 @@
                             <SymbolIcon Symbol="Save" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton x:Uid="EventLogsOpenSavedLogCommand" IsEnabled="False">
+                    <AppBarButton
+                        x:Uid="EventLogsOpenSavedLogCommand"
+                        AutomationProperties.AutomationId="EventLogsOpenSavedLogCommand"
+                        Click="OnOpenSavedLogClicked">
                         <AppBarButton.Icon>
                             <SymbolIcon Symbol="OpenFile" />
                         </AppBarButton.Icon>

@@ -95,6 +95,10 @@ namespace winrt::AstralChronicle::implementation
                 {
                     self->UpdateAccessDeniedAction();
                 }
+                else if (args.PropertyName() == L"CanCloseActiveContext")
+                {
+                    self->UpdateCloseContextAction();
+                }
                 else if (args.PropertyName() == L"SortKey" || args.PropertyName() == L"SortAscending")
                 {
                     self->UpdateSortAutomation();
@@ -115,6 +119,7 @@ namespace winrt::AstralChronicle::implementation
             channel,
             query,
             searchText);
+        UpdateCloseContextAction();
         UpdateSortAutomation();
         UpdateResponsiveLayout(ContentGrid().ActualWidth());
     }
@@ -127,11 +132,26 @@ namespace winrt::AstralChronicle::implementation
                 : Microsoft::UI::Xaml::Visibility::Collapsed);
     }
 
+    void EventLogsPage::UpdateCloseContextAction()
+    {
+        CloseContextCommand().Visibility(
+            winrt::get_self<EventLogsViewModel>(m_viewModel)->CanCloseActiveContext()
+                ? Microsoft::UI::Xaml::Visibility::Visible
+                : Microsoft::UI::Xaml::Visibility::Collapsed);
+    }
+
     void EventLogsPage::OnRefreshClicked(
         winrt::Windows::Foundation::IInspectable const&,
         Microsoft::UI::Xaml::RoutedEventArgs const&)
     {
         winrt::get_self<EventLogsViewModel>(m_viewModel)->Refresh();
+    }
+
+    void EventLogsPage::OnCloseActiveContextClicked(
+        winrt::Windows::Foundation::IInspectable const&,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        winrt::get_self<EventLogsViewModel>(m_viewModel)->CloseActiveContext();
     }
 
     void EventLogsPage::OnRestartAsAdministratorClicked(
@@ -257,6 +277,42 @@ namespace winrt::AstralChronicle::implementation
     {
         auto const windowId = PageRoot().XamlRoot().ContentIslandEnvironment().AppWindowId();
         winrt::get_self<EventLogsViewModel>(m_viewModel)->ExportSelectedEvents(windowId);
+    }
+
+    void EventLogsPage::OnOpenSavedLogClicked(
+        winrt::Windows::Foundation::IInspectable const&,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        if (m_isPickingSavedLog)
+        {
+            return;
+        }
+
+        m_isPickingSavedLog = true;
+        OpenSavedLogAsync();
+    }
+
+    winrt::fire_and_forget EventLogsPage::OpenSavedLogAsync()
+    {
+        auto lifetime = get_strong();
+        try
+        {
+            auto const windowId = PageRoot().XamlRoot().ContentIslandEnvironment().AppWindowId();
+            winrt::Microsoft::Windows::Storage::Pickers::FileOpenPicker picker{ windowId };
+            picker.FileTypeFilter().Append(L".evtx");
+            auto const result = co_await picker.PickSingleFileAsync();
+            if (result)
+            {
+                winrt::get_self<EventLogsViewModel>(m_viewModel)->OpenSavedLog(
+                    std::wstring{ result.Path().c_str() });
+            }
+        }
+        catch (...)
+        {
+            // The picker can fail before showing if its hosting window is closing.
+        }
+
+        m_isPickingSavedLog = false;
     }
 
     void EventLogsPage::OnToggleDetailsClicked(

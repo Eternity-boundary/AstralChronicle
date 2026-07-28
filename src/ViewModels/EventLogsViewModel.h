@@ -121,6 +121,9 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::hstring SelectedRelatedEvents() const;
         [[nodiscard]] winrt::hstring DetailsStatusText() const;
         [[nodiscard]] bool IsDetailsLoading() const noexcept;
+        [[nodiscard]] bool CanCloseActiveContext() const noexcept;
+        void OpenSavedLog(std::wstring filePath);
+        void CloseActiveContext();
         void Refresh();
         void LoadMore();
         void ClearFilter();
@@ -139,11 +142,13 @@ namespace winrt::AstralChronicle::implementation
             std::uint32_t skippedRecords,
             std::uint32_t maximumRecords,
             bool append,
+            bool savedLogFile,
             ::AstralChronicle::services::QueryCancellation cancellation);
         winrt::fire_and_forget LoadDetailsAsync(
             std::uint64_t requestVersion,
             std::wstring channel,
             std::uint64_t recordId,
+            bool savedLogFile,
             ::AstralChronicle::services::QueryCancellation cancellation);
         winrt::fire_and_forget ExportSelectedEventsAsync(
             std::wstring text,
@@ -157,6 +162,16 @@ namespace winrt::AstralChronicle::implementation
         void RaiseStatusProperties();
         void RaiseSelectionProperties();
         void RaiseFilterProperties();
+
+        struct CloseTargetContext final
+        {
+            std::wstring Heading;
+            std::wstring ChannelPath;
+            std::wstring BaseQuery{ L"*" };
+            bool IsStructuredQuery{};
+            std::uint32_t PageSize{ 256 };
+        };
+
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> m_eventQuery;
         std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> m_bookmarkStore;
         std::shared_ptr<::AstralChronicle::services::ITextExportService> m_textExporter;
@@ -164,6 +179,8 @@ namespace winrt::AstralChronicle::implementation
         Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         std::wstring m_channelPath;
         bool m_isStructuredQuery{};
+        bool m_isSavedLog{};
+        CloseTargetContext m_closeTargetContext;
         std::wstring m_baseQuery{ L"*" };
         std::wstring m_query{ L"*" };
         std::optional<std::uint64_t> m_initialRecordId;
@@ -231,6 +248,7 @@ namespace winrt::AstralChronicle::implementation
         bool m_hasMoreEvents{ true };
         bool m_isDetailsLoading{};
         bool m_isGlobalSearch{};
+        bool m_canCloseActiveContext{};
         bool m_filterAfterToday{};
         bool m_hasStructuredFilter{};
         bool m_rawXPathEnabled{};

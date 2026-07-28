@@ -468,6 +468,12 @@
   <data name="EventLogs.Heading" xml:space="preserve">
     <value>事件記錄</value>
   </data>
+  <data name="EventLogsCloseContextCommand.Label" xml:space="preserve">
+    <value>關閉</value>
+  </data>
+  <data name="EventLogs.SavedLogHeading.Text" xml:space="preserve">
+    <value>已儲存的事件記錄</value>
+  </data>
   <data name="EventLogs.ChannelDefault.Text" xml:space="preserve">
     <value>System</value>
   </data>

@@ -468,6 +468,12 @@
   <data name="EventLogs.Heading" xml:space="preserve">
     <value>Event Logs</value>
   </data>
+  <data name="EventLogsCloseContextCommand.Label" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="EventLogs.SavedLogHeading.Text" xml:space="preserve">
+    <value>Saved Event Log</value>
+  </data>
   <data name="EventLogs.ChannelDefault.Text" xml:space="preserve">
     <value>System</value>
   </data>
