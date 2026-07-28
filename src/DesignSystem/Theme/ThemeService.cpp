@@ -2,10 +2,26 @@
 #include "pch.h"
 #include "DesignSystem/Theme/ThemeService.h"
 
+#include "IThemeService.h"
+#include <cstdint>
+#include <map>
+#include <mutex>
+#include <string_view>
+#include <utility>
+#include <winrt/base.h>
+#include <winrt/impl/Microsoft.UI.Dispatching.2.h>
+#include <winrt/impl/Microsoft.UI.Xaml.0.h>
+#include <winrt/impl/Microsoft.UI.Xaml.2.h>
+#include <winrt/impl/Microsoft.UI.Xaml.Media.0.h>
+#include <winrt/impl/Microsoft.UI.Xaml.Media.2.h>
+#include <winrt/impl/Microsoft.UI.Xaml.Media.Imaging.2.h>
+#include <winrt/impl/Windows.Foundation.2.h>
+#include <winrt/impl/Windows.Storage.2.h>
+#include <winrt/impl/Windows.UI.2.h>
+#include <winrt/impl/Windows.UI.ViewManagement.2.h>
+#include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Storage.h>
-#include <winrt/Windows.UI.h>
-#include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
