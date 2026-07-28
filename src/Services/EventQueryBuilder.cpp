@@ -222,6 +222,25 @@ namespace
         return result;
     }
 
+    [[nodiscard]] std::wstring EncodeXmlAttribute(std::wstring_view value)
+    {
+        std::wstring result;
+        result.reserve(value.size());
+        for (auto const character : value)
+        {
+            switch (character)
+            {
+            case L'&': result += L"&amp;"; break;
+            case L'<': result += L"&lt;"; break;
+            case L'>': result += L"&gt;"; break;
+            case L'\"': result += L"&quot;"; break;
+            case L'\'': result += L"&apos;"; break;
+            default: result.push_back(character); break;
+            }
+        }
+        return result;
+    }
+
 }
 
 namespace AstralChronicle::services
@@ -420,5 +439,27 @@ namespace AstralChronicle::services
         }
 
         return applied ? std::optional<std::wstring>{ std::move(result) } : std::nullopt;
+    }
+
+    std::optional<std::wstring> BuildAvailableChannelsQueryList(
+        std::vector<models::EventChannelDescriptor> const& channels)
+    {
+        std::wstring result{ L"<QueryList><Query Id=\"0\">" };
+        bool hasChannels{};
+        for (auto const& channel : channels)
+        {
+            if (channel.State != models::EventChannelState::Available || channel.Path.empty())
+            {
+                continue;
+            }
+
+            result += L"<Select Path=\"";
+            result += EncodeXmlAttribute(channel.Path);
+            result += L"\">*</Select>";
+            hasChannels = true;
+        }
+        result += L"</Query></QueryList>";
+
+        return hasChannels ? std::optional<std::wstring>{ std::move(result) } : std::nullopt;
     }
 }

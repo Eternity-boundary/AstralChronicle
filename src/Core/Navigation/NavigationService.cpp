@@ -48,7 +48,7 @@ namespace AstralChronicle::navigation
 
     bool NavigationService::Navigate(std::wstring_view route)
     {
-        return Navigate(NavigationRequest{ std::wstring{ route }, std::nullopt });
+        return Navigate(NavigationRequest{ std::wstring{ route } });
     }
 
     bool NavigationService::Navigate(NavigationRequest const& request)

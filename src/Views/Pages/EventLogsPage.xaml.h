@@ -38,7 +38,8 @@ namespace winrt::AstralChronicle::implementation
             std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
             std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel = std::nullopt,
-            std::optional<std::wstring> const& query = std::nullopt);
+            std::optional<std::wstring> const& query = std::nullopt,
+            std::optional<std::wstring> const& searchText = std::nullopt);
         void OnRefreshClicked(
             winrt::Windows::Foundation::IInspectable const& sender,
             Microsoft::UI::Xaml::RoutedEventArgs const& args);

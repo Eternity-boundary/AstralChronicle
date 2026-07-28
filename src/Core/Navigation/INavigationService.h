@@ -18,6 +18,10 @@ namespace AstralChronicle::navigation
         std::wstring Route;
         std::optional<models::EventChannelIdentifier> Channel;
         std::optional<std::wstring> Query;
+        // An optional client-side search term that accompanies a structured event query.
+        // This keeps navigation generic while allowing a page to progressively filter
+        // data that cannot be expressed by the Windows Event Log XPath subset.
+        std::optional<std::wstring> SearchText;
     };
 
     using PageFactory = std::function<winrt::Microsoft::UI::Xaml::FrameworkElement()>;

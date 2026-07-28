@@ -38,7 +38,8 @@ namespace winrt::AstralChronicle::implementation
             std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
             Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
             std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel = std::nullopt,
-            std::optional<std::wstring> const& query = std::nullopt);
+            std::optional<std::wstring> const& query = std::nullopt,
+            std::optional<std::wstring> const& searchText = std::nullopt);
 
         [[nodiscard]] winrt::hstring Heading() const;
         [[nodiscard]] winrt::hstring ChannelPath() const;
@@ -169,6 +170,8 @@ namespace winrt::AstralChronicle::implementation
         std::uint64_t m_requestVersion{};
         std::uint64_t m_detailsRequestVersion{};
         std::uint32_t m_loadedRecordCount{};
+        std::uint32_t m_pageSize{ 256 };
+        std::uint32_t m_globalSearchTargetResultCount{};
         ::AstralChronicle::services::QueryCancellation m_cancellation;
         ::AstralChronicle::services::QueryCancellation m_detailsCancellation;
         ::AstralChronicle::viewmodels::EventItemSettings m_eventItemSettings;
@@ -177,6 +180,7 @@ namespace winrt::AstralChronicle::implementation
         winrt::hstring m_statusText;
         winrt::hstring m_statusDetails;
         winrt::hstring m_searchText;
+        std::wstring m_globalSearchText;
         winrt::hstring m_filterProvider;
         winrt::hstring m_filterEventId;
         winrt::hstring m_filterLevel{ L"Any" };
@@ -226,6 +230,7 @@ namespace winrt::AstralChronicle::implementation
         bool m_isLoading{};
         bool m_hasMoreEvents{ true };
         bool m_isDetailsLoading{};
+        bool m_isGlobalSearch{};
         bool m_filterAfterToday{};
         bool m_hasStructuredFilter{};
         bool m_rawXPathEnabled{};

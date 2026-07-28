@@ -568,6 +568,13 @@ namespace AstralChronicle::services
         {
             queryFlags = EvtQueryReverseDirection;
         }
+        // A global QueryList can legitimately include a channel that becomes unavailable
+        // between catalog enumeration and execution. Keep readable channels searchable
+        // instead of failing the entire multi-channel request.
+        if (isStructuredQuery)
+        {
+            queryFlags |= EvtQueryTolerateQueryErrors;
+        }
 
         std::wstring const query{ queryText };
         unique_evt_handle queryHandle;

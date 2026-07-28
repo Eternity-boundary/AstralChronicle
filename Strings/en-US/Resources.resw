@@ -163,16 +163,19 @@
     <value>Core features unavailable</value>
   </data>
   <data name="ShellSearchBox.PlaceholderText" xml:space="preserve">
-    <value>Search</value>
+    <value>Search all event logs</value>
   </data>
   <data name="ShellSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Global search</value>
+    <value>Search all event logs</value>
   </data>
   <data name="ShellSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.HelpText" xml:space="preserve">
-    <value>Global search is not available yet.</value>
+    <value>Submit a term to search event summaries across all available logs, including logs that have not been opened.</value>
   </data>
-  <data name="ShellSearchUnavailableTooltip.Text" xml:space="preserve">
-    <value>Global search is not available yet.</value>
+  <data name="ShellSearchToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Search all event logs</value>
+  </data>
+  <data name="ShellSearchToggleTooltip.Text" xml:space="preserve">
+    <value>Search all event logs</value>
   </data>
   <data name="DashboardNavigationItem.Content" xml:space="preserve">
     <value>Dashboard</value>
@@ -467,6 +470,27 @@
   </data>
   <data name="EventLogs.ChannelDefault.Text" xml:space="preserve">
     <value>System</value>
+  </data>
+  <data name="EventLogs.GlobalSearchHeading.Text" xml:space="preserve">
+    <value>Search results</value>
+  </data>
+  <data name="EventLogs.GlobalSearchChannel.Text" xml:space="preserve">
+    <value>All available event logs</value>
+  </data>
+  <data name="EventLogs.GlobalSearchLoading.Text" xml:space="preserve">
+    <value>Searching all event logs…</value>
+  </data>
+  <data name="EventLogs.GlobalSearchLoadingDetails.Text" xml:space="preserve">
+    <value>Scanned {0} event records so far. Matching summaries appear in batches.</value>
+  </data>
+  <data name="EventLogs.GlobalSearchLoaded.Text" xml:space="preserve">
+    <value>Loaded {0} matching events.</value>
+  </data>
+  <data name="EventLogs.GlobalSearchNoEvents.Text" xml:space="preserve">
+    <value>No matching events were found in the available logs.</value>
+  </data>
+  <data name="EventLogs.GlobalSearchSummary.Text" xml:space="preserve">
+    <value>“{2}”: showing {0} matching events after scanning {1} records.</value>
   </data>
   <data name="EventLogs.EmptyValue.Text" xml:space="preserve">
     <value>—</value>

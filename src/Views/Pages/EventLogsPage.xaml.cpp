@@ -70,7 +70,8 @@ namespace winrt::AstralChronicle::implementation
         std::shared_ptr<::AstralChronicle::services::ITextExportService> textExporter,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         std::optional<::AstralChronicle::models::EventChannelIdentifier> const& channel,
-        std::optional<std::wstring> const& query)
+        std::optional<std::wstring> const& query,
+        std::optional<std::wstring> const& searchText)
     {
         m_strings = strings;
         Microsoft::UI::Xaml::Automation::AutomationProperties::SetName(
@@ -112,7 +113,8 @@ namespace winrt::AstralChronicle::implementation
             std::move(strings),
             PageRoot().DispatcherQueue(),
             channel,
-            query);
+            query,
+            searchText);
         UpdateSortAutomation();
         UpdateResponsiveLayout(ContentGrid().ActualWidth());
     }

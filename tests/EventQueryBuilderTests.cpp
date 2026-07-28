@@ -85,5 +85,17 @@ int main()
 
     filter = {};
     assert(AstralChronicle::services::BuildEventQuery(filter) == L"*");
+
+    std::vector<AstralChronicle::models::EventChannelDescriptor> channels{
+        { L"System", AstralChronicle::models::EventChannelState::Available },
+        { L"Microsoft-Windows-Test/Operational", AstralChronicle::models::EventChannelState::Disabled },
+        { L"A&\"B", AstralChronicle::models::EventChannelState::Available },
+        { L"Security", AstralChronicle::models::EventChannelState::AccessDenied },
+    };
+    auto const globalQuery = AstralChronicle::services::BuildAvailableChannelsQueryList(channels);
+    assert(globalQuery && *globalQuery ==
+        L"<QueryList><Query Id=\"0\"><Select Path=\"System\">*</Select><Select Path=\"A&amp;&quot;B\">*</Select></Query></QueryList>");
+    assert(!AstralChronicle::services::BuildAvailableChannelsQueryList({}));
+
     return 0;
 }

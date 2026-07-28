@@ -11,6 +11,7 @@
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Microsoft.UI.Dispatching.h>
 #include <winrt/Microsoft.UI.Xaml.h>
+#include <winrt/Microsoft.UI.Xaml.Controls.h>
 
 #include <atomic>
 #include <chrono>
@@ -75,12 +76,23 @@ namespace winrt::AstralChronicle::implementation
         void OnNavigationPaneClosing(
             Microsoft::UI::Xaml::Controls::NavigationView const& sender,
             Microsoft::UI::Xaml::Controls::NavigationViewPaneClosingEventArgs const& args);
+        void OnGlobalSearchToggleClicked(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::RoutedEventArgs const& args);
+        void OnGlobalSearchQuerySubmitted(
+            Microsoft::UI::Xaml::Controls::AutoSuggestBox const& sender,
+            Microsoft::UI::Xaml::Controls::AutoSuggestBoxQuerySubmittedEventArgs const& args);
+        void OnGlobalSearchBoxLostFocus(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::RoutedEventArgs const& args);
 
     private:
         void Shutdown() noexcept;
         void SelectNavigationItemForRoute(std::wstring_view route);
         void UpdateShellGreeting();
         void UpdateShellSystemStatus(bool basicFunctionsAvailable);
+        void CollapseGlobalSearchIfUnused();
+        winrt::fire_and_forget SearchAllEventsAsync(std::wstring searchText);
         void ApplyThemeBackdrop();
         void UpdateThemeBackdropLayout();
         void SetThemeBackdropLayout(double paneWidth);
@@ -121,6 +133,7 @@ namespace winrt::AstralChronicle::implementation
         double m_backdropAnimationFromWidth{};
         double m_backdropAnimationTargetWidth{};
         std::uint32_t m_themeSubscriptionId{};
+        std::uint64_t m_globalSearchRequestVersion{};
         bool m_shuttingDown{};
         bool m_dynamicChannelLoadRequested{};
         bool m_dynamicChannelTreeLoaded{};
