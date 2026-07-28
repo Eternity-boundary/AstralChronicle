@@ -15,6 +15,7 @@
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <winrt/Microsoft.UI.Xaml.Media.h>
 
+#include <algorithm>
 #include <array>
 #include <string>
 #include <vector>
@@ -370,7 +371,7 @@ namespace winrt::AstralChronicle::implementation
 
     void EventLogsPage::OnEventListViewChanged(
         winrt::Windows::Foundation::IInspectable const& sender,
-        Microsoft::UI::Xaml::Controls::ScrollViewerViewChangedEventArgs const&)
+        Microsoft::UI::Xaml::Controls::ScrollViewerViewChangedEventArgs const& args)
     {
         auto const scrollViewer = sender.try_as<Microsoft::UI::Xaml::Controls::ScrollViewer>();
         if (!scrollViewer)
@@ -381,6 +382,17 @@ namespace winrt::AstralChronicle::implementation
         auto const horizontalOffset = winrt::box_value(scrollViewer.HorizontalOffset())
             .as<winrt::Windows::Foundation::IReference<double>>();
         (void)EventHeaderScrollViewer().ChangeView(horizontalOffset, nullptr, nullptr, true);
+
+        if (!args || args.IsIntermediate() || scrollViewer.VerticalOffset() <= 0.0)
+        {
+            return;
+        }
+
+        auto const prefetchDistance = std::max(240.0, scrollViewer.ViewportHeight() * 1.5);
+        if (scrollViewer.ScrollableHeight() - scrollViewer.VerticalOffset() <= prefetchDistance)
+        {
+            winrt::get_self<EventLogsViewModel>(m_viewModel)->LoadMore();
+        }
     }
 
     void EventLogsPage::OnEventItemContextRequested(

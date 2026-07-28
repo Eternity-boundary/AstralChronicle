@@ -535,6 +535,23 @@ namespace AstralChronicle::services
         bool reverseDirection,
         QueryCancellation const& cancellation) const
     {
+        return QueryPageWithQueryOffset(
+            channel,
+            queryText,
+            0,
+            maximumRecords,
+            reverseDirection,
+            cancellation);
+    }
+
+    EventQueryResult WindowsEventQueryService::QueryPageWithQueryOffset(
+        std::wstring_view channel,
+        std::wstring_view queryText,
+        std::uint32_t skippedRecords,
+        std::uint32_t maximumRecords,
+        bool reverseDirection,
+        QueryCancellation const& cancellation) const
+    {
         EventQueryResult result;
         auto const queryStart = queryText.find_first_not_of(L" \t\r\n");
         auto const isStructuredQuery = queryStart != std::wstring_view::npos &&
@@ -583,6 +600,62 @@ namespace AstralChronicle::services
         std::vector<EVT_HANDLE> events(batchSize);
         std::vector<unique_evt_handle> ownedEvents(batchSize);
         result.Events.reserve(maximumRecords);
+
+        while (skippedRecords != 0)
+        {
+            if (cancellation && cancellation->load(std::memory_order_relaxed))
+            {
+                EvtCancel(queryHandle.get());
+                result.Status = EventQueryStatus::Cancelled;
+                result.ErrorCode = ERROR_CANCELLED;
+                return result;
+            }
+
+            DWORD returned{};
+            std::fill(events.begin(), events.end(), nullptr);
+            for (auto& event : ownedEvents) event.reset();
+            auto const succeeded = EvtNext(
+                queryHandle.get(),
+                static_cast<DWORD>(std::min<std::size_t>(events.size(), skippedRecords)),
+                events.data(),
+                100,
+                0,
+                &returned);
+            auto const error = succeeded ? ERROR_SUCCESS : GetLastError();
+            for (std::size_t index{}; index < events.size(); ++index)
+            {
+                ownedEvents[index].reset(events[index]);
+            }
+
+            if (!succeeded)
+            {
+                if (error == ERROR_TIMEOUT)
+                {
+                    continue;
+                }
+                if (error == ERROR_NO_MORE_ITEMS)
+                {
+                    result.Status = EventQueryStatus::NoEvents;
+                    return result;
+                }
+                if (cancellation && cancellation->load(std::memory_order_relaxed))
+                {
+                    result.Status = EventQueryStatus::Cancelled;
+                    result.ErrorCode = ERROR_CANCELLED;
+                    return result;
+                }
+                result.ErrorCode = error;
+                result.Status = MapQueryError(error);
+                return result;
+            }
+
+            skippedRecords -= returned;
+            if (returned == 0)
+            {
+                result.Status = EventQueryStatus::NoEvents;
+                return result;
+            }
+        }
 
         while (result.Events.size() < maximumRecords)
         {

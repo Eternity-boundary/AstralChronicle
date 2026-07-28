@@ -76,6 +76,14 @@ namespace AstralChronicle::services
             bool reverseDirection,
             QueryCancellation const& cancellation) const = 0;
 
+        [[nodiscard]] virtual EventQueryResult QueryPageWithQueryOffset(
+            std::wstring_view channel,
+            std::wstring_view query,
+            std::uint32_t skippedRecords,
+            std::uint32_t maximumRecords,
+            bool reverseDirection,
+            QueryCancellation const& cancellation) const = 0;
+
         [[nodiscard]] virtual EventLevelCountsResult QueryLevelCounts(
             std::wstring_view channel,
             std::wstring_view query,

@@ -121,6 +121,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::hstring DetailsStatusText() const;
         [[nodiscard]] bool IsDetailsLoading() const noexcept;
         void Refresh();
+        void LoadMore();
         void ClearFilter();
         void ApplyStructuredFilter();
         void ClearStructuredFilter();
@@ -134,7 +135,9 @@ namespace winrt::AstralChronicle::implementation
             std::uint64_t requestVersion,
             std::wstring channel,
             std::wstring query,
+            std::uint32_t skippedRecords,
             std::uint32_t maximumRecords,
+            bool append,
             ::AstralChronicle::services::QueryCancellation cancellation);
         winrt::fire_and_forget LoadDetailsAsync(
             std::uint64_t requestVersion,
@@ -145,7 +148,7 @@ namespace winrt::AstralChronicle::implementation
             std::wstring text,
             std::uint64_t requestVersion,
             winrt::Microsoft::UI::WindowId windowId);
-        void ApplyResult(::AstralChronicle::services::EventQueryResult const& result);
+        void ApplyResult(::AstralChronicle::services::EventQueryResult const& result, bool append);
         void ApplyDetails(::AstralChronicle::services::EventDetailsResult const& result);
         void ApplyFilter();
         void ClearSelection();
@@ -165,6 +168,7 @@ namespace winrt::AstralChronicle::implementation
         std::optional<std::uint64_t> m_initialRecordId;
         std::uint64_t m_requestVersion{};
         std::uint64_t m_detailsRequestVersion{};
+        std::uint32_t m_loadedRecordCount{};
         ::AstralChronicle::services::QueryCancellation m_cancellation;
         ::AstralChronicle::services::QueryCancellation m_detailsCancellation;
         ::AstralChronicle::viewmodels::EventItemSettings m_eventItemSettings;
@@ -220,11 +224,13 @@ namespace winrt::AstralChronicle::implementation
         bool m_hasStatusMessage{ true };
         bool m_isAccessDenied{};
         bool m_isLoading{};
+        bool m_hasMoreEvents{ true };
         bool m_isDetailsLoading{};
         bool m_filterAfterToday{};
         bool m_hasStructuredFilter{};
         bool m_rawXPathEnabled{};
         std::unordered_set<std::wstring> m_bookmarkedKeys;
+        std::unordered_set<std::wstring> m_loadedEventKeys;
         Microsoft::UI::Xaml::Controls::InfoBarSeverity m_statusSeverity{
             Microsoft::UI::Xaml::Controls::InfoBarSeverity::Informational };
         winrt::event<Microsoft::UI::Xaml::Data::PropertyChangedEventHandler> m_propertyChanged;
