@@ -75,6 +75,51 @@ MSBuild.exe AstralChronicle.slnx /m /p:Configuration=Debug /p:Platform=x64
 
 這是 MSIX 桌面應用程式，請透過 Visual Studio 的部署／偵錯流程或 Windows AppsFolder 啟動，勿直接執行輸出的 `.exe`。若需要存取受保護的頻道，可在介面中使用「以管理員身分重新啟動」。
 
+## 從原始碼建置
+
+```powershell
+$ErrorActionPreference = 'Stop'
+
+$repositoryUrl = 'https://github.com/Eternity-boundary/AstralChronicle.git'
+$repositoryPath = Join-Path (Get-Location) 'AstralChronicle'
+$configuration = 'Debug' # or Release
+$platform = 'x64'
+
+if (Test-Path -LiteralPath $repositoryPath) {
+    throw "directory already exists：$repositoryPath"
+}
+
+& git clone $repositoryUrl $repositoryPath
+if ($LASTEXITCODE -ne 0) {
+    throw "git clone failed, code：$LASTEXITCODE"
+}
+
+Set-Location -LiteralPath $repositoryPath
+
+$nuget = (Get-Command 'nuget.exe' -ErrorAction Stop).Source
+$msbuild = (Get-Command 'MSBuild.exe' -ErrorAction Stop).Source
+
+& $nuget restore '.\packages.config' '-PackagesDirectory' '.\packages'
+if ($LASTEXITCODE -ne 0) {
+    throw "NuGet restore failed, code：$LASTEXITCODE"
+}
+
+$buildArgs = @(
+    '.\AstralChronicle.slnx'
+    '/m'
+    '/p:AppxPackageSigningEnabled=false'
+    "/p:Configuration=$configuration"
+    "/p:Platform=$platform"
+)
+
+& $msbuild @buildArgs
+if ($LASTEXITCODE -ne 0) {
+    throw "MSBuild failed, code：$LASTEXITCODE"
+}
+
+Write-Host "build successful：$configuration | $platform"
+```
+
 ## 文件
 
 - [架構與服務邊界](docs/architecture.md)
