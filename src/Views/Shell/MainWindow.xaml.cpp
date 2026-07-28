@@ -415,7 +415,7 @@ namespace winrt::AstralChronicle::implementation
             } });
         m_navigation->Register({
             L"timeline",
-            [weak, eventQuery, strings = m_strings]()
+            [weak, eventQuery, bookmarkStore, strings = m_strings]()
             {
                 auto const self = weak.get();
                 if (!self)
@@ -425,6 +425,7 @@ namespace winrt::AstralChronicle::implementation
                 auto page = make<TimelinePage>();
                 get_self<TimelinePage>(page)->Initialize(
                     eventQuery,
+                    bookmarkStore,
                     strings,
                     self->RootLayout().DispatcherQueue(),
                     *self->m_navigation,

@@ -248,7 +248,11 @@
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                 <TextBox x:Uid="TimelineProviderFilterBox" AutomationProperties.AutomationId="TimelineProviderFilterBox" Text="{x:Bind ViewModel.ProviderFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 <CheckBox x:Uid="TimelineGroupRepeatedCheckBox" Grid.Column="1" AutomationProperties.AutomationId="TimelineGroupRepeatedCheckBox" IsChecked="{x:Bind ViewModel.GroupRepeated, Mode=TwoWay}" />
-                <TextBlock Grid.Column="2" AutomationProperties.AutomationId="TimelineBookmarkCount" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.BookmarkCount, Mode=OneWay}" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                    <SymbolIcon Symbol="Favorite" />
+                    <TextBlock x:Uid="TimelineBookmarkCountLabel" Style="{StaticResource AstralCaptionTextBlockStyle}" VerticalAlignment="Center" />
+                    <TextBlock AutomationProperties.AutomationId="TimelineBookmarkCount" Style="{StaticResource AstralCaptionTextBlockStyle}" Text="{x:Bind ViewModel.BookmarkCount, Mode=OneWay}" VerticalAlignment="Center" />
+                </StackPanel>
             </Grid>
             <TextBlock
                 AutomationProperties.AutomationId="TimelineSummary"
@@ -304,6 +308,7 @@
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock
                                         Style="{StaticResource AstralCaptionTextBlockStyle}"
@@ -317,6 +322,10 @@
                                         Grid.Column="2"
                                         Style="{StaticResource AstralCaptionTextBlockStyle}"
                                         Text="{x:Bind Level, Mode=OneWay}" />
+                                    <FontIcon
+                                        Grid.Column="3"
+                                        FontFamily="Segoe MDL2 Assets"
+                                        Glyph="{x:Bind BookmarkGlyph, Mode=OneWay}" />
                                 </Grid>
                                 <TextBlock
                                     Style="{StaticResource AstralCaptionTextBlockStyle}"

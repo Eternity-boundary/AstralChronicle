@@ -31,6 +31,8 @@ namespace AstralChronicle
         Boolean HasStructuredFilter{ get; };
         String FilterSummary{ get; };
         Boolean HasFilter{ get; };
+        Boolean ShowBookmarkedOnly{ get; set; };
+        UInt32 BookmarkCount{ get; };
         Boolean HasSelection{ get; };
         UInt32 SelectedCount{ get; };
         String SortKey{ get; };

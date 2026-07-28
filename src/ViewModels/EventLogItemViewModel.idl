@@ -22,6 +22,7 @@ namespace AstralChronicle
         String ActivityId{ get; };
         String RelatedActivityId{ get; };
         Boolean IsBookmarked{ get; set; };
+        String BookmarkGlyph{ get; };
         Int64 SortTimestamp{ get; };
         UInt64 SortRecordId{ get; };
     }

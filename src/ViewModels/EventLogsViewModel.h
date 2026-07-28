@@ -80,11 +80,15 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] bool HasStructuredFilter() const noexcept;
         [[nodiscard]] winrt::hstring FilterSummary() const;
         [[nodiscard]] bool HasFilter() const noexcept;
+        [[nodiscard]] bool ShowBookmarkedOnly() const noexcept;
+        void ShowBookmarkedOnly(bool value);
+        [[nodiscard]] std::uint32_t BookmarkCount() const noexcept;
         [[nodiscard]] bool HasSelection() const noexcept;
         [[nodiscard]] std::uint32_t SelectedCount() const noexcept;
         [[nodiscard]] winrt::hstring CopySelectedEventText() const;
         [[nodiscard]] winrt::hstring CopySelectedEventsText() const;
         void ToggleBookmarks();
+        void ToggleBookmark(winrt::AstralChronicle::EventLogItemViewModel const& value);
         void ExportSelectedEvents(winrt::Microsoft::UI::WindowId const& windowId);
         [[nodiscard]] winrt::hstring SortKey() const;
         [[nodiscard]] bool SortAscending() const noexcept;
@@ -157,6 +161,9 @@ namespace winrt::AstralChronicle::implementation
         void ApplyResult(::AstralChronicle::services::EventQueryResult const& result, bool append);
         void ApplyDetails(::AstralChronicle::services::EventDetailsResult const& result);
         void ApplyFilter();
+        void SetBookmarkState(
+            winrt::AstralChronicle::EventLogItemViewModel const& value,
+            bool isBookmarked);
         void ClearSelection();
         void RaisePropertyChanged(winrt::hstring const& propertyName);
         void RaiseStatusProperties();
@@ -252,6 +259,7 @@ namespace winrt::AstralChronicle::implementation
         bool m_filterAfterToday{};
         bool m_hasStructuredFilter{};
         bool m_rawXPathEnabled{};
+        bool m_showBookmarkedOnly{};
         std::unordered_set<std::wstring> m_bookmarkedKeys;
         std::unordered_set<std::wstring> m_loadedEventKeys;
         Microsoft::UI::Xaml::Controls::InfoBarSeverity m_statusSeverity{

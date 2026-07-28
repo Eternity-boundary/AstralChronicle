@@ -135,6 +135,10 @@ namespace winrt::AstralChronicle::implementation
     winrt::hstring EventLogItemViewModel::ActivityId() const { return m_activityId; }
     winrt::hstring EventLogItemViewModel::RelatedActivityId() const { return m_relatedActivityId; }
     bool EventLogItemViewModel::IsBookmarked() const noexcept { return m_isBookmarked; }
+    winrt::hstring EventLogItemViewModel::BookmarkGlyph() const
+    {
+        return m_isBookmarked ? L"\uE735" : L"\uE734";
+    }
     void EventLogItemViewModel::IsBookmarked(bool const value)
     {
         if (m_isBookmarked == value)
@@ -143,6 +147,7 @@ namespace winrt::AstralChronicle::implementation
         }
         m_isBookmarked = value;
         m_propertyChanged(*this, Microsoft::UI::Xaml::Data::PropertyChangedEventArgs{ L"IsBookmarked" });
+        m_propertyChanged(*this, Microsoft::UI::Xaml::Data::PropertyChangedEventArgs{ L"BookmarkGlyph" });
     }
     std::int64_t EventLogItemViewModel::SortTimestamp() const noexcept { return m_sortTimestamp; }
     std::uint64_t EventLogItemViewModel::SortRecordId() const noexcept { return m_sortRecordId; }

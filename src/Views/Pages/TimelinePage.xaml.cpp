@@ -35,6 +35,7 @@ namespace winrt::AstralChronicle::implementation
 
     void TimelinePage::Initialize(
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+        std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher,
         ::AstralChronicle::navigation::INavigationService& navigation,
@@ -63,6 +64,7 @@ namespace winrt::AstralChronicle::implementation
             strings->GetString(L"TimelineSearchBox.PlaceholderText"));
         winrt::get_self<TimelineViewModel>(m_viewModel)->Initialize(
             std::move(eventQuery),
+            std::move(bookmarkStore),
             std::move(strings),
             dispatcher);
     }

@@ -271,6 +271,17 @@ namespace winrt::AstralChronicle::implementation
         winrt::get_self<EventLogsViewModel>(m_viewModel)->ToggleBookmarks();
     }
 
+    void EventLogsPage::OnBookmarkItemClicked(
+        winrt::Windows::Foundation::IInspectable const& sender,
+        Microsoft::UI::Xaml::RoutedEventArgs const&)
+    {
+        auto const element = sender.try_as<Microsoft::UI::Xaml::FrameworkElement>();
+        auto const item = element
+            ? element.DataContext().try_as<winrt::AstralChronicle::EventLogItemViewModel>()
+            : nullptr;
+        winrt::get_self<EventLogsViewModel>(m_viewModel)->ToggleBookmark(item);
+    }
+
     void EventLogsPage::OnExportClicked(
         winrt::Windows::Foundation::IInspectable const&,
         Microsoft::UI::Xaml::RoutedEventArgs const&)

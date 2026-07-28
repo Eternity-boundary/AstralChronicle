@@ -40,6 +40,7 @@ namespace winrt::AstralChronicle::implementation
         [[nodiscard]] winrt::hstring RelatedActivityId() const;
         [[nodiscard]] bool IsBookmarked() const noexcept;
         void IsBookmarked(bool value);
+        [[nodiscard]] winrt::hstring BookmarkGlyph() const;
         [[nodiscard]] std::int64_t SortTimestamp() const noexcept;
         [[nodiscard]] std::uint64_t SortRecordId() const noexcept;
 

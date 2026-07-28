@@ -649,13 +649,28 @@
     <value>Copy selected events</value>
   </data>
   <data name="EventLogsBookmarkMenuItem.Text" xml:space="preserve">
-    <value>Bookmark selected events</value>
+    <value>Toggle bookmark for selected events</value>
+  </data>
+  <data name="EventLogsBookmarkHeader.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Bookmark</value>
+  </data>
+  <data name="EventLogsBookmarkItemButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Toggle event bookmark</value>
+  </data>
+  <data name="EventLogsBookmarksOnlyCommand.Label" xml:space="preserve">
+    <value>Bookmarks only</value>
+  </data>
+  <data name="EventLogsBookmarkCountLabel.Text" xml:space="preserve">
+    <value>Bookmarks</value>
+  </data>
+  <data name="EventLogs.FilterSummary.BookmarksOnly.Text" xml:space="preserve">
+    <value>Showing {0} bookmarked events of {1} loaded events.</value>
   </data>
   <data name="EventLogsExportMenuItem.Text" xml:space="preserve">
     <value>Export selected events</value>
   </data>
   <data name="EventLogsBookmarkCommand.Label" xml:space="preserve">
-    <value>Bookmark</value>
+    <value>Toggle bookmark</value>
   </data>
   <data name="EventLogsExportCommand.Label" xml:space="preserve">
     <value>Export</value>
@@ -2026,7 +2041,10 @@
     <value>Open in Event Logs</value>
   </data>
   <data name="TimelineBookmarkButton.Content" xml:space="preserve">
-    <value>Bookmark selected</value>
+    <value>Toggle selected bookmark</value>
+  </data>
+  <data name="TimelineBookmarkCountLabel.Text" xml:space="preserve">
+    <value>Bookmarks</value>
   </data>
   <data name="TimelineExportButton.Content" xml:space="preserve">
     <value>Export timeline</value>

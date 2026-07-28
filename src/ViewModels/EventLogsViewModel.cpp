@@ -4,6 +4,7 @@
 
 #include "DesignSystem/Localization/IStringResourceService.h"
 #include "EventLogItemViewModel.h"
+#include "Services/EventBookmarkIdentity.h"
 #include "Services/EventQueryBuilder.h"
 
 #include "EventLogsViewModel.g.cpp"
@@ -127,39 +128,6 @@ namespace
         {
             return std::nullopt;
         }
-    }
-
-    [[nodiscard]] std::wstring HexEncode(winrt::hstring const& value)
-    {
-        constexpr wchar_t Digits[] = L"0123456789ABCDEF";
-        std::wstring result;
-        result.reserve(value.size() * 4);
-        for (auto const character : value)
-        {
-            auto const codeUnit = static_cast<std::uint16_t>(character);
-            result.push_back(Digits[(codeUnit >> 12) & 0x0f]);
-            result.push_back(Digits[(codeUnit >> 8) & 0x0f]);
-            result.push_back(Digits[(codeUnit >> 4) & 0x0f]);
-            result.push_back(Digits[codeUnit & 0x0f]);
-        }
-        return result;
-    }
-
-    [[nodiscard]] std::wstring LegacyBookmarkKey(
-        winrt::AstralChronicle::EventLogItemViewModel const& value)
-    {
-        return std::wstring{ value.Channel().c_str() } + L"|" +
-            std::wstring{ value.RecordId().c_str() };
-    }
-
-    [[nodiscard]] std::wstring BookmarkKey(
-        winrt::AstralChronicle::EventLogItemViewModel const& value)
-    {
-        return L"v2|" + std::to_wstring(value.SortRecordId()) + L"|" +
-            std::to_wstring(value.SortTimestamp()) + L"|" +
-            HexEncode(value.Provider()) + L"|" +
-            HexEncode(value.EventId()) + L"|" +
-            HexEncode(value.Channel());
     }
 
     [[nodiscard]] std::wstring FormatProperties(
@@ -315,6 +283,7 @@ namespace winrt::AstralChronicle::implementation
         m_filterAfterToday = false;
         m_filterAfterHours.clear();
         m_hasStructuredFilter = false;
+        m_showBookmarkedOnly = false;
         m_bookmarkedKeys = m_bookmarkStore->Load();
         m_filterSummary = m_isGlobalSearch
             ? FormatResource(
@@ -325,6 +294,7 @@ namespace winrt::AstralChronicle::implementation
         RaisePropertyChanged(L"Heading");
         RaisePropertyChanged(L"ChannelPath");
         RaisePropertyChanged(L"RawXPathEnabled");
+        RaisePropertyChanged(L"BookmarkCount");
         Refresh();
     }
 
@@ -475,7 +445,25 @@ namespace winrt::AstralChronicle::implementation
     winrt::hstring EventLogsViewModel::FilterSummary() const { return m_filterSummary; }
     bool EventLogsViewModel::HasFilter() const noexcept
     {
-        return !m_searchText.empty() || m_hasStructuredFilter;
+        return !m_searchText.empty() || m_hasStructuredFilter || m_showBookmarkedOnly;
+    }
+    bool EventLogsViewModel::ShowBookmarkedOnly() const noexcept
+    {
+        return m_showBookmarkedOnly;
+    }
+    void EventLogsViewModel::ShowBookmarkedOnly(bool const value)
+    {
+        if (m_showBookmarkedOnly == value)
+        {
+            return;
+        }
+        m_showBookmarkedOnly = value;
+        ApplyFilter();
+        RaisePropertyChanged(L"ShowBookmarkedOnly");
+    }
+    std::uint32_t EventLogsViewModel::BookmarkCount() const noexcept
+    {
+        return static_cast<std::uint32_t>(m_bookmarkedKeys.size());
     }
     bool EventLogsViewModel::HasSelection() const noexcept
     {
@@ -563,21 +551,25 @@ namespace winrt::AstralChronicle::implementation
             });
         for (auto const& value : values)
         {
-            if (value)
-            {
-                value.IsBookmarked(shouldBookmark);
-                if (shouldBookmark)
-                {
-                    m_bookmarkedKeys.insert(BookmarkKey(value));
-                }
-                else
-                {
-                    m_bookmarkedKeys.erase(BookmarkKey(value));
-                    m_bookmarkedKeys.erase(LegacyBookmarkKey(value));
-                }
-            }
+            SetBookmarkState(value, shouldBookmark);
         }
         m_bookmarkStore->Save(m_bookmarkedKeys);
+        ApplyFilter();
+        RaisePropertyChanged(L"BookmarkCount");
+    }
+
+    void EventLogsViewModel::ToggleBookmark(
+        winrt::AstralChronicle::EventLogItemViewModel const& value)
+    {
+        if (!value)
+        {
+            return;
+        }
+
+        SetBookmarkState(value, !value.IsBookmarked());
+        m_bookmarkStore->Save(m_bookmarkedKeys);
+        ApplyFilter();
+        RaisePropertyChanged(L"BookmarkCount");
     }
 
     void EventLogsViewModel::ExportSelectedEvents(Microsoft::UI::WindowId const& windowId)
@@ -861,6 +853,7 @@ namespace winrt::AstralChronicle::implementation
         m_filterAfterToday = false;
         m_filterAfterHours.clear();
         m_hasStructuredFilter = false;
+        m_showBookmarkedOnly = false;
 
         RaisePropertyChanged(L"Heading");
         RaisePropertyChanged(L"ChannelPath");
@@ -903,6 +896,7 @@ namespace winrt::AstralChronicle::implementation
         m_filterAfterToday = false;
         m_filterAfterHours.clear();
         m_hasStructuredFilter = false;
+        m_showBookmarkedOnly = false;
 
         RaisePropertyChanged(L"Heading");
         RaisePropertyChanged(L"ChannelPath");
@@ -1013,6 +1007,7 @@ namespace winrt::AstralChronicle::implementation
         m_filterAfterToday = false;
         m_filterAfterHours.clear();
         m_hasStructuredFilter = false;
+        m_showBookmarkedOnly = false;
         m_query = m_baseQuery;
         RaiseFilterProperties();
         Refresh();
@@ -1216,8 +1211,10 @@ namespace winrt::AstralChronicle::implementation
                 event,
                 *m_strings,
                 m_eventItemSettings);
-            auto const bookmarkKey = BookmarkKey(item);
-            auto const legacyBookmarkKey = LegacyBookmarkKey(item);
+            auto const bookmarkKey = ::AstralChronicle::services::details::EventBookmarkKey(
+                item.SortRecordId(), item.SortTimestamp(), item.Provider(), item.EventId(), item.Channel());
+            auto const legacyBookmarkKey = ::AstralChronicle::services::details::LegacyEventBookmarkKey(
+                item.Channel(), item.RecordId());
             auto const hasCurrentBookmark = m_bookmarkedKeys.contains(bookmarkKey);
             auto const hasLegacyBookmark = event.RecordId != 0 && m_bookmarkedKeys.contains(legacyBookmarkKey);
             if (hasCurrentBookmark || hasLegacyBookmark)
@@ -1234,7 +1231,7 @@ namespace winrt::AstralChronicle::implementation
             {
                 continue;
             }
-            if (!m_loadedEventKeys.insert(BookmarkKey(item)).second)
+            if (!m_loadedEventKeys.insert(bookmarkKey).second)
             {
                 continue;
             }
@@ -1377,7 +1374,8 @@ namespace winrt::AstralChronicle::implementation
         for (auto const& item : m_allEvents)
         {
             if ((globalNeedle.empty() || Contains(item, globalNeedle)) &&
-                (needle.empty() || Contains(item, needle)))
+                (needle.empty() || Contains(item, needle)) &&
+                (!m_showBookmarkedOnly || item.IsBookmarked()))
             {
                 filteredItems.emplace_back(item);
             }
@@ -1460,7 +1458,13 @@ namespace winrt::AstralChronicle::implementation
             m_events = filtered;
             RaisePropertyChanged(L"Events");
         }
-        if (m_isGlobalSearch)
+        if (m_showBookmarkedOnly)
+        {
+            m_filterSummary = FormatResource(
+                m_strings->GetString(L"EventLogs.FilterSummary.BookmarksOnly.Text"),
+                { winrt::to_hstring(m_events.Size()), winrt::to_hstring(m_allEvents.Size()) });
+        }
+        else if (m_isGlobalSearch)
         {
             m_filterSummary = FormatResource(
                 m_strings->GetString(L"EventLogs.GlobalSearchSummary.Text"),
@@ -1572,6 +1576,29 @@ namespace winrt::AstralChronicle::implementation
         m_selectedRelatedEvents = m_detailsStatusText;
     }
 
+    void EventLogsViewModel::SetBookmarkState(
+        winrt::AstralChronicle::EventLogItemViewModel const& value,
+        bool const isBookmarked)
+    {
+        if (!value)
+        {
+            return;
+        }
+
+        value.IsBookmarked(isBookmarked);
+        auto const bookmarkKey = ::AstralChronicle::services::details::EventBookmarkKey(
+            value.SortRecordId(), value.SortTimestamp(), value.Provider(), value.EventId(), value.Channel());
+        if (isBookmarked)
+        {
+            m_bookmarkedKeys.insert(bookmarkKey);
+            return;
+        }
+
+        m_bookmarkedKeys.erase(bookmarkKey);
+        m_bookmarkedKeys.erase(::AstralChronicle::services::details::LegacyEventBookmarkKey(
+            value.Channel(), value.RecordId()));
+    }
+
     void EventLogsViewModel::RaiseStatusProperties()
     {
         RaisePropertyChanged(L"StatusText");
@@ -1630,6 +1657,7 @@ namespace winrt::AstralChronicle::implementation
         RaisePropertyChanged(L"FilterAfterToday");
         RaisePropertyChanged(L"FilterAfterHours");
         RaisePropertyChanged(L"HasStructuredFilter");
+        RaisePropertyChanged(L"ShowBookmarkedOnly");
         RaisePropertyChanged(L"HasFilter");
     }
 

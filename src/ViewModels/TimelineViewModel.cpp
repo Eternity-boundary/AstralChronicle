@@ -4,6 +4,7 @@
 
 #include "DesignSystem/Localization/IStringResourceService.h"
 #include "EventLogItemViewModel.h"
+#include "Services/EventBookmarkIdentity.h"
 
 #include "TimelineViewModel.g.cpp"
 
@@ -118,24 +119,29 @@ namespace winrt::AstralChronicle::implementation
 
     void TimelineViewModel::Initialize(
         std::shared_ptr<::AstralChronicle::services::IEventQueryService> eventQuery,
+        std::shared_ptr<::AstralChronicle::services::IEventBookmarkStore> bookmarkStore,
         std::shared_ptr<::AstralChronicle::design::IStringResourceService> strings,
         Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher)
     {
         m_eventQuery = std::move(eventQuery);
+        m_bookmarkStore = std::move(bookmarkStore);
         m_strings = std::move(strings);
-        if (!m_eventQuery || !m_strings)
+        if (!m_eventQuery || !m_bookmarkStore || !m_strings)
         {
-            throw std::invalid_argument("Timeline requires query and string services.");
+            throw std::invalid_argument("Timeline requires query, bookmark, and string services.");
         }
         m_dispatcher = dispatcher;
         auto const settings = ::AstralChronicle::viewmodels::PersistedSettingsSnapshot::Load();
         m_eventItemSettings = settings.EventItems;
         m_queryBatchSize = settings.QueryBatchSize;
         m_groupRepeated = settings.GroupRepeatedEvents;
+        m_bookmarkedKeys = m_bookmarkStore->Load();
+        m_bookmarkCount = static_cast<std::uint32_t>(m_bookmarkedKeys.size());
         m_heading = m_strings->GetString(L"Timeline.Heading");
         m_summary = m_strings->GetString(L"Timeline.Summary");
         m_filterSummary = m_strings->GetString(L"Timeline.FilterNone.Text");
         m_correlationSummary = m_strings->GetString(L"Timeline.Correlation.Text");
+        RaisePropertyChanged(L"BookmarkCount");
         Refresh();
     }
 
@@ -241,6 +247,7 @@ namespace winrt::AstralChronicle::implementation
         bool const partialFailure)
     {
         auto values = winrt::single_threaded_observable_vector<winrt::AstralChronicle::EventLogItemViewModel>();
+        bool bookmarksMigrated{};
         for (auto const& event : events)
         {
             auto item = winrt::make<winrt::AstralChronicle::implementation::EventLogItemViewModel>();
@@ -248,12 +255,32 @@ namespace winrt::AstralChronicle::implementation
                 event,
                 *m_strings,
                 m_eventItemSettings);
+            auto const bookmarkKey = ::AstralChronicle::services::details::EventBookmarkKey(
+                item.SortRecordId(), item.SortTimestamp(), item.Provider(), item.EventId(), item.Channel());
+            auto const legacyBookmarkKey = ::AstralChronicle::services::details::LegacyEventBookmarkKey(
+                item.Channel(), item.RecordId());
+            auto const hasCurrentBookmark = m_bookmarkedKeys.contains(bookmarkKey);
+            auto const hasLegacyBookmark = event.RecordId != 0 && m_bookmarkedKeys.contains(legacyBookmarkKey);
+            if (hasCurrentBookmark || hasLegacyBookmark)
+            {
+                item.IsBookmarked(true);
+                if (!hasCurrentBookmark && hasLegacyBookmark)
+                {
+                    m_bookmarkedKeys.erase(legacyBookmarkKey);
+                    m_bookmarkedKeys.insert(bookmarkKey);
+                    bookmarksMigrated = true;
+                }
+            }
             values.Append(item);
+        }
+        if (bookmarksMigrated)
+        {
+            m_bookmarkStore->Save(m_bookmarkedKeys);
         }
         m_allEvents = values;
         m_selectedEvent = nullptr;
         m_selectedEventDetails.clear();
-        m_bookmarkCount = 0;
+        m_bookmarkCount = static_cast<std::uint32_t>(m_bookmarkedKeys.size());
         ApplySearchFilter();
         m_isLoading = false;
         m_statusSeverity = SeverityFor(status);
@@ -384,13 +411,33 @@ namespace winrt::AstralChronicle::implementation
     void TimelineViewModel::BookmarkSelected()
     {
         if (!m_selectedEvent) return;
-        m_selectedEvent.IsBookmarked(!m_selectedEvent.IsBookmarked());
-        m_bookmarkCount = 0;
-        if (m_allEvents)
-        {
-            for (auto const& item : m_allEvents) if (item.IsBookmarked()) ++m_bookmarkCount;
-        }
+        SetBookmarkState(m_selectedEvent, !m_selectedEvent.IsBookmarked());
+        m_bookmarkStore->Save(m_bookmarkedKeys);
+        m_bookmarkCount = static_cast<std::uint32_t>(m_bookmarkedKeys.size());
         RaisePropertyChanged(L"BookmarkCount");
+    }
+
+    void TimelineViewModel::SetBookmarkState(
+        winrt::AstralChronicle::EventLogItemViewModel const& value,
+        bool const isBookmarked)
+    {
+        if (!value)
+        {
+            return;
+        }
+
+        value.IsBookmarked(isBookmarked);
+        auto const bookmarkKey = ::AstralChronicle::services::details::EventBookmarkKey(
+            value.SortRecordId(), value.SortTimestamp(), value.Provider(), value.EventId(), value.Channel());
+        if (isBookmarked)
+        {
+            m_bookmarkedKeys.insert(bookmarkKey);
+            return;
+        }
+
+        m_bookmarkedKeys.erase(bookmarkKey);
+        m_bookmarkedKeys.erase(::AstralChronicle::services::details::LegacyEventBookmarkKey(
+            value.Channel(), value.RecordId()));
     }
 
     winrt::hstring TimelineViewModel::ExportText() const

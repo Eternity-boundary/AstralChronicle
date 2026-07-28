@@ -323,6 +323,9 @@
     <ClInclude Include="src\Services\IEventBookmarkStore.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
+    <ClInclude Include="src\Services\EventBookmarkIdentity.h">
+      <Filter>Header Files\Services</Filter>
+    </ClInclude>
     <ClInclude Include="src\Services\ICustomViewCatalogService.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>

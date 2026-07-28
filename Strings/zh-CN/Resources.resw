@@ -649,13 +649,28 @@
     <value>复制选择的事件</value>
   </data>
   <data name="EventLogsBookmarkMenuItem.Text" xml:space="preserve">
-    <value>为所选事件添加书签</value>
+    <value>切换所选事件的书签</value>
+  </data>
+  <data name="EventLogsBookmarkHeader.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>书签</value>
+  </data>
+  <data name="EventLogsBookmarkItemButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>切换事件书签</value>
+  </data>
+  <data name="EventLogsBookmarksOnlyCommand.Label" xml:space="preserve">
+    <value>仅显示书签</value>
+  </data>
+  <data name="EventLogsBookmarkCountLabel.Text" xml:space="preserve">
+    <value>书签</value>
+  </data>
+  <data name="EventLogs.FilterSummary.BookmarksOnly.Text" xml:space="preserve">
+    <value>正在显示已加载的 {1} 个事件中的 {0} 个书签事件。</value>
   </data>
   <data name="EventLogsExportMenuItem.Text" xml:space="preserve">
     <value>导出选择的事件</value>
   </data>
   <data name="EventLogsBookmarkCommand.Label" xml:space="preserve">
-    <value>添加书签</value>
+    <value>切换书签</value>
   </data>
   <data name="EventLogsExportCommand.Label" xml:space="preserve">
     <value>导出</value>
@@ -2026,7 +2041,10 @@
     <value>在事件日志中打开</value>
   </data>
   <data name="TimelineBookmarkButton.Content" xml:space="preserve">
-    <value>为所选事件添加书签</value>
+    <value>切换所选事件的书签</value>
+  </data>
+  <data name="TimelineBookmarkCountLabel.Text" xml:space="preserve">
+    <value>书签</value>
   </data>
   <data name="TimelineExportButton.Content" xml:space="preserve">
     <value>导出时间线</value>
